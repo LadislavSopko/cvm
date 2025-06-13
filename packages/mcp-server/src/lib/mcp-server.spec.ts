@@ -1,28 +1,33 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { CVMMcpServer } from './mcp-server.js';
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { VMManager } from '@cvm/vm';
 import { MongoDBAdapter } from '@cvm/mongodb';
+
+// Mock the VMManager module
+vi.mock('@cvm/vm', () => ({
+  VMManager: vi.fn().mockImplementation(() => ({
+    loadProgram: vi.fn(),
+    startExecution: vi.fn(),
+    getNext: vi.fn(),
+    reportCCResult: vi.fn(),
+    getExecutionStatus: vi.fn()
+  }))
+}));
 
 describe('CVMMcpServer', () => {
   let server: CVMMcpServer;
+  let mockVMManager: any;
   let mockDb: MongoDBAdapter;
 
   beforeAll(async () => {
-    mockDb = {
-      connect: vi.fn().mockResolvedValue(undefined),
-      disconnect: vi.fn().mockResolvedValue(undefined),
-      isConnected: vi.fn().mockReturnValue(true),
-      saveProgram: vi.fn().mockResolvedValue(undefined),
-      getProgram: vi.fn(),
-      saveExecution: vi.fn().mockResolvedValue(undefined),
-      getExecution: vi.fn(),
-      saveHistory: vi.fn().mockResolvedValue(undefined),
-      getHistory: vi.fn().mockResolvedValue([]),
-      getCollections: vi.fn().mockResolvedValue(['programs', 'executions', 'history']),
-    } as any;
-
+    // Create a minimal mock DB (MCP server doesn't use it directly)
+    mockDb = {} as MongoDBAdapter;
+    
+    // Create server
     server = new CVMMcpServer(mockDb);
+    
+    // Get the mocked VMManager instance
+    mockVMManager = (VMManager as any).mock.results[0].value;
   });
 
   afterAll(async () => {
@@ -38,7 +43,7 @@ describe('CVMMcpServer', () => {
   });
 
   describe('loadProgram tool', () => {
-    it('should parse and store a valid program', async () => {
+    it('should call VMManager.loadProgram for valid program', async () => {
       const source = `function main() {
   const name = "World";
   console.log("Hello, " + name);
@@ -46,7 +51,7 @@ describe('CVMMcpServer', () => {
 }
 main();`;
 
-      mockDb.saveProgram = vi.fn().mockResolvedValue(undefined);
+      mockVMManager.loadProgram.mockResolvedValueOnce(undefined);
 
       const result = await server.handleTool('loadProgram', {
         programId: 'test-prog-1',
@@ -54,59 +59,54 @@ main();`;
       });
 
       expect(result.content[0].text).toContain('Program loaded successfully');
-      expect(mockDb.saveProgram).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'test-prog-1',
-          source,
-          bytecode: expect.any(Uint8Array)
-        })
-      );
+      expect(mockVMManager.loadProgram).toHaveBeenCalledWith('test-prog-1', source);
     });
 
-    it('should reject program with syntax errors', async () => {
+    it('should return error when VMManager throws', async () => {
       const source = `
         function main() {
           const x = // syntax error
         }
       `;
 
+      mockVMManager.loadProgram.mockRejectedValueOnce(
+        new Error('Compilation failed: main() must be called at the top level')
+      );
+
       const result = await server.handleTool('loadProgram', {
         programId: 'test-prog-2',
         source
       });
 
-      expect(result.content[0].text).toContain('error');
+      expect(result.content[0].text).toContain('Compilation failed: ');
       expect(result.isError).toBe(true);
     });
 
-    it('should reject program without main function', async () => {
+    it('should handle programs without main function', async () => {
       const source = `
         function helper() {
           console.log("No main");
         }
       `;
 
+      mockVMManager.loadProgram.mockRejectedValueOnce(
+        new Error('Compilation failed: Program must have a main() function')
+      );
+
       const result = await server.handleTool('loadProgram', {
         programId: 'test-prog-3',
         source
       });
 
+      expect(result.content[0].text).toContain('Compilation failed: ');
       expect(result.content[0].text).toContain('main()');
       expect(result.isError).toBe(true);
     });
   });
 
   describe('startExecution tool', () => {
-    it('should start execution of a loaded program', async () => {
-      const mockProgram = {
-        id: 'test-prog-1',
-        source: 'function main() {}',
-        bytecode: new Uint8Array([4, 0, 0, 0, 72, 65, 76, 84]),
-        created: new Date()
-      };
-
-      mockDb.getProgram = vi.fn().mockResolvedValue(mockProgram);
-      mockDb.saveExecution = vi.fn().mockResolvedValue(undefined);
+    it('should call VMManager.startExecution', async () => {
+      mockVMManager.startExecution.mockResolvedValueOnce(undefined);
 
       const result = await server.handleTool('startExecution', {
         programId: 'test-prog-1',
@@ -114,17 +114,13 @@ main();`;
       });
 
       expect(result.content[0].text).toContain('Execution started');
-      expect(mockDb.saveExecution).toHaveBeenCalledWith(
-        expect.objectContaining({
-          id: 'exec-1',
-          programId: 'test-prog-1',
-          state: 'ready'
-        })
-      );
+      expect(mockVMManager.startExecution).toHaveBeenCalledWith('test-prog-1', 'exec-1');
     });
 
-    it('should fail if program not found', async () => {
-      mockDb.getProgram = vi.fn().mockResolvedValue(null);
+    it('should handle program not found error', async () => {
+      mockVMManager.startExecution.mockRejectedValueOnce(
+        new Error('Program not found: non-existent')
+      );
 
       const result = await server.handleTool('startExecution', {
         programId: 'non-existent',
@@ -138,155 +134,51 @@ main();`;
 
   describe('getNext tool', () => {
     it('should return CC prompt when VM pauses', async () => {
-      const mockExecution = {
-        id: 'exec-1',
-        programId: 'test-prog-1',
-        state: 'ready',
-        pc: 0,
-        stack: [],
-        variables: {},
-        created: new Date()
-      };
-
-      // Build bytecode exactly as the server expects it
-      const bytecodeBuilder: number[] = [];
-      
-      // Helper to add length-prefixed string
-      const addInstruction = (opcode: string, arg?: string) => {
-        const opcodeBytes = new TextEncoder().encode(opcode);
-        const lengthBytes = new Uint8Array(4);
-        new DataView(lengthBytes.buffer).setUint32(0, opcodeBytes.length, true);
-        bytecodeBuilder.push(...lengthBytes);
-        bytecodeBuilder.push(...opcodeBytes);
-        
-        if (arg !== undefined) {
-          const argBytes = new TextEncoder().encode(arg);
-          const argLengthBytes = new Uint8Array(4);
-          new DataView(argLengthBytes.buffer).setUint32(0, argBytes.length, true);
-          bytecodeBuilder.push(...argLengthBytes);
-          bytecodeBuilder.push(...argBytes);
-        }
-      };
-      
-      // Add instructions
-      addInstruction('PUSH', 'Hello World?');
-      addInstruction('CC');
-      addInstruction('HALT');
-      
-      const mockProgram = {
-        id: 'test-prog-1',
-        source: '',
-        bytecode: new Uint8Array(bytecodeBuilder),
-        created: new Date()
-      };
-
-      mockDb.getExecution = vi.fn().mockResolvedValue(mockExecution);
-      mockDb.getProgram = vi.fn().mockResolvedValue(mockProgram);
-      mockDb.saveExecution = vi.fn().mockResolvedValue(undefined);
-      mockDb.saveHistory = vi.fn().mockResolvedValue(undefined);
+      mockVMManager.getNext.mockResolvedValueOnce({
+        type: 'waiting',
+        message: 'What should I say next?'
+      });
 
       const result = await server.handleTool('getNext', {
         executionId: 'exec-1'
       });
 
-      // Let's check what we actually got
-      if (result.content[0].text !== 'Hello World?') {
-        console.error('Expected "Hello World?" but got:', result.content[0].text);
-        console.error('Result:', JSON.stringify(result, null, 2));
-      }
-
-      expect(result.content[0].text).toContain('Hello World?');
-      expect(mockDb.saveExecution).toHaveBeenCalledWith(
-        expect.objectContaining({
-          state: 'running'
-        })
-      );
+      expect(result.content[0].text).toBe('What should I say next?');
+      expect(mockVMManager.getNext).toHaveBeenCalledWith('exec-1');
     });
 
     it('should return completion status when program finishes', async () => {
-      const mockExecution = {
-        id: 'exec-1',
-        programId: 'test-prog-1',
-        state: 'ready',
-        pc: 0,
-        stack: [],
-        variables: {},
-        created: new Date()
-      };
-
-      const mockProgram = {
-        id: 'test-prog-1',
-        source: '',
-        bytecode: new Uint8Array([4, 0, 0, 0, 72, 65, 76, 84]), // Just HALT
-        created: new Date()
-      };
-
-      mockDb.getExecution = vi.fn().mockResolvedValue(mockExecution);
-      mockDb.getProgram = vi.fn().mockResolvedValue(mockProgram);
-      mockDb.saveExecution = vi.fn().mockResolvedValue(undefined);
+      mockVMManager.getNext.mockResolvedValueOnce({
+        type: 'completed',
+        message: 'Execution completed'
+      });
 
       const result = await server.handleTool('getNext', {
         executionId: 'exec-1'
       });
 
       expect(result.content[0].text).toContain('completed');
-      expect(mockDb.saveExecution).toHaveBeenCalledWith(
-        expect.objectContaining({
-          state: 'completed'
-        })
-      );
+      expect(mockVMManager.getNext).toHaveBeenCalledWith('exec-1');
+    });
+
+    it('should handle execution errors', async () => {
+      mockVMManager.getNext.mockResolvedValueOnce({
+        type: 'error',
+        error: 'Stack overflow'
+      });
+
+      const result = await server.handleTool('getNext', {
+        executionId: 'exec-1'
+      });
+
+      expect(result.content[0].text).toContain('Error: Stack overflow');
+      expect(result.isError).toBe(true);
     });
   });
 
   describe('reportCCResult tool', () => {
-    it('should resume execution with CC result', async () => {
-      const mockExecution = {
-        id: 'exec-1',
-        programId: 'test-prog-1',
-        state: 'running',
-        pc: 30, // After CC - this will be calculated by VM during execution
-        stack: [],
-        variables: {},
-        created: new Date()
-      };
-
-      // Build bytecode exactly as the server expects it
-      const bytecodeBuilder: number[] = [];
-      
-      // Helper to add length-prefixed string
-      const addInstruction = (opcode: string, arg?: string) => {
-        const opcodeBytes = new TextEncoder().encode(opcode);
-        const lengthBytes = new Uint8Array(4);
-        new DataView(lengthBytes.buffer).setUint32(0, opcodeBytes.length, true);
-        bytecodeBuilder.push(...lengthBytes);
-        bytecodeBuilder.push(...opcodeBytes);
-        
-        if (arg !== undefined) {
-          const argBytes = new TextEncoder().encode(arg);
-          const argLengthBytes = new Uint8Array(4);
-          new DataView(argLengthBytes.buffer).setUint32(0, argBytes.length, true);
-          bytecodeBuilder.push(...argLengthBytes);
-          bytecodeBuilder.push(...argBytes);
-        }
-      };
-      
-      // Add instructions
-      addInstruction('PUSH', 'Hello World?');
-      addInstruction('CC');
-      addInstruction('PRINT');
-      addInstruction('HALT');
-      
-      const mockProgram = {
-        id: 'test-prog-1',
-        source: '',
-        bytecode: new Uint8Array(bytecodeBuilder),
-        created: new Date()
-      };
-
-      mockDb.getExecution = vi.fn().mockResolvedValue(mockExecution);
-      mockDb.getProgram = vi.fn().mockResolvedValue(mockProgram);
-      mockDb.saveExecution = vi.fn().mockResolvedValue(undefined);
-      mockDb.saveHistory = vi.fn().mockResolvedValue(undefined);
+    it('should call VMManager.reportCCResult', async () => {
+      mockVMManager.reportCCResult.mockResolvedValueOnce(undefined);
 
       const result = await server.handleTool('reportCCResult', {
         executionId: 'exec-1',
@@ -294,36 +186,46 @@ main();`;
       });
 
       expect(result.content[0].text).toContain('resumed');
-      expect(mockDb.saveHistory).toHaveBeenCalled();
+      expect(mockVMManager.reportCCResult).toHaveBeenCalledWith('exec-1', 'Goodbye!');
+    });
+
+    it('should handle errors during resume', async () => {
+      mockVMManager.reportCCResult.mockRejectedValueOnce(
+        new Error('Execution not found')
+      );
+
+      const result = await server.handleTool('reportCCResult', {
+        executionId: 'non-existent',
+        result: 'test'
+      });
+
+      expect(result.content[0].text).toContain('Execution not found');
+      expect(result.isError).toBe(true);
     });
   });
 
   describe('getExecutionState tool', () => {
     it('should return current execution state', async () => {
-      const mockExecution = {
+      const mockStatus = {
         id: 'exec-1',
-        programId: 'test-prog-1',
         state: 'running',
         pc: 10,
         stack: ['Hello', 'World'],
         variables: { x: 42 },
-        created: new Date()
+        output: ['Hello World'],
+        history: [
+          {
+            step: 1,
+            pc: 0,
+            instruction: 'PUSH',
+            stack: ['Hello'],
+            variables: {},
+            timestamp: new Date()
+          }
+        ]
       };
 
-      const mockHistory = [
-        {
-          executionId: 'exec-1',
-          step: 1,
-          pc: 0,
-          instruction: 'PUSH',
-          stack: ['Hello'],
-          variables: {},
-          timestamp: new Date()
-        }
-      ];
-
-      mockDb.getExecution = vi.fn().mockResolvedValue(mockExecution);
-      mockDb.getHistory = vi.fn().mockResolvedValue(mockHistory);
+      mockVMManager.getExecutionStatus.mockResolvedValueOnce(mockStatus);
 
       const result = await server.handleTool('getExecutionState', {
         executionId: 'exec-1'
@@ -335,6 +237,20 @@ main();`;
       expect(response.stack).toEqual(['Hello', 'World']);
       expect(response.variables).toEqual({ x: 42 });
       expect(response.history).toHaveLength(1);
+      expect(mockVMManager.getExecutionStatus).toHaveBeenCalledWith('exec-1');
+    });
+
+    it('should handle execution not found', async () => {
+      mockVMManager.getExecutionStatus.mockRejectedValueOnce(
+        new Error('Execution not found: non-existent')
+      );
+
+      const result = await server.handleTool('getExecutionState', {
+        executionId: 'non-existent'
+      });
+
+      expect(result.content[0].text).toContain('Execution not found');
+      expect(result.isError).toBe(true);
     });
   });
 });

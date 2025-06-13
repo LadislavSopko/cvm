@@ -69,7 +69,7 @@ export class CVMMcpServer {
           };
         } catch (error) {
           return {
-            content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }],
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
             isError: true
           };
         }
@@ -107,7 +107,7 @@ export class CVMMcpServer {
           };
         } catch (error) {
           return {
-            content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }],
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
             isError: true
           };
         }
@@ -129,7 +129,7 @@ export class CVMMcpServer {
           };
         } catch (error) {
           return {
-            content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }],
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
             isError: true
           };
         }
@@ -150,7 +150,7 @@ export class CVMMcpServer {
           };
         } catch (error) {
           return {
-            content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }],
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
             isError: true
           };
         }

@@ -63,10 +63,12 @@ Dependency Direction: Parser → VM → MongoDB
 
 ### VM → MongoDB
 - VMManager handles all persistence
+- VMManager owns MongoDB adapter instance
 - State persisted after each instruction
 - Lazy loading of program bytecode
 - Execution document tracks all state
 - History array for debugging
+- VM itself remains pure execution engine
 
 ### MCP Server → VM
 - Thin protocol layer that only calls VMManager
@@ -74,6 +76,7 @@ Dependency Direction: Parser → VM → MongoDB
 - No business logic in protocol layer
 - No direct MongoDB access
 - Clear separation of concerns
+- VMManager encapsulates all execution and persistence logic
 
 ### Claude → MCP Server
 - Claude drives the conversation

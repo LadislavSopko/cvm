@@ -82,10 +82,10 @@ describe('Parser-VM-MongoDB Integration', () => {
       await adapter.saveProgram(program);
 
       // Step 3: Create execution
-      const execution = {
+      const execution: any = {
         id: 'exec-integration-1',
         programId: 'integration-test-2',
-        state: 'ready' as const,
+        state: 'ready',
         pc: 0,
         stack: [],
         variables: {},

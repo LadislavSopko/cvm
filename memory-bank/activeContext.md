@@ -1,7 +1,7 @@
 # Active Context - CVM Project
 
 ## Current Focus
-Core CVM platform implementation - parser and VM are now functional with minimal features.
+Core CVM platform implementation - parser, VM, and MongoDB persistence are now fully integrated. Architecture has been refined to properly encapsulate concerns.
 
 ## Recent Changes
 - Created fresh NX workspace at /home/laco/cvm
@@ -33,6 +33,23 @@ Core CVM platform implementation - parser and VM are now functional with minimal
   - Full TDD implementation with all tests passing
   - Supports saving/loading programs, executions, and history
   - Proper TypeScript types extending MongoDB Document
+- **Created @cvm/types package** to solve circular dependency issues:
+  - Shared type definitions used by all packages
+  - Prevents circular dependencies between VM and MongoDB
+  - Clean architectural separation
+- **Implemented VMManager** to encapsulate execution and persistence logic:
+  - Owns MongoDB adapter instance
+  - Manages program and execution lifecycle
+  - Handles state persistence automatically
+  - VM itself remains pure execution engine
+- **Fixed architecture** so VM owns MongoDB persistence:
+  - MCP server is now just a thin protocol layer
+  - VMManager handles all business logic
+  - Clean separation of concerns achieved
+- **All core components integrated** with passing tests:
+  - Parser-VM-MongoDB integration verified
+  - End-to-end execution with persistence working
+  - Architecture properly layered without circular dependencies
 
 ## Next Steps
 1. Create @cvm/mcp-server library - MCP protocol server
