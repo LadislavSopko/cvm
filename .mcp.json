@@ -1,0 +1,53 @@
+{
+  "mcpServers": {
+    "brave-search": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-brave-search"
+      ],
+      "env": {
+        "BRAVE_API_KEY": "BSAnpwFBPlUwkiN93SlnT-DsH36Eosd"
+      }
+    },
+    "sequential-thinking": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-sequential-thinking"
+      ]
+    },
+    "context7": {
+      "type": "stdio",
+      "command": "npx",
+      "args": [
+        "-y",
+        "@upstash/context7-mcp@latest"
+      ],
+      "env": {}
+    },
+    "mongodb": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "mongodb-lens",
+        "mongodb://root:example@localhost:27017/violations?authSource=admin"
+      ]
+    },
+    "qdrant": {
+      "type": "stdio",
+      "command": "/home/laco/cds/mcp-qdrant-openai.sh",
+      "args": [],
+      "env": {
+        "QDRANT_URL": "http://localhost:6333",
+        "QDRANT_COLLECTION": "sanctions"
+      }
+    },
+    "playwright": {
+        "command": "npx",
+        "args": ["-y", "@executeautomation/playwright-mcp-server"]
+     }
+  }
+}
