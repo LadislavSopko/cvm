@@ -22,10 +22,14 @@
 │   ├── parser/           # @cvm/parser
 │   ├── vm/              # @cvm/vm
 │   ├── mcp-server/      # @cvm/mcp-server
-│   └── mongodb/         # @cvm/mongodb
+│   ├── mongodb/         # @cvm/mongodb
+│   └── types/           # @cvm/types (shared types)
 ├── memory-bank/         # Project documentation
-├── docker/              # Docker configuration
-│   └── docker-compose.yml
+├── examples/            # Example CVM programs
+│   └── hello.ts        # Basic CC() demo
+├── scripts/            # Utility scripts
+│   └── run-demo.js     # Demo execution script
+├── .env                # Environment variables
 ├── nx.json             # NX configuration
 ├── tsconfig.base.json  # Base TypeScript config
 └── package.json        # Root package.json
@@ -89,6 +93,7 @@ npx nx affected:build
 - `mongodb`: MongoDB driver
 - `@modelcontextprotocol/sdk`: MCP SDK for protocol implementation
 - `zod`: Schema validation for MCP parameters
+- `dotenv`: Environment variable loader (dev dependency)
 
 ### Future Dependencies
 - `prettier`: Code formatter
@@ -129,10 +134,13 @@ npx nx affected:build
 
 ### Environment Variables
 ```bash
-MONGODB_URI=mongodb://localhost:27017/cvm
+# .env file at workspace root
+MONGODB_URI=mongodb://root:example@localhost:27017/cvm?authSource=admin
 CVM_PORT=3000  # For MCP server
 CVM_LOG_LEVEL=debug
 ```
+
+**Note**: VMManager reads MONGODB_URI from environment automatically
 
 ### Docker Services
 - MongoDB on port 27017

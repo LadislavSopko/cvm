@@ -25,8 +25,28 @@ export interface ExecutionStatus {
  */
 export class VMManager {
   private vms: Map<string, VM> = new Map();
+  private db: MongoDBAdapter;
   
-  constructor(private db: MongoDBAdapter) {}
+  constructor() {
+    // VMManager manages its own persistence based on environment
+    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cvm';
+    this.db = new MongoDBAdapter(mongoUri);
+  }
+  
+  /**
+   * Initialize the VMManager (connect to database)
+   */
+  async initialize(): Promise<void> {
+    await this.db.connect();
+  }
+  
+  /**
+   * Cleanup resources
+   */
+  async dispose(): Promise<void> {
+    await this.db.disconnect();
+    this.vms.clear();
+  }
 
   /**
    * Load and compile a program from source code

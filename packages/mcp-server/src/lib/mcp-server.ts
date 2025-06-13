@@ -2,7 +2,6 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { z } from 'zod';
 import { VMManager } from '@cvm/vm';
-import { MongoDBAdapter } from '@cvm/mongodb';
 
 /**
  * MCP Server - A thin interface layer for the CVM
@@ -13,8 +12,8 @@ export class CVMMcpServer {
   private transport: StdioServerTransport | null = null;
   private vmManager: VMManager;
 
-  constructor(db: MongoDBAdapter) {
-    this.vmManager = new VMManager(db);
+  constructor() {
+    this.vmManager = new VMManager();
     this.server = new McpServer({
       name: 'cvm-server',
       version: '1.0.0'
@@ -159,6 +158,7 @@ export class CVMMcpServer {
   }
 
   async start(): Promise<void> {
+    await this.vmManager.initialize();
     this.transport = new StdioServerTransport();
     await this.server.connect(this.transport);
   }
@@ -168,6 +168,7 @@ export class CVMMcpServer {
       await this.transport.close();
       this.transport = null;
     }
+    await this.vmManager.dispose();
   }
 
   // For testing - direct tool invocation

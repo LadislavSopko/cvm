@@ -16,8 +16,11 @@
     }
   },
   "dependencies": {
-    "@cvm/parser": "*",
     "@cvm/mongodb": "*",
+    "@cvm/parser": "*",
     "@cvm/types": "*"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.7"
   }
 }

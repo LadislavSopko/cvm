@@ -44,9 +44,9 @@
 - [x] MCP server tests updated and passing
 
 ### Phase 4: Testing & Validation
-- [x] Unit tests for all components (45 tests passing)
+- [x] Unit tests for all components (51 tests passing)
 - [x] Integration tests
-- [ ] Example programs
+- [x] Example programs (hello.ts created)
 - [ ] Claude integration testing
 - [ ] Performance benchmarks
 
@@ -155,6 +155,12 @@
   - 45 total tests passing across all packages
   - Clean architecture with proper separation of concerns
   - Ready for example programs and AI integration
+- **Fixed encapsulation violations**:
+  - Refactored MCP server to take VMManager instead of MongoDB
+  - VMManager now creates its own MongoDB connection from environment
+  - Added .env file at workspace root with MongoDB connection string
+  - Updated all tests to work with new architecture
+  - 51 total tests passing (added unit tests for VMManager)
 
 ## Next Session Focus
 Create example CVM programs to demonstrate full functionality. Test end-to-end integration with Claude AI. Consider adding more language features like control flow and loops.

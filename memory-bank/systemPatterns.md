@@ -63,12 +63,15 @@ Dependency Direction: Parser → VM → MongoDB
 
 ### VM → MongoDB
 - VMManager handles all persistence
-- VMManager owns MongoDB adapter instance
+- VMManager creates its own MongoDB connection from environment
+- Uses MONGODB_URI from .env file
 - State persisted after each instruction
 - Lazy loading of program bytecode
 - Execution document tracks all state
 - History array for debugging
 - VM itself remains pure execution engine
+- VMManager.initialize() connects to database
+- VMManager.dispose() cleans up connections
 
 ### MCP Server → VM
 - Thin protocol layer that only calls VMManager

@@ -15,7 +15,7 @@ CVM is a bytecode virtual machine that executes programs combining traditional c
 ## Architecture Overview
 
 ```
-CVM Program (.cvm) → Parser → Bytecode → VM Executor → MongoDB
+CVM Program (.ts) → Parser → Bytecode → VM Executor → MongoDB
                                              ↓
                                         [MCP Protocol]
                                              ↓

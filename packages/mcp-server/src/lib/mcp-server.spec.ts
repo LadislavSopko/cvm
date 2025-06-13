@@ -1,11 +1,11 @@
 import { describe, it, expect, beforeAll, afterAll, vi } from 'vitest';
 import { CVMMcpServer } from './mcp-server.js';
-import { VMManager } from '@cvm/vm';
-import { MongoDBAdapter } from '@cvm/mongodb';
 
-// Mock the VMManager module
+// Mock VMManager at module level
 vi.mock('@cvm/vm', () => ({
   VMManager: vi.fn().mockImplementation(() => ({
+    initialize: vi.fn(),
+    dispose: vi.fn(),
     loadProgram: vi.fn(),
     startExecution: vi.fn(),
     getNext: vi.fn(),
@@ -17,17 +17,14 @@ vi.mock('@cvm/vm', () => ({
 describe('CVMMcpServer', () => {
   let server: CVMMcpServer;
   let mockVMManager: any;
-  let mockDb: MongoDBAdapter;
 
   beforeAll(async () => {
-    // Create a minimal mock DB (MCP server doesn't use it directly)
-    mockDb = {} as MongoDBAdapter;
-    
-    // Create server
-    server = new CVMMcpServer(mockDb);
+    // Create server (it will create its own VMManager)
+    server = new CVMMcpServer();
     
     // Get the mocked VMManager instance
-    mockVMManager = (VMManager as any).mock.results[0].value;
+    const VMManagerMock = (await import('@cvm/vm')).VMManager as any;
+    mockVMManager = VMManagerMock.mock.results[0].value;
   });
 
   afterAll(async () => {
