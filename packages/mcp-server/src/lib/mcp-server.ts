@@ -159,6 +159,7 @@ export class CVMMcpServer {
 
   async start(): Promise<void> {
     await this.vmManager.initialize();
+    // StdioServerTransport uses process.stdin and process.stdout by default
     this.transport = new StdioServerTransport();
     await this.server.connect(this.transport);
   }

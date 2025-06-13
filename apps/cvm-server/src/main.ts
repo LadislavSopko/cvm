@@ -39,8 +39,8 @@ async function main() {
     // The server is now running and handling MCP requests via stdio
     
   } catch (error) {
-    const logger = getLogger();
-    logger.error('Fatal error starting CVM Server:', error);
+    // Use console.error in case logger isn't initialized yet
+    console.error('Fatal error starting CVM Server:', error);
     process.exit(1);
   }
   

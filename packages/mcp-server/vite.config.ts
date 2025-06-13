@@ -31,7 +31,7 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: []
+      external: ['typescript', 'mongodb', '@modelcontextprotocol/sdk', '@modelcontextprotocol/sdk/server/mcp.js', '@modelcontextprotocol/sdk/server/stdio.js', '@cvm/vm', '@cvm/parser', '@cvm/mongodb', '@cvm/types', 'zod', 'node:process', 'node:stream', 'node:events']
     },
   },
   test: {
