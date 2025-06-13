@@ -40,7 +40,7 @@
 
 ### NX Commands (STRICT TDD WORKFLOW)
 
-**MEGA RULE: Test → Code → Build → Lint → Test → Fix**
+**MEGA RULE: Test → Code → Build → Typecheck → Test → Fix**
 
 ```bash
 # Create library
@@ -51,16 +51,16 @@ npx nx test {project} --watch     # Write failing test first
 npx nx test {project}             # Verify test passes
 
 # Verification (MUST run after code changes)
-npx nx run-many --target=build,lint,test --projects={project}
+npx nx run-many --target=build,typecheck,test --projects={project}
 
 # Individual commands
 npx nx build {project}
-npx nx lint {project}
-npx nx lint {project} --fix       # Auto-fix issues
+npx nx typecheck {project}
+npx nx test {project}
 
 # Check affected
 npx nx affected:test
-npx nx affected:lint
+npx nx affected:typecheck
 npx nx affected:build
 ```
 
