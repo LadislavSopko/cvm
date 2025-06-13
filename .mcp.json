@@ -33,17 +33,8 @@
       "args": [
         "-y",
         "mongodb-lens",
-        "mongodb://root:example@localhost:27017/violations?authSource=admin"
+        "mongodb://root:example@localhost:27017/cvm?authSource=admin"
       ]
-    },
-    "qdrant": {
-      "type": "stdio",
-      "command": "/home/laco/cds/mcp-qdrant-openai.sh",
-      "args": [],
-      "env": {
-        "QDRANT_URL": "http://localhost:6333",
-        "QDRANT_COLLECTION": "sanctions"
-      }
     },
     "playwright": {
         "command": "npx",
