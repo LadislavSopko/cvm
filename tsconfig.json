@@ -17,6 +17,9 @@
     },
     {
       "path": "./packages/types"
+    },
+    {
+      "path": "./apps/cvm-server"
     }
   ]
 }
