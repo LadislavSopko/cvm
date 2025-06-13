@@ -83,14 +83,17 @@ npx nx affected:build
 - `@nx/js`: NX JavaScript plugin
 - `@swc-node/register`: SWC Node.js register
 - `@swc/core`: SWC compiler core
-- `typescript`: TypeScript compiler
+- `typescript`: TypeScript compiler (^5.7.3)
 - `tslib`: TypeScript runtime library
-
-### Planned Dependencies
-- `mongodb`: MongoDB driver
-- `@modelcontextprotocol/sdk`: MCP SDK (if available)
 - `vitest`: Testing framework
-- Additional as needed
+- `mongodb`: MongoDB driver
+- `@modelcontextprotocol/sdk`: MCP SDK for protocol implementation
+- `zod`: Schema validation for MCP parameters
+
+### Future Dependencies
+- `prettier`: Code formatter
+- Additional language parsers (when expanding beyond TypeScript subset)
+- Performance monitoring tools
 
 ## Tool Usage Patterns
 
