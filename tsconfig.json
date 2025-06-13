@@ -5,6 +5,9 @@
   "references": [
     {
       "path": "./packages/parser"
+    },
+    {
+      "path": "./packages/vm"
     }
   ]
 }
