@@ -1,7 +1,7 @@
 # Active Context - CVM Project
 
 ## Current Focus
-CVM platform is fully implemented and integrated. All components (Parser, VM, MongoDB, MCP Server) are working together with proper architecture and clean separation of concerns.
+CVM platform is fully implemented and integrated. All components (Parser, VM, MongoDB, MCP Server) are working together with proper architecture and clean separation of concerns. Multiple CC (cognitive call) execution has been fixed and tested.
 
 ## Recent Changes
 - Created fresh NX workspace at /home/laco/cvm
@@ -61,13 +61,25 @@ CVM platform is fully implemented and integrated. All components (Parser, VM, Mo
   - Added .env file with MONGODB_URI=mongodb://root:example@localhost:27017/cvm?authSource=admin
   - All packages now properly encapsulated
   - 51 tests passing across all packages
+- **Created cvm-server application**:
+  - NX application in apps/cvm-server
+  - Handles environment configuration (MongoDB URI, log levels)
+  - Logs to stderr to keep stdout clean for MCP protocol
+  - Graceful shutdown handling
+  - Ready for MCP client connections
+- **Fixed multiple CC execution bug**:
+  - Issue: After first CC, execution got stuck "Waiting for input"
+  - Root cause: getNext was executing instead of just reading state
+  - Solution: Made getNext read-only, reportCCResult continues execution
+  - Proper flow: startExecution → getNext (read) → reportCCResult (execute) → getNext (read)
+  - Added comprehensive tests for multiple CC scenarios
 
 ## Next Steps
-1. Create example programs to demonstrate full CVM functionality
-2. Test end-to-end with Claude AI integration
-3. Add more language features (if/else, loops, functions)
-4. Performance optimizations
-5. Documentation and user guides
+1. Test end-to-end with Claude AI integration using the fixed multiple CC support
+2. Add more language features (if/else, loops, functions)
+3. Performance optimizations
+4. Documentation and user guides
+5. Consider adding more example programs demonstrating complex CC patterns
 
 ## Active Decisions
 - Start with minimal feature set - just enough to validate architecture

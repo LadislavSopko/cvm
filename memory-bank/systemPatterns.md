@@ -27,11 +27,13 @@ Dependency Direction: Parser → VM → MongoDB
 ```
 
 ### Execution Pattern
-1. **Claude Initiative**: Claude polls CVM asking "what's next?"
-2. **CVM Response**: Returns current state (running/waiting_cc/complete)
-3. **Cognitive Processing**: If waiting_cc, Claude processes prompt
-4. **Response Delivery**: Claude sends cognitive result back
-5. **Continuation**: CVM continues execution until next interrupt
+1. **startExecution**: CVM begins execution until first CC or completion
+2. **getNext (READ-ONLY)**: Claude polls CVM asking "what's next?" - just reads current state
+3. **CVM Response**: Returns current state (running/waiting_cc/complete) with CC prompt if waiting
+4. **reportCCResult**: Claude sends cognitive result, CVM resumes execution until next CC or completion
+5. **Repeat**: Claude calls getNext again to check new state
+
+Key insight: getNext is read-only, reportCCResult drives execution forward.
 
 ### Key Design Decisions
 

@@ -98,6 +98,7 @@ export class VMManager {
 
   /**
    * Get next action from execution (Claude polls this)
+   * This is READ-ONLY - just returns current state
    */
   async getNext(executionId: string): Promise<ExecutionResult> {
     const execution = await this.db.getExecution(executionId);
@@ -105,72 +106,106 @@ export class VMManager {
       throw new Error(`Execution not found: ${executionId}`);
     }
 
-    const program = await this.db.getProgram(execution.programId);
-    if (!program) {
-      throw new Error(`Program not found: ${execution.programId}`);
-    }
-
-    let vm = this.vms.get(executionId);
-    if (!vm) {
-      vm = new VM();
-      this.vms.set(executionId, vm);
-    }
-
-    // Update state to running if ready
+    // Check if we need to initialize execution
     if (execution.state === 'ready') {
-      execution.state = 'running';
-      await this.db.saveExecution(execution);
+      // First time - need to start execution
+      const program = await this.db.getProgram(execution.programId);
+      if (!program) {
+        throw new Error(`Program not found: ${execution.programId}`);
+      }
+
+      let vm = this.vms.get(executionId);
+      if (!vm) {
+        vm = new VM();
+        this.vms.set(executionId, vm);
+      }
+
+      // Start execution
+      const initialState: Partial<VMState> = {
+        pc: 0,
+        stack: [],
+        variables: new Map(),
+        output: []
+      };
+
+      const state = vm.execute(program.bytecode, initialState);
+
+      // Save state
+      execution.pc = state.pc;
+      execution.stack = state.stack;
+      execution.variables = Object.fromEntries(state.variables);
+      execution.output = state.output;
+
+      if (state.status === 'complete') {
+        execution.state = 'completed';
+        await this.db.saveExecution(execution);
+        this.vms.delete(executionId);
+        
+        return {
+          type: 'completed',
+          message: 'Execution completed'
+        };
+      } else if (state.status === 'waiting_cc') {
+        execution.state = 'running'; // Running but waiting for CC input
+        await this.db.saveExecution(execution);
+        
+        // Store CC prompt in memory
+        const vmState = {
+          status: state.status,
+          ccPrompt: state.ccPrompt
+        };
+        this.vms.set(executionId + '_state', vmState as any);
+        
+        return {
+          type: 'waiting',
+          message: state.ccPrompt || 'Waiting for input'
+        };
+      } else if (state.status === 'error') {
+        execution.state = 'error';
+        execution.error = state.error;
+        await this.db.saveExecution(execution);
+        this.vms.delete(executionId);
+        
+        return {
+          type: 'error',
+          error: state.error
+        };
+      }
     }
 
-    // Execute with current state
-    const initialState: Partial<VMState> = {
-      pc: execution.pc,
-      stack: execution.stack,
-      variables: new Map(Object.entries(execution.variables)),
-      output: execution.output
-    };
-
-    const state = vm.execute(program.bytecode, initialState);
-
-    // Save updated state
-    execution.pc = state.pc;
-    execution.stack = state.stack;
-    execution.variables = Object.fromEntries(state.variables);
-    execution.output = state.output;
-
-    if (state.status === 'complete') {
-      execution.state = 'completed';
-      await this.db.saveExecution(execution);
-      this.vms.delete(executionId);
-      
+    // Not ready state - check current execution state
+    if (execution.state === 'completed') {
       return {
         type: 'completed',
         message: 'Execution completed'
       };
-    } else if (state.status === 'waiting_cc') {
-      await this.db.saveExecution(execution);
-      
-      return {
-        type: 'waiting',
-        message: state.ccPrompt || 'Waiting for input'
-      };
-    } else if (state.status === 'error') {
-      execution.state = 'error';
-      execution.error = state.error;
-      await this.db.saveExecution(execution);
-      this.vms.delete(executionId);
-      
+    } else if (execution.state === 'error') {
       return {
         type: 'error',
-        error: state.error
+        error: execution.error || 'Unknown error'
+      };
+    } else if (execution.state === 'running') {
+      // Check if we have a stored CC prompt
+      const vmState = this.vms.get(executionId + '_state') as any;
+      if (vmState && vmState.status === 'waiting_cc') {
+        return {
+          type: 'waiting',
+          message: vmState.ccPrompt || 'Waiting for input'
+        };
+      }
+      
+      // Otherwise, execution is in progress (shouldn't happen in normal flow)
+      return {
+        type: 'waiting',
+        message: 'Execution in progress'
       };
     }
 
-    throw new Error('Unexpected execution state');
+    throw new Error(`Unexpected execution state: ${execution.state}`);
   }
 
   /**
-   * Report result from cognitive operation
+   * Report result from cognitive operation and continue execution
    */
   async reportCCResult(executionId: string, result: string): Promise<void> {
     const execution = await this.db.getExecution(executionId);
@@ -189,7 +224,7 @@ export class VMManager {
       this.vms.set(executionId, vm);
     }
 
-    // Create current state
+    // Create current state from saved execution
     const currentState: VMState = {
       pc: execution.pc,
       stack: execution.stack,
@@ -210,7 +245,7 @@ export class VMManager {
       timestamp: new Date()
     });
 
-    // Resume execution
+    // Resume execution - this pushes result to stack and continues
     const newState = vm.resume(currentState, result, program.bytecode);
     
     // Update execution state
@@ -218,8 +253,30 @@ export class VMManager {
     execution.stack = newState.stack;
     execution.variables = Object.fromEntries(newState.variables);
     execution.output = newState.output;
-    execution.state = newState.status === 'complete' ? 'completed' : 
-                     newState.status === 'error' ? 'error' : 'running';
+    
+    if (newState.status === 'complete') {
+      execution.state = 'completed';
+      this.vms.delete(executionId);
+      this.vms.delete(executionId + '_state');
+    } else if (newState.status === 'error') {
+      execution.state = 'error';
+      execution.error = newState.error;
+      this.vms.delete(executionId);
+      this.vms.delete(executionId + '_state');
+    } else if (newState.status === 'waiting_cc') {
+      // Hit another CC immediately
+      execution.state = 'running';
+      // Store the CC prompt in memory
+      const vmState = {
+        status: newState.status,
+        ccPrompt: newState.ccPrompt
+      };
+      this.vms.set(executionId + '_state', vmState as any);
+    } else {
+      execution.state = 'running';
+      // Clear any stored state
+      this.vms.delete(executionId + '_state');
+    }
     
     await this.db.saveExecution(execution);
   }
