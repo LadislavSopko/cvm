@@ -101,15 +101,15 @@ Starts executing a loaded program.
 }
 ```
 
-### cvm/continueExecution
+### cvm/getNext
 
-Continues execution until next CC operation or completion.
+Gets the next state of execution (continues until next CC operation or completion).
 
 **Request:**
 ```json
 {
   "jsonrpc": "2.0",
-  "method": "cvm/continueExecution",
+  "method": "cvm/getNext",
   "params": {
     "executionId": "507f1f77bcf86cd799439012"
   },
@@ -257,7 +257,7 @@ Lists all available programs.
 2. **Load program**: `cvm/loadProgram`
 3. **Start execution**: `cvm/startExecution`
 4. **Execute loop**:
-   - Call `cvm/continueExecution`
+   - Call `cvm/getNext`
    - If `waiting_cc`: Claude processes prompt
    - Call `cvm/reportCCResult` with response
    - Repeat until `complete`
@@ -298,7 +298,7 @@ Claude: I'll execute your email processor program using CVM.
 [Connects to CVM via MCP]
 [Calls cvm/loadProgram]
 [Calls cvm/startExecution]
-[Calls cvm/continueExecution]
+[Calls cvm/getNext]
 [Receives: waiting_cc with prompt "Is this urgent?"]
 
 I need to analyze an email. Let me process: "Is this urgent?"
@@ -306,7 +306,7 @@ I need to analyze an email. Let me process: "Is this urgent?"
 The email appears to be urgent based on...
 
 [Calls cvm/reportCCResult with "yes"]
-[Calls cvm/continueExecution]
+[Calls cvm/getNext]
 [Receives: complete with output]
 
 Program execution complete! Output:
@@ -346,7 +346,7 @@ const { programId } = await client.call('cvm/loadProgram', {
 const { executionId } = await client.call('cvm/startExecution', { programId });
 
 // Continue until CC
-const { status, prompt } = await client.call('cvm/continueExecution', { executionId });
+const { status, prompt } = await client.call('cvm/getNext', { executionId });
 assert(status === 'waiting_cc');
 assert(prompt === 'test');
 
@@ -357,7 +357,7 @@ await client.call('cvm/reportCCResult', {
 });
 
 // Continue to completion
-const { status: finalStatus, output } = await client.call('cvm/continueExecution', { executionId });
+const { status: finalStatus, output } = await client.call('cvm/getNext', { executionId });
 assert(finalStatus === 'complete');
 assert(output[0] === 'test response');
 ```

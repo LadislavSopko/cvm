@@ -5,10 +5,10 @@
 ### Prompt 1.1 - Project Setup
 ```
 Create a Node.js TypeScript project structure for CVM with:
-- Package.json with needed dependencies (TypeScript, MongoDB driver, Jest)
-- TSConfig for Node.js
+- Package.json with needed dependencies (TypeScript, MongoDB driver, Vitest)
+- TSConfig for Node.js with ES modules (.js imports)
 - Basic folder structure: src/, tests/, docs/
-- Jest configuration for TypeScript
+- Vitest configuration for TypeScript
 - MongoDB connection module
 ```
 
@@ -70,7 +70,7 @@ Implement MCP server using JSON-RPC 2.0 over stdio:
 Methods needed:
 - cvm/loadProgram(source): Parse and store program, return programId
 - cvm/startExecution(programId): Create execution, return executionId
-- cvm/continueExecution(executionId): Get next instruction or CC prompt
+- cvm/getNext(executionId): Get next instruction or CC prompt
 - cvm/reportCCResult(executionId, result): Report CC result and continue
 
 The server should:

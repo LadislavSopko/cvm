@@ -107,11 +107,11 @@ interface CCWait {
 ### 5. MCP Server
 - Protocol: JSON-RPC 2.0 over stdio
 - Methods:
-  - `cvm/loadProgram(name)`
+  - `cvm/loadProgram(name, source)`
   - `cvm/startExecution(programId)`
-  - `cvm/continueExecution(executionId)`
+  - `cvm/getNext(executionId)`
   - `cvm/reportCCResult(executionId, result)`
-  - `cvm/getState(executionId)`
+  - `cvm/getExecutionState(executionId)`
 
 ## Execution Flow
 

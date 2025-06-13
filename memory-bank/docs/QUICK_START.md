@@ -30,7 +30,7 @@ if (urgent == "yes") {
 mkdir cvm
 cd cvm
 npm init -y
-npm install typescript mongodb @types/node jest @types/jest ts-jest
+npm install typescript mongodb @types/node vitest @vitest/ui
 ```
 
 ### 2. Start with Phase 1

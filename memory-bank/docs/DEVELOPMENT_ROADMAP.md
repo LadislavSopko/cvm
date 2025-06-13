@@ -5,7 +5,7 @@
 ### 1.1 Project Setup
 - Initialize Node.js project with TypeScript
 - Setup MongoDB connection
-- Configure testing framework (Jest)
+- Configure testing framework (Vitest)
 - Setup MCP protocol handler skeleton
 
 ### 1.2 Define Core Types
