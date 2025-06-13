@@ -8,6 +8,9 @@
     },
     {
       "path": "./packages/vm"
+    },
+    {
+      "path": "./packages/mongodb"
     }
   ]
 }

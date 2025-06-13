@@ -14,8 +14,8 @@
   - [x] @cvm/parser library
   - [x] @cvm/vm library
   - [ ] @cvm/mcp-server library
-  - [ ] @cvm/mongodb library
-- [ ] Set up MongoDB with Docker
+  - [x] @cvm/mongodb library
+- [x] Set up MongoDB with Docker (using existing instance)
 - [x] Implement basic types/interfaces (bytecode types done)
 
 ### Phase 2: Minimal Language Implementation
@@ -119,6 +119,13 @@
   - CC instruction pauses execution and allows resume
   - Integration tests prove end-to-end functionality
 - Platform is now minimally functional!
+- MongoDB setup:
+  - Connected to existing MongoDB instance
+  - Created CVM database with collections
+- Implemented @cvm/mongodb library:
+  - MongoDBAdapter for all database operations
+  - Full TDD with 100% test coverage
+  - Supports programs, executions, and history persistence
 
 ## Next Session Focus
-Set up MongoDB with Docker and create MCP server for Claude integration.
+Create MCP server for Claude integration - implement JSON-RPC 2.0 protocol and all required methods.
