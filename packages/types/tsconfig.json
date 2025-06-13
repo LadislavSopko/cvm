@@ -4,15 +4,6 @@
   "include": [],
   "references": [
     {
-      "path": "../types"
-    },
-    {
-      "path": "../mongodb"
-    },
-    {
-      "path": "../parser"
-    },
-    {
       "path": "./tsconfig.lib.json"
     },
     {

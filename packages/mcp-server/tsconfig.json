@@ -4,13 +4,13 @@
   "include": [],
   "references": [
     {
-      "path": "../types"
-    },
-    {
-      "path": "../mongodb"
+      "path": "../vm"
     },
     {
       "path": "../parser"
+    },
+    {
+      "path": "../mongodb"
     },
     {
       "path": "./tsconfig.lib.json"

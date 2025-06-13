@@ -11,6 +11,12 @@
     },
     {
       "path": "./packages/mongodb"
+    },
+    {
+      "path": "./packages/mcp-server"
+    },
+    {
+      "path": "./packages/types"
     }
   ]
 }

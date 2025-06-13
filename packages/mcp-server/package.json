@@ -1,5 +1,5 @@
 {
-  "name": "@cvm/vm",
+  "name": "@cvm/mcp-server",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -16,8 +16,10 @@
     }
   },
   "dependencies": {
-    "@cvm/parser": "*",
-    "@cvm/mongodb": "*",
-    "@cvm/types": "*"
+    "@cvm/mongodb": "^0.0.1",
+    "@cvm/parser": "^0.0.1",
+    "@cvm/vm": "^0.0.1",
+    "@modelcontextprotocol/sdk": "^1.12.2",
+    "zod": "^3.25.64"
   }
 }

@@ -32,7 +32,7 @@ describe('MongoDBAdapter', () => {
         id: 'test-program-1',
         name: 'Test Program',
         source: 'print "Hello"',
-        bytecode: new Uint8Array([1, 2, 3]),
+        bytecode: 'dummy-bytecode', // MongoDB doesn't care about bytecode format
         created: new Date(),
       };
 
@@ -42,6 +42,7 @@ describe('MongoDBAdapter', () => {
       expect(retrieved).toBeDefined();
       expect(retrieved?.name).toBe('Test Program');
       expect(retrieved?.source).toBe('print "Hello"');
+      expect(retrieved?.bytecode).toEqual(program.bytecode);
     });
   });
 
@@ -54,6 +55,7 @@ describe('MongoDBAdapter', () => {
         pc: 0,
         stack: [],
         variables: {},
+        output: [],
         created: new Date(),
       };
 
@@ -63,6 +65,7 @@ describe('MongoDBAdapter', () => {
       expect(retrieved).toBeDefined();
       expect(retrieved?.programId).toBe('test-program-1');
       expect(retrieved?.state).toBe('running');
+      expect(retrieved?.output).toEqual([]);
     });
   });
 

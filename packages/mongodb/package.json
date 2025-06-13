@@ -16,6 +16,7 @@
     }
   },
   "dependencies": {
+    "@cvm/types": "*",
     "mongodb": "^6.3.0"
   }
 }

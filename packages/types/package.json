@@ -1,5 +1,5 @@
 {
-  "name": "@cvm/vm",
+  "name": "@cvm/types",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -16,8 +16,6 @@
     }
   },
   "dependencies": {
-    "@cvm/parser": "*",
-    "@cvm/mongodb": "*",
-    "@cvm/types": "*"
+    "mongodb": "^6.3.0"
   }
 }

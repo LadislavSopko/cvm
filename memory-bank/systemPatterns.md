@@ -5,21 +5,25 @@
 ### Component Structure
 ```
 ┌─────────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│   CVM Parser    │────▶│   CVM Bytecode   │────▶│    CVM VM       │
-│  (Source→BC)    │     │   (Stored in     │     │  (Executor)     │
-└─────────────────┘     │    MongoDB)      │     └────────┬────────┘
-                        └──────────────────┘               │
-                                                          │ State
-                        ┌──────────────────┐               ▼
-                        │   MCP Server     │     ┌─────────────────┐
-                        │  (JSON-RPC 2.0)  │◀────│    MongoDB      │
-                        └────────┬─────────┘     │  (State Store)  │
-                                 │               └─────────────────┘
+│   CVM Parser    │────▶│    CVM VM        │────▶│    MongoDB      │
+│  (Source→BC)    │     │  (Executor +     │     │  (Persistence)  │
+└─────────────────┘     │   VMManager)     │     └─────────────────┘
+                        └────────┬─────────┘
+                                 │
+                        ┌────────▼─────────┐
+                        │   MCP Server     │
+                        │  (Thin Interface │
+                        │   JSON-RPC 2.0)  │
+                        └────────┬─────────┘
                                  │
                         ┌────────▼─────────┐
                         │   Claude (AI)    │
                         │ Cognitive Driver │
                         └──────────────────┘
+
+Dependency Direction: Parser → VM → MongoDB
+                            └─→ Types ←─┘
+                     MCP Server → VM
 ```
 
 ### Execution Pattern
@@ -58,15 +62,17 @@
 - No intermediate AST (keep it simple)
 
 ### VM → MongoDB
+- VMManager handles all persistence
 - State persisted after each instruction
 - Lazy loading of program bytecode
 - Execution document tracks all state
 - History array for debugging
 
 ### MCP Server → VM
-- Thin protocol layer
+- Thin protocol layer that only calls VMManager
 - Methods: loadProgram, startExecution, getNext, reportCCResult, getExecutionState
 - No business logic in protocol layer
+- No direct MongoDB access
 - Clear separation of concerns
 
 ### Claude → MCP Server
