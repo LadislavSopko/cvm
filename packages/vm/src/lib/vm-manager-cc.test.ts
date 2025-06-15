@@ -1,10 +1,10 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VMManager } from './vm-manager.js';
-import { MongoDBAdapter } from '@cvm/mongodb';
+import { StorageFactory } from '@cvm/storage';
 import { compile } from '@cvm/parser';
 
-// Mock MongoDB
-vi.mock('@cvm/mongodb');
+// Mock Storage
+vi.mock('@cvm/storage');
 
 describe('VMManager - Multiple CC Debug', () => {
   let vmManager: VMManager;
@@ -14,6 +14,7 @@ describe('VMManager - Multiple CC Debug', () => {
     mockDb = {
       connect: vi.fn(),
       disconnect: vi.fn(),
+      isConnected: vi.fn().mockReturnValue(true),
       saveProgram: vi.fn(),
       getProgram: vi.fn(),
       createExecution: vi.fn(),
@@ -21,7 +22,7 @@ describe('VMManager - Multiple CC Debug', () => {
       getExecution: vi.fn()
     };
 
-    (MongoDBAdapter as any).mockImplementation(() => mockDb);
+    (StorageFactory as any).create = vi.fn().mockReturnValue(mockDb);
     vmManager = new VMManager();
   });
 

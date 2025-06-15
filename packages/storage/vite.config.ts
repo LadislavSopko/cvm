@@ -5,7 +5,7 @@ import * as path from 'path';
 
 export default defineConfig(() => ({
   root: __dirname,
-  cacheDir: '../../node_modules/.vite/packages/mcp-server',
+  cacheDir: '../../node_modules/.vite/packages/storage',
   plugins: [dts({ entryRoot: 'src', tsconfigPath: path.join(__dirname, 'tsconfig.lib.json') })],
   // Uncomment this if you are using workers.
   // worker: {
@@ -23,7 +23,7 @@ export default defineConfig(() => ({
     lib: {
       // Could also be a dictionary or array of multiple entry points.
       entry: 'src/index.ts',
-      name: '@cvm/mcp-server',
+      name: '@cvm/storage',
       fileName: 'index',
       // Change this to the formats you want to support.
       // Don't forget to update your package.json as well.
@@ -31,7 +31,7 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['typescript', 'mongodb', '@modelcontextprotocol/sdk', '@modelcontextprotocol/sdk/server/mcp.js', '@modelcontextprotocol/sdk/server/stdio.js', '@cvm/vm', '@cvm/parser', '@cvm/storage', '@cvm/types', 'zod', 'node:process', 'node:stream', 'node:events', 'fs', 'fs/promises', 'path', 'os', 'stream', 'net', 'dns', 'util', 'zlib', 'timers', 'timers/promises', 'events', 'tls', 'crypto', 'url', 'querystring', 'http', 'https']
+      external: ['fs', 'fs/promises', 'path', 'os', 'stream', 'net', 'dns', 'util', 'zlib', 'timers', 'timers/promises', 'events', 'tls', 'crypto', 'url', 'querystring', 'http', 'https', '@cvm/types', 'mongodb']
     },
   },
   test: {

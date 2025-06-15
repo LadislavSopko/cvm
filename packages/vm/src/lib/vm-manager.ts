@@ -1,6 +1,6 @@
 import { VM, VMState } from './vm.js';
 import { compile } from '@cvm/parser';
-import { MongoDBAdapter } from '@cvm/mongodb';
+import { StorageAdapter, StorageFactory } from '@cvm/storage';
 import { Program, Execution } from '@cvm/types';
 
 export interface ExecutionResult {
@@ -24,26 +24,29 @@ export interface ExecutionStatus {
  */
 export class VMManager {
   private vms: Map<string, VM> = new Map();
-  private db: MongoDBAdapter;
+  private storage: StorageAdapter;
   
-  constructor() {
-    // VMManager manages its own persistence based on environment
-    const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/cvm';
-    this.db = new MongoDBAdapter(mongoUri);
+  constructor(storageAdapter?: StorageAdapter) {
+    if (storageAdapter) {
+      this.storage = storageAdapter;
+    } else {
+      // Create default storage from environment for backward compatibility
+      this.storage = StorageFactory.create();
+    }
   }
   
   /**
    * Initialize the VMManager (connect to database)
    */
   async initialize(): Promise<void> {
-    await this.db.connect();
+    await this.storage.connect();
   }
   
   /**
    * Cleanup resources
    */
   async dispose(): Promise<void> {
-    await this.db.disconnect();
+    await this.storage.disconnect();
     this.vms.clear();
   }
 
@@ -65,14 +68,14 @@ export class VMManager {
       created: new Date()
     };
 
-    await this.db.saveProgram(program);
+    await this.storage.saveProgram(program);
   }
 
   /**
    * Start execution of a loaded program
    */
   async startExecution(programId: string, executionId: string): Promise<void> {
-    const program = await this.db.getProgram(programId);
+    const program = await this.storage.getProgram(programId);
     if (!program) {
       throw new Error(`Program not found: ${programId}`);
     }
@@ -88,7 +91,7 @@ export class VMManager {
       created: new Date()
     };
 
-    await this.db.saveExecution(execution);
+    await this.storage.saveExecution(execution);
     
     // Create VM instance for this execution
     const vm = new VM();
@@ -100,7 +103,7 @@ export class VMManager {
    * This is READ-ONLY - just returns current state
    */
   async getNext(executionId: string): Promise<ExecutionResult> {
-    const execution = await this.db.getExecution(executionId);
+    const execution = await this.storage.getExecution(executionId);
     if (!execution) {
       throw new Error(`Execution not found: ${executionId}`);
     }
@@ -108,7 +111,7 @@ export class VMManager {
     // Check if we need to initialize execution
     if (execution.state === 'ready') {
       // First time - need to start execution
-      const program = await this.db.getProgram(execution.programId);
+      const program = await this.storage.getProgram(execution.programId);
       if (!program) {
         throw new Error(`Program not found: ${execution.programId}`);
       }
@@ -137,7 +140,7 @@ export class VMManager {
 
       if (state.status === 'complete') {
         execution.state = 'completed';
-        await this.db.saveExecution(execution);
+        await this.storage.saveExecution(execution);
         this.vms.delete(executionId);
         
         return {
@@ -147,7 +150,7 @@ export class VMManager {
       } else if (state.status === 'waiting_cc') {
         execution.state = 'waiting_cc';
         execution.ccPrompt = state.ccPrompt;
-        await this.db.saveExecution(execution);
+        await this.storage.saveExecution(execution);
         
         return {
           type: 'waiting',
@@ -156,7 +159,7 @@ export class VMManager {
       } else if (state.status === 'error') {
         execution.state = 'error';
         execution.error = state.error;
-        await this.db.saveExecution(execution);
+        await this.storage.saveExecution(execution);
         this.vms.delete(executionId);
         
         return {
@@ -191,12 +194,12 @@ export class VMManager {
    * Report result from cognitive operation and continue execution
    */
   async reportCCResult(executionId: string, result: string): Promise<void> {
-    const execution = await this.db.getExecution(executionId);
+    const execution = await this.storage.getExecution(executionId);
     if (!execution) {
       throw new Error(`Execution not found: ${executionId}`);
     }
 
-    const program = await this.db.getProgram(execution.programId);
+    const program = await this.storage.getProgram(execution.programId);
     if (!program) {
       throw new Error(`Program not found: ${execution.programId}`);
     }
@@ -241,14 +244,14 @@ export class VMManager {
       execution.state = 'running';
     }
     
-    await this.db.saveExecution(execution);
+    await this.storage.saveExecution(execution);
   }
 
   /**
    * Get current execution status
    */
   async getExecutionStatus(executionId: string): Promise<ExecutionStatus> {
-    const execution = await this.db.getExecution(executionId);
+    const execution = await this.storage.getExecution(executionId);
     if (!execution) {
       throw new Error(`Execution not found: ${executionId}`);
     }

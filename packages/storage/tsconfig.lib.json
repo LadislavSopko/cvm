@@ -18,12 +18,6 @@
   "references": [
     {
       "path": "../types/tsconfig.lib.json"
-    },
-    {
-      "path": "../parser/tsconfig.lib.json"
-    },
-    {
-      "path": "../storage/tsconfig.lib.json"
     }
   ],
   "exclude": [

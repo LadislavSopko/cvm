@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { MongoDBAdapter } from '@cvm/mongodb';
+import { MongoDBAdapter } from '@cvm/storage';
 import { compile } from '@cvm/parser';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';

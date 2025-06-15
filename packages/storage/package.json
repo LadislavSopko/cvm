@@ -1,5 +1,5 @@
 {
-  "name": "@cvm/vm",
+  "name": "@cvm/storage",
   "version": "0.0.1",
   "private": true,
   "type": "module",
@@ -16,11 +16,7 @@
     }
   },
   "dependencies": {
-    "@cvm/storage": "*",
-    "@cvm/parser": "*",
-    "@cvm/types": "*"
-  },
-  "devDependencies": {
-    "dotenv": "^16.4.7"
+    "@cvm/types": "*",
+    "mongodb": "^6.12.0"
   }
 }

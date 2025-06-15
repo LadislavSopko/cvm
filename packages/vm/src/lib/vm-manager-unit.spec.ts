@@ -1,35 +1,33 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VMManager } from './vm-manager.js';
 
-// Mock the entire mongodb module
-vi.mock('@cvm/mongodb', () => {
+// Mock the storage module
+vi.mock('@cvm/storage', () => {
   const mockPrograms = new Map();
   const mockExecutions = new Map();
-  const mockHistory: any[] = [];
+
+  const mockAdapter = {
+    connect: vi.fn().mockResolvedValue(undefined),
+    disconnect: vi.fn().mockResolvedValue(undefined),
+    isConnected: vi.fn().mockReturnValue(true),
+    saveProgram: vi.fn().mockImplementation(async (program) => {
+      mockPrograms.set(program.id, program);
+    }),
+    getProgram: vi.fn().mockImplementation(async (id) => {
+      return mockPrograms.get(id);
+    }),
+    saveExecution: vi.fn().mockImplementation(async (execution) => {
+      mockExecutions.set(execution.id, execution);
+    }),
+    getExecution: vi.fn().mockImplementation(async (id) => {
+      return mockExecutions.get(id);
+    })
+  };
 
   return {
-    MongoDBAdapter: vi.fn().mockImplementation(() => ({
-      connect: vi.fn().mockResolvedValue(undefined),
-      disconnect: vi.fn().mockResolvedValue(undefined),
-      saveProgram: vi.fn().mockImplementation(async (program) => {
-        mockPrograms.set(program.id, program);
-      }),
-      getProgram: vi.fn().mockImplementation(async (id) => {
-        return mockPrograms.get(id);
-      }),
-      saveExecution: vi.fn().mockImplementation(async (execution) => {
-        mockExecutions.set(execution.id, execution);
-      }),
-      getExecution: vi.fn().mockImplementation(async (id) => {
-        return mockExecutions.get(id);
-      }),
-      saveHistory: vi.fn().mockImplementation(async (history) => {
-        mockHistory.push(history);
-      }),
-      getHistory: vi.fn().mockImplementation(async () => {
-        return mockHistory;
-      })
-    }))
+    StorageFactory: {
+      create: vi.fn().mockReturnValue(mockAdapter)
+    }
   };
 });
 
