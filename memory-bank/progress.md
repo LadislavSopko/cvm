@@ -60,15 +60,19 @@
 - [ ] Type system improvements
 
 ## Current Status
-**Phase**: 4 - Testing & Validation + Storage Abstraction
-**Status**: Core platform complete, history removed, types decoupled from MongoDB
+**Phase**: 4 - Testing & Validation (Complete) + Storage Abstraction (Complete)
+**Status**: Platform ready for use with file-based or MongoDB storage
 
 ## Recent Major Changes
 - Removed History tracking completely (not needed for core functionality)
 - Fixed stateful VMManager by persisting ccPrompt in Execution
 - Removed MongoDB Document dependencies from types
 - Added 'waiting_cc' state to properly track CC execution
-- All 46 tests passing, clean architecture
+- Implemented complete storage abstraction layer
+- Created FileStorageAdapter for zero-setup experience
+- Updated cvm-server to support storage configuration
+- Examples now use file storage by default
+- All 70 tests passing, clean architecture
 
 ## Known Issues
 - None - all tests passing, architecture simplified and clean

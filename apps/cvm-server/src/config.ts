@@ -5,8 +5,10 @@ import { resolve } from 'path';
 dotenv.config({ path: resolve(__dirname, '../../../.env') });
 
 export interface Config {
-  mongodb: {
-    uri: string;
+  storage: {
+    type: 'file' | 'mongodb';
+    mongoUri?: string;
+    dataDir?: string;
   };
   logging: {
     level: 'debug' | 'info' | 'warn' | 'error';
@@ -22,10 +24,14 @@ export interface Config {
 export function loadConfig(): Config {
   const env = process.env.NODE_ENV || 'development';
   
-  // Required environment variables
+  // Storage configuration
+  const storageType = (process.env.CVM_STORAGE_TYPE || 'file') as 'file' | 'mongodb';
   const mongoUri = process.env.MONGODB_URI;
-  if (!mongoUri) {
-    throw new Error('MONGODB_URI environment variable is required');
+  const dataDir = process.env.CVM_DATA_DIR;
+  
+  // Validate storage configuration
+  if (storageType === 'mongodb' && !mongoUri) {
+    throw new Error('MONGODB_URI environment variable is required when CVM_STORAGE_TYPE is mongodb');
   }
 
   // Optional with defaults
@@ -40,8 +46,10 @@ export function loadConfig(): Config {
   const maxOutputSize = parseInt(process.env.CVM_MAX_OUTPUT_SIZE || '1048576', 10); // 1MB default
 
   return {
-    mongodb: {
-      uri: mongoUri,
+    storage: {
+      type: storageType,
+      mongoUri,
+      dataDir,
     },
     logging: {
       level: logLevel,
