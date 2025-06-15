@@ -59,7 +59,11 @@ export default defineConfig({
         '@modelcontextprotocol/sdk',
         'zod',
         'mongodb',
-        'dotenv'
+        'dotenv',
+        'typescript',
+        'fs',
+        'path',
+        'os'
       ]
     },
   },
