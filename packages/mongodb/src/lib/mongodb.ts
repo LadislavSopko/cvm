@@ -1,5 +1,5 @@
-import { MongoClient, Db, Collection, Document } from 'mongodb';
-import { Program, Execution, History } from './types.js';
+import { MongoClient, Db, Collection } from 'mongodb';
+import { Program, Execution } from './types.js';
 
 export class MongoDBAdapter {
   private client: MongoClient;
@@ -26,9 +26,6 @@ export class MongoDBAdapter {
     if (!collectionNames.includes('executions')) {
       await this.db.createCollection('executions');
     }
-    if (!collectionNames.includes('history')) {
-      await this.db.createCollection('history');
-    }
   }
 
   async disconnect(): Promise<void> {
@@ -47,7 +44,7 @@ export class MongoDBAdapter {
     return collections.map(c => c.name);
   }
 
-  private getCollection<T extends Document>(name: string): Collection<T> {
+  private getCollection<T extends object>(name: string): Collection<T> {
     if (!this.db) throw new Error('Not connected to database');
     return this.db.collection<T>(name);
   }
@@ -80,16 +77,4 @@ export class MongoDBAdapter {
     return await collection.findOne({ id });
   }
 
-  async saveHistory(history: History): Promise<void> {
-    const collection = this.getCollection<History>('history');
-    await collection.insertOne(history);
-  }
-
-  async getHistory(executionId: string): Promise<History[]> {
-    const collection = this.getCollection<History>('history');
-    return await collection
-      .find({ executionId })
-      .sort({ step: 1 })
-      .toArray();
-  }
 }

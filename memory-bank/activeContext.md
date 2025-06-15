@@ -1,7 +1,7 @@
 # Active Context - CVM Project
 
 ## Current Focus
-CVM platform is fully implemented and integrated. All components (Parser, VM, MongoDB, MCP Server) are working together with proper architecture and clean separation of concerns. Multiple CC (cognitive call) execution has been fixed and tested.
+Storage Abstraction Layer - Making CVM more accessible by abstracting storage to support both file-based (for easy setup) and MongoDB (for production) backends. Following strict TDD approach to maintain code quality.
 
 ## Recent Changes
 - Created fresh NX workspace at /home/laco/cvm
@@ -73,13 +73,20 @@ CVM platform is fully implemented and integrated. All components (Parser, VM, Mo
   - Solution: Made getNext read-only, reportCCResult continues execution
   - Proper flow: startExecution → getNext (read) → reportCCResult (execute) → getNext (read)
   - Added comprehensive tests for multiple CC scenarios
+- **Completed Major Refactoring**:
+  - **Removed History tracking entirely** - not needed for core VM functionality
+  - **Fixed stateful VMManager** - added ccPrompt to Execution type for persistence
+  - **Removed MongoDB dependencies from types** - types are now pure data objects
+  - **Simplified architecture** - no history means no atomicity concerns, simpler storage
+  - All tests passing (46 total), all packages build successfully
 
 ## Next Steps
-1. Test end-to-end with Claude AI integration using the fixed multiple CC support
-2. Add more language features (if/else, loops, functions)
-3. Performance optimizations
-4. Documentation and user guides
-5. Consider adding more example programs demonstrating complex CC patterns
+1. Create storage abstraction interface based on current MongoDB adapter usage
+2. Implement file-based storage adapter using TDD
+3. Refactor VMManager to use storage abstraction
+4. Make storage backend configurable via environment variables
+5. Update documentation and examples
+6. Then proceed with npm publishing setup for easy distribution
 
 ## Active Decisions
 - Start with minimal feature set - just enough to validate architecture

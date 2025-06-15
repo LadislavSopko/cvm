@@ -11,12 +11,11 @@ export interface ExecutionResult {
 
 export interface ExecutionStatus {
   id: string;
-  state: 'ready' | 'running' | 'completed' | 'error';
+  state: 'ready' | 'running' | 'waiting_cc' | 'completed' | 'error';
   pc: number;
   stack: any[];
   variables: Record<string, any>;
   output: string[];
-  history: any[];
 }
 
 /**
@@ -146,15 +145,9 @@ export class VMManager {
           message: 'Execution completed'
         };
       } else if (state.status === 'waiting_cc') {
-        execution.state = 'running'; // Running but waiting for CC input
+        execution.state = 'waiting_cc';
+        execution.ccPrompt = state.ccPrompt;
         await this.db.saveExecution(execution);
-        
-        // Store CC prompt in memory
-        const vmState = {
-          status: state.status,
-          ccPrompt: state.ccPrompt
-        };
-        this.vms.set(executionId + '_state', vmState as any);
         
         return {
           type: 'waiting',
@@ -184,20 +177,10 @@ export class VMManager {
         type: 'error',
         error: execution.error || 'Unknown error'
       };
-    } else if (execution.state === 'running') {
-      // Check if we have a stored CC prompt
-      const vmState = this.vms.get(executionId + '_state') as any;
-      if (vmState && vmState.status === 'waiting_cc') {
-        return {
-          type: 'waiting',
-          message: vmState.ccPrompt || 'Waiting for input'
-        };
-      }
-      
-      // Otherwise, execution is in progress (shouldn't happen in normal flow)
+    } else if (execution.state === 'waiting_cc') {
       return {
         type: 'waiting',
-        message: 'Execution in progress'
+        message: execution.ccPrompt || 'Waiting for input'
       };
     }
 
@@ -234,17 +217,6 @@ export class VMManager {
       ccPrompt: undefined
     };
 
-    // Save history
-    await this.db.saveHistory({
-      executionId,
-      step: -1,
-      pc: execution.pc,
-      instruction: 'CC_RESULT',
-      stack: [...execution.stack, result],
-      variables: execution.variables,
-      timestamp: new Date()
-    });
-
     // Resume execution - this pushes result to stack and continues
     const newState = vm.resume(currentState, result, program.bytecode);
     
@@ -257,25 +229,16 @@ export class VMManager {
     if (newState.status === 'complete') {
       execution.state = 'completed';
       this.vms.delete(executionId);
-      this.vms.delete(executionId + '_state');
     } else if (newState.status === 'error') {
       execution.state = 'error';
       execution.error = newState.error;
       this.vms.delete(executionId);
-      this.vms.delete(executionId + '_state');
     } else if (newState.status === 'waiting_cc') {
       // Hit another CC immediately
-      execution.state = 'running';
-      // Store the CC prompt in memory
-      const vmState = {
-        status: newState.status,
-        ccPrompt: newState.ccPrompt
-      };
-      this.vms.set(executionId + '_state', vmState as any);
+      execution.state = 'waiting_cc';
+      execution.ccPrompt = newState.ccPrompt;
     } else {
       execution.state = 'running';
-      // Clear any stored state
-      this.vms.delete(executionId + '_state');
     }
     
     await this.db.saveExecution(execution);
@@ -290,23 +253,13 @@ export class VMManager {
       throw new Error(`Execution not found: ${executionId}`);
     }
 
-    const history = await this.db.getHistory(executionId);
-
     return {
       id: execution.id,
       state: execution.state,
       pc: execution.pc,
       stack: execution.stack,
       variables: execution.variables,
-      output: execution.output,
-      history: history.map(h => ({
-        step: h.step,
-        pc: h.pc,
-        instruction: h.instruction,
-        stack: h.stack,
-        variables: h.variables,
-        timestamp: h.timestamp
-      }))
+      output: execution.output
     };
   }
 }

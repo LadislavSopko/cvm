@@ -22,7 +22,6 @@ describe('MongoDBAdapter', () => {
       const collections = await adapter.getCollections();
       expect(collections).toContain('programs');
       expect(collections).toContain('executions');
-      expect(collections).toContain('history');
     });
   });
 
@@ -69,24 +68,4 @@ describe('MongoDBAdapter', () => {
     });
   });
 
-  describe('history collection', () => {
-    it('should save execution history', async () => {
-      const history = {
-        executionId: 'test-exec-1',
-        step: 1,
-        pc: 0,
-        instruction: 'PUSH',
-        stack: [42],
-        variables: {},
-        timestamp: new Date(),
-      };
-
-      await adapter.saveHistory(history);
-      const retrieved = await adapter.getHistory('test-exec-1');
-
-      expect(retrieved).toBeDefined();
-      expect(retrieved.length).toBeGreaterThan(0);
-      expect(retrieved[0].instruction).toBe('PUSH');
-    });
-  });
 });

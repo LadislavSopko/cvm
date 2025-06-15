@@ -117,64 +117,6 @@ describe('Parser-VM-MongoDB Integration', () => {
       expect(resumedState.output).toContain('Nice to meet you, User');
     });
 
-    it('should track execution history', async () => {
-      // Use a simple string-based program that CVM can actually compile
-      const source = `
-        function main() {
-          const greeting = "Hello";
-          console.log(greeting);
-        }
-        main();
-      `;
-
-      const parseResult = compile(source);
-      expect(parseResult.success).toBe(true);
-
-      // Store program
-      const program = {
-        id: 'integration-test-3',
-        name: 'History Test',
-        source,
-        bytecode: parseResult.bytecode,
-        created: new Date()
-      };
-      await adapter.saveProgram(program);
-
-      // Create execution
-      const executionId = 'exec-history-test-' + Date.now(); // Unique ID to avoid conflicts
-      const execution = {
-        id: executionId,
-        programId: 'integration-test-3',
-        state: 'ready' as const,
-        pc: 0,
-        stack: [],
-        variables: {},
-        output: [],
-        created: new Date()
-      };
-      await adapter.saveExecution(execution);
-
-      // Execute the program
-      const state = vm.execute(program.bytecode);
-      expect(state.status).toBe('complete');
-      expect(state.output).toContain('Hello');
-
-      // For now, just verify we can save and retrieve history
-      // The actual history tracking would be done by the VM during execution
-      await adapter.saveHistory({
-        executionId,
-        step: 1,
-        pc: 0,
-        instruction: 'PUSH',
-        stack: ['Hello'],
-        variables: {},
-        timestamp: new Date()
-      });
-
-      const history = await adapter.getHistory(executionId);
-      expect(history.length).toBeGreaterThan(0);
-      expect(history[0].instruction).toBe('PUSH');
-    });
   });
 
   describe('bytecode format validation', () => {

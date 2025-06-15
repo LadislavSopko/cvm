@@ -1,11 +1,9 @@
-import { Document } from 'mongodb';
-
 /**
  * Core types for the CVM system
  * These are shared between multiple packages
  */
 
-export interface Program extends Document {
+export interface Program {
   id: string;
   name: string;
   source: string;
@@ -14,25 +12,16 @@ export interface Program extends Document {
   updated?: Date;
 }
 
-export interface Execution extends Document {
+export interface Execution {
   id: string;
   programId: string;
-  state: 'ready' | 'running' | 'completed' | 'error';
+  state: 'ready' | 'running' | 'waiting_cc' | 'completed' | 'error';
   pc: number;
   stack: any[];
   variables: Record<string, any>;
   output: string[];
   error?: string;
+  ccPrompt?: string; // Store CC prompt for stateless operation
   created: Date;
   updated?: Date;
-}
-
-export interface History extends Document {
-  executionId: string;
-  step: number;
-  pc: number;
-  instruction: string;
-  stack: any[];
-  variables: Record<string, any>;
-  timestamp: Date;
 }

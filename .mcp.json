@@ -11,14 +11,6 @@
         "BRAVE_API_KEY": "BSAnpwFBPlUwkiN93SlnT-DsH36Eosd"
       }
     },
-    "sequential-thinking": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-sequential-thinking"
-      ]
-    },
     "context7": {
       "type": "stdio",
       "command": "npx",
@@ -35,10 +27,6 @@
         "mongodb-lens",
         "mongodb://root:example@localhost:27017/cvm?authSource=admin"
       ]
-    },
-    "playwright": {
-        "command": "npx",
-        "args": ["-y", "@executeautomation/playwright-mcp-server"]
-     }
+    }
   }
 }

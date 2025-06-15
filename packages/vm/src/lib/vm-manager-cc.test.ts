@@ -18,8 +18,7 @@ describe('VMManager - Multiple CC Debug', () => {
       getProgram: vi.fn(),
       createExecution: vi.fn(),
       saveExecution: vi.fn(),
-      getExecution: vi.fn(),
-      saveHistory: vi.fn()
+      getExecution: vi.fn()
     };
 
     (MongoDBAdapter as any).mockImplementation(() => mockDb);
@@ -59,8 +58,11 @@ main();
         state: exec.state,
         pc: exec.pc,
         stack: [...exec.stack],
-        variables: { ...exec.variables }
+        variables: { ...exec.variables },
+        ccPrompt: exec.ccPrompt
       });
+      // Update the execution object with the saved state
+      Object.assign(execution, exec);
     });
 
     // Mock execution
