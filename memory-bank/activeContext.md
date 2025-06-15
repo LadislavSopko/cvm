@@ -1,134 +1,46 @@
 # Active Context - CVM Project
 
 ## Current Focus
-Publishing CVM as a professional open source project with `npx @cvm/cvm-server` support. Using Apache 2.0 license with environment-based configuration following MCP server conventions.
+CVM Server is successfully published and working! Version 0.2.7 is live on npm and can be installed with `npx cvm-server`. The project is now ready for usage documentation and examples.
 
 ## Recent Changes
-- Created fresh NX workspace at /home/laco/cvm
-- Initialized Memory Bank structure
-- Created all core Memory Bank files
-- Cleaned up inconsistencies:
-  - Standardized on Vitest for testing
-  - Changed MCP method from continueExecution to getNext
-  - Removed old project references from Memory Bank README
-- Implemented parser library:
-  - Uses TypeScript compiler API for AST parsing
-  - CVM as TypeScript subset (main() required)
-  - Validates forbidden APIs (setTimeout, fetch, etc.)
-  - Full TDD approach with all tests passing
-- Implemented compiler:
-  - Transforms TypeScript AST to CVM bytecode
-  - Supports: variables, CC(), console.log(), string concatenation
-- Implemented VM library:
-  - Stack-based bytecode executor
-  - Handles PUSH, POP, LOAD, STORE, CONCAT, PRINT, CC, HALT
-  - Pauses execution on CC instruction
-  - Resume capability with CC results
-- Created integration tests proving end-to-end functionality
-- Set up MongoDB:
-  - Connected to existing MongoDB instance (root:example@localhost:27017)
-  - Created CVM database with collections: programs, executions, history
-- Implemented @cvm/mongodb library:
-  - MongoDBAdapter class for database operations
-  - Full TDD implementation with all tests passing
-  - Supports saving/loading programs, executions, and history
-  - Proper TypeScript types extending MongoDB Document
-- **Created @cvm/types package** to solve circular dependency issues:
-  - Shared type definitions used by all packages
-  - Prevents circular dependencies between VM and MongoDB
-  - Clean architectural separation
-- **Implemented VMManager** to encapsulate execution and persistence logic:
-  - Owns MongoDB adapter instance
-  - Manages program and execution lifecycle
-  - Handles state persistence automatically
-  - VM itself remains pure execution engine
-- **Fixed architecture** so VM owns MongoDB persistence:
-  - MCP server is now just a thin protocol layer
-  - VMManager handles all business logic
-  - Clean separation of concerns achieved
-- **All core components integrated** with passing tests:
-  - Parser-VM-MongoDB integration verified
-  - End-to-end execution with persistence working
-  - Architecture properly layered without circular dependencies
-- **MCP Server fully implemented**:
-  - All protocol methods working with VMManager
-  - Tests updated to mock VMManager instead of MongoDB
-  - Clean protocol layer with no business logic
-  - 13 tests passing, full functionality verified
-- **Fixed encapsulation violations**:
-  - MCP server no longer takes MongoDB as constructor parameter
-  - VMManager creates its own MongoDB connection from environment
-  - Added .env file with MONGODB_URI=mongodb://root:example@localhost:27017/cvm?authSource=admin
-  - All packages now properly encapsulated
-  - 51 tests passing across all packages
-- **Created cvm-server application**:
-  - NX application in apps/cvm-server
-  - Handles environment configuration (MongoDB URI, log levels)
-  - Logs to stderr to keep stdout clean for MCP protocol
-  - Graceful shutdown handling
-  - Ready for MCP client connections
-- **Fixed multiple CC execution bug**:
-  - Issue: After first CC, execution got stuck "Waiting for input"
-  - Root cause: getNext was executing instead of just reading state
-  - Solution: Made getNext read-only, reportCCResult continues execution
-  - Proper flow: startExecution → getNext (read) → reportCCResult (execute) → getNext (read)
-  - Added comprehensive tests for multiple CC scenarios
-- **Completed Major Refactoring**:
-  - **Removed History tracking entirely** - not needed for core VM functionality
-  - **Fixed stateful VMManager** - added ccPrompt to Execution type for persistence
-  - **Removed MongoDB dependencies from types** - types are now pure data objects
-  - **Simplified architecture** - no history means no atomicity concerns, simpler storage
-  - All tests passing (46 total), all packages build successfully
-- **Implemented Storage Abstraction**:
-  - Created @cvm/storage package with StorageAdapter interface
-  - Moved MongoDBAdapter to storage package
-  - Implemented FileStorageAdapter for zero-setup experience
-  - Created StorageFactory for easy configuration
-  - Updated VMManager to use storage abstraction (dependency injection)
-  - All 70 tests passing, all packages build successfully
-- **Publishing Plan Finalized**:
-  - Apache 2.0 license chosen for community-friendly IP protection
-  - Environment-based configuration (MCP standard)
-  - Default to file storage in `.cvm` directory
-  - Clear warnings about .gitignore requirement
-  - Simple bin wrapper for npx execution
-- **Publishing Implementation Started**:
-  - Set up npm publishing with Apache 2.0 license
-  - Created executable bin/cvm-server.cjs wrapper
-  - Configured automatic versioning with nx release
-  - Added vite-plugin-static-copy for automatic asset handling
-  - Fixed ES module/CommonJS conflict by adding "type": "commonjs" to package.json
-  - Added typescript to dependencies (required for runtime parser)
+- **Successfully resolved publishing issue**: Version 0.2.7 published with all required files
+- **Publishing workflow established**: Using nx release with custom publish target
+- **Working installation**: `npx cvm-server` confirmed working in examples directory
+- **API Refactoring Complete**: Renamed all MCP methods and status values for v0.3.0
 
-## Publishing Issue FULLY RESOLVED
-**PROBLEM**: NX release publish was publishing from SOURCE directory instead of DIST directory, causing published packages to be missing main.js.
+## Publishing Status
+- **Version 0.3.0**: Published and working with new API ✅
+- **Version 0.2.7**: Last version with old API
+- **Versions 0.2.5, 0.2.6**: Deprecated (were missing main.js)
+- **Installation**: `npx cvm-server@latest` or `npm install -g cvm-server`
 
-**ROOT CAUSE DISCOVERED**: 
-- `@nx/js:release-publish` executor has a bug with packageRoot and file resolution
-- When npm runs from workspace root, it uses .gitignore (which excludes dist) since there's no .npmignore
-- This caused main.js to be excluded from the tarball
-
-**SOLUTION IMPLEMENTED**:
-1. **Removed publish override from nx.json** - Let nx release use project's own publish target
-2. **Project publish target** in package.json correctly uses: `cd apps/cvm-server/dist && npm publish`
-3. This ensures npm runs from within dist directory, avoiding .gitignore issues
-
-**PUBLISHING WORKFLOW**:
-- **Version bump**: `npx nx release version patch` (or minor/major)
-- **Publish**: `npx nx run cvm-server:publish`
-- **Or all-in-one**: `npx nx release`
-
-**STATUS**: 
-- Versions 0.2.5 and 0.2.6 published with missing main.js (broken)
-- Version 0.2.7 published correctly with all files including main.js
-- Recommend deprecating 0.2.5 and 0.2.6 with: `npm deprecate cvm-server@0.2.5 "Missing main.js - use 0.2.7 or later"`
+## v0.3.0 API Changes
+- **Method Renames**:
+  - `loadProgram` → `load`
+  - `startExecution` → `start`
+  - `getNext` → `getTask`
+  - `reportCCResult` → `submitTask`
+  - `getExecutionState` → `status`
+- **Status Value Updates**:
+  - `ready` → `READY`
+  - `running` → `RUNNING`
+  - `waiting_cc` → `AWAITING_COGNITIVE_RESULT`
+  - `completed` → `COMPLETED`
+  - `error` → `ERROR`
 
 ## Next Steps
-1. Test npx cvm-server@latest execution from npm registry
-2. Deprecate broken versions: `npm deprecate cvm-server@0.2.5 "Missing main.js - use 0.2.7 or later"`
-3. Update documentation with publishing process
-4. Create examples documentation
-5. Announce release
+1. Implement return value support for main()
+2. Rename MCP methods to simpler names (load, start, getTask, submitTask, status)
+3. Add safety counter to prevent infinite getTask loops
+4. Create user-facing documentation (README updates, examples)
+5. Announce the release
+
+## Current Implementation Focus
+- Add return statement to parser (only in main())
+- Add RETURN opcode to VM
+- Rename all MCP methods and status values
+- Add getTaskCount safety mechanism (fail after X attempts without progress)
 
 ## Active Decisions
 - Start with minimal feature set - just enough to validate architecture

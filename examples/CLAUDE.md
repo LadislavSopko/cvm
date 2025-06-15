@@ -6,31 +6,31 @@ The CVM (Cognitive Virtual Machine) server is now available as an MCP tool. You 
 ## Available Tools
 The CVM server provides these tools:
 
-### 1. `cvm_loadProgram`
+### 1. `cvm_load`
 Loads a CVM program from source code.
 - Parameters:
   - `programId`: Unique identifier for the program
   - `source`: TypeScript source code (must have a main() function)
 
-### 2. `cvm_startExecution`
+### 2. `cvm_start`
 Starts executing a loaded program.
 - Parameters:
   - `programId`: ID of the program to execute
   - `executionId`: Unique identifier for this execution
 
-### 3. `cvm_getNext`
+### 3. `cvm_getTask`
 Gets the next action from the VM (either a CC prompt or completion).
 - Parameters:
   - `executionId`: ID of the running execution
 - Returns: Either a CC prompt to process, or execution completion
 
-### 4. `cvm_reportCCResult`
+### 4. `cvm_submitTask`
 Reports the result of processing a CC prompt.
 - Parameters:
   - `executionId`: ID of the running execution
   - `result`: The cognitive response to the CC prompt
 
-### 5. `cvm_getExecutionState`
+### 5. `cvm_status`
 Gets the current state of an execution.
 - Parameters:
   - `executionId`: ID of the execution
@@ -50,11 +50,11 @@ function main() {
 
 2. Start execution with a unique ID
 
-3. Call getNext - it will return the first CC prompt
+3. Call getTask - it will return the first CC prompt
 
-4. Process the prompt and send back a response with reportCCResult
+4. Process the prompt and send back a response with submitTask
 
-5. Continue calling getNext and reportCCResult until execution completes
+5. Continue calling getTask and submitTask until execution completes
 
 ## Example Test Program
 Here's a simple test program you can use:
@@ -72,6 +72,14 @@ function main() {
   console.log("Test complete!");
 }
 ```
+
+## Status Values
+When calling `cvm_status` or receiving responses, you'll see these status values:
+- `READY` - Execution is ready to start
+- `RUNNING` - Currently executing
+- `AWAITING_COGNITIVE_RESULT` - Waiting for CC() response
+- `COMPLETED` - Execution finished successfully
+- `ERROR` - Execution failed with an error
 
 ## Notes
 - Programs must be valid TypeScript with a main() function

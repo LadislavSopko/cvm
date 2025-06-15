@@ -13,6 +13,7 @@ export class CVMMcpServer {
   private vmManager: VMManager;
 
   constructor() {
+    console.error('[CVM Debug] Creating CVMMcpServer instance...');
     this.vmManager = new VMManager();
     this.server = new McpServer({
       name: 'cvm-server',
@@ -31,9 +32,10 @@ export class CVMMcpServer {
   }
 
   private setupTools(): void {
+    console.error('[CVM Debug] Setting up tools...');
     // Load a CVM program
     this.server.tool(
-      'loadProgram',
+      'load',
       {
         programId: z.string(),
         source: z.string()
@@ -55,7 +57,7 @@ export class CVMMcpServer {
 
     // Start execution of a program
     this.server.tool(
-      'startExecution',
+      'start',
       {
         programId: z.string(),
         executionId: z.string()
@@ -77,7 +79,7 @@ export class CVMMcpServer {
 
     // Get next CC prompt or completion status
     this.server.tool(
-      'getNext',
+      'getTask',
       {
         executionId: z.string()
       },
@@ -115,7 +117,7 @@ export class CVMMcpServer {
 
     // Report CC result and continue execution
     this.server.tool(
-      'reportCCResult',
+      'submitTask',
       {
         executionId: z.string(),
         result: z.string()
@@ -137,7 +139,7 @@ export class CVMMcpServer {
 
     // Get current execution state
     this.server.tool(
-      'getExecutionState',
+      'status',
       {
         executionId: z.string()
       },
@@ -175,7 +177,7 @@ export class CVMMcpServer {
   // For testing - direct tool invocation
   async handleTool(toolName: string, args: any): Promise<any> {
     const handlers: Record<string, (args: any) => Promise<any>> = {
-      loadProgram: async ({ programId, source }) => {
+      load: async ({ programId, source }) => {
         try {
           await this.vmManager.loadProgram(programId, source);
           return { content: [{ type: 'text', text: `Program loaded successfully: ${programId}` }] };
@@ -183,7 +185,7 @@ export class CVMMcpServer {
           return { content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }], isError: true };
         }
       },
-      startExecution: async ({ programId, executionId }) => {
+      start: async ({ programId, executionId }) => {
         try {
           await this.vmManager.startExecution(programId, executionId);
           return { content: [{ type: 'text', text: `Execution started: ${executionId}` }] };
@@ -191,7 +193,7 @@ export class CVMMcpServer {
           return { content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }], isError: true };
         }
       },
-      getNext: async ({ executionId }) => {
+      getTask: async ({ executionId }) => {
         try {
           const result = await this.vmManager.getNext(executionId);
           if (result.type === 'completed') {
@@ -205,7 +207,7 @@ export class CVMMcpServer {
           return { content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }], isError: true };
         }
       },
-      reportCCResult: async ({ executionId, result }) => {
+      submitTask: async ({ executionId, result }) => {
         try {
           await this.vmManager.reportCCResult(executionId, result);
           return { content: [{ type: 'text', text: 'Execution resumed' }] };
@@ -213,7 +215,7 @@ export class CVMMcpServer {
           return { content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }], isError: true };
         }
       },
-      getExecutionState: async ({ executionId }) => {
+      status: async ({ executionId }) => {
         try {
           const status = await this.vmManager.getExecutionStatus(executionId);
           return { content: [{ type: 'text', text: JSON.stringify(status, null, 2) }] };

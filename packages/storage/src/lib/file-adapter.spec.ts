@@ -102,7 +102,7 @@ describe('FileStorageAdapter', () => {
       const execution: Execution = {
         id: 'exec-1',
         programId: 'prog-1',
-        state: 'running',
+        state: 'RUNNING',
         pc: 5,
         stack: ['a', 'b'],
         variables: { x: 10 },
@@ -115,7 +115,7 @@ describe('FileStorageAdapter', () => {
 
       expect(retrieved).toBeDefined();
       expect(retrieved?.id).toBe('exec-1');
-      expect(retrieved?.state).toBe('running');
+      expect(retrieved?.state).toBe('RUNNING');
       expect(retrieved?.pc).toBe(5);
       expect(retrieved?.stack).toEqual(['a', 'b']);
       expect(retrieved?.variables).toEqual({ x: 10 });
@@ -131,7 +131,7 @@ describe('FileStorageAdapter', () => {
       const execution: Execution = {
         id: 'exec-2',
         programId: 'prog-1',
-        state: 'waiting_cc',
+        state: 'AWAITING_COGNITIVE_RESULT',
         pc: 3,
         stack: [],
         variables: {},
@@ -143,7 +143,7 @@ describe('FileStorageAdapter', () => {
       await adapter.saveExecution(execution);
       const retrieved = await adapter.getExecution('exec-2');
 
-      expect(retrieved?.state).toBe('waiting_cc');
+      expect(retrieved?.state).toBe('AWAITING_COGNITIVE_RESULT');
       expect(retrieved?.ccPrompt).toBe('What is your name?');
     });
   });

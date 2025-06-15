@@ -39,7 +39,7 @@ describe('CVMMcpServer', () => {
     });
   });
 
-  describe('loadProgram tool', () => {
+  describe('load tool', () => {
     it('should call VMManager.loadProgram for valid program', async () => {
       const source = `function main() {
   const name = "World";
@@ -50,7 +50,7 @@ main();`;
 
       mockVMManager.loadProgram.mockResolvedValueOnce(undefined);
 
-      const result = await server.handleTool('loadProgram', {
+      const result = await server.handleTool('load', {
         programId: 'test-prog-1',
         source
       });
@@ -70,7 +70,7 @@ main();`;
         new Error('Compilation failed: main() must be called at the top level')
       );
 
-      const result = await server.handleTool('loadProgram', {
+      const result = await server.handleTool('load', {
         programId: 'test-prog-2',
         source
       });
@@ -90,7 +90,7 @@ main();`;
         new Error('Compilation failed: Program must have a main() function')
       );
 
-      const result = await server.handleTool('loadProgram', {
+      const result = await server.handleTool('load', {
         programId: 'test-prog-3',
         source
       });
@@ -101,11 +101,11 @@ main();`;
     });
   });
 
-  describe('startExecution tool', () => {
+  describe('start tool', () => {
     it('should call VMManager.startExecution', async () => {
       mockVMManager.startExecution.mockResolvedValueOnce(undefined);
 
-      const result = await server.handleTool('startExecution', {
+      const result = await server.handleTool('start', {
         programId: 'test-prog-1',
         executionId: 'exec-1'
       });
@@ -119,7 +119,7 @@ main();`;
         new Error('Program not found: non-existent')
       );
 
-      const result = await server.handleTool('startExecution', {
+      const result = await server.handleTool('start', {
         programId: 'non-existent',
         executionId: 'exec-2'
       });
@@ -129,14 +129,14 @@ main();`;
     });
   });
 
-  describe('getNext tool', () => {
+  describe('getTask tool', () => {
     it('should return CC prompt when VM pauses', async () => {
       mockVMManager.getNext.mockResolvedValueOnce({
         type: 'waiting',
         message: 'What should I say next?'
       });
 
-      const result = await server.handleTool('getNext', {
+      const result = await server.handleTool('getTask', {
         executionId: 'exec-1'
       });
 
@@ -150,7 +150,7 @@ main();`;
         message: 'Execution completed'
       });
 
-      const result = await server.handleTool('getNext', {
+      const result = await server.handleTool('getTask', {
         executionId: 'exec-1'
       });
 
@@ -164,7 +164,7 @@ main();`;
         error: 'Stack overflow'
       });
 
-      const result = await server.handleTool('getNext', {
+      const result = await server.handleTool('getTask', {
         executionId: 'exec-1'
       });
 
@@ -173,11 +173,11 @@ main();`;
     });
   });
 
-  describe('reportCCResult tool', () => {
+  describe('submitTask tool', () => {
     it('should call VMManager.reportCCResult', async () => {
       mockVMManager.reportCCResult.mockResolvedValueOnce(undefined);
 
-      const result = await server.handleTool('reportCCResult', {
+      const result = await server.handleTool('submitTask', {
         executionId: 'exec-1',
         result: 'Goodbye!'
       });
@@ -191,7 +191,7 @@ main();`;
         new Error('Execution not found')
       );
 
-      const result = await server.handleTool('reportCCResult', {
+      const result = await server.handleTool('submitTask', {
         executionId: 'non-existent',
         result: 'test'
       });
@@ -201,11 +201,11 @@ main();`;
     });
   });
 
-  describe('getExecutionState tool', () => {
+  describe('status tool', () => {
     it('should return current execution state', async () => {
       const mockStatus = {
         id: 'exec-1',
-        state: 'running',
+        state: 'RUNNING',
         pc: 10,
         stack: ['Hello', 'World'],
         variables: { x: 42 },
@@ -224,12 +224,12 @@ main();`;
 
       mockVMManager.getExecutionStatus.mockResolvedValueOnce(mockStatus);
 
-      const result = await server.handleTool('getExecutionState', {
+      const result = await server.handleTool('status', {
         executionId: 'exec-1'
       });
 
       const response = JSON.parse(result.content[0].text);
-      expect(response.state).toBe('running');
+      expect(response.state).toBe('RUNNING');
       expect(response.pc).toBe(10);
       expect(response.stack).toEqual(['Hello', 'World']);
       expect(response.variables).toEqual({ x: 42 });
@@ -242,7 +242,7 @@ main();`;
         new Error('Execution not found: non-existent')
       );
 
-      const result = await server.handleTool('getExecutionState', {
+      const result = await server.handleTool('status', {
         executionId: 'non-existent'
       });
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { StorageFactory } from './storage-factory.js';
 import { FileStorageAdapter } from './file-adapter.js';
 import { MongoDBAdapter } from './mongodb-adapter.js';

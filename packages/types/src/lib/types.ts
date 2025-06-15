@@ -15,7 +15,7 @@ export interface Program {
 export interface Execution {
   id: string;
   programId: string;
-  state: 'ready' | 'running' | 'waiting_cc' | 'completed' | 'error';
+  state: 'READY' | 'RUNNING' | 'AWAITING_COGNITIVE_RESULT' | 'COMPLETED' | 'ERROR';
   pc: number;
   stack: any[];
   variables: Record<string, any>;

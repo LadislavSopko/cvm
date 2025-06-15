@@ -27,13 +27,13 @@ Dependency Direction: Parser → VM → MongoDB
 ```
 
 ### Execution Pattern
-1. **startExecution**: CVM begins execution until first CC or completion
-2. **getNext (READ-ONLY)**: Claude polls CVM asking "what's next?" - just reads current state
-3. **CVM Response**: Returns current state (running/waiting_cc/complete) with CC prompt if waiting
-4. **reportCCResult**: Claude sends cognitive result, CVM resumes execution until next CC or completion
-5. **Repeat**: Claude calls getNext again to check new state
+1. **start**: CVM begins execution until first CC or completion
+2. **getTask (READ-ONLY)**: Claude polls CVM asking "what's next?" - just reads current state
+3. **CVM Response**: Returns current state (RUNNING/AWAITING_COGNITIVE_RESULT/COMPLETED) with CC prompt if waiting
+4. **submitTask**: Claude sends cognitive result, CVM resumes execution until next CC or completion
+5. **Repeat**: Claude calls getTask again to check new state
 
-Key insight: getNext is read-only, reportCCResult drives execution forward.
+Key insight: getTask is read-only, submitTask drives execution forward.
 
 ### Key Design Decisions
 
@@ -77,7 +77,7 @@ Key insight: getNext is read-only, reportCCResult drives execution forward.
 
 ### MCP Server → VM
 - Thin protocol layer that only calls VMManager
-- Methods: loadProgram, startExecution, getNext, reportCCResult, getExecutionState
+- Methods: load, start, getTask, submitTask, status
 - No business logic in protocol layer
 - No direct MongoDB access
 - Clear separation of concerns
@@ -85,7 +85,7 @@ Key insight: getNext is read-only, reportCCResult drives execution forward.
 
 ### Claude → MCP Server
 - Claude drives the conversation
-- Polls for next action using `cvm/getNext`
+- Polls for next action using `cvm/getTask`
 - Processes cognitive operations
 - Reports results back
 
@@ -93,13 +93,13 @@ Key insight: getNext is read-only, reportCCResult drives execution forward.
 
 ### Program Execution Path
 ```
-loadProgram → Parse source → Store bytecode → Return program ID
+load → Parse source → Store bytecode → Return program ID
      ↓
-startExecution → Create execution state → Initialize VM → Return execution ID
+start → Create execution state → Initialize VM → Return execution ID
      ↓
-getNext → Load state → Execute until CC/complete → Save state → Return status
+getTask → Load state → Execute until CC/complete → Save state → Return status
      ↓
-reportCCResult → Load state → Push result → Mark as running → Save state
+submitTask → Load state → Push result → Mark as running → Save state
 ```
 
 ### State Persistence Path
@@ -109,7 +109,7 @@ Each instruction → Update VM state → Save to MongoDB → Continue/Pause
 
 ### Cognitive Interrupt Path
 ```
-CC instruction → Save state with prompt → Return waiting_cc → Claude processes → Report result → Resume
+CC instruction → Save state with prompt → Return AWAITING_COGNITIVE_RESULT → Claude processes → Report result → Resume
 ```
 
 ## Error Handling Patterns

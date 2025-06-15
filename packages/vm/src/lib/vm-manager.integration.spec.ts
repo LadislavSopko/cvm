@@ -64,7 +64,7 @@ describe('VMManager Integration Tests', () => {
 
       // Check execution state
       const status = await vmManager.getExecutionStatus('exec-vm-1');
-      expect(status.state).toBe('completed');
+      expect(status.state).toBe('COMPLETED');
       expect(status.output).toContain('Hello World');
     });
 
@@ -96,7 +96,7 @@ describe('VMManager Integration Tests', () => {
 
       // Check final state
       const status = await vmManager.getExecutionStatus('exec-vm-2');
-      expect(status.state).toBe('completed');
+      expect(status.state).toBe('COMPLETED');
       expect(status.output).toContain('Hello, Alice');
     });
   });

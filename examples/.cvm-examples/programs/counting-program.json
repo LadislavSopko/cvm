@@ -1,0 +1,128 @@
+{
+  "id": "counting-program",
+  "name": "counting-program",
+  "source": "function main() {\n  console.log(\"Let's count together!\");\n  console.log(\"Starting with: 1\");\n  \n  const num1 = CC(\"Say next number after 1\");\n  console.log(\"Next number: \" + num1);\n  \n  const num2 = CC(\"Say next number after \" + num1);\n  console.log(\"Next number: \" + num2);\n  \n  const num3 = CC(\"Say next number after \" + num2);\n  console.log(\"Next number: \" + num3);\n  \n  console.log(\"Great counting! We went from 1 to \" + num3);\n}\n\nmain();",
+  "bytecode": [
+    {
+      "op": "PUSH",
+      "arg": "Let's count together!"
+    },
+    {
+      "op": "PRINT"
+    },
+    {
+      "op": "PUSH",
+      "arg": "Starting with: 1"
+    },
+    {
+      "op": "PRINT"
+    },
+    {
+      "op": "PUSH",
+      "arg": "Say next number after 1"
+    },
+    {
+      "op": "CC"
+    },
+    {
+      "op": "STORE",
+      "arg": "num1"
+    },
+    {
+      "op": "PUSH",
+      "arg": "Next number: "
+    },
+    {
+      "op": "LOAD",
+      "arg": "num1"
+    },
+    {
+      "op": "CONCAT"
+    },
+    {
+      "op": "PRINT"
+    },
+    {
+      "op": "PUSH",
+      "arg": "Say next number after "
+    },
+    {
+      "op": "LOAD",
+      "arg": "num1"
+    },
+    {
+      "op": "CONCAT"
+    },
+    {
+      "op": "CC"
+    },
+    {
+      "op": "STORE",
+      "arg": "num2"
+    },
+    {
+      "op": "PUSH",
+      "arg": "Next number: "
+    },
+    {
+      "op": "LOAD",
+      "arg": "num2"
+    },
+    {
+      "op": "CONCAT"
+    },
+    {
+      "op": "PRINT"
+    },
+    {
+      "op": "PUSH",
+      "arg": "Say next number after "
+    },
+    {
+      "op": "LOAD",
+      "arg": "num2"
+    },
+    {
+      "op": "CONCAT"
+    },
+    {
+      "op": "CC"
+    },
+    {
+      "op": "STORE",
+      "arg": "num3"
+    },
+    {
+      "op": "PUSH",
+      "arg": "Next number: "
+    },
+    {
+      "op": "LOAD",
+      "arg": "num3"
+    },
+    {
+      "op": "CONCAT"
+    },
+    {
+      "op": "PRINT"
+    },
+    {
+      "op": "PUSH",
+      "arg": "Great counting! We went from 1 to "
+    },
+    {
+      "op": "LOAD",
+      "arg": "num3"
+    },
+    {
+      "op": "CONCAT"
+    },
+    {
+      "op": "PRINT"
+    },
+    {
+      "op": "HALT"
+    }
+  ],
+  "created": "2025-06-15T21:29:17.609Z"
+}

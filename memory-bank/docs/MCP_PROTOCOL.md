@@ -44,7 +44,7 @@ CVM uses MCP (Model Context Protocol) to communicate with Claude. The protocol u
 
 ## CVM Methods
 
-### cvm/loadProgram
+### cvm/load
 
 Loads a program from source code.
 
@@ -52,7 +52,7 @@ Loads a program from source code.
 ```json
 {
   "jsonrpc": "2.0",
-  "method": "cvm/loadProgram",
+  "method": "cvm/load",
   "params": {
     "name": "email_processor",
     "source": "let x = CC(\"test\"); print(x);"
@@ -73,7 +73,7 @@ Loads a program from source code.
 }
 ```
 
-### cvm/startExecution
+### cvm/start
 
 Starts executing a loaded program.
 
@@ -81,7 +81,7 @@ Starts executing a loaded program.
 ```json
 {
   "jsonrpc": "2.0",
-  "method": "cvm/startExecution",
+  "method": "cvm/start",
   "params": {
     "programId": "507f1f77bcf86cd799439011"
   },
@@ -95,13 +95,13 @@ Starts executing a loaded program.
   "jsonrpc": "2.0",
   "result": {
     "executionId": "507f1f77bcf86cd799439012",
-    "status": "running"
+    "status": "RUNNING"
   },
   "id": 2
 }
 ```
 
-### cvm/getNext
+### cvm/getTask
 
 Gets the next state of execution (continues until next CC operation or completion).
 
@@ -109,7 +109,7 @@ Gets the next state of execution (continues until next CC operation or completio
 ```json
 {
   "jsonrpc": "2.0",
-  "method": "cvm/getNext",
+  "method": "cvm/getTask",
   "params": {
     "executionId": "507f1f77bcf86cd799439012"
   },
@@ -122,7 +122,7 @@ Gets the next state of execution (continues until next CC operation or completio
 {
   "jsonrpc": "2.0",
   "result": {
-    "status": "waiting_cc",
+    "status": "AWAITING_COGNITIVE_RESULT",
     "prompt": "Is this email urgent?",
     "executionId": "507f1f77bcf86cd799439012"
   },
@@ -135,7 +135,7 @@ Gets the next state of execution (continues until next CC operation or completio
 {
   "jsonrpc": "2.0",
   "result": {
-    "status": "complete",
+    "status": "COMPLETED",
     "output": ["Line 1", "Line 2"],
     "executionId": "507f1f77bcf86cd799439012"
   },
@@ -143,7 +143,7 @@ Gets the next state of execution (continues until next CC operation or completio
 }
 ```
 
-### cvm/reportCCResult
+### cvm/submitTask
 
 Reports the result of a CC operation.
 
@@ -151,7 +151,7 @@ Reports the result of a CC operation.
 ```json
 {
   "jsonrpc": "2.0",
-  "method": "cvm/reportCCResult",
+  "method": "cvm/submitTask",
   "params": {
     "executionId": "507f1f77bcf86cd799439012",
     "result": "Yes, this email is urgent"
@@ -166,13 +166,13 @@ Reports the result of a CC operation.
   "jsonrpc": "2.0",
   "result": {
     "success": true,
-    "status": "running"
+    "status": "RUNNING"
   },
   "id": 4
 }
 ```
 
-### cvm/getExecutionState
+### cvm/status
 
 Gets current execution state for debugging.
 
@@ -180,7 +180,7 @@ Gets current execution state for debugging.
 ```json
 {
   "jsonrpc": "2.0",
-  "method": "cvm/getExecutionState",
+  "method": "cvm/status",
   "params": {
     "executionId": "507f1f77bcf86cd799439012"
   },
@@ -194,7 +194,7 @@ Gets current execution state for debugging.
   "jsonrpc": "2.0",
   "result": {
     "pc": 10,
-    "status": "waiting_cc",
+    "status": "AWAITING_COGNITIVE_RESULT",
     "stack": ["value1", "value2"],
     "variables": {
       "email": "test@example.com",
@@ -254,13 +254,13 @@ Lists all available programs.
 ## Connection Flow
 
 1. **Claude connects** to CVM via MCP
-2. **Load program**: `cvm/loadProgram`
-3. **Start execution**: `cvm/startExecution`
+2. **Load program**: `cvm/load`
+3. **Start execution**: `cvm/start`
 4. **Execute loop**:
-   - Call `cvm/getNext`
-   - If `waiting_cc`: Claude processes prompt
-   - Call `cvm/reportCCResult` with response
-   - Repeat until `complete`
+   - Call `cvm/getTask`
+   - If `AWAITING_COGNITIVE_RESULT`: Claude processes prompt
+   - Call `cvm/submitTask` with response
+   - Repeat until `COMPLETED`
 5. **Get output** from final response
 
 ## Implementation Notes
@@ -276,9 +276,9 @@ class MCPServer {
       }
       
       switch (method) {
-        case 'loadProgram':
+        case 'load':
           return await this.loadProgram(request);
-        case 'startExecution':
+        case 'start':
           return await this.startExecution(request);
         // ... other methods
       }
@@ -296,7 +296,7 @@ Human: Execute my email processor program
 Claude: I'll execute your email processor program using CVM.
 
 [Connects to CVM via MCP]
-[Calls cvm/loadProgram]
+[Calls cvm/load]
 [Calls cvm/startExecution]
 [Calls cvm/getNext]
 [Receives: waiting_cc with prompt "Is this urgent?"]

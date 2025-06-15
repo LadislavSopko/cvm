@@ -50,7 +50,7 @@ describe('MongoDBAdapter', () => {
       const execution = {
         id: 'test-exec-1',
         programId: 'test-program-1',
-        state: 'running' as const,
+        state: 'RUNNING' as const,
         pc: 0,
         stack: [],
         variables: {},
@@ -63,7 +63,7 @@ describe('MongoDBAdapter', () => {
 
       expect(retrieved).toBeDefined();
       expect(retrieved?.programId).toBe('test-program-1');
-      expect(retrieved?.state).toBe('running');
+      expect(retrieved?.state).toBe('RUNNING');
       expect(retrieved?.output).toEqual([]);
     });
   });

@@ -11,7 +11,7 @@ export interface ExecutionResult {
 
 export interface ExecutionStatus {
   id: string;
-  state: 'ready' | 'running' | 'waiting_cc' | 'completed' | 'error';
+  state: 'READY' | 'RUNNING' | 'AWAITING_COGNITIVE_RESULT' | 'COMPLETED' | 'ERROR';
   pc: number;
   stack: any[];
   variables: Record<string, any>;
@@ -83,7 +83,7 @@ export class VMManager {
     const execution: Execution = {
       id: executionId,
       programId,
-      state: 'ready',
+      state: 'READY',
       pc: 0,
       stack: [],
       variables: {},
@@ -109,7 +109,7 @@ export class VMManager {
     }
 
     // Check if we need to initialize execution
-    if (execution.state === 'ready') {
+    if (execution.state === 'READY') {
       // First time - need to start execution
       const program = await this.storage.getProgram(execution.programId);
       if (!program) {
@@ -139,7 +139,7 @@ export class VMManager {
       execution.output = state.output;
 
       if (state.status === 'complete') {
-        execution.state = 'completed';
+        execution.state = 'COMPLETED';
         await this.storage.saveExecution(execution);
         this.vms.delete(executionId);
         
@@ -148,7 +148,7 @@ export class VMManager {
           message: 'Execution completed'
         };
       } else if (state.status === 'waiting_cc') {
-        execution.state = 'waiting_cc';
+        execution.state = 'AWAITING_COGNITIVE_RESULT';
         execution.ccPrompt = state.ccPrompt;
         await this.storage.saveExecution(execution);
         
@@ -157,7 +157,7 @@ export class VMManager {
           message: state.ccPrompt || 'Waiting for input'
         };
       } else if (state.status === 'error') {
-        execution.state = 'error';
+        execution.state = 'ERROR';
         execution.error = state.error;
         await this.storage.saveExecution(execution);
         this.vms.delete(executionId);
@@ -170,17 +170,17 @@ export class VMManager {
     }
 
     // Not ready state - check current execution state
-    if (execution.state === 'completed') {
+    if (execution.state === 'COMPLETED') {
       return {
         type: 'completed',
         message: 'Execution completed'
       };
-    } else if (execution.state === 'error') {
+    } else if (execution.state === 'ERROR') {
       return {
         type: 'error',
         error: execution.error || 'Unknown error'
       };
-    } else if (execution.state === 'waiting_cc') {
+    } else if (execution.state === 'AWAITING_COGNITIVE_RESULT') {
       return {
         type: 'waiting',
         message: execution.ccPrompt || 'Waiting for input'
@@ -230,18 +230,18 @@ export class VMManager {
     execution.output = newState.output;
     
     if (newState.status === 'complete') {
-      execution.state = 'completed';
+      execution.state = 'COMPLETED';
       this.vms.delete(executionId);
     } else if (newState.status === 'error') {
-      execution.state = 'error';
+      execution.state = 'ERROR';
       execution.error = newState.error;
       this.vms.delete(executionId);
     } else if (newState.status === 'waiting_cc') {
       // Hit another CC immediately
-      execution.state = 'waiting_cc';
+      execution.state = 'AWAITING_COGNITIVE_RESULT';
       execution.ccPrompt = newState.ccPrompt;
     } else {
-      execution.state = 'running';
+      execution.state = 'RUNNING';
     }
     
     await this.storage.saveExecution(execution);
