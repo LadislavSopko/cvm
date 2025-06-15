@@ -1,5 +1,6 @@
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
+import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { z } from 'zod';
 import { VMManager } from '@cvm/vm';
 
@@ -9,7 +10,7 @@ import { VMManager } from '@cvm/vm';
  */
 export class CVMMcpServer {
   private server: McpServer;
-  private transport: StdioServerTransport | null = null;
+  private transport: Transport | null = null;
   private vmManager: VMManager;
 
   constructor() {
@@ -159,10 +160,10 @@ export class CVMMcpServer {
     );
   }
 
-  async start(): Promise<void> {
+  async start(transport?: Transport): Promise<void> {
     await this.vmManager.initialize();
-    // StdioServerTransport uses process.stdin and process.stdout by default
-    this.transport = new StdioServerTransport();
+    // Allow transport injection for testing, default to stdio for production
+    this.transport = transport || new StdioServerTransport();
     await this.server.connect(this.transport);
   }
 
@@ -174,61 +175,8 @@ export class CVMMcpServer {
     await this.vmManager.dispose();
   }
 
-  // For testing - direct tool invocation
-  async handleTool(toolName: string, args: any): Promise<any> {
-    const handlers: Record<string, (args: any) => Promise<any>> = {
-      load: async ({ programId, source }) => {
-        try {
-          await this.vmManager.loadProgram(programId, source);
-          return { content: [{ type: 'text', text: `Program loaded successfully: ${programId}` }] };
-        } catch (error) {
-          return { content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }], isError: true };
-        }
-      },
-      start: async ({ programId, executionId }) => {
-        try {
-          await this.vmManager.startExecution(programId, executionId);
-          return { content: [{ type: 'text', text: `Execution started: ${executionId}` }] };
-        } catch (error) {
-          return { content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }], isError: true };
-        }
-      },
-      getTask: async ({ executionId }) => {
-        try {
-          const result = await this.vmManager.getNext(executionId);
-          if (result.type === 'completed') {
-            return { content: [{ type: 'text', text: 'Execution completed' }] };
-          } else if (result.type === 'waiting') {
-            return { content: [{ type: 'text', text: result.message || 'Waiting for input' }] };
-          } else {
-            return { content: [{ type: 'text', text: `Error: ${result.error}` }], isError: true };
-          }
-        } catch (error) {
-          return { content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }], isError: true };
-        }
-      },
-      submitTask: async ({ executionId, result }) => {
-        try {
-          await this.vmManager.reportCCResult(executionId, result);
-          return { content: [{ type: 'text', text: 'Execution resumed' }] };
-        } catch (error) {
-          return { content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }], isError: true };
-        }
-      },
-      status: async ({ executionId }) => {
-        try {
-          const status = await this.vmManager.getExecutionStatus(executionId);
-          return { content: [{ type: 'text', text: JSON.stringify(status, null, 2) }] };
-        } catch (error) {
-          return { content: [{ type: 'text', text: error instanceof Error ? error.message : 'Unknown error' }], isError: true };
-        }
-      }
-    };
-
-    const handler = handlers[toolName];
-    if (!handler) {
-      throw new Error(`Tool not found: ${toolName}`);
-    }
-    return await handler(args);
+  // For testing - expose VMManager for direct testing
+  getVMManager(): VMManager {
+    return this.vmManager;
   }
 }
