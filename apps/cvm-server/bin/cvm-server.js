@@ -14,11 +14,4 @@
 // limitations under the License.
 
 // Simple wrapper that starts the compiled server
-// Handle both development and published package structures
-try {
-  // Published package structure
-  require('../dist/main.js');
-} catch (e) {
-  // Development structure
-  require('../main.js');
-}
+require('../main.js');
