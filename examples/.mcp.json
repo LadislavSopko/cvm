@@ -12,7 +12,8 @@
       "command": "node",
       "args": ["../apps/cvm-server/dist/main.js"],
       "env": {
-        "MONGODB_URI": "mongodb://root:example@localhost:27017/cvm?authSource=admin",
+        "CVM_STORAGE_TYPE": "file",
+        "CVM_DATA_DIR": "~/.cvm-examples",
         "CVM_LOG_LEVEL": "info"
       }
     }
