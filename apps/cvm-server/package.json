@@ -1,43 +1,67 @@
 {
-  "name": "@cvm/cvm-server",
-  "version": "0.0.1",
-  "private": true,
+  "name": "cvm-server",
+  "version": "0.2.0",
+  "description": "Cognitive Virtual Machine (CVM) - A deterministic bytecode VM with AI cognitive operations",
+  "keywords": [
+    "mcp",
+    "ai",
+    "vm",
+    "cognitive",
+    "bytecode",
+    "virtual-machine",
+    "claude"
+  ],
+  "author": "Ladislav Sopko",
+  "license": "Apache-2.0",
+  "homepage": "https://github.com/LadislavSopko/cvm#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LadislavSopko/cvm.git"
+  },
+  "bugs": {
+    "url": "https://github.com/LadislavSopko/cvm/issues"
+  },
+  "bin": {
+    "cvm-server": "./bin/cvm-server.js"
+  },
+  "files": [
+    "bin",
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.12.2",
+    "zod": "^3.25.64",
+    "mongodb": "^6.17.0",
+    "dotenv": "^16.0.0"
+  },
   "nx": {
     "targets": {
       "build": {
-        "executor": "@nx/esbuild:esbuild",
+        "executor": "@nx/vite:build",
         "outputs": [
           "{options.outputPath}"
         ],
         "defaultConfiguration": "production",
         "options": {
-          "platform": "node",
           "outputPath": "apps/cvm-server/dist",
-          "format": [
-            "cjs"
-          ],
-          "bundle": false,
+          "generatePackageJson": true,
           "main": "apps/cvm-server/src/main.ts",
-          "tsConfig": "apps/cvm-server/tsconfig.app.json",
-          "assets": [
-            "apps/cvm-server/src/assets"
-          ],
-          "esbuildOptions": {
-            "sourcemap": true,
-            "outExtension": {
-              ".js": ".js"
-            }
-          }
+          "tsConfig": "apps/cvm-server/tsconfig.app.json"
         },
         "configurations": {
-          "development": {},
+          "development": {
+            "mode": "development"
+          },
           "production": {
-            "esbuildOptions": {
-              "sourcemap": false,
-              "outExtension": {
-                ".js": ".js"
-              }
-            }
+            "mode": "production"
           }
         }
       },
@@ -49,15 +73,15 @@
           "build"
         ],
         "options": {
-          "buildTarget": "@cvm/cvm-server:build",
+          "buildTarget": "cvm-server:build",
           "runBuildTargetDependencies": false
         },
         "configurations": {
           "development": {
-            "buildTarget": "@cvm/cvm-server:build:development"
+            "buildTarget": "cvm-server:build:development"
           },
           "production": {
-            "buildTarget": "@cvm/cvm-server:build:production"
+            "buildTarget": "cvm-server:build:production"
           }
         }
       }
