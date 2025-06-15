@@ -1,3 +1,13 @@
+## 0.2.1 (2025-06-15)
+
+### 🩹 Fixes
+
+- correct bin script path for published package structure ([b5a4e38](https://github.com/LadislavSopko/cvm/commit/b5a4e38))
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.2.0 (2025-06-15)
 
 ### 🚀 Features
