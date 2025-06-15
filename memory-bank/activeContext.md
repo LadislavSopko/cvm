@@ -1,7 +1,7 @@
 # Active Context - CVM Project
 
 ## Current Focus
-Platform is now ready for use! Storage abstraction complete - CVM supports both file-based storage (default, zero setup) and MongoDB (for production). Ready for npm publishing or further feature development.
+Publishing CVM as a professional open source project with `npx @cvm/cvm-server` support. Using Apache 2.0 license with environment-based configuration following MCP server conventions.
 
 ## Recent Changes
 - Created fresh NX workspace at /home/laco/cvm
@@ -86,12 +86,20 @@ Platform is now ready for use! Storage abstraction complete - CVM supports both 
   - Created StorageFactory for easy configuration
   - Updated VMManager to use storage abstraction (dependency injection)
   - All 70 tests passing, all packages build successfully
+- **Publishing Plan Finalized**:
+  - Apache 2.0 license chosen for community-friendly IP protection
+  - Environment-based configuration (MCP standard)
+  - Default to file storage in `.cvm` directory
+  - Clear warnings about .gitignore requirement
+  - Simple bin wrapper for npx execution
 
 ## Next Steps
-1. Update cvm-server application to use storage abstraction
-2. Create demo showing file-based storage in action
-3. Update documentation and examples
-4. Then proceed with npm publishing setup for easy distribution
+1. Create bin/cvm-server.js executable wrapper
+2. Add Apache 2.0 LICENSE file
+3. Update package.json with npm metadata
+4. Add license headers to source files
+5. Test npx execution locally
+6. Publish to npm registry
 
 ## Active Decisions
 - Start with minimal feature set - just enough to validate architecture

@@ -48,3 +48,9 @@ vitest.config.*.timestamp*
 
 # Environment variables
 .env
+
+# CVM data directory
+.cvm/
+
+# NPM publishing status (contains sensitive info)
+.npm-publishing-status.md

@@ -27,6 +27,15 @@
         "mongodb-lens",
         "mongodb://root:example@localhost:27017/cvm?authSource=admin"
       ]
+    },
+    "cvm": {
+      "command": "npx",
+      "args": ["-y", "cvm-server@latest"],
+      "env": {
+        "CVM_STORAGE_TYPE": "file",
+        "CVM_DATA_DIR": ".cvm",
+        "CVM_LOG_LEVEL": "info"
+      }
     }
   }
 }

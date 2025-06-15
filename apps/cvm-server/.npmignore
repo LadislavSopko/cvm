@@ -1,0 +1,25 @@
+# Source files
+src/
+*.ts
+!*.d.ts
+
+# Test files
+**/*.test.js
+**/*.spec.js
+__tests__
+
+# Development files
+.env
+.env.*
+*.log
+node_modules/
+
+# Build configuration
+tsconfig.json
+tsconfig.app.json
+project.json
+nx.json
+
+# Development data
+.cvm/
+*.tmp

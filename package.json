@@ -1,12 +1,13 @@
 {
   "name": "@cvm/source",
   "version": "0.0.0",
-  "license": "MIT",
+  "license": "Apache-2.0",
+  "author": "Ladislav Sopko",
   "scripts": {},
   "private": true,
   "devDependencies": {
     "@nx/esbuild": "21.2.0",
-    "@nx/js": "21.2.0",
+    "@nx/js": "^21.2.0",
     "@nx/node": "^21.2.0",
     "@nx/vite": "21.2.0",
     "@nx/web": "21.2.0",
@@ -25,11 +26,11 @@
     "typescript": "~5.8.2",
     "vite": "^6.0.0",
     "vite-plugin-dts": "~4.5.0",
+    "vite-plugin-static-copy": "^3.0.2",
     "vitest": "^3.0.0"
   },
   "workspaces": [
     "packages/*",
     "apps/*"
-  ],
-  "dependencies": {}
+  ]
 }

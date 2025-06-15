@@ -60,8 +60,8 @@
 - [ ] Type system improvements
 
 ## Current Status
-**Phase**: 4 - Testing & Validation (Complete) + Storage Abstraction (Complete)
-**Status**: Platform ready for use with file-based or MongoDB storage
+**Phase**: 5 - Publishing & Open Source Setup
+**Status**: Platform ready for npm publishing with Apache 2.0 license
 
 ## Recent Major Changes
 - Removed History tracking completely (not needed for core functionality)
@@ -73,6 +73,9 @@
 - Updated cvm-server to support storage configuration
 - Examples now use file storage by default
 - All 70 tests passing, clean architecture
+- Finalized publishing plan with Apache 2.0 license
+- Chose project-scoped .cvm directory for file storage
+- Aligned with MCP server conventions (environment variables)
 
 ## Known Issues
 - None - all tests passing, architecture simplified and clean

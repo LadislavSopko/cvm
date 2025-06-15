@@ -1,6 +1,21 @@
+// Copyright 2024 Ladislav Sopko
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
 import { CVMMcpServer } from '@cvm/mcp-server';
 import { loadConfig } from './config.js';
 import { initLogger, getLogger } from './logger.js';
+import { resolve } from 'path';
 
 async function main() {
   let cvmServer: CVMMcpServer | undefined;
@@ -17,6 +32,16 @@ async function main() {
       env: config.env,
       logLevel: config.logging.level,
     });
+    
+    // Log storage configuration
+    if (config.storage.type === 'file') {
+      const dataDir = config.storage.dataDir || '.cvm';
+      const fullPath = resolve(process.cwd(), dataDir);
+      logger.info(`[CVM] Initializing file storage in: ${fullPath}`);
+      logger.warn(`[CVM] ⚠️  Remember to add '${dataDir}/' to your .gitignore file!`);
+    } else {
+      logger.info('[CVM] Using MongoDB storage');
+    }
     
     // Create CVM MCP server instance (it creates its own VMManager internally)
     cvmServer = new CVMMcpServer();

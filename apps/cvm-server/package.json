@@ -21,12 +21,13 @@
   "bugs": {
     "url": "https://github.com/LadislavSopko/cvm/issues"
   },
+  "main": "main.js",
   "bin": {
-    "cvm-server": "./bin/cvm-server.js"
+    "cvm-server": "./bin/cvm-server.cjs"
   },
   "files": [
     "bin",
-    "dist",
+    "main.js",
     "README.md",
     "LICENSE"
   ],

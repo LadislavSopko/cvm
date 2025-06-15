@@ -1,61 +1,93 @@
-# CVM Publishing Plan - Production-Ready Open Source
+# CVM Publishing Plan - MCP Server with NPX Support
 
 ## Overview
-This document outlines the complete plan to make CVM production-ready for open source with automated publishing to npm, GitHub releases, and Docker registries.
+Plan to publish CVM as an npm package that can be run with `npx cvm-server` (no scope), following MCP server conventions with environment-based configuration.
 
-## 1. Package Structure & Naming
+## Automatic Versioning Setup (COMPLETED)
 
-### Main Package
-- **Name**: `@username/cvm-server` (replace username with actual npm username)
-- **Description**: Cognitive Virtual Machine - A bytecode VM that integrates AI cognitive operations
-- **Primary Distribution**: npm (enables `npx` usage)
-
-### Installation Methods
-1. **Primary**: `npx @username/cvm-server`
-2. **Global Install**: `npm install -g @username/cvm-server`
-3. **Docker**: `docker run ghcr.io/username/cvm-server`
-4. **Direct Download**: From GitHub releases
-
-## 2. NX Workspace Optimization
-
-### Project Configuration Updates
-- Add publishable configuration to `apps/cvm-server/project.json`
-- Configure proper build outputs for npm distribution
-- Set up bundling with all dependencies included
-- Add publish target with version management
-
-### Build Targets
+### NX Release Configuration
+Added to `nx.json`:
 ```json
-{
-  "build": {
-    "executor": "@nx/js:tsc",
-    "options": {
-      "outputPath": "dist/apps/cvm-server",
-      "main": "apps/cvm-server/src/index.ts",
-      "generatePackageJson": true,
-      "bundle": true
-    }
+"release": {
+  "projects": ["cvm-server"],
+  "projectsRelationship": "independent",
+  "releaseTagPattern": "{projectName}@{version}",
+  "version": {
+    "conventionalCommits": true
+  },
+  "changelog": {
+    "projectChangelogs": true,
+    "createRelease": "github"
   },
   "publish": {
-    "executor": "nx:run-commands",
-    "options": {
-      "command": "npm publish dist/apps/cvm-server --access public"
-    }
+    "executor": "@nx/js:npm-publish"
   }
 }
 ```
 
-## 3. NPM Publishing Configuration
+### How It Works
+1. **Conventional Commits** determine version bumps automatically:
+   - `fix:` or `perf:` → patch bump (0.1.1 → 0.1.2)
+   - `feat:` → minor bump (0.1.1 → 0.2.0)
+   - `BREAKING CHANGE:` → major bump (0.1.1 → 1.0.0)
 
-### Package.json Updates
+2. **Release Command**: `npx nx release`
+   - Analyzes commits since last tag
+   - Updates version in package.json
+   - Generates CHANGELOG.md
+   - Builds the package
+   - Publishes to npm
+   - Creates git tag and GitHub release
+
+3. **CI/CD Ready**: Use `npx nx release --ci` with NPM_TOKEN
+
+## 1. Package Structure & Naming
+
+### Main Package
+- **Name**: `@cvm/cvm-server`
+- **Description**: Cognitive Virtual Machine - A deterministic bytecode VM with AI cognitive operations
+- **License**: Apache 2.0
+- **Copyright**: "Copyright 2024 The CVM Authors"
+
+### Installation Methods
+1. **Primary**: `npx @cvm/cvm-server` (uses file storage by default)
+2. **MCP Configuration**: Via `.mcp.json` with custom environment variables
+3. **Global Install**: `npm install -g @cvm/cvm-server`
+
+## 2. Configuration Approach
+
+### Environment Variables (MCP Standard)
+- `CVM_STORAGE_TYPE` - Storage backend (default: "file")
+- `CVM_DATA_DIR` - Data directory (default: ".cvm" in current directory)
+- `CVM_LOG_LEVEL` - Logging level (default: "info")
+- `MONGODB_URI` - MongoDB connection (only required when storage type is "mongodb")
+
+### Storage Strategy
+- **Default**: File storage in `.cvm` directory (project-scoped)
+- **⚠️ Important**: Users must add `.cvm/` to .gitignore
+- MongoDB remains optional for production use
+
+## 3. Executable Setup
+
+### Create bin/cvm-server.js
+```javascript
+#!/usr/bin/env node
+// Copyright 2024 The CVM Authors
+// Licensed under the Apache License, Version 2.0
+
+// Simple wrapper that starts the compiled server
+require('../dist/apps/cvm-server/main.js');
+```
+
+### Package.json Configuration
 ```json
 {
-  "name": "@username/cvm-server",
-  "version": "0.0.1",
-  "description": "Cognitive Virtual Machine - Seamlessly integrate AI reasoning into deterministic programs",
-  "keywords": ["mcp", "ai", "vm", "cognitive", "bytecode", "virtual-machine"],
-  "author": "Your Name <email@example.com>",
-  "license": "MIT",
+  "name": "@cvm/cvm-server",
+  "version": "0.1.0",
+  "description": "Cognitive Virtual Machine (CVM) - A deterministic bytecode VM with AI cognitive operations",
+  "keywords": ["mcp", "ai", "vm", "cognitive", "bytecode", "virtual-machine", "claude"],
+  "author": "The CVM Authors",
+  "license": "Apache-2.0",
   "homepage": "https://github.com/username/cvm#readme",
   "repository": {
     "type": "git",
@@ -65,9 +97,10 @@ This document outlines the complete plan to make CVM production-ready for open s
     "url": "https://github.com/username/cvm/issues"
   },
   "bin": {
-    "cvm-server": "./dist/index.js"
+    "cvm-server": "./bin/cvm-server.js"
   },
   "files": [
+    "bin",
     "dist",
     "README.md",
     "LICENSE"
@@ -193,104 +226,136 @@ EXPOSE 3000
 CMD ["node", "index.js"]
 ```
 
-## 6. Semantic Versioning & Changelog
+## 6. Usage Patterns
 
-### Conventional Commits
-- feat: New features (minor version bump)
-- fix: Bug fixes (patch version bump)
-- BREAKING CHANGE: Major version bump
-
-### Auto-changelog Generation
-Use `conventional-changelog` or `semantic-release` for automatic versioning and changelog generation.
-
-## 7. GitHub Secrets Setup
-
-### Required Secrets
-1. **NPM_TOKEN**: Your npm authentication token
-   - Get from: npm.com → Profile → Access Tokens → Generate New Token
-   - Type: Automation token
-   - Add to: GitHub repo → Settings → Secrets → Actions → New repository secret
-
-### Adding NPM_TOKEN
-1. Go to npmjs.com and log in
-2. Click profile icon → Access Tokens
-3. Generate New Token → Classic Token
-4. Select "Automation" type
-5. Copy the token
-6. Go to GitHub repository
-7. Settings → Secrets and variables → Actions
-8. New repository secret
-9. Name: `NPM_TOKEN`
-10. Value: paste your token
-
-## 8. README Installation Section
-
-```markdown
-## Installation
-
-### Quick Start (Recommended)
+### Direct Usage
 ```bash
-npx @username/cvm-server
+npx @cvm/cvm-server
+# Server starts with file storage in ./.cvm directory
+# Logs: "[CVM] Initializing file storage in: /path/to/current/dir/.cvm"
 ```
 
-### Global Installation
-```bash
-npm install -g @username/cvm-server
-cvm-server
-```
-
-### Docker
-```bash
-docker run -p 3000:3000 ghcr.io/username/cvm-server
-```
-
-### From Source
-```bash
-git clone https://github.com/username/cvm
-cd cvm
-npm install
-npx nx build cvm-server
-node dist/apps/cvm-server
-```
-```
-
-## 9. Pre-publish Validation
-
-### Checklist
-- [ ] All tests passing
-- [ ] Type checking passes
-- [ ] Linting passes
-- [ ] Package.json metadata complete
-- [ ] README updated
-- [ ] CHANGELOG updated
-- [ ] Version bumped appropriately
-
-### npm Scripts
+### MCP Configuration (.mcp.json)
 ```json
 {
-  "scripts": {
-    "prepublishOnly": "nx run-many --target=test,build,typecheck --all",
-    "version": "conventional-changelog -p angular -i CHANGELOG.md -s && git add CHANGELOG.md"
+  "mcpServers": {
+    "cvm": {
+      "command": "npx",
+      "args": ["@cvm/cvm-server"],
+      "env": {
+        "CVM_STORAGE_TYPE": "file",
+        "CVM_DATA_DIR": ".cvm-project"
+      }
+    }
   }
 }
 ```
 
-## 10. Release Process
+### Production with MongoDB
+```json
+{
+  "mcpServers": {
+    "cvm": {
+      "command": "npx",
+      "args": ["@cvm/cvm-server"],
+      "env": {
+        "CVM_STORAGE_TYPE": "mongodb",
+        "MONGODB_URI": "mongodb://user:pass@host:27017/cvm?authSource=admin"
+      }
+    }
+  }
+}
+```
 
-1. Ensure all changes are committed
-2. Run tests: `npx nx run-many --target=test --all`
-3. Bump version: `npm version [patch|minor|major]`
-4. Push with tags: `git push && git push --tags`
-5. GitHub Actions automatically:
-   - Runs tests on multiple Node versions
-   - Publishes to npm
-   - Builds and pushes Docker image
-   - Creates GitHub release
+## 7. README Documentation
 
-## Next Steps
+### Installation Section
+```markdown
+## Installation
 
-1. Implement storage abstraction layer
-2. Update package configurations
-3. Create GitHub Actions workflows
-4. Test publishing process with pre-release version
-5. Document MCP integration for Claude.ai
+### Quick Start
+```bash
+npx @cvm/cvm-server
+```
+
+### ⚠️ Important: Add to .gitignore
+When using CVM in a git repository, add the data directory to your `.gitignore`:
+```gitignore
+# CVM data directory
+.cvm/
+```
+
+### Configuration
+CVM uses environment variables for configuration:
+- `CVM_STORAGE_TYPE` - Storage backend: "file" (default) or "mongodb"
+- `CVM_DATA_DIR` - Data directory for file storage (default: ".cvm")
+- `CVM_LOG_LEVEL` - Logging level: "debug", "info" (default), "warn", "error"
+- `MONGODB_URI` - MongoDB connection string (required only for mongodb storage)
+
+### MCP Integration
+Add to your `.mcp.json`:
+```json
+{
+  "mcpServers": {
+    "cvm": {
+      "command": "npx",
+      "args": ["@cvm/cvm-server"],
+      "env": {
+        "CVM_STORAGE_TYPE": "file",
+        "CVM_DATA_DIR": ".cvm"
+      }
+    }
+  }
+}
+```
+```
+
+## 8. Publishing Steps
+
+### Initial Setup
+1. **Create bin/cvm-server.js** with proper shebang and permissions
+2. **Add LICENSE file** with full Apache 2.0 text
+3. **Update package.json** in cvm-server app with npm metadata
+4. **Create .npmignore** to exclude unnecessary files
+5. **Add license headers** to all source files
+
+### First Publishing
+1. Build the server: `npx nx build cvm-server`
+2. Create npm package structure in dist
+3. Copy bin directory to dist
+4. Test locally: `npm link dist/apps/cvm-server`
+5. Test npx: `npx . # from dist/apps/cvm-server`
+6. Publish: `npm publish dist/apps/cvm-server --access public`
+
+## 9. Risk Mitigation
+
+### .cvm Directory Warnings
+1. **Clear README warning** about .gitignore requirement
+2. **Startup log message** showing data directory location
+3. **Consider .gitignore check** on startup with warning if missing
+
+### Apache 2.0 License Header Template
+```javascript
+// Copyright 2024 The CVM Authors
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+```
+
+## 10. Success Criteria
+
+- [ ] `npx @cvm/cvm-server` works immediately with zero config
+- [ ] Clear documentation prevents .gitignore mistakes
+- [ ] Environment variables follow MCP conventions
+- [ ] Apache 2.0 license properly applied
+- [ ] Package published to npm registry
+- [ ] Community can contribute under clear license terms
