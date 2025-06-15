@@ -1,6 +1,6 @@
 {
   "name": "cvm-server",
-  "version": "0.2.6",
+  "version": "0.2.7",
   "description": "Cognitive Virtual Machine (CVM) - A deterministic bytecode VM with AI cognitive operations",
   "keywords": [
     "mcp",
@@ -107,12 +107,6 @@
             "npx nx run cvm-server:publish"
           ],
           "parallel": false
-        }
-      },
-      "nx-release-publish": {
-        "executor": "@nx/js:release-publish",
-        "options": {
-          "packageRoot": "apps/cvm-server/dist"
         }
       }
     }
