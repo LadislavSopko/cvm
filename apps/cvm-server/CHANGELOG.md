@@ -1,3 +1,13 @@
+## 0.2.3 (2025-06-15)
+
+### 🩹 Fixes
+
+- add typescript to dependencies for runtime parser ([320a207](https://github.com/LadislavSopko/cvm/commit/320a207))
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.2.2 (2025-06-15)
 
 ### 🩹 Fixes
