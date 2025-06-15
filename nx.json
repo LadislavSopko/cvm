@@ -60,9 +60,6 @@
     "changelog": {
       "projectChangelogs": true,
       "createRelease": "github"
-    },
-    "publish": {
-      "executor": "@nx/js:npm-publish"
     }
   },
   "targetDefaults": {

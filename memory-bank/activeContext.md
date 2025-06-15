@@ -92,14 +92,43 @@ Publishing CVM as a professional open source project with `npx @cvm/cvm-server` 
   - Default to file storage in `.cvm` directory
   - Clear warnings about .gitignore requirement
   - Simple bin wrapper for npx execution
+- **Publishing Implementation Started**:
+  - Set up npm publishing with Apache 2.0 license
+  - Created executable bin/cvm-server.cjs wrapper
+  - Configured automatic versioning with nx release
+  - Added vite-plugin-static-copy for automatic asset handling
+  - Fixed ES module/CommonJS conflict by adding "type": "commonjs" to package.json
+  - Added typescript to dependencies (required for runtime parser)
+
+## Publishing Issue FULLY RESOLVED
+**PROBLEM**: NX release publish was publishing from SOURCE directory instead of DIST directory, causing published packages to be missing main.js.
+
+**ROOT CAUSE DISCOVERED**: 
+- `@nx/js:release-publish` executor has a bug with packageRoot and file resolution
+- When npm runs from workspace root, it uses .gitignore (which excludes dist) since there's no .npmignore
+- This caused main.js to be excluded from the tarball
+
+**SOLUTION IMPLEMENTED**:
+1. **Removed publish override from nx.json** - Let nx release use project's own publish target
+2. **Project publish target** in package.json correctly uses: `cd apps/cvm-server/dist && npm publish`
+3. This ensures npm runs from within dist directory, avoiding .gitignore issues
+
+**PUBLISHING WORKFLOW**:
+- **Version bump**: `npx nx release version patch` (or minor/major)
+- **Publish**: `npx nx run cvm-server:publish`
+- **Or all-in-one**: `npx nx release`
+
+**STATUS**: 
+- Versions 0.2.5 and 0.2.6 published with missing main.js (broken)
+- Version 0.2.7 published correctly with all files including main.js
+- Recommend deprecating 0.2.5 and 0.2.6 with: `npm deprecate cvm-server@0.2.5 "Missing main.js - use 0.2.7 or later"`
 
 ## Next Steps
-1. Create bin/cvm-server.js executable wrapper
-2. Add Apache 2.0 LICENSE file
-3. Update package.json with npm metadata
-4. Add license headers to source files
-5. Test npx execution locally
-6. Publish to npm registry
+1. Test npx cvm-server@latest execution from npm registry
+2. Deprecate broken versions: `npm deprecate cvm-server@0.2.5 "Missing main.js - use 0.2.7 or later"`
+3. Update documentation with publishing process
+4. Create examples documentation
+5. Announce release
 
 ## Active Decisions
 - Start with minimal feature set - just enough to validate architecture

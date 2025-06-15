@@ -1,361 +1,121 @@
-# CVM Publishing Plan - MCP Server with NPX Support
+# Publishing Plan for CVM Server
 
-## Overview
-Plan to publish CVM as an npm package that can be run with `npx cvm-server` (no scope), following MCP server conventions with environment-based configuration.
+## Issue Resolution
 
-## Automatic Versioning Setup (COMPLETED)
+### Problem Solved: NX Publishing from Wrong Directory
+The nx release publish command was publishing from the SOURCE directory instead of DIST, causing published packages to be missing main.js.
 
-### NX Release Configuration
-Added to `nx.json`:
+### Root Cause
+1. `@nx/js:release-publish` executor has a bug with packageRoot file resolution
+2. When npm runs from workspace root, it uses .gitignore (which excludes dist) since there's no .npmignore
+3. This caused main.js to be excluded from the published tarball
+
+### Final Solution
+
+**Removed publish override from nx.json entirely**. Now nx release uses the project's own publish target which correctly does:
 ```json
-"release": {
-  "projects": ["cvm-server"],
-  "projectsRelationship": "independent",
-  "releaseTagPattern": "{projectName}@{version}",
-  "version": {
-    "conventionalCommits": true
-  },
-  "changelog": {
-    "projectChangelogs": true,
-    "createRelease": "github"
-  },
-  "publish": {
-    "executor": "@nx/js:npm-publish"
+"publish": {
+  "executor": "nx:run-commands",
+  "dependsOn": ["build"],
+  "options": {
+    "commands": ["cd apps/cvm-server/dist && npm publish"]
   }
 }
 ```
 
-### How It Works
-1. **Conventional Commits** determine version bumps automatically:
-   - `fix:` or `perf:` → patch bump (0.1.1 → 0.1.2)
-   - `feat:` → minor bump (0.1.1 → 0.2.0)
-   - `BREAKING CHANGE:` → major bump (0.1.1 → 1.0.0)
+This ensures npm runs from within the dist directory, avoiding .gitignore interference.
 
-2. **Release Command**: `npx nx release`
-   - Analyzes commits since last tag
-   - Updates version in package.json
-   - Generates CHANGELOG.md
-   - Builds the package
-   - Publishes to npm
-   - Creates git tag and GitHub release
+## Publishing Workflows
 
-3. **CI/CD Ready**: Use `npx nx release --ci` with NPM_TOKEN
-
-## 1. Package Structure & Naming
-
-### Main Package
-- **Name**: `@cvm/cvm-server`
-- **Description**: Cognitive Virtual Machine - A deterministic bytecode VM with AI cognitive operations
-- **License**: Apache 2.0
-- **Copyright**: "Copyright 2024 The CVM Authors"
-
-### Installation Methods
-1. **Primary**: `npx @cvm/cvm-server` (uses file storage by default)
-2. **MCP Configuration**: Via `.mcp.json` with custom environment variables
-3. **Global Install**: `npm install -g @cvm/cvm-server`
-
-## 2. Configuration Approach
-
-### Environment Variables (MCP Standard)
-- `CVM_STORAGE_TYPE` - Storage backend (default: "file")
-- `CVM_DATA_DIR` - Data directory (default: ".cvm" in current directory)
-- `CVM_LOG_LEVEL` - Logging level (default: "info")
-- `MONGODB_URI` - MongoDB connection (only required when storage type is "mongodb")
-
-### Storage Strategy
-- **Default**: File storage in `.cvm` directory (project-scoped)
-- **⚠️ Important**: Users must add `.cvm/` to .gitignore
-- MongoDB remains optional for production use
-
-## 3. Executable Setup
-
-### Create bin/cvm-server.js
-```javascript
-#!/usr/bin/env node
-// Copyright 2024 The CVM Authors
-// Licensed under the Apache License, Version 2.0
-
-// Simple wrapper that starts the compiled server
-require('../dist/apps/cvm-server/main.js');
-```
-
-### Package.json Configuration
-```json
-{
-  "name": "@cvm/cvm-server",
-  "version": "0.1.0",
-  "description": "Cognitive Virtual Machine (CVM) - A deterministic bytecode VM with AI cognitive operations",
-  "keywords": ["mcp", "ai", "vm", "cognitive", "bytecode", "virtual-machine", "claude"],
-  "author": "The CVM Authors",
-  "license": "Apache-2.0",
-  "homepage": "https://github.com/username/cvm#readme",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/username/cvm.git"
-  },
-  "bugs": {
-    "url": "https://github.com/username/cvm/issues"
-  },
-  "bin": {
-    "cvm-server": "./bin/cvm-server.js"
-  },
-  "files": [
-    "bin",
-    "dist",
-    "README.md",
-    "LICENSE"
-  ],
-  "engines": {
-    "node": ">=18.0.0"
-  }
-}
-```
-
-### .npmignore Configuration
-```
-# Source files
-src/
-*.ts
-!*.d.ts
-
-# Test files
-**/*.test.js
-**/*.spec.js
-__tests__
-
-# Development files
-.env
-.env.*
-*.log
-node_modules/
-
-# Build files
-tsconfig.json
-nx.json
-project.json
-```
-
-## 4. GitHub Actions CI/CD Pipeline
-
-### Main Workflow (.github/workflows/publish.yml)
-```yaml
-name: Publish Package
-
-on:
-  push:
-    tags:
-      - 'v*'
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [18, 20, 22]
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: ${{ matrix.node-version }}
-      - run: npm ci
-      - run: npx nx run-many --target=test --all
-      - run: npx nx run-many --target=build --all
-
-  publish-npm:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: 20
-          registry-url: https://registry.npmjs.org/
-      - run: npm ci
-      - run: npx nx build cvm-server
-      - run: npm publish dist/apps/cvm-server --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-
-  publish-docker:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - uses: docker/build-push-action@v5
-        with:
-          push: true
-          tags: ghcr.io/${{ github.repository_owner }}/cvm-server:${{ github.ref_name }}
-
-  create-release:
-    needs: [publish-npm, publish-docker]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: false
-          prerelease: false
-```
-
-## 5. Dockerfile
-
-```dockerfile
-FROM node:20-alpine AS builder
-WORKDIR /app
-COPY package*.json ./
-COPY nx.json tsconfig.base.json ./
-COPY apps/ ./apps/
-COPY packages/ ./packages/
-RUN npm ci
-RUN npx nx build cvm-server
-
-FROM node:20-alpine
-WORKDIR /app
-COPY --from=builder /app/dist/apps/cvm-server ./
-RUN npm install --production
-EXPOSE 3000
-CMD ["node", "index.js"]
-```
-
-## 6. Usage Patterns
-
-### Direct Usage
+### Option 1: Standard NX Release (Recommended)
 ```bash
-npx @cvm/cvm-server
-# Server starts with file storage in ./.cvm directory
-# Logs: "[CVM] Initializing file storage in: /path/to/current/dir/.cvm"
+# Version bump, changelog, and publish in one command
+npx nx release
+
+# Or separately:
+npx nx release version patch
+npx nx release publish
 ```
 
-### MCP Configuration (.mcp.json)
-```json
-{
-  "mcpServers": {
-    "cvm": {
-      "command": "npx",
-      "args": ["@cvm/cvm-server"],
-      "env": {
-        "CVM_STORAGE_TYPE": "file",
-        "CVM_DATA_DIR": ".cvm-project"
-      }
-    }
-  }
-}
-```
-
-### Production with MongoDB
-```json
-{
-  "mcpServers": {
-    "cvm": {
-      "command": "npx",
-      "args": ["@cvm/cvm-server"],
-      "env": {
-        "CVM_STORAGE_TYPE": "mongodb",
-        "MONGODB_URI": "mongodb://user:pass@host:27017/cvm?authSource=admin"
-      }
-    }
-  }
-}
-```
-
-## 7. README Documentation
-
-### Installation Section
-```markdown
-## Installation
-
-### Quick Start
+### Option 2: Custom Publish Target
 ```bash
-npx @cvm/cvm-server
+# Manual version bump, then:
+npx nx run cvm-server:publish
 ```
 
-### ⚠️ Important: Add to .gitignore
-When using CVM in a git repository, add the data directory to your `.gitignore`:
-```gitignore
-# CVM data directory
-.cvm/
+### Option 3: Hybrid Approach
+```bash
+# Use NX for versioning, custom target for publish
+npx nx release version patch
+npx nx run cvm-server:publish
 ```
 
-### Configuration
-CVM uses environment variables for configuration:
-- `CVM_STORAGE_TYPE` - Storage backend: "file" (default) or "mongodb"
-- `CVM_DATA_DIR` - Data directory for file storage (default: ".cvm")
-- `CVM_LOG_LEVEL` - Logging level: "debug", "info" (default), "warn", "error"
-- `MONGODB_URI` - MongoDB connection string (required only for mongodb storage)
+## Configuration Changes Made
 
-### MCP Integration
-Add to your `.mcp.json`:
-```json
-{
-  "mcpServers": {
-    "cvm": {
-      "command": "npx",
-      "args": ["@cvm/cvm-server"],
-      "env": {
-        "CVM_STORAGE_TYPE": "file",
-        "CVM_DATA_DIR": ".cvm"
-      }
-    }
-  }
-}
-```
-```
+1. **Added "type": "commonjs"** to package.json
+   - Prevents ES module errors with require()
+   - NX respects this when generating dist/package.json
 
-## 8. Publishing Steps
+2. **Added typescript to dependencies**
+   - Required because parser uses TypeScript compiler API at runtime
+   - Without it, published package fails with "Cannot find module 'typescript'"
 
-### Initial Setup
-1. **Create bin/cvm-server.js** with proper shebang and permissions
-2. **Add LICENSE file** with full Apache 2.0 text
-3. **Update package.json** in cvm-server app with npm metadata
-4. **Create .npmignore** to exclude unnecessary files
-5. **Add license headers** to all source files
+3. **Updated vite.config.ts externals**
+   - Added typescript, fs, path, os to external list
+   - Prevents bundling Node.js built-ins
 
-### First Publishing
-1. Build the server: `npx nx build cvm-server`
-2. Create npm package structure in dist
-3. Copy bin directory to dist
-4. Test locally: `npm link dist/apps/cvm-server`
-5. Test npx: `npx . # from dist/apps/cvm-server`
-6. Publish: `npm publish dist/apps/cvm-server --access public`
+## Files in Correct Build
+When built correctly, dist/ contains:
+- LICENSE
+- README.md  
+- bin/cvm-server.cjs
+- main.js (compiled from src/)
+- package.json (with correct metadata)
+- package-lock.json
 
-## 9. Risk Mitigation
+## Important Notes
 
-### .cvm Directory Warnings
-1. **Clear README warning** about .gitignore requirement
-2. **Startup log message** showing data directory location
-3. **Consider .gitignore check** on startup with warning if missing
-
-### Apache 2.0 License Header Template
-```javascript
-// Copyright 2024 The CVM Authors
-//
-// Licensed under the Apache License, Version 2.0 (the "License");
-// you may not use this file except in compliance with the License.
-// You may obtain a copy of the License at
-//
-//     http://www.apache.org/licenses/LICENSE-2.0
-//
-// Unless required by applicable law or agreed to in writing, software
-// distributed under the License is distributed on an "AS IS" BASIS,
-// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-// See the License for the specific language governing permissions and
-// limitations under the License.
+### Publishing Configuration
+The key to correct publishing is ensuring npm runs from within the dist directory. The project's publish target handles this with:
+```bash
+cd apps/cvm-server/dist && npm publish
 ```
 
-## 10. Success Criteria
+Never use `npm publish apps/cvm-server/dist` from the root - it will use root's .gitignore and exclude files.
 
-- [ ] `npx @cvm/cvm-server` works immediately with zero config
-- [ ] Clear documentation prevents .gitignore mistakes
-- [ ] Environment variables follow MCP conventions
-- [ ] Apache 2.0 license properly applied
-- [ ] Package published to npm registry
-- [ ] Community can contribute under clear license terms
+### Build Before Publish
+Always ensure the dist directory is built with the latest version:
+```bash
+npx nx run cvm-server:build
+```
+
+The dist directory should contain:
+- main.js (compiled code)
+- package.json (with correct version)
+- LICENSE
+- README.md
+- bin/cvm-server.cjs
+
+## Testing Published Package
+```bash
+# Clear npm cache
+npm cache clean --force
+rm -rf ~/.npm/_npx/*
+
+# Test
+npx cvm-server@latest
+```
+
+## Publishing Status
+- Version 0.2.5: Published incorrectly (missing main.js) - BROKEN
+- Version 0.2.6: Published incorrectly (missing main.js) - BROKEN  
+- Version 0.2.7: Published correctly with all files - WORKING
+
+## Next Actions
+1. Test published package: `npx cvm-server@latest`
+2. Deprecate broken versions:
+   ```bash
+   npm deprecate cvm-server@0.2.5 "Missing main.js - use 0.2.7 or later"
+   npm deprecate cvm-server@0.2.6 "Missing main.js - use 0.2.7 or later"
+   ```
+3. Update examples and documentation
