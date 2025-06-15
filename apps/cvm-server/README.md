@@ -11,6 +11,8 @@ The Cognitive Virtual Machine (CVM) server - a deterministic bytecode VM that in
 
 ## Installation
 
+Install globally or use with npx:
+
 ### Quick Start
 
 ```bash

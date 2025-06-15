@@ -34,7 +34,7 @@ export default defineConfig({
           dest: '.',
         },
         {
-          src: join(__dirname, 'bin/*.cjs'),
+          src: join(__dirname, 'bin/*'),
           dest: 'bin',
         },
       ],
