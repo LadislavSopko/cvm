@@ -16,6 +16,12 @@ import { CVMMcpServer } from '@cvm/mcp-server';
 import { loadConfig } from './config.js';
 import { initLogger, getLogger } from './logger.js';
 import { resolve } from 'path';
+import { readFileSync } from 'fs';
+import { fileURLToPath } from 'url';
+import { dirname, join } from 'path';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = dirname(__filename);
 
 async function main() {
   let cvmServer: CVMMcpServer | undefined;
@@ -28,9 +34,15 @@ async function main() {
     initLogger(config.logging.level);
     const logger = getLogger();
     
+    // Get version from package.json
+    const packageJsonPath = join(__dirname, '..', 'package.json');
+    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+    const version = packageJson.version || '0.0.1';
+    
     logger.info('Starting CVM Server...', {
       env: config.env,
       logLevel: config.logging.level,
+      version,
     });
     
     // Log storage configuration
@@ -44,7 +56,7 @@ async function main() {
     }
     
     // Create CVM MCP server instance (it creates its own VMManager internally)
-    cvmServer = new CVMMcpServer();
+    cvmServer = new CVMMcpServer(version);
     
     // Start the server (initializes VMManager and sets up stdio transport)
     await cvmServer.start();

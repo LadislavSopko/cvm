@@ -22,7 +22,7 @@ describe('CVMMcpServer', () => {
 
   beforeAll(async () => {
     // Create server (it will create its own VMManager)
-    server = new CVMMcpServer();
+    server = new CVMMcpServer('1.0.0-test');
     
     // Get the mocked VMManager instance
     const VMManagerMock = (await import('@cvm/vm')).VMManager as any;
@@ -41,7 +41,7 @@ describe('CVMMcpServer', () => {
     it('should create MCP server with CVM tools', () => {
       expect(server).toBeDefined();
       expect(server.getName()).toBe('cvm-server');
-      expect(server.getVersion()).toBe('1.0.0');
+      expect(server.getVersion()).toBe('1.0.0-test');
     });
   });
 

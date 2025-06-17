@@ -12,13 +12,14 @@ export class CVMMcpServer {
   private server: McpServer;
   private transport: Transport | null = null;
   private vmManager: VMManager;
+  private version: string;
 
-  constructor() {
-    console.error('[CVM Debug] Creating CVMMcpServer instance...');
+  constructor(version: string = '0.0.1') {
+    this.version = version;
     this.vmManager = new VMManager();
     this.server = new McpServer({
       name: 'cvm-server',
-      version: '1.0.0'
+      version: this.version
     });
 
     this.setupTools();
@@ -29,11 +30,10 @@ export class CVMMcpServer {
   }
 
   getVersion(): string {
-    return '1.0.0';
+    return this.version;
   }
 
   private setupTools(): void {
-    console.error('[CVM Debug] Setting up tools...');
     // Load a CVM program
     this.server.tool(
       'load',
