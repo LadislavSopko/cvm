@@ -19,16 +19,17 @@
 ```
 /home/laco/cvm/
 ├── packages/              # NX packages
-│   ├── parser/           # @cvm/parser
-│   ├── vm/              # @cvm/vm
-│   ├── mcp-server/      # @cvm/mcp-server
-│   ├── mongodb/         # @cvm/mongodb
-│   └── types/           # @cvm/types (shared types)
+│   ├── parser/           # @cvm/parser - AST to bytecode
+│   ├── vm/              # @cvm/vm - Bytecode executor
+│   ├── mcp-server/      # @cvm/mcp-server - AI interface
+│   ├── mongodb/         # @cvm/mongodb - Persistence
+│   ├── storage/         # @cvm/storage - Storage abstraction
+│   └── types/           # @cvm/types - Shared types & CVMValue
+├── apps/
+│   └── cvm-server/      # Production MCP server app
 ├── memory-bank/         # Project documentation
+│   └── docs/           # Detailed plans and specs
 ├── examples/            # Example CVM programs
-│   └── hello.ts        # Basic CC() demo
-├── scripts/            # Utility scripts
-│   └── run-demo.js     # Demo execution script
 ├── .env                # Environment variables
 ├── nx.json             # NX configuration
 ├── tsconfig.base.json  # Base TypeScript config

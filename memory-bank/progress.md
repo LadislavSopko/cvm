@@ -19,22 +19,30 @@
 
 ### Language Extensions (Current Focus)
 - [ ] Phase 1: Arrays + JSON parsing
-  - [ ] Extend type system for CVMValue
-  - [ ] Add array opcodes (ARRAY_NEW, ARRAY_PUSH, etc.)
-  - [ ] Implement JSON_PARSE opcode
+  - [x] Extend type system for CVMValue
+  - [x] Add array opcodes (ARRAY_NEW, ARRAY_PUSH, etc.)
+  - [x] Implement JSON_PARSE opcode
+  - [x] Add TYPEOF opcode
+  - [x] Add basic arithmetic (ADD, SUB)
+  - [x] VM support for new types
   - [ ] Update parser for array syntax
-  - [ ] VM support for new types
+  - [ ] Update compiler to generate array opcodes
+  - [ ] Integration tests with example programs
 - [ ] Phase 2: Branching
-  - [ ] Add comparison opcodes (EQ, NEQ, LT, GT)
-  - [ ] Add JUMP and JUMP_IF_FALSE opcodes
+  - [x] Add comparison opcodes (EQ, NEQ, LT, GT) - defined but not implemented
+  - [x] Add JUMP and JUMP_IF_FALSE opcodes - defined but not implemented
+  - [x] Add logical opcodes (AND, OR, NOT) - defined but not implemented
+  - [ ] Implement comparison and jump opcodes in VM
   - [ ] Parser support for if/else
   - [ ] Compiler generates correct jump offsets
 - [ ] Phase 3: Iteration
-  - [ ] Add iterator opcodes (ITER_START, ITER_NEXT, ITER_END)
+  - [x] Add iterator opcodes (ITER_START, ITER_NEXT, ITER_END) - defined
   - [ ] VM iterator state management
   - [ ] Parser support for foreach syntax
+  - [ ] Compiler support for loops
 - [ ] Phase 4: File Operations
-  - [ ] Add FS_LIST_FILES opcode
+  - [x] Add FS_LIST_FILES opcode - defined
+  - [ ] Implement FS_LIST_FILES in VM
   - [ ] Implement path sandboxing
   - [ ] Add glob pattern support
   - [ ] Ensure deterministic sorting

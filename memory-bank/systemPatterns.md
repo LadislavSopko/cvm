@@ -51,9 +51,11 @@ Key insight: getTask is read-only, submitTask drives execution forward.
 
 #### Bytecode Design
 - Stack-based VM (simpler than register-based)
-- Minimal initial instruction set
-- All values are strings (initially)
+- Extended instruction set with 30+ opcodes
+- Type system: CVMValue supporting multiple types
 - CC instruction triggers cognitive interrupt
+- Array operations for collection handling
+- Type checking and arithmetic operations
 
 ## Component Relationships
 
@@ -131,6 +133,29 @@ CC instruction → Save state with prompt → Return AWAITING_COGNITIVE_RESULT �
 - Additional CVM-specific codes
 - Detailed error data
 - Never crash the server
+
+## Type System
+
+### CVMValue Design
+- **Union Type**: `string | number | boolean | CVMArray | null`
+- **Type Guards**: Runtime type checking functions (isCVMString, isCVMNumber, etc.)
+- **Type Conversion**: Explicit conversion helpers (cvmToString, cvmToBoolean)
+- **Arrays**: Objects with type discriminator pattern `{ type: 'array', elements: CVMValue[] }`
+
+### Type Safety in VM
+- Stack uses `CVMValue[]` instead of `any[]`
+- All operations check types before execution
+- Stack underflow checks on all pop operations
+- Type mismatch errors with clear messages
+- Consistent error handling pattern
+
+### Type Coercion Rules
+- Number → String: `toString()` for concatenation
+- Boolean → String: `'true'` or `'false'`
+- Null → String: `'null'`
+- Array → String: `'[array:length]'`
+- No implicit string → number conversion
+- Truthiness: null/0/'' are false, arrays always true
 
 ## Security Patterns
 
