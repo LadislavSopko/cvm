@@ -1,7 +1,7 @@
 import { VM, VMState } from './vm.js';
 import { compile } from '@cvm/parser';
 import { StorageAdapter, StorageFactory } from '@cvm/storage';
-import { Program, Execution } from '@cvm/types';
+import { Program, Execution, CVMValue } from '@cvm/types';
 
 export interface ExecutionResult {
   type: 'completed' | 'waiting' | 'error';
@@ -13,8 +13,8 @@ export interface ExecutionStatus {
   id: string;
   state: 'READY' | 'RUNNING' | 'AWAITING_COGNITIVE_RESULT' | 'COMPLETED' | 'ERROR';
   pc: number;
-  stack: any[];
-  variables: Record<string, any>;
+  stack: CVMValue[];
+  variables: Record<string, CVMValue>;
   output: string[];
 }
 

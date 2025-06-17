@@ -44,7 +44,7 @@
     "dotenv": "^16.0.0",
     "typescript": "^5.7.3"
   },
-  "type": "commonjs",
+  "type": "module",
   "nx": {
     "targets": {
       "build": {

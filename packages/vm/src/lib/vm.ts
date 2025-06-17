@@ -58,10 +58,17 @@ export class VM {
           state.pc++;
           break;
           
-        case OpCode.LOAD:
-          state.stack.push(state.variables.get(instruction.arg) ?? '');
+        case OpCode.LOAD: {
+          const varName = instruction.arg;
+          if (!state.variables.has(varName)) {
+            state.status = 'error';
+            state.error = `LOAD: Variable '${varName}' is not defined`;
+            break;
+          }
+          state.stack.push(state.variables.get(varName)!);
           state.pc++;
           break;
+        }
           
         case OpCode.STORE:
           const value = state.stack.pop();
