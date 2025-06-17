@@ -58,16 +58,22 @@
 
 ## Current Status
 **Phase**: Language Extensions Implementation - Phase 1 Complete, Output Refactoring Complete
-**Status**: Arrays and JSON parsing fully implemented. Console.log output separated from state. 118 tests passing across all packages.
+**Status**: Arrays and JSON parsing fully implemented. Console.log output separated from state. Test infrastructure cleaned up. 118 tests passing across all packages.
 **Next**: Phase 2 - Branching (if/else statements)
 
 ## Recent Major Changes
+- **Test Infrastructure Cleanup**: Simplified testing setup
+  - Removed old test clients, kept only MCP SDK-based client
+  - Fixed test storage location - now creates .cvm in test/integration
+  - Removed redundant test programs
+  - Fixed TypeScript errors in test client
 - **Output Refactoring**: Separated console.log output from execution state
   - Output no longer stored in execution state (prevents unbounded growth)
   - Added dedicated storage methods for output (appendOutput/getOutput)
   - File storage writes to separate .output files
   - MongoDB uses separate outputs collection
   - Maintained proper encapsulation - VM remains pure
+  - Fixed StorageFactory to default to current directory, not home
 - Removed History tracking completely (not needed for core functionality)
 - Fixed stateful VMManager by persisting ccPrompt in Execution
 - Removed MongoDB Document dependencies from types

@@ -1,8 +1,6 @@
 import { StorageAdapter } from './storage.js';
 import { FileStorageAdapter } from './file-adapter.js';
 import { MongoDBAdapter } from './mongodb-adapter.js';
-import * as os from 'os';
-import * as path from 'path';
 
 export type StorageType = 'file' | 'mongodb';
 
@@ -21,7 +19,7 @@ export class StorageFactory {
       case 'file': {
         const dataDir = config?.dataDir || 
                        process.env.CVM_DATA_DIR || 
-                       path.join(os.homedir(), '.cvm');
+                       '.cvm';
         return new FileStorageAdapter(dataDir);
       }
       

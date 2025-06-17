@@ -1,0 +1,19 @@
+# Test artifacts
+.cvm/
+*.output
+*.log
+
+# Compiled output
+*.js
+!mcp-test-client.js
+
+# IDE
+.vscode/
+.idea/
+
+# Dependencies
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db

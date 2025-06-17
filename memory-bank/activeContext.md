@@ -1,9 +1,16 @@
 # Active Context - CVM Project
 
 ## Current Focus
-Ready to begin Phase 2 of CVM language extensions - Branching. Phase 1 (Arrays + JSON parsing) is complete and tested.
+Ready to begin Phase 2 of CVM language extensions - Branching. Phase 1 (Arrays + JSON parsing) is complete and tested. Output refactoring completed and test infrastructure cleaned up.
 
 ## Recent Changes
+- **Test Infrastructure Cleanup COMPLETED**: 
+  - Removed old test clients (simple-test-client.ts/js, test-client.ts, test-running-server.ts)
+  - Kept only mcp-test-client.ts which uses official MCP SDK
+  - Fixed storage location - tests now create .cvm in test/integration directory
+  - Fixed TypeScript errors in mcp-test-client.ts
+  - Test programs verified working: simple-test.ts, test-output.ts
+  - Removed redundant test programs (debug-test.ts, output-test.ts)
 - **Console.log Output Refactoring COMPLETED**: Separated output from execution state
   - Removed `output` field from Execution type - no longer part of state
   - Added `appendOutput` and `getOutput` methods to StorageAdapter interface
@@ -12,6 +19,7 @@ Ready to begin Phase 2 of CVM language extensions - Branching. Phase 1 (Arrays +
   - VMManager extracts output after execution and persists separately
   - Added `getExecutionOutput` method to VMManager for retrieving output
   - Maintains proper encapsulation - VM remains pure, VMManager orchestrates
+  - Fixed StorageFactory default - now creates .cvm in current directory, not home
   - All 118 tests passing across all packages
 - **Phase 1 Implementation COMPLETED**: Full array support with JSON parsing
   - Added CVMValue type: string | number | boolean | CVMArray | null
