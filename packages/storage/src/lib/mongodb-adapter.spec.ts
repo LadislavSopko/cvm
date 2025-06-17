@@ -54,7 +54,6 @@ describe('MongoDBAdapter', () => {
         pc: 0,
         stack: [],
         variables: {},
-        output: [],
         created: new Date(),
       };
 
@@ -64,7 +63,26 @@ describe('MongoDBAdapter', () => {
       expect(retrieved).toBeDefined();
       expect(retrieved?.programId).toBe('test-program-1');
       expect(retrieved?.state).toBe('RUNNING');
-      expect(retrieved?.output).toEqual([]);
+    });
+  });
+
+  describe('output collection', () => {
+    it('should append and retrieve output', async () => {
+      const executionId = 'test-exec-output-1';
+      
+      // Initially empty
+      const initial = await adapter.getOutput(executionId);
+      expect(initial).toEqual([]);
+      
+      // Append first batch
+      await adapter.appendOutput(executionId, ['Line 1', 'Line 2']);
+      const after1 = await adapter.getOutput(executionId);
+      expect(after1).toEqual(['Line 1', 'Line 2']);
+      
+      // Append second batch
+      await adapter.appendOutput(executionId, ['Line 3']);
+      const after2 = await adapter.getOutput(executionId);
+      expect(after2).toEqual(['Line 1', 'Line 2', 'Line 3']);
     });
   });
 

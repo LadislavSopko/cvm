@@ -27,6 +27,9 @@ export class MongoDBAdapter implements StorageAdapter {
     if (!collectionNames.includes('executions')) {
       await this.db.createCollection('executions');
     }
+    if (!collectionNames.includes('outputs')) {
+      await this.db.createCollection('outputs');
+    }
   }
 
   async disconnect(): Promise<void> {
@@ -76,6 +79,30 @@ export class MongoDBAdapter implements StorageAdapter {
   async getExecution(id: string): Promise<Execution | null> {
     const collection = this.getCollection<Execution>('executions');
     return await collection.findOne({ id });
+  }
+
+  async appendOutput(executionId: string, lines: string[]): Promise<void> {
+    const collection = this.getCollection<{ executionId: string; lines: string[] }>('outputs');
+    
+    // Check if document exists
+    const existing = await collection.findOne({ executionId });
+    
+    if (existing) {
+      // Append to existing lines
+      await collection.updateOne(
+        { executionId },
+        { $push: { lines: { $each: lines } } }
+      );
+    } else {
+      // Create new document
+      await collection.insertOne({ executionId, lines });
+    }
+  }
+
+  async getOutput(executionId: string): Promise<string[]> {
+    const collection = this.getCollection<{ executionId: string; lines: string[] }>('outputs');
+    const result = await collection.findOne({ executionId });
+    return result?.lines || [];
   }
 
 }

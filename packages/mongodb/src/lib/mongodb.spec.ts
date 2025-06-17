@@ -54,7 +54,6 @@ describe('MongoDBAdapter', () => {
         pc: 0,
         stack: [],
         variables: {},
-        output: [],
         created: new Date(),
       };
 
@@ -64,7 +63,6 @@ describe('MongoDBAdapter', () => {
       expect(retrieved).toBeDefined();
       expect(retrieved?.programId).toBe('test-program-1');
       expect(retrieved?.state).toBe('RUNNING');
-      expect(retrieved?.output).toEqual([]);
     });
   });
 

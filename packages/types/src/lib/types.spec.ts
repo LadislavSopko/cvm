@@ -27,7 +27,6 @@ describe('types', () => {
       pc: 0,
       stack: [],
       variables: {},
-      output: [],
       created: new Date()
     };
     

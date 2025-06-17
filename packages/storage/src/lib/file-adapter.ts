@@ -7,10 +7,12 @@ export class FileStorageAdapter implements StorageAdapter {
   private connected = false;
   private programsDir: string;
   private executionsDir: string;
+  private outputsDir: string;
 
   constructor(private dataDir: string) {
     this.programsDir = path.join(dataDir, 'programs');
     this.executionsDir = path.join(dataDir, 'executions');
+    this.outputsDir = path.join(dataDir, 'outputs');
   }
 
   async connect(): Promise<void> {
@@ -18,6 +20,7 @@ export class FileStorageAdapter implements StorageAdapter {
     await fs.mkdir(this.dataDir, { recursive: true });
     await fs.mkdir(this.programsDir, { recursive: true });
     await fs.mkdir(this.executionsDir, { recursive: true });
+    await fs.mkdir(this.outputsDir, { recursive: true });
     this.connected = true;
   }
 
@@ -82,6 +85,30 @@ export class FileStorageAdapter implements StorageAdapter {
     } catch (error: any) {
       if (error.code === 'ENOENT') {
         return null;
+      }
+      throw error;
+    }
+  }
+
+  async appendOutput(executionId: string, lines: string[]): Promise<void> {
+    if (!this.connected) throw new Error('Not connected');
+    
+    const filePath = path.join(this.outputsDir, `${executionId}.output`);
+    const content = lines.join('\n') + '\n';
+    await fs.appendFile(filePath, content, 'utf-8');
+  }
+
+  async getOutput(executionId: string): Promise<string[]> {
+    if (!this.connected) throw new Error('Not connected');
+    
+    const filePath = path.join(this.outputsDir, `${executionId}.output`);
+    try {
+      const content = await fs.readFile(filePath, 'utf-8');
+      // Split by newlines and filter out empty lines
+      return content.split('\n').filter(line => line.length > 0);
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
+        return [];
       }
       throw error;
     }

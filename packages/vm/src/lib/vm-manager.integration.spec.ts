@@ -65,7 +65,10 @@ describe('VMManager Integration Tests', () => {
       // Check execution state
       const status = await vmManager.getExecutionStatus('exec-vm-1');
       expect(status.state).toBe('COMPLETED');
-      expect(status.output).toContain('Hello World');
+      
+      // Check output separately
+      const output = await vmManager.getExecutionOutput('exec-vm-1');
+      expect(output).toContain('Hello World');
     });
 
     it('should handle cognitive calls correctly', async () => {
@@ -97,7 +100,10 @@ describe('VMManager Integration Tests', () => {
       // Check final state
       const status = await vmManager.getExecutionStatus('exec-vm-2');
       expect(status.state).toBe('COMPLETED');
-      expect(status.output).toContain('Hello, Alice');
+      
+      // Check output separately
+      const output = await vmManager.getExecutionOutput('exec-vm-2');
+      expect(output).toContain('Hello, Alice');
     });
   });
 

@@ -18,16 +18,18 @@
 ## What's Left to Build
 
 ### Language Extensions (Current Focus)
-- [ ] Phase 1: Arrays + JSON parsing
+- [x] Phase 1: Arrays + JSON parsing (COMPLETED)
   - [x] Extend type system for CVMValue
   - [x] Add array opcodes (ARRAY_NEW, ARRAY_PUSH, etc.)
   - [x] Implement JSON_PARSE opcode
   - [x] Add TYPEOF opcode
   - [x] Add basic arithmetic (ADD, SUB)
   - [x] VM support for new types
-  - [ ] Update parser for array syntax
-  - [ ] Update compiler to generate array opcodes
-  - [ ] Integration tests with example programs
+  - [x] Update parser for array syntax
+  - [x] Update compiler to generate array opcodes
+  - [x] Integration tests with example programs
+  - [x] Fix LOAD operation null handling bug
+  - [x] Fix cvm-server ES module configuration
 - [ ] Phase 2: Branching
   - [x] Add comparison opcodes (EQ, NEQ, LT, GT) - defined but not implemented
   - [x] Add JUMP and JUMP_IF_FALSE opcodes - defined but not implemented
@@ -55,10 +57,17 @@
 - [ ] Claude integration testing
 
 ## Current Status
-**Phase**: 5 - Publishing & Open Source Setup
-**Status**: Successfully published! Version 0.2.7 live on npm registry
+**Phase**: Language Extensions Implementation - Phase 1 Complete, Output Refactoring Complete
+**Status**: Arrays and JSON parsing fully implemented. Console.log output separated from state. 118 tests passing across all packages.
+**Next**: Phase 2 - Branching (if/else statements)
 
 ## Recent Major Changes
+- **Output Refactoring**: Separated console.log output from execution state
+  - Output no longer stored in execution state (prevents unbounded growth)
+  - Added dedicated storage methods for output (appendOutput/getOutput)
+  - File storage writes to separate .output files
+  - MongoDB uses separate outputs collection
+  - Maintained proper encapsulation - VM remains pure
 - Removed History tracking completely (not needed for core functionality)
 - Fixed stateful VMManager by persisting ccPrompt in Execution
 - Removed MongoDB Document dependencies from types
@@ -67,7 +76,6 @@
 - Created FileStorageAdapter for zero-setup experience
 - Updated cvm-server to support storage configuration
 - Examples now use file storage by default
-- All 70 tests passing, clean architecture
 - Finalized publishing plan with Apache 2.0 license
 - Chose project-scoped .cvm directory for file storage
 - Aligned with MCP server conventions (environment variables)

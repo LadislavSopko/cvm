@@ -12,6 +12,8 @@ describe('StorageAdapter interface', () => {
       getProgram: async () => null,
       saveExecution: async () => {},
       getExecution: async () => null,
+      appendOutput: async () => {},
+      getOutput: async () => [],
     };
     
     expect(mockAdapter).toBeDefined();

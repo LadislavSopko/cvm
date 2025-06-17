@@ -1,10 +1,19 @@
 # Active Context - CVM Project
 
 ## Current Focus
-Implementing Phase 1 of CVM language extensions - Arrays and JSON parsing. Core type system complete, parser/compiler updates needed next.
+Ready to begin Phase 2 of CVM language extensions - Branching. Phase 1 (Arrays + JSON parsing) is complete and tested.
 
 ## Recent Changes
-- **Phase 1 Implementation Started**: CVMValue type system and array operations
+- **Console.log Output Refactoring COMPLETED**: Separated output from execution state
+  - Removed `output` field from Execution type - no longer part of state
+  - Added `appendOutput` and `getOutput` methods to StorageAdapter interface
+  - FileStorageAdapter writes output to separate `.output` files
+  - MongoDBAdapter stores output in separate `outputs` collection
+  - VMManager extracts output after execution and persists separately
+  - Added `getExecutionOutput` method to VMManager for retrieving output
+  - Maintains proper encapsulation - VM remains pure, VMManager orchestrates
+  - All 118 tests passing across all packages
+- **Phase 1 Implementation COMPLETED**: Full array support with JSON parsing
   - Added CVMValue type: string | number | boolean | CVMArray | null
   - Implemented type guards and conversion helpers
   - Added array opcodes: ARRAY_NEW, ARRAY_PUSH, ARRAY_GET, ARRAY_LEN
@@ -12,26 +21,35 @@ Implementing Phase 1 of CVM language extensions - Arrays and JSON parsing. Core 
   - Added TYPEOF for runtime type checking
   - Added basic arithmetic: ADD, SUB
   - VM now uses type-safe CVMValue[] stack
-  - 91 tests passing, all builds successful
+  - Compiler supports full array syntax: literals, indexing, methods
+  - Fixed LOAD operation bug with null values
+  - Fixed cvm-server ES module configuration
 
 ## Language Extension Status
-1. **Phase 1**: Arrays + JSON parsing (IN PROGRESS)
+1. **Phase 1**: Arrays + JSON parsing (COMPLETED ✅)
    - ✅ Type system implemented
    - ✅ VM opcodes implemented
-   - ⏳ Parser/compiler support needed
-   - ⏳ Integration tests needed
-2. **Phase 2**: Branching (PLANNED)
+   - ✅ Parser/compiler support completed
+   - ✅ Integration tests completed
+   - ✅ Example program created (array-demo.ts)
+2. **Phase 2**: Branching (READY TO START)
+   - Comparison opcodes defined: EQ, NEQ, LT, GT
+   - Jump opcodes defined: JUMP, JUMP_IF, JUMP_IF_FALSE, JUMP_IF_TRUE
+   - Logical opcodes defined: AND, OR, NOT
 3. **Phase 3**: Iteration (PLANNED)
 4. **Phase 4**: File operations (PLANNED)
 
 ## Next Steps
-1. Update parser to recognize array syntax
-2. Update compiler to generate array opcodes
-3. Create example programs using arrays
-4. Complete Phase 1 integration tests
-5. Move to Phase 2: Branching
+1. Implement comparison opcodes in VM (EQ, NEQ, LT, GT)
+2. Implement jump opcodes (JUMP, JUMP_IF_FALSE)
+3. Update compiler to handle if/else statements
+4. Create tests for branching logic
+5. Implement logical operators (AND, OR, NOT)
 
 ## Current Implementation Focus
+- Create reliable test client for CVM programs with CC instructions
+- Design test programs that work with simple pre-programmed responses
+- Document testing strategy for cognitive interrupts
 - Add return statement to parser (only in main())
 - Add RETURN opcode to VM
 - Rename all MCP methods and status values

@@ -5,6 +5,7 @@ import { VMManager } from './vm-manager.js';
 vi.mock('@cvm/storage', () => {
   const mockPrograms = new Map();
   const mockExecutions = new Map();
+  const mockOutputs = new Map();
 
   const mockAdapter = {
     connect: vi.fn().mockResolvedValue(undefined),
@@ -21,6 +22,13 @@ vi.mock('@cvm/storage', () => {
     }),
     getExecution: vi.fn().mockImplementation(async (id) => {
       return mockExecutions.get(id);
+    }),
+    appendOutput: vi.fn().mockImplementation(async (executionId, lines) => {
+      const existing = mockOutputs.get(executionId) || [];
+      mockOutputs.set(executionId, [...existing, ...lines]);
+    }),
+    getOutput: vi.fn().mockImplementation(async (executionId) => {
+      return mockOutputs.get(executionId) || [];
     })
   };
 

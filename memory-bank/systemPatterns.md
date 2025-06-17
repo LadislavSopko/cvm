@@ -40,8 +40,8 @@ Key insight: getTask is read-only, submitTask drives execution forward.
 #### State Management
 - Every VM state change persisted to MongoDB
 - Execution can pause/resume across sessions
-- Complete execution history maintained
-- State includes: PC, stack, variables, output
+- State includes: PC, stack, variables (output stored separately)
+- Output persisted independently from state to prevent unbounded growth
 
 #### Protocol Design
 - MCP (Model Context Protocol) for AI communication
@@ -65,16 +65,16 @@ Key insight: getTask is read-only, submitTask drives execution forward.
 - Clear error messages with line numbers
 - No intermediate AST (keep it simple)
 
-### VM → MongoDB
+### VM → Storage
 - VMManager handles all persistence
-- VMManager creates its own MongoDB connection from environment
-- Uses MONGODB_URI from .env file
+- VMManager creates storage adapter (MongoDB or File)
+- Uses MONGODB_URI from .env file for MongoDB
 - State persisted after each instruction
+- Output extracted and stored separately via appendOutput
 - Lazy loading of program bytecode
-- Execution document tracks all state
-- History array for debugging
+- Execution document tracks state (without output)
 - VM itself remains pure execution engine
-- VMManager.initialize() connects to database
+- VMManager.initialize() connects to storage
 - VMManager.dispose() cleans up connections
 
 ### MCP Server → VM
@@ -157,6 +157,14 @@ CC instruction → Save state with prompt → Return AWAITING_COGNITIVE_RESULT �
 - No implicit string → number conversion
 - Truthiness: null/0/'' are false, arrays always true
 
+### Implementation Notes (Phase 1 Complete)
+- Type system implemented in `@cvm/types` package
+- Compiler extends `compileExpression` to handle TypeScript AST nodes
+- LOAD operation properly handles null values (no fallback to empty string)
+- Full array syntax support: literals `[1,2,3]`, indexing `arr[0]`, methods `arr.push()`
+- JSON.parse() returns CVMArray for valid array JSON, empty array for invalid/non-array
+- 18 new tests added for array operations
+
 ## Security Patterns
 
 ### Sandboxing
@@ -168,7 +176,7 @@ CC instruction → Save state with prompt → Return AWAITING_COGNITIVE_RESULT �
 ### Resource Limits
 - Maximum stack depth
 - Maximum execution steps
-- Maximum output buffer
+- Output stored separately (no buffer limits in state)
 - CC operation timeouts
 
 ### Input Validation

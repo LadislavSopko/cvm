@@ -19,7 +19,6 @@ export interface Execution {
   pc: number;
   stack: any[];
   variables: Record<string, any>;
-  output: string[];
   error?: string;
   ccPrompt?: string; // Store CC prompt for stateless operation
   created: Date;

@@ -106,7 +106,6 @@ describe('FileStorageAdapter', () => {
         pc: 5,
         stack: ['a', 'b'],
         variables: { x: 10 },
-        output: ['hello'],
         created: new Date(),
       };
 
@@ -119,7 +118,6 @@ describe('FileStorageAdapter', () => {
       expect(retrieved?.pc).toBe(5);
       expect(retrieved?.stack).toEqual(['a', 'b']);
       expect(retrieved?.variables).toEqual({ x: 10 });
-      expect(retrieved?.output).toEqual(['hello']);
     });
 
     it('should return null for non-existent execution', async () => {
@@ -135,7 +133,6 @@ describe('FileStorageAdapter', () => {
         pc: 3,
         stack: [],
         variables: {},
-        output: [],
         ccPrompt: 'What is your name?',
         created: new Date(),
       };
@@ -145,6 +142,33 @@ describe('FileStorageAdapter', () => {
 
       expect(retrieved?.state).toBe('AWAITING_COGNITIVE_RESULT');
       expect(retrieved?.ccPrompt).toBe('What is your name?');
+    });
+  });
+
+  describe('output', () => {
+    it('should append and retrieve output', async () => {
+      const executionId = 'exec-output-1';
+      
+      // Initially empty
+      const initial = await adapter.getOutput(executionId);
+      expect(initial).toEqual([]);
+      
+      // Append first batch
+      await adapter.appendOutput(executionId, ['Line 1', 'Line 2']);
+      const after1 = await adapter.getOutput(executionId);
+      expect(after1).toEqual(['Line 1', 'Line 2']);
+      
+      // Append second batch
+      await adapter.appendOutput(executionId, ['Line 3']);
+      const after2 = await adapter.getOutput(executionId);
+      expect(after2).toEqual(['Line 1', 'Line 2', 'Line 3']);
+    });
+
+    it('should handle empty output lines', async () => {
+      const executionId = 'exec-output-2';
+      await adapter.appendOutput(executionId, []);
+      const result = await adapter.getOutput(executionId);
+      expect(result).toEqual([]);
     });
   });
 

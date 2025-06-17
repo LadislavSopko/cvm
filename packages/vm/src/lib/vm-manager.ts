@@ -15,7 +15,6 @@ export interface ExecutionStatus {
   pc: number;
   stack: CVMValue[];
   variables: Record<string, CVMValue>;
-  output: string[];
 }
 
 /**
@@ -87,7 +86,6 @@ export class VMManager {
       pc: 0,
       stack: [],
       variables: {},
-      output: [],
       created: new Date()
     };
 
@@ -132,11 +130,15 @@ export class VMManager {
 
       const state = vm.execute(program.bytecode, initialState);
 
-      // Save state
+      // Extract and save output separately
+      if (state.output.length > 0) {
+        await this.storage.appendOutput(executionId, state.output);
+      }
+
+      // Save state (without output)
       execution.pc = state.pc;
       execution.stack = state.stack;
       execution.variables = Object.fromEntries(state.variables);
-      execution.output = state.output;
 
       if (state.status === 'complete') {
         execution.state = 'COMPLETED';
@@ -216,7 +218,7 @@ export class VMManager {
       stack: execution.stack,
       variables: new Map(Object.entries(execution.variables)),
       status: 'waiting_cc' as const,
-      output: execution.output,
+      output: [], // Start with empty output for resumed execution
       ccPrompt: undefined,
       iterators: [] // TODO: persist iterators in future
     };
@@ -224,11 +226,15 @@ export class VMManager {
     // Resume execution - this pushes result to stack and continues
     const newState = vm.resume(currentState, result, program.bytecode);
     
-    // Update execution state
+    // Extract and save any new output
+    if (newState.output.length > 0) {
+      await this.storage.appendOutput(executionId, newState.output);
+    }
+    
+    // Update execution state (without output)
     execution.pc = newState.pc;
     execution.stack = newState.stack;
     execution.variables = Object.fromEntries(newState.variables);
-    execution.output = newState.output;
     
     if (newState.status === 'complete') {
       execution.state = 'COMPLETED';
@@ -262,8 +268,14 @@ export class VMManager {
       state: execution.state,
       pc: execution.pc,
       stack: execution.stack,
-      variables: execution.variables,
-      output: execution.output
+      variables: execution.variables
     };
+  }
+
+  /**
+   * Get output for an execution
+   */
+  async getExecutionOutput(executionId: string): Promise<string[]> {
+    return await this.storage.getOutput(executionId);
   }
 }
