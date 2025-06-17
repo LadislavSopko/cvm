@@ -217,7 +217,8 @@ export class VMManager {
       variables: new Map(Object.entries(execution.variables)),
       status: 'waiting_cc' as const,
       output: execution.output,
-      ccPrompt: undefined
+      ccPrompt: undefined,
+      iterators: [] // TODO: persist iterators in future
     };
 
     // Resume execution - this pushes result to stack and continues

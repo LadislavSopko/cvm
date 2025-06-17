@@ -5,9 +5,7 @@ import {
   isCVMArray, 
   isCVMString, 
   isCVMNumber,
-  isCVMBoolean,
   cvmToString,
-  cvmToBoolean,
   cvmTypeof,
   createCVMArray 
 } from '@cvm/types';
@@ -67,6 +65,11 @@ export class VM {
           
         case OpCode.STORE:
           const value = state.stack.pop();
+          if (value === undefined) {
+            state.status = 'error';
+            state.error = 'STORE: Stack underflow';
+            break;
+          }
           state.variables.set(instruction.arg, value);
           state.pc++;
           break;
@@ -91,10 +94,17 @@ export class VM {
           state.pc++;
           break;
           
-        case OpCode.CC:
-          state.ccPrompt = cvmToString(state.stack.pop());
+        case OpCode.CC: {
+          const prompt = state.stack.pop();
+          if (prompt === undefined) {
+            state.status = 'error';
+            state.error = 'CC: Stack underflow';
+            break;
+          }
+          state.ccPrompt = cvmToString(prompt);
           state.status = 'waiting_cc';
           break;
+        }
           
         // Array operations
         case OpCode.ARRAY_NEW:
@@ -105,12 +115,17 @@ export class VM {
         case OpCode.ARRAY_PUSH: {
           const value = state.stack.pop();
           const array = state.stack.pop();
+          if (value === undefined || array === undefined) {
+            state.status = 'error';
+            state.error = 'ARRAY_PUSH: Stack underflow';
+            break;
+          }
           if (!isCVMArray(array)) {
             state.status = 'error';
             state.error = 'ARRAY_PUSH requires an array';
             break;
           }
-          array.elements.push(value as CVMValue);
+          array.elements.push(value);
           state.stack.push(array);
           state.pc++;
           break;
@@ -119,6 +134,11 @@ export class VM {
         case OpCode.ARRAY_GET: {
           const index = state.stack.pop();
           const array = state.stack.pop();
+          if (index === undefined || array === undefined) {
+            state.status = 'error';
+            state.error = 'ARRAY_GET: Stack underflow';
+            break;
+          }
           if (!isCVMArray(array)) {
             state.status = 'error';
             state.error = 'ARRAY_GET requires an array';
@@ -137,6 +157,11 @@ export class VM {
           
         case OpCode.ARRAY_LEN: {
           const array = state.stack.pop();
+          if (array === undefined) {
+            state.status = 'error';
+            state.error = 'ARRAY_LEN: Stack underflow';
+            break;
+          }
           if (!isCVMArray(array)) {
             state.status = 'error';
             state.error = 'ARRAY_LEN requires an array';
@@ -149,6 +174,11 @@ export class VM {
           
         case OpCode.JSON_PARSE: {
           const str = state.stack.pop();
+          if (str === undefined) {
+            state.status = 'error';
+            state.error = 'JSON_PARSE: Stack underflow';
+            break;
+          }
           if (!isCVMString(str)) {
             state.status = 'error';
             state.error = 'JSON_PARSE requires a string';
@@ -170,6 +200,11 @@ export class VM {
           
         case OpCode.TYPEOF: {
           const value = state.stack.pop();
+          if (value === undefined) {
+            state.status = 'error';
+            state.error = 'TYPEOF: Stack underflow';
+            break;
+          }
           state.stack.push(cvmTypeof(value));
           state.pc++;
           break;
@@ -179,6 +214,11 @@ export class VM {
         case OpCode.ADD: {
           const right = state.stack.pop();
           const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'ADD: Stack underflow';
+            break;
+          }
           if (!isCVMNumber(left) || !isCVMNumber(right)) {
             state.status = 'error';
             state.error = 'ADD requires two numbers';
@@ -192,6 +232,11 @@ export class VM {
         case OpCode.SUB: {
           const right = state.stack.pop();
           const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'SUB: Stack underflow';
+            break;
+          }
           if (!isCVMNumber(left) || !isCVMNumber(right)) {
             state.status = 'error';
             state.error = 'SUB requires two numbers';
