@@ -1,15 +1,33 @@
 import { Instruction, OpCode } from '@cvm/parser';
+import { 
+  CVMValue, 
+  CVMArray,
+  isCVMArray, 
+  isCVMString, 
+  isCVMNumber,
+  isCVMBoolean,
+  cvmToString,
+  cvmToBoolean,
+  cvmTypeof,
+  createCVMArray 
+} from '@cvm/types';
 
 export type VMStatus = 'running' | 'waiting_cc' | 'complete' | 'error';
 
+export interface IteratorContext {
+  array: CVMArray;
+  index: number;
+}
+
 export interface VMState {
   pc: number;
-  stack: any[];
-  variables: Map<string, any>;
+  stack: CVMValue[];
+  variables: Map<string, CVMValue>;
   status: VMStatus;
   output: string[];
   ccPrompt?: string;
   error?: string;
+  iterators: IteratorContext[];
 }
 
 export class VM {
@@ -20,6 +38,7 @@ export class VM {
       variables: initialState?.variables ?? new Map(),
       status: 'running',
       output: initialState?.output ?? [],
+      iterators: initialState?.iterators ?? [],
       ...initialState
     };
 
@@ -55,20 +74,133 @@ export class VM {
         case OpCode.CONCAT:
           const b = state.stack.pop();
           const a = state.stack.pop();
-          state.stack.push(a + b);
+          if (a === undefined || b === undefined) {
+            state.status = 'error';
+            state.error = 'CONCAT: Stack underflow';
+            break;
+          }
+          state.stack.push(cvmToString(a) + cvmToString(b));
           state.pc++;
           break;
           
         case OpCode.PRINT:
           const printValue = state.stack.pop();
-          state.output.push(printValue);
+          if (printValue !== undefined) {
+            state.output.push(cvmToString(printValue));
+          }
           state.pc++;
           break;
           
         case OpCode.CC:
-          state.ccPrompt = state.stack.pop();
+          state.ccPrompt = cvmToString(state.stack.pop());
           state.status = 'waiting_cc';
           break;
+          
+        // Array operations
+        case OpCode.ARRAY_NEW:
+          state.stack.push(createCVMArray());
+          state.pc++;
+          break;
+          
+        case OpCode.ARRAY_PUSH: {
+          const value = state.stack.pop();
+          const array = state.stack.pop();
+          if (!isCVMArray(array)) {
+            state.status = 'error';
+            state.error = 'ARRAY_PUSH requires an array';
+            break;
+          }
+          array.elements.push(value as CVMValue);
+          state.stack.push(array);
+          state.pc++;
+          break;
+        }
+          
+        case OpCode.ARRAY_GET: {
+          const index = state.stack.pop();
+          const array = state.stack.pop();
+          if (!isCVMArray(array)) {
+            state.status = 'error';
+            state.error = 'ARRAY_GET requires an array';
+            break;
+          }
+          if (!isCVMNumber(index)) {
+            state.status = 'error';
+            state.error = 'ARRAY_GET requires numeric index';
+            break;
+          }
+          const element = array.elements[index] ?? null;
+          state.stack.push(element);
+          state.pc++;
+          break;
+        }
+          
+        case OpCode.ARRAY_LEN: {
+          const array = state.stack.pop();
+          if (!isCVMArray(array)) {
+            state.status = 'error';
+            state.error = 'ARRAY_LEN requires an array';
+            break;
+          }
+          state.stack.push(array.elements.length);
+          state.pc++;
+          break;
+        }
+          
+        case OpCode.JSON_PARSE: {
+          const str = state.stack.pop();
+          if (!isCVMString(str)) {
+            state.status = 'error';
+            state.error = 'JSON_PARSE requires a string';
+            break;
+          }
+          try {
+            const parsed = JSON.parse(str);
+            if (Array.isArray(parsed)) {
+              state.stack.push(createCVMArray(parsed));
+            } else {
+              state.stack.push(createCVMArray()); // Empty array for non-array JSON
+            }
+          } catch {
+            state.stack.push(createCVMArray()); // Empty array for invalid JSON
+          }
+          state.pc++;
+          break;
+        }
+          
+        case OpCode.TYPEOF: {
+          const value = state.stack.pop();
+          state.stack.push(cvmTypeof(value));
+          state.pc++;
+          break;
+        }
+          
+        // Arithmetic operations
+        case OpCode.ADD: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (!isCVMNumber(left) || !isCVMNumber(right)) {
+            state.status = 'error';
+            state.error = 'ADD requires two numbers';
+            break;
+          }
+          state.stack.push(left + right);
+          state.pc++;
+          break;
+        }
+          
+        case OpCode.SUB: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (!isCVMNumber(left) || !isCVMNumber(right)) {
+            state.status = 'error';
+            state.error = 'SUB requires two numbers';
+            break;
+          }
+          state.stack.push(left - right);
+          state.pc++;
+          break;
+        }
           
         default:
           state.status = 'error';
