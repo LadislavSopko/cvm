@@ -17,47 +17,34 @@
 
 ## What's Left to Build
 
-### Phase 1: Core Infrastructure (Current)
-- [x] Create NX library structure
-  - [x] @cvm/parser library
-  - [x] @cvm/vm library
-  - [x] @cvm/mcp-server library (implementation done, tests need fixes)
-  - [x] @cvm/mongodb library
-  - [x] @cvm/types library (shared types)
-- [x] Set up MongoDB with Docker (using existing instance)
-- [x] Implement basic types/interfaces (bytecode types done)
+### Language Extensions (Current Focus)
+- [ ] Phase 1: Arrays + JSON parsing
+  - [ ] Extend type system for CVMValue
+  - [ ] Add array opcodes (ARRAY_NEW, ARRAY_PUSH, etc.)
+  - [ ] Implement JSON_PARSE opcode
+  - [ ] Update parser for array syntax
+  - [ ] VM support for new types
+- [ ] Phase 2: Branching
+  - [ ] Add comparison opcodes (EQ, NEQ, LT, GT)
+  - [ ] Add JUMP and JUMP_IF_FALSE opcodes
+  - [ ] Parser support for if/else
+  - [ ] Compiler generates correct jump offsets
+- [ ] Phase 3: Iteration
+  - [ ] Add iterator opcodes (ITER_START, ITER_NEXT, ITER_END)
+  - [ ] VM iterator state management
+  - [ ] Parser support for foreach syntax
+- [ ] Phase 4: File Operations
+  - [ ] Add FS_LIST_FILES opcode
+  - [ ] Implement path sandboxing
+  - [ ] Add glob pattern support
+  - [ ] Ensure deterministic sorting
 
-### Phase 2: Minimal Language Implementation
-- [x] Parser for TypeScript subset (using TS compiler API)
-- [x] Bytecode compiler (transform AST to bytecode)
-- [x] Stack-based VM executor
-- [x] MongoDB state persistence (via VMManager)
-- [x] Basic error handling
-
-### Phase 3: MCP Integration
-- [x] MCP server implementation (code complete)
-- [x] JSON-RPC 2.0 protocol handler
-- [x] Method implementations:
-  - [x] loadProgram
-  - [x] startExecution
-  - [x] getNext
-  - [x] reportCCResult
-  - [x] getExecutionState
-- [x] MCP server tests updated and passing
-
-### Phase 4: Testing & Validation
-- [x] Unit tests for all components (51 tests passing)
-- [x] Integration tests
-- [x] Example programs (hello.ts created)
+### Future Considerations
+- [ ] Return values from main()
+- [ ] Function definitions
+- [ ] Error handling improvements
+- [ ] Performance optimizations
 - [ ] Claude integration testing
-- [ ] Performance benchmarks
-
-### Phase 5: Language Expansion
-- [ ] Control flow (if/else)
-- [ ] Loops (while, foreach)
-- [ ] Functions
-- [ ] Collections (arrays, maps)
-- [ ] Type system improvements
 
 ## Current Status
 **Phase**: 5 - Publishing & Open Source Setup

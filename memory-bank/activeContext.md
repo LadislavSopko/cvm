@@ -1,40 +1,25 @@
 # Active Context - CVM Project
 
 ## Current Focus
-CVM Server is successfully published and working! Version 0.2.7 is live on npm and can be installed with `npx cvm-server`. The project is now ready for usage documentation and examples.
+Extending CVM language capabilities for file analysis workflows. Adding arrays, branching, iteration, and secure file operations to enable AI-driven analysis of large codebases.
 
 ## Recent Changes
-- **Successfully resolved publishing issue**: Version 0.2.7 published with all required files
-- **Publishing workflow established**: Using nx release with custom publish target
-- **Working installation**: `npx cvm-server` confirmed working in examples directory
-- **API Refactoring Complete**: Renamed all MCP methods and status values for v0.3.0
+- **MCP Server Version Fix**: Now uses actual package version instead of hardcoded 1.0.0
+- **Language Extension Plan Created**: Detailed 4-phase plan for arrays, branching, iteration, and file operations
+- **Publishing Stable**: Version 0.3.3 working correctly
 
-## Publishing Status
-- **Version 0.3.0**: Published and working with new API ✅
-- **Version 0.2.7**: Last version with old API
-- **Versions 0.2.5, 0.2.6**: Deprecated (were missing main.js)
-- **Installation**: `npx cvm-server@latest` or `npm install -g cvm-server`
-
-## v0.3.0 API Changes
-- **Method Renames**:
-  - `loadProgram` → `load`
-  - `startExecution` → `start`
-  - `getNext` → `getTask`
-  - `reportCCResult` → `submitTask`
-  - `getExecutionState` → `status`
-- **Status Value Updates**:
-  - `ready` → `READY`
-  - `running` → `RUNNING`
-  - `waiting_cc` → `AWAITING_COGNITIVE_RESULT`
-  - `completed` → `COMPLETED`
-  - `error` → `ERROR`
+## Language Extension Phases
+1. **Phase 1**: Arrays + JSON parsing (foundation for structured data)
+2. **Phase 2**: Branching (if/else for conditional logic)
+3. **Phase 3**: Iteration (foreach for processing file lists)
+4. **Phase 4**: File operations (secure getFiles() function)
 
 ## Next Steps
-1. Implement return value support for main()
-2. Rename MCP methods to simpler names (load, start, getTask, submitTask, status)
-3. Add safety counter to prevent infinite getTask loops
-4. Create user-facing documentation (README updates, examples)
-5. Announce the release
+1. Cross-check language extension plan with Zen
+2. Implement Phase 1: Arrays + JSON parsing with TDD
+3. Update parser to handle array syntax
+4. Extend VM to support new value types
+5. Create integration tests with file analysis examples
 
 ## Current Implementation Focus
 - Add return statement to parser (only in main())
