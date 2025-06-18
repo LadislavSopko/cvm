@@ -228,12 +228,9 @@ export class VM {
             state.error = 'ADD: Stack underflow';
             break;
           }
-          if (!isCVMNumber(left) || !isCVMNumber(right)) {
-            state.status = 'error';
-            state.error = 'ADD requires two numbers';
-            break;
-          }
-          state.stack.push(left + right);
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          state.stack.push(leftNum + rightNum);
           state.pc++;
           break;
         }
@@ -246,12 +243,44 @@ export class VM {
             state.error = 'SUB: Stack underflow';
             break;
           }
-          if (!isCVMNumber(left) || !isCVMNumber(right)) {
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          state.stack.push(leftNum - rightNum);
+          state.pc++;
+          break;
+        }
+          
+        case OpCode.MUL: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
             state.status = 'error';
-            state.error = 'SUB requires two numbers';
+            state.error = 'MUL: Stack underflow';
             break;
           }
-          state.stack.push(left - right);
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          state.stack.push(leftNum * rightNum);
+          state.pc++;
+          break;
+        }
+          
+        case OpCode.DIV: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'DIV: Stack underflow';
+            break;
+          }
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          if (rightNum === 0) {
+            state.status = 'error';
+            state.error = 'Division by zero';
+            break;
+          }
+          state.stack.push(leftNum / rightNum);
           state.pc++;
           break;
         }

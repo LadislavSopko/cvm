@@ -47,7 +47,12 @@ describe('Parser-VM-MongoDB Integration', () => {
       // Step 3: Retrieve program from MongoDB
       const retrieved = await adapter.getProgram('integration-test-1');
       expect(retrieved).toBeDefined();
-      expect(retrieved?.bytecode).toEqual(parseResult.bytecode);
+      // MongoDB converts undefined to null, so we need to handle that
+      const normalizedBytecode = retrieved!.bytecode.map(instr => ({
+        ...instr,
+        arg: instr.arg === null ? undefined : instr.arg
+      }));
+      expect(normalizedBytecode).toEqual(parseResult.bytecode);
 
       // Step 4: Execute the bytecode in VM
       const state = vm.execute(retrieved!.bytecode);

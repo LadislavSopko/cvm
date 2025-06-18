@@ -1,7 +1,7 @@
 import * as ts from 'typescript';
 import { OpCode, Instruction } from './bytecode.js';
 import { parseProgram } from './parser.js';
-import { CompilerState } from './compiler-state.js';
+import { CompilerState, JumpContext } from './compiler-state.js';
 
 export interface CompileResult {
   success: boolean;
@@ -25,7 +25,92 @@ export function compile(source: string): CompileResult {
   
   // Simple compiler - just handle main() for now
   function compileStatement(node: ts.Node): void {
-    if (ts.isExpressionStatement(node)) {
+    if (ts.isIfStatement(node)) {
+      // Compile condition
+      compileExpression(node.expression);
+      
+      // Emit JUMP_IF_FALSE with placeholder address
+      const jumpIfFalseIndex = state.emit(OpCode.JUMP_IF_FALSE, -1);
+      
+      // Push if context
+      const ifContext: JumpContext = {
+        type: 'if',
+        endTargets: []
+      };
+      
+      // Check if there's an else block
+      if (node.elseStatement) {
+        ifContext.elseTarget = jumpIfFalseIndex;
+      } else {
+        ifContext.endTargets.push(jumpIfFalseIndex);
+      }
+      
+      state.pushContext(ifContext);
+      
+      // Compile then statement
+      compileStatement(node.thenStatement);
+      
+      // Handle else block if present
+      if (node.elseStatement) {
+        // Emit JUMP to skip else block
+        const jumpIndex = state.emit(OpCode.JUMP, -1);
+        ifContext.endTargets.push(jumpIndex);
+        
+        // Patch JUMP_IF_FALSE to jump to else block
+        const elseAddress = state.currentAddress();
+        state.patchJump(jumpIfFalseIndex, elseAddress);
+        
+        // Compile else statement
+        compileStatement(node.elseStatement);
+      }
+      
+      // Pop context and patch all end jumps
+      const context = state.popContext();
+      if (context) {
+        const endAddress = state.currentAddress();
+        state.patchJumps(context.endTargets, endAddress);
+      }
+    }
+    else if (ts.isWhileStatement(node)) {
+      // Record loop start position
+      const loopStart = state.currentAddress();
+      
+      // Compile condition
+      compileExpression(node.expression);
+      
+      // Emit JUMP_IF_FALSE with placeholder
+      const jumpIfFalseIndex = state.emit(OpCode.JUMP_IF_FALSE, -1);
+      
+      // Push loop context
+      const loopContext: JumpContext = {
+        type: 'loop',
+        breakTargets: [jumpIfFalseIndex],
+        continueTargets: [],
+        endTargets: [],
+        startAddress: loopStart
+      };
+      state.pushContext(loopContext);
+      
+      // Compile loop body
+      compileStatement(node.statement);
+      
+      // Jump back to loop start
+      state.emit(OpCode.JUMP, loopStart);
+      
+      // Pop context and patch break jumps
+      const context = state.popContext();
+      if (context) {
+        const endAddress = state.currentAddress();
+        state.patchJumps(context.breakTargets || [], endAddress);
+      }
+    }
+    else if (ts.isBlock(node)) {
+      // Compile each statement in the block
+      node.statements.forEach(stmt => {
+        compileStatement(stmt);
+      });
+    }
+    else if (ts.isExpressionStatement(node)) {
       const expr = node.expression;
       
       // Handle console.log()
@@ -61,6 +146,16 @@ export function compile(source: string): CompileResult {
           compileExpression(expr.arguments[0]);
         }
         state.emit(OpCode.ARRAY_PUSH);
+      }
+      // Handle assignment expressions (e.g., i = i + 1)
+      else if (ts.isBinaryExpression(expr) && 
+               expr.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
+        // Compile the right-hand side
+        compileExpression(expr.right);
+        // Store to the variable
+        if (ts.isIdentifier(expr.left)) {
+          state.emit(OpCode.STORE, expr.left.text);
+        }
       }
     }
     else if (ts.isVariableStatement(node)) {
@@ -148,16 +243,25 @@ export function compile(source: string): CompileResult {
       switch (operator) {
         case ts.SyntaxKind.PlusToken:
           // Determine if this is numeric addition or string concatenation
-          // For now, use simple heuristic: if both operands are numeric literals
-          // or identifiers, use ADD; otherwise use CONCAT
-          if (isLikelyNumeric(node.left) && isLikelyNumeric(node.right)) {
+          if (hasStringOperand(node.left, node.right)) {
+            // If either operand is a string literal, always use CONCAT
+            state.emit(OpCode.CONCAT);
+          } else if (isLikelyNumeric(node.left) && isLikelyNumeric(node.right)) {
+            // If both are likely numeric, use ADD
             state.emit(OpCode.ADD);
           } else {
+            // Default to CONCAT for safety (JavaScript behavior)
             state.emit(OpCode.CONCAT);
           }
           break;
         case ts.SyntaxKind.MinusToken:
           state.emit(OpCode.SUB);
+          break;
+        case ts.SyntaxKind.AsteriskToken:
+          state.emit(OpCode.MUL);
+          break;
+        case ts.SyntaxKind.SlashToken:
+          state.emit(OpCode.DIV);
           break;
         case ts.SyntaxKind.EqualsEqualsToken:
           state.emit(OpCode.EQ);
@@ -203,16 +307,32 @@ export function compile(source: string): CompileResult {
 // Helper to determine if an expression is likely numeric
 function isLikelyNumeric(node: ts.Node): boolean {
   if (ts.isNumericLiteral(node)) return true;
-  if (ts.isIdentifier(node)) return true; // Assume variables could be numeric
   if (ts.isParenthesizedExpression(node)) {
     return isLikelyNumeric(node.expression);
   }
   if (ts.isBinaryExpression(node)) {
     const op = node.operatorToken.kind;
-    return op === ts.SyntaxKind.PlusToken || 
-           op === ts.SyntaxKind.MinusToken ||
+    // Arithmetic operations always produce numbers
+    return op === ts.SyntaxKind.MinusToken ||
            op === ts.SyntaxKind.AsteriskToken ||
-           op === ts.SyntaxKind.SlashToken;
+           op === ts.SyntaxKind.SlashToken ||
+           op === ts.SyntaxKind.LessThanToken ||
+           op === ts.SyntaxKind.GreaterThanToken;
+  }
+  if (ts.isCallExpression(node)) {
+    // array.length is numeric
+    if (ts.isPropertyAccessExpression(node.expression) && 
+        node.expression.name.text === 'length') {
+      return true;
+    }
+  }
+  if (ts.isPropertyAccessExpression(node) && node.name.text === 'length') {
+    return true;
   }
   return false;
+}
+
+// Helper to check if either operand is definitely a string
+function hasStringOperand(left: ts.Node, right: ts.Node): boolean {
+  return ts.isStringLiteral(left) || ts.isStringLiteral(right);
 }

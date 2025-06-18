@@ -16,7 +16,8 @@ function main() {
   console.log("Got: " + a);
   const b = CC("Second prompt");
   console.log("Got: " + b);
-  console.log("Done: " + a + " and " + b);
+  const msg = "Done: " + a + " and " + b;
+  console.log(msg);
 }
 main();
 `;
@@ -71,7 +72,8 @@ main();
 function main() {
   const a = CC("First");
   const b = CC("Second");
-  console.log(a + " " + b);
+  const result = a + " " + b;
+  console.log(result);
 }
 main();
 `;

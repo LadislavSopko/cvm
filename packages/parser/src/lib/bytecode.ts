@@ -23,6 +23,8 @@ export enum OpCode {
   // Arithmetic
   ADD = 'ADD',
   SUB = 'SUB',
+  MUL = 'MUL',
+  DIV = 'DIV',
   
   // Comparison
   EQ = 'EQ',
