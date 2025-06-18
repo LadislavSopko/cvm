@@ -2,85 +2,38 @@
 
 ## Overview
 Extend CVM to support file analysis workflows with minimal, practical features:
-- Arrays for storing file paths and results
-- JSON parsing for structured AI responses
-- Branching (if/else) for conditional logic
-- Iteration (foreach) for processing file lists
-- Built-in `getFiles()` function for secure file discovery
+- ✅ Arrays for storing file paths and results (Phase 1 - COMPLETED)
+- ✅ JSON parsing for structured AI responses (Phase 1 - COMPLETED)
+- Branching (if/else) for conditional logic (Phase 2)
+- Iteration (foreach) for processing file lists (Phase 3)
+- Built-in `getFiles()` function for secure file discovery (Phase 4)
 
 ## Current State Analysis
 
-### Existing Infrastructure
-1. **Parser**: Uses TypeScript AST, validates CVM subset
-2. **Compiler**: Transforms AST to bytecode instructions
-3. **VM**: Stack-based executor with state persistence
-4. **Types**: Shared definitions with string-only values currently
-5. **OpCodes**: Basic set (PUSH, POP, LOAD, STORE, CONCAT, CC, PRINT, HALT)
+### Phase 1 Completed ✅
+- **Type System**: Extended to support arrays, numbers, booleans, null
+- **Array Operations**: ARRAY_NEW, ARRAY_PUSH, ARRAY_GET, ARRAY_LEN implemented
+- **JSON Parsing**: JSON_PARSE opcode with proper error handling
+- **Arithmetic**: ADD, SUB, MUL, DIV opcodes for numeric operations
+- **Type Operations**: TYPEOF opcode for runtime type checking
+- **Parser/Compiler**: Array literals, indexing, and JSON.parse() support
+- **VM**: Type-safe stack with CVMValue[], proper type coercion rules
 
-### Key Architecture Points
-- Stack-based VM (not register-based)
-- All values are strings currently
-- State persisted after each CC instruction
-- Clean separation: Parser → Compiler → VM
+### Remaining Infrastructure
+- **Control Flow**: Need branching and loops
+- **File Operations**: Need secure file system access
+- **Iterator State**: Need foreach implementation
 
 ## Implementation Plan (TDD Approach)
 
-### Phase 1: Type System & Arrays
-**Goal**: Enable arrays to store file paths and parse JSON from AI
-
-#### 1.1 Extend Type System
-```typescript
-// In @cvm/types/src/lib/types.ts
-export type CVMValue = string | boolean | number | CVMArray | null;
-export interface CVMArray {
-  type: 'array';
-  elements: CVMValue[];
-}
-
-// Type checking helpers
-export function isCVMArray(value: CVMValue): value is CVMArray {
-  return value !== null && typeof value === 'object' && 'type' in value && value.type === 'array';
-}
-```
-
-#### 1.2 New OpCodes
-```typescript
-// In @cvm/parser/src/lib/bytecode.ts
-export enum OpCode {
-  // ... existing ...
-  
-  // Array operations
-  ARRAY_NEW = 'ARRAY_NEW',      // → array
-  ARRAY_PUSH = 'ARRAY_PUSH',    // array, value → array
-  ARRAY_GET = 'ARRAY_GET',      // array, index → value
-  ARRAY_LEN = 'ARRAY_LEN',      // array → number
-  
-  // Type operations
-  JSON_PARSE = 'JSON_PARSE',    // string → array
-  TYPEOF = 'TYPEOF',            // value → string (type name)
-  
-  // Basic arithmetic (for array lengths, counters)
-  ADD = 'ADD',                  // a, b → (a + b)
-  SUB = 'SUB',                  // a, b → (a - b)
-}
-```
-
-#### 1.3 VM Implementation
-- Replace `any[]` stack with `CVMValue[]` stack
-- Add runtime type checking for all operations
-- Implement array operations in execute()
-- Add JSON parsing with error handling
-- Define type coercion rules:
-  - Number to string for CONCAT: `5 + "hello"` → `"5hello"`
-  - Boolean to string for CONCAT: `true + "!"` → `"true!"`
-  - String to number for arithmetic: Error (no implicit conversion)
-  - Non-boolean in conditions: Truthy/falsy rules (null/0/"" = false)
-
-#### 1.4 Parser/Compiler Extensions
-- Recognize array syntax: `[]`, `[1, 2, 3]`
-- Compile `JSON.parse()` to JSON_PARSE opcode
-- Handle array indexing: `arr[0]`
-- Support `.length` property
+### Phase 1: Type System & Arrays ✅ COMPLETED
+- Extended type system with CVMValue, CVMArray, numbers, booleans, null
+- Implemented array operations (ARRAY_NEW, ARRAY_PUSH, ARRAY_GET, ARRAY_LEN)
+- Added JSON_PARSE with error handling
+- Implemented arithmetic operations (ADD, SUB, MUL, DIV)
+- Added TYPEOF for runtime type checking
+- Parser supports array literals, indexing, and JSON.parse()
+- VM uses type-safe CVMValue[] stack with proper coercion rules
 
 ### Phase 2: Branching
 **Goal**: Add if/else statements
@@ -194,24 +147,6 @@ Beyond basic functionality, test edge cases and error conditions:
 - Invalid glob patterns
 - Symlinks and circular references
 
-### Phase 1 Tests
-```typescript
-// Array creation and manipulation
-test('creates empty array', () => {
-  const result = compile('let arr = [];');
-  expect(result.bytecode).toContainEqual({ op: 'ARRAY_NEW' });
-});
-
-// JSON parsing
-test('parses JSON array from string', () => {
-  const vm = new VM();
-  const state = vm.execute([
-    { op: OpCode.PUSH, arg: '["a","b"]' },
-    { op: OpCode.JSON_PARSE }
-  ]);
-  expect(state.stack[0]).toEqual({ type: 'array', elements: ['a', 'b'] });
-});
-```
 
 ### Phase 2 Tests
 ```typescript

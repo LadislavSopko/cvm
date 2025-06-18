@@ -62,6 +62,21 @@ export function cvmTypeof(value: CVMValue): string {
   return 'unknown';
 }
 
+export function cvmToNumber(value: CVMValue): number {
+  // JavaScript-like numeric conversion
+  if (isCVMNumber(value)) return value;
+  if (isCVMBoolean(value)) return value ? 1 : 0;
+  if (isCVMNull(value)) return 0;
+  if (isCVMString(value)) {
+    // Parse string to number, returns NaN if not parseable
+    const trimmed = value.trim();
+    if (trimmed === '') return NaN;
+    return Number(trimmed);
+  }
+  if (isCVMArray(value)) return NaN;
+  return Number(value);
+}
+
 // Array creation helper
 export function createCVMArray(elements: CVMValue[] = []): CVMArray {
   return { type: 'array', elements };

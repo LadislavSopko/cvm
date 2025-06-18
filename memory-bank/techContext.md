@@ -1,171 +1,77 @@
 # Tech Context - CVM Development Environment
 
 ## Technology Stack
-
-### Core Technologies
 - **Language**: TypeScript 5.8.2
 - **Runtime**: Node.js
 - **Build System**: NX 21.2.0 (monorepo)
 - **Package Manager**: npm with workspaces
-- **Database**: MongoDB
+- **Database**: MongoDB (optional)
 - **Protocol**: MCP (Model Context Protocol)
-
-### Development Tools
-- **Bundler**: SWC (faster than TypeScript compiler)
-- **Testing**: Vitest (when added)
-- **IDE**: VS Code with Claude Code
+- **Testing**: Vitest
+- **Bundler**: SWC
 
 ## Project Structure
 ```
 /home/laco/cvm/
-├── packages/              # NX packages
-│   ├── parser/           # @cvm/parser - AST to bytecode
-│   ├── vm/              # @cvm/vm - Bytecode executor
-│   ├── mcp-server/      # @cvm/mcp-server - AI interface
-│   ├── mongodb/         # @cvm/mongodb - Persistence
-│   ├── storage/         # @cvm/storage - Storage abstraction
-│   └── types/           # @cvm/types - Shared types & CVMValue
+├── packages/              # Core libraries
+│   ├── parser/           # TypeScript AST → bytecode
+│   ├── vm/              # Bytecode executor
+│   ├── mcp-server/      # MCP protocol layer
+│   ├── storage/         # Storage abstraction
+│   └── types/           # Shared types & CVMValue
 ├── apps/
-│   └── cvm-server/      # Production MCP server app
+│   └── cvm-server/      # npm package (v0.2.7)
 ├── memory-bank/         # Project documentation
-│   └── docs/           # Detailed plans and specs
 ├── examples/            # Example CVM programs
-├── .env                # Environment variables
-├── nx.json             # NX configuration
-├── tsconfig.base.json  # Base TypeScript config
-└── package.json        # Root package.json
+└── test/               # Integration tests
 ```
 
-## Technical Constraints
+## Critical Configuration
 
-### TypeScript Configuration
-- Module Resolution: `nodenext` (CRITICAL)
-- **MUST** use `.js` extension for all imports
-- Example: `import { Parser } from './parser.js'` (even for .ts files)
+### TypeScript
+- **Module Resolution**: `nodenext` - MUST use `.js` imports
+- Example: `import { foo } from './bar.js'` (even for .ts files)
 
-### NX Commands (STRICT TDD WORKFLOW)
-
-**MEGA RULE: Test → Code → Build → Typecheck → Test → Fix**
-
+### NX Commands (STRICT TDD)
 ```bash
-# Create library
-npx nx g @nx/js:lib packages/{name} --unitTestRunner=vitest --bundler=vite --projectNameAndRootFormat=as-provided --importPath=@cvm/{name}
-
-# TDD Cycle (ALWAYS start here)
+# TDD Cycle
 npx nx test {project} --watch     # Write failing test first
 npx nx test {project}             # Verify test passes
 
-# Verification (MUST run after code changes)
+# Build & Verify
 npx nx run-many --target=build,typecheck,test --projects={project}
 
-# Individual commands
-npx nx build {project}
-npx nx typecheck {project}
-npx nx test {project}
-
-# Check affected
-npx nx affected:test
-npx nx affected:typecheck
-npx nx affected:build
+# Run specific test
+npx nx test {project} -- {test-file}
 ```
-
-**NO CODE WITHOUT TESTS. NO EXCEPTIONS.**
-
-### MongoDB Setup
-- Local development via Docker
-- Collections: programs, executions, history, logs
-- Connection string in environment variables
-
-### MCP Protocol Requirements
-- JSON-RPC 2.0 format
-- Communication over stdio
-- Stateless operation (state in MongoDB)
-- Error codes follow JSON-RPC standards
-
-## Dependencies
-
-### Current Dependencies
-- `@nx/js`: NX JavaScript plugin
-- `@swc-node/register`: SWC Node.js register
-- `@swc/core`: SWC compiler core
-- `typescript`: TypeScript compiler (^5.7.3)
-- `tslib`: TypeScript runtime library
-- `vitest`: Testing framework
-- `mongodb`: MongoDB driver
-- `@modelcontextprotocol/sdk`: MCP SDK for protocol implementation
-- `zod`: Schema validation for MCP parameters
-- `dotenv`: Environment variable loader (dev dependency)
-
-### Future Dependencies
-- `prettier`: Code formatter
-- Additional language parsers (when expanding beyond TypeScript subset)
-- Performance monitoring tools
-
-## Tool Usage Patterns
-
-### Git Workflow
-- Main branch development
-- Commit messages descriptive
-- No emojis in commits
-- Pull requests when requested
-
-### Testing Strategy (TDD MANDATORY)
-- **RED**: Write failing test first
-- **GREEN**: Write minimal code to pass
-- **REFACTOR**: Clean up with tests passing
-- Test files next to source: `parser.ts` → `parser.test.ts`
-- Unit tests for all functions/classes
-- Integration tests for module boundaries
-- E2E tests for complete flows
-- NO code without tests - enforce in PR/commit
-
-### Debugging Approach
-- MongoDB for state inspection
-- Execution history tracking
-- Clear error messages
-- Step-through debugging via state
-
-## Environment Setup
-
-### Required Software
-1. Node.js (LTS version)
-2. MongoDB (via Docker)
-3. VS Code or compatible IDE
-4. Git
 
 ### Environment Variables
 ```bash
-# .env file at workspace root
-MONGODB_URI=mongodb://root:example@localhost:27017/cvm?authSource=admin
-CVM_PORT=3000  # For MCP server
-CVM_LOG_LEVEL=debug
+# Storage configuration
+CVM_STORAGE_TYPE=file      # or 'mongodb'
+MONGODB_URI=mongodb://...  # if using MongoDB
+CVM_DATA_DIR=./.cvm       # for file storage
 ```
 
-**Note**: VMManager reads MONGODB_URI from environment automatically
+## Key Dependencies
+- `typescript`: Required at runtime (parser uses compiler API)
+- `@modelcontextprotocol/sdk`: MCP implementation
+- `mongodb`: MongoDB driver (optional)
+- `zod`: Schema validation
+- `vitest`: Testing framework
 
-### Docker Services
-- MongoDB on port 27017
-- Optional: Mongo Express for GUI
-- Future: CVM MCP server container
+## Development Workflow
+1. **Write test first** (no exceptions)
+2. **Implement minimal code** to pass test
+3. **Run build, typecheck, test** before committing
+4. **Use nx commands** exclusively
 
-## Build and Development
+## Storage Options
+1. **File Storage** (default): Zero setup, .cvm directory
+2. **MongoDB**: Full persistence, requires connection
 
-### Development Workflow
-1. Make changes in packages/
-2. Run `npx nx affected:build`
-3. Run `npx nx affected:test`
-4. Test with MCP client
-
-### Production Build
-```bash
-npx nx build parser
-npx nx build vm
-npx nx build mcp-server
-npx nx build mongodb
-```
-
-### Debugging
-- Use VS Code debugger
-- MongoDB Compass for database inspection
-- Console logging with proper levels
-- State inspection via MongoDB queries
+## Testing Strategy
+- Unit tests next to source files
+- Integration tests in test/integration
+- 118 tests currently passing
+- NO code without tests

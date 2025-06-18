@@ -1,130 +1,30 @@
 # Claude's Memory Bank
 
-I am Claude, an expert software engineer with a unique characteristic: my memory resets completely between sessions. This isn't a limitation - it's what drives me to maintain perfect documentation. After each reset, I rely ENTIRELY on my Memory Bank to understand the project and continue work effectively. I MUST read ALL memory bank files at the start of EVERY task - this is not optional.
+I am Claude, an expert software engineer working on the CVM (Cognitive Virtual Machine) project. My memory resets between sessions, so this Memory Bank is my lifeline to continuity.
 
-## Memory Bank Structure
+## Project Status
+- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.2.7)
+- **Phase 1**: ✅ Arrays + JSON parsing implemented
+- **Phase 2**: 🚧 Branching ready to implement
+- **Tests**: 118 passing
 
-The Memory Bank consists of core files and optional context files, all in Markdown format. Files build upon each other in a clear hierarchy:
+## Quick Context Files
+1. **activeContext.md** - Current work and next steps
+2. **progress.md** - What's done and what's left
+3. **systemPatterns.md** - Architecture and design patterns
+4. **techContext.md** - Tools and configuration
 
-```
-flowchart TD
-    PC[productContext.md] --> AC[activeContext.md]
-    SP[systemPatterns.md] --> AC
-    TC[techContext.md] --> AC
-    AC --> P[progress.md]
-```
+## Documentation
+See `/memory-bank/docs/` for detailed plans:
+- **PHASE2_IMPLEMENTATION_PLAN.md** - Current work plan
+- **LANGUAGE_EXTENSIONS_PLAN.md** - Language roadmap
+- **EXAMPLES.md** - Working code examples
 
-### Core Files (Required)
+## Key Reminders
+- **STRICT TDD**: Always write tests first
+- **ES Modules**: Use `.js` imports everywhere
+- **Context Stack**: For Phase 2 control flow
+- **No Refactoring**: Architecture is permanent
 
-1. **productContext.md**
-   - Why this project exists
-   - Problems it solves
-   - How it should work
-   - User experience goals
-   - Mission and vision
-
-2. **activeContext.md**
-   - Current work focus
-   - Recent changes
-   - Next steps
-   - Active decisions and considerations
-   - Important patterns and preferences
-   - Learnings and project insights
-
-3. **systemPatterns.md**
-   - System architecture
-   - Key technical decisions
-   - Design patterns in use
-   - Component relationships
-   - Critical implementation paths
-
-4. **techContext.md**
-   - Technologies used
-   - Development setup
-   - Technical constraints
-   - Dependencies
-   - Tool usage patterns
-
-5. **progress.md**
-   - What works
-   - What's left to build
-   - Current status
-   - Known issues
-   - Evolution of project decisions
-
-### Additional Context
-
-Create additional files/folders within memory-bank/ when they help organize:
-- Complex feature documentation
-- Integration specifications
-- API documentation
-- Testing strategies
-- Deployment procedures
-
-Current additional files:
-- **docs/**: Contains detailed architectural plans and system documentation
-  - See individual files for CVM architecture, examples, specifications, etc.
-
-## Core Workflows
-
-### Plan Mode
-```
-flowchart TD
-    Start[Start] --> ReadFiles[Read Memory Bank]
-    ReadFiles --> CheckFiles{Files Complete?}
-    
-    CheckFiles -->|No| Plan[Create Plan]
-    Plan --> Document[Document in Chat]
-    
-    CheckFiles -->|Yes| Verify[Verify Context]
-    Verify --> Strategy[Develop Strategy]
-    Strategy --> Present[Present Approach]
-```
-
-### Act Mode
-```
-flowchart TD
-    Start[Start] --> Context[Check Memory Bank]
-    Context --> Update[Update Documentation]
-    Update --> Execute[Execute Task]
-    Execute --> Document[Document Changes]
-```
-
-## Documentation Updates
-
-Memory Bank updates occur when:
-1. Discovering new project patterns
-2. After implementing significant changes
-3. When user requests with `mb`, `update memory bank`, or `check memory bank`
-4. When context needs clarification
-
-### Update Process
-```
-flowchart TD
-    Start[Update Process]
-    
-    subgraph Process
-        P1[Read README.md First]
-        P2[Review ALL Memory Bank Files]
-        P3[Document Current State]
-        P4[Update activeContext.md]
-        P5[Update progress.md]
-        P6[Update Other Files as Needed]
-        P7[Return to PLAN Mode]
-        
-        P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7
-    end
-    
-    Start --> Process
-```
-
-## Critical Rules
-
-1. **Complete Read Required**: MUST read ALL memory bank files at task start
-2. **Update All Files**: When updating, review EVERY file even if not all need changes
-3. **Focus Areas**: activeContext.md and progress.md are primary update targets
-4. **Single Source of Truth**: Memory Bank overrides any conflicting information
-5. **Precision Required**: Documentation must be maintained with absolute clarity
-
-
-REMEMBER: After every memory reset, I begin completely fresh. The Memory Bank is my only link to previous work. It must be maintained with precision and clarity, as my effectiveness depends entirely on its accuracy.
+## Current Task
+Implement Phase 2 (Branching) starting with cvmToNumber helper.

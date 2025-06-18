@@ -10,6 +10,15 @@ describe('MongoDBAdapter', () => {
   });
 
   afterAll(async () => {
+    // Clean up test data before disconnecting
+    if (adapter.isConnected()) {
+      const db = (adapter as any).db;
+      if (db) {
+        await db.collection('programs').deleteMany({});
+        await db.collection('executions').deleteMany({});
+        await db.collection('outputs').deleteMany({});
+      }
+    }
     await adapter.disconnect();
   });
 
@@ -68,7 +77,7 @@ describe('MongoDBAdapter', () => {
 
   describe('output collection', () => {
     it('should append and retrieve output', async () => {
-      const executionId = 'test-exec-output-1';
+      const executionId = 'test-exec-output-' + Date.now(); // Unique ID per test run
       
       // Initially empty
       const initial = await adapter.getOutput(executionId);

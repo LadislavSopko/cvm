@@ -7,6 +7,8 @@ import {
   isCVMNumber,
   cvmToString,
   cvmTypeof,
+  cvmToNumber,
+  cvmToBoolean,
   createCVMArray 
 } from '@cvm/types';
 
@@ -251,6 +253,128 @@ export class VM {
           }
           state.stack.push(left - right);
           state.pc++;
+          break;
+        }
+
+        // Comparison operations
+        case OpCode.EQ: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'EQ: Stack underflow';
+            break;
+          }
+          // JavaScript-like == comparison with type coercion
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          if (!isNaN(leftNum) && !isNaN(rightNum)) {
+            state.stack.push(leftNum === rightNum);
+          } else {
+            // If either can't be converted to number, do string comparison
+            state.stack.push(cvmToString(left) === cvmToString(right));
+          }
+          state.pc++;
+          break;
+        }
+
+        case OpCode.NEQ: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'NEQ: Stack underflow';
+            break;
+          }
+          // JavaScript-like != comparison with type coercion
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          if (!isNaN(leftNum) && !isNaN(rightNum)) {
+            state.stack.push(leftNum !== rightNum);
+          } else {
+            // If either can't be converted to number, do string comparison
+            state.stack.push(cvmToString(left) !== cvmToString(right));
+          }
+          state.pc++;
+          break;
+        }
+
+        case OpCode.LT: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'LT: Stack underflow';
+            break;
+          }
+          // Convert to numbers for comparison
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          // NaN comparisons always return false
+          state.stack.push(leftNum < rightNum);
+          state.pc++;
+          break;
+        }
+
+        case OpCode.GT: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'GT: Stack underflow';
+            break;
+          }
+          // Convert to numbers for comparison
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          // NaN comparisons always return false
+          state.stack.push(leftNum > rightNum);
+          state.pc++;
+          break;
+        }
+
+        // Jump operations
+        case OpCode.JUMP: {
+          if (instruction.arg === undefined) {
+            state.status = 'error';
+            state.error = 'JUMP requires a target address';
+            break;
+          }
+          const target = instruction.arg;
+          if (target < 0 || target >= bytecode.length) {
+            state.status = 'error';
+            state.error = `Invalid jump target: ${target}`;
+            break;
+          }
+          state.pc = target;
+          break;
+        }
+
+        case OpCode.JUMP_IF_FALSE: {
+          const condition = state.stack.pop();
+          if (condition === undefined) {
+            state.status = 'error';
+            state.error = 'JUMP_IF_FALSE: Stack underflow';
+            break;
+          }
+          if (instruction.arg === undefined) {
+            state.status = 'error';
+            state.error = 'JUMP_IF_FALSE requires a target address';
+            break;
+          }
+          const target = instruction.arg;
+          if (target < 0 || target >= bytecode.length) {
+            state.status = 'error';
+            state.error = `Invalid jump target: ${target}`;
+            break;
+          }
+          
+          // Jump if condition is falsy
+          if (!cvmToBoolean(condition)) {
+            state.pc = target;
+          } else {
+            state.pc++;
+          }
           break;
         }
           

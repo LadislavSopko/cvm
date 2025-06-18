@@ -1,5 +1,16 @@
 import { describe, it, expect } from 'vitest';
-import { CVMArray, isCVMArray, isCVMString, isCVMNumber, isCVMBoolean, isCVMNull } from './cvm-value.js';
+import { 
+  CVMArray, 
+  isCVMArray, 
+  isCVMString, 
+  isCVMNumber, 
+  isCVMBoolean, 
+  isCVMNull,
+  cvmToString,
+  cvmToBoolean,
+  cvmToNumber,
+  createCVMArray
+} from './cvm-value.js';
 
 describe('CVMValue Type System', () => {
   describe('Type Guards', () => {
@@ -69,6 +80,82 @@ describe('CVMValue Type System', () => {
       expect(isCVMBoolean(arr.elements[2])).toBe(true);
       expect(isCVMNull(arr.elements[3])).toBe(true);
       expect(isCVMArray(arr.elements[4])).toBe(true);
+    });
+  });
+
+  describe('Type Conversion Helpers', () => {
+    describe('cvmToString', () => {
+      it('should convert all value types to strings', () => {
+        expect(cvmToString('hello')).toBe('hello');
+        expect(cvmToString(123)).toBe('123');
+        expect(cvmToString(true)).toBe('true');
+        expect(cvmToString(false)).toBe('false');
+        expect(cvmToString(null)).toBe('null');
+        expect(cvmToString(createCVMArray(['a', 'b']))).toBe('[array:2]');
+      });
+    });
+
+    describe('cvmToBoolean', () => {
+      it('should convert values to boolean following JS semantics', () => {
+        // Boolean values
+        expect(cvmToBoolean(true)).toBe(true);
+        expect(cvmToBoolean(false)).toBe(false);
+        
+        // Null is falsy
+        expect(cvmToBoolean(null)).toBe(false);
+        
+        // Numbers: 0 is falsy, others are truthy
+        expect(cvmToBoolean(0)).toBe(false);
+        expect(cvmToBoolean(1)).toBe(true);
+        expect(cvmToBoolean(-1)).toBe(true);
+        expect(cvmToBoolean(123.45)).toBe(true);
+        
+        // Strings: empty is falsy, others are truthy
+        expect(cvmToBoolean('')).toBe(false);
+        expect(cvmToBoolean('hello')).toBe(true);
+        expect(cvmToBoolean('false')).toBe(true);
+        expect(cvmToBoolean('0')).toBe(true);
+        
+        // Arrays are always truthy
+        expect(cvmToBoolean(createCVMArray([]))).toBe(true);
+        expect(cvmToBoolean(createCVMArray(['a']))).toBe(true);
+      });
+    });
+
+    describe('cvmToNumber', () => {
+      it('should convert numbers to themselves', () => {
+        expect(cvmToNumber(0)).toBe(0);
+        expect(cvmToNumber(123)).toBe(123);
+        expect(cvmToNumber(-456.78)).toBe(-456.78);
+      });
+
+      it('should convert booleans to 0/1', () => {
+        expect(cvmToNumber(false)).toBe(0);
+        expect(cvmToNumber(true)).toBe(1);
+      });
+
+      it('should convert null to 0', () => {
+        expect(cvmToNumber(null)).toBe(0);
+      });
+
+      it('should parse numeric strings', () => {
+        expect(cvmToNumber('123')).toBe(123);
+        expect(cvmToNumber('-456.78')).toBe(-456.78);
+        expect(cvmToNumber('0')).toBe(0);
+        expect(cvmToNumber('  42  ')).toBe(42);
+      });
+
+      it('should return NaN for non-numeric strings', () => {
+        expect(cvmToNumber('hello')).toBeNaN();
+        expect(cvmToNumber('')).toBeNaN();
+        expect(cvmToNumber('123abc')).toBeNaN();
+        expect(cvmToNumber('true')).toBeNaN();
+      });
+
+      it('should return NaN for arrays', () => {
+        expect(cvmToNumber(createCVMArray([]))).toBeNaN();
+        expect(cvmToNumber(createCVMArray([1, 2, 3]))).toBeNaN();
+      });
     });
   });
 });

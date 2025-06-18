@@ -1,91 +1,48 @@
 # Active Context - CVM Project
 
 ## Current Focus
-Ready to begin Phase 2 of CVM language extensions - Branching. Phase 1 (Arrays + JSON parsing) is complete and tested. Output refactoring completed and test infrastructure cleaned up.
+Phase 2 (Branching) - VM primitives complete, ready for compiler implementation.
 
-## Recent Changes
-- **Test Infrastructure Cleanup COMPLETED**: 
-  - Removed old test clients (simple-test-client.ts/js, test-client.ts, test-running-server.ts)
-  - Kept only mcp-test-client.ts which uses official MCP SDK
-  - Fixed storage location - tests now create .cvm in test/integration directory
-  - Fixed TypeScript errors in mcp-test-client.ts
-  - Test programs verified working: simple-test.ts, test-output.ts
-  - Removed redundant test programs (debug-test.ts, output-test.ts)
-- **Console.log Output Refactoring COMPLETED**: Separated output from execution state
-  - Removed `output` field from Execution type - no longer part of state
-  - Added `appendOutput` and `getOutput` methods to StorageAdapter interface
-  - FileStorageAdapter writes output to separate `.output` files
-  - MongoDBAdapter stores output in separate `outputs` collection
-  - VMManager extracts output after execution and persists separately
-  - Added `getExecutionOutput` method to VMManager for retrieving output
-  - Maintains proper encapsulation - VM remains pure, VMManager orchestrates
-  - Fixed StorageFactory default - now creates .cvm in current directory, not home
-  - All 118 tests passing across all packages
-- **Phase 1 Implementation COMPLETED**: Full array support with JSON parsing
-  - Added CVMValue type: string | number | boolean | CVMArray | null
-  - Implemented type guards and conversion helpers
-  - Added array opcodes: ARRAY_NEW, ARRAY_PUSH, ARRAY_GET, ARRAY_LEN
-  - Added JSON_PARSE for parsing AI responses
-  - Added TYPEOF for runtime type checking
-  - Added basic arithmetic: ADD, SUB
-  - VM now uses type-safe CVMValue[] stack
-  - Compiler supports full array syntax: literals, indexing, methods
-  - Fixed LOAD operation bug with null values
-  - Fixed cvm-server ES module configuration
+## Recent Achievements
+- ✅ Phase 1 Arrays + JSON parsing complete
+- ✅ Storage abstraction implemented 
+- ✅ npm publishing resolved (v0.2.7)
+- ✅ Memory Bank cleaned and optimized
+- ✅ Phase 2 implementation plan created
+- ✅ cvmToNumber helper implemented with tests
+- ✅ Comparison opcodes (EQ, NEQ, LT, GT) implemented
+- ✅ Jump opcodes (JUMP, JUMP_IF_FALSE) implemented
+- ✅ MongoDB test isolation fixed
 
 ## Language Extension Status
-1. **Phase 1**: Arrays + JSON parsing (COMPLETED ✅)
-   - ✅ Type system implemented
+1. **Phase 1**: Arrays + JSON parsing ✅
+2. **Phase 2**: Branching (IN PROGRESS)
    - ✅ VM opcodes implemented
-   - ✅ Parser/compiler support completed
-   - ✅ Integration tests completed
-   - ✅ Example program created (array-demo.ts)
-2. **Phase 2**: Branching (READY TO START)
-   - Comparison opcodes defined: EQ, NEQ, LT, GT
-   - Jump opcodes defined: JUMP, JUMP_IF, JUMP_IF_FALSE, JUMP_IF_TRUE
-   - Logical opcodes defined: AND, OR, NOT
+   - ✅ Type conversion helpers ready
+   - Next: Compiler support for if/else & while
 3. **Phase 3**: Iteration (PLANNED)
 4. **Phase 4**: File operations (PLANNED)
 
-## Next Steps
-1. Implement comparison opcodes in VM (EQ, NEQ, LT, GT)
-2. Implement jump opcodes (JUMP, JUMP_IF_FALSE)
-3. Update compiler to handle if/else statements
-4. Create tests for branching logic
-5. Implement logical operators (AND, OR, NOT)
+## Next Implementation Steps
+1. ✅ Create cvmToNumber helper in types package
+2. ✅ Implement comparison opcodes (EQ, NEQ, LT, GT) in VM
+3. ✅ Implement jump opcodes (JUMP, JUMP_IF_FALSE) in VM
+4. Create CompilerState class with context stack
+5. Add if/else and while support to compiler
 
-## Current Implementation Focus
-- Create reliable test client for CVM programs with CC instructions
-- Design test programs that work with simple pre-programmed responses
-- Document testing strategy for cognitive interrupts
-- Add return statement to parser (only in main())
-- Add RETURN opcode to VM
-- Rename all MCP methods and status values
-- Add getTaskCount safety mechanism (fail after X attempts without progress)
-
-## Active Decisions
-- Start with minimal feature set - just enough to validate architecture
-- Use TypeScript with ES modules (`.js` imports required)
-- MongoDB for all state persistence
-- MCP protocol for AI communication
-- No refactoring - get architecture right first time
-- STRICT TDD: Write test → Write code → Build → Lint → Test → Fix
-- All NX commands for build/lint/test - no npm run scripts
+## Key Design Decisions
+- **Context stack**: Enables nested control structures
+- **JavaScript semantics**: Loose equality, numeric coercion
+- **Backpatching**: Single-pass compilation with deferred jump resolution
+- **TDD approach**: Write tests first for each component
 
 ## Important Patterns
-- **Execution Flow**: Claude polls → CVM responds with state/prompt → Claude processes → Claude sends response → Repeat
-- **State Machine**: CVM is deterministic controller, Claude is cognitive processor
-- **Clean Separation**: VM handles execution, AI handles reasoning
-- **Development**: STRICT TDD - Test → Code → Build → Lint → Test → Fix (see DEVELOPMENT_RULES.md)
-
-## Project Insights
-- CVM inverts typical AI integration - instead of AI calling functions, programs call AI
-- Deterministic execution with cognitive interrupts enables debugging AI programs
-- State persistence in MongoDB allows long-running cognitive processes
-- Architecture supports AI agents of varying capabilities
+- **Jump Resolution**: Track instruction indices, patch when target known
+- **Type Coercion**: cvmToBoolean & cvmToNumber both ready
+- **Compiler State**: Replace local bytecode array with stateful class
+- **JavaScript Semantics**: EQ/NEQ use type coercion, LT/GT convert to numbers
 
 ## Key Documentation
-- memory-bank/docs/EXAMPLES.md - Complete program examples for testing
-- memory-bank/docs/CLAUDE_PROMPTS.md - Implementation guidance for each phase
-- memory-bank/docs/SIMPLIFICATION_NOTES.md - Philosophy of starting simple
-- memory-bank/docs/DEVELOPMENT_ROADMAP.md - Detailed implementation phases
+- memory-bank/docs/PHASE2_IMPLEMENTATION_PLAN.md - Detailed implementation guide
+- memory-bank/docs/LANGUAGE_EXTENSIONS_PLAN.md - Overall language roadmap
+- CLAUDE.md - Project guidelines and coding standards
