@@ -1,6 +1,7 @@
 import * as ts from 'typescript';
 import { OpCode, Instruction } from './bytecode.js';
 import { parseProgram } from './parser.js';
+import { CompilerState } from './compiler-state.js';
 
 export interface CompileResult {
   success: boolean;
@@ -19,7 +20,7 @@ export function compile(source: string): CompileResult {
     };
   }
 
-  const bytecode: Instruction[] = [];
+  const state = new CompilerState();
   const sourceFile = ts.createSourceFile('program.ts', source, ts.ScriptTarget.Latest, true);
   
   // Simple compiler - just handle main() for now
@@ -37,7 +38,7 @@ export function compile(source: string): CompileResult {
         expr.arguments.forEach(arg => {
           compileExpression(arg);
         });
-        bytecode.push({ op: OpCode.PRINT });
+        state.emit(OpCode.PRINT);
       }
       // Handle CC() calls at statement level
       else if (ts.isCallExpression(expr) && 
@@ -46,8 +47,8 @@ export function compile(source: string): CompileResult {
         if (expr.arguments.length > 0) {
           compileExpression(expr.arguments[0]);
         }
-        bytecode.push({ op: OpCode.CC });
-        bytecode.push({ op: OpCode.POP }); // Discard result if not used
+        state.emit(OpCode.CC);
+        state.emit(OpCode.POP); // Discard result if not used
       }
       // Handle array.push()
       else if (ts.isCallExpression(expr) && 
@@ -59,41 +60,41 @@ export function compile(source: string): CompileResult {
         if (expr.arguments.length > 0) {
           compileExpression(expr.arguments[0]);
         }
-        bytecode.push({ op: OpCode.ARRAY_PUSH });
+        state.emit(OpCode.ARRAY_PUSH);
       }
     }
     else if (ts.isVariableStatement(node)) {
       const decl = node.declarationList.declarations[0];
       if (decl.initializer) {
         compileExpression(decl.initializer);
-        bytecode.push({ op: OpCode.STORE, arg: decl.name.getText() });
+        state.emit(OpCode.STORE, decl.name.getText());
       }
     }
   }
 
   function compileExpression(node: ts.Node): void {
     if (ts.isStringLiteral(node)) {
-      bytecode.push({ op: OpCode.PUSH, arg: node.text });
+      state.emit(OpCode.PUSH, node.text);
     }
     else if (ts.isNumericLiteral(node)) {
-      bytecode.push({ op: OpCode.PUSH, arg: Number(node.text) });
+      state.emit(OpCode.PUSH, Number(node.text));
     }
     else if (node.kind === ts.SyntaxKind.TrueKeyword) {
-      bytecode.push({ op: OpCode.PUSH, arg: true });
+      state.emit(OpCode.PUSH, true);
     }
     else if (node.kind === ts.SyntaxKind.FalseKeyword) {
-      bytecode.push({ op: OpCode.PUSH, arg: false });
+      state.emit(OpCode.PUSH, false);
     }
     else if (node.kind === ts.SyntaxKind.NullKeyword) {
-      bytecode.push({ op: OpCode.PUSH, arg: null });
+      state.emit(OpCode.PUSH, null);
     }
     else if (ts.isArrayLiteralExpression(node)) {
       // Create new array
-      bytecode.push({ op: OpCode.ARRAY_NEW });
+      state.emit(OpCode.ARRAY_NEW);
       // Push each element and add to array
       node.elements.forEach(element => {
         compileExpression(element);
-        bytecode.push({ op: OpCode.ARRAY_PUSH });
+        state.emit(OpCode.ARRAY_PUSH);
       });
     }
     else if (ts.isElementAccessExpression(node)) {
@@ -103,15 +104,15 @@ export function compile(source: string): CompileResult {
       if (node.argumentExpression) {
         compileExpression(node.argumentExpression);
       }
-      bytecode.push({ op: OpCode.ARRAY_GET });
+      state.emit(OpCode.ARRAY_GET);
     }
     else if (ts.isPropertyAccessExpression(node) && node.name.text === 'length') {
       // Handle array.length
       compileExpression(node.expression);
-      bytecode.push({ op: OpCode.ARRAY_LEN });
+      state.emit(OpCode.ARRAY_LEN);
     }
     else if (ts.isIdentifier(node)) {
-      bytecode.push({ op: OpCode.LOAD, arg: node.text });
+      state.emit(OpCode.LOAD, node.text);
     }
     else if (ts.isCallExpression(node)) {
       // Handle JSON.parse()
@@ -122,24 +123,24 @@ export function compile(source: string): CompileResult {
         if (node.arguments.length > 0) {
           compileExpression(node.arguments[0]);
         }
-        bytecode.push({ op: OpCode.JSON_PARSE });
+        state.emit(OpCode.JSON_PARSE);
       }
       // Handle CC() calls
       else if (ts.isIdentifier(node.expression) && node.expression.text === 'CC') {
         if (node.arguments.length > 0) {
           compileExpression(node.arguments[0]);
         }
-        bytecode.push({ op: OpCode.CC });
+        state.emit(OpCode.CC);
       }
     }
     else if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
       compileExpression(node.left);
       compileExpression(node.right);
-      bytecode.push({ op: OpCode.CONCAT });
+      state.emit(OpCode.CONCAT);
     }
     else if (ts.isTypeOfExpression(node)) {
       compileExpression(node.expression);
-      bytecode.push({ op: OpCode.TYPEOF });
+      state.emit(OpCode.TYPEOF);
     }
   }
 
@@ -152,11 +153,11 @@ export function compile(source: string): CompileResult {
     }
   });
 
-  bytecode.push({ op: OpCode.HALT });
+  state.emit(OpCode.HALT);
 
   return {
     success: true,
-    bytecode,
+    bytecode: state.getBytecode(),
     errors: []
   };
 }
