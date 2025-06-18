@@ -10,6 +10,7 @@
 - ✅ CompilerState with context stack infrastructure
 - ✅ Comparison operators (==, !=, <, >) in compiler
 - ✅ Arithmetic operators (ADD, SUB) with type detection
+- ✅ Integration test validating all comparison/arithmetic ops
 
 ## What's Left to Build
 
@@ -22,6 +23,7 @@
   - ✅ Compiler refactored to use CompilerState
   - ✅ Comparison operators (==, !=, <, >)
   - ✅ Arithmetic operators with ADD/SUB/CONCAT detection
+  - ✅ E2E validation of all operators working correctly
   - Need: if/else and while statements
 - [ ] **Phase 3: Iteration**
   - Opcodes defined (ITER_START, ITER_NEXT, ITER_END)
@@ -37,9 +39,10 @@
 - Performance optimizations
 
 ## Current Status
-**Phase**: Phase 2 expressions complete, ready for control flow statements
+**Phase**: Phase 2 expressions complete & validated, ready for control flow
 **Architecture**: Clean separation, all components integrated
-**Testing**: 157 tests passing across all packages
+**Testing**: 157 tests passing + integration test suite
+**Validation**: All comparison & arithmetic operators verified E2E
 
 ## Key Technical Decisions
 1. **Context stack** for jump resolution (supports nesting)
