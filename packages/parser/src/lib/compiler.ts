@@ -133,10 +133,48 @@ export function compile(source: string): CompileResult {
         state.emit(OpCode.CC);
       }
     }
-    else if (ts.isBinaryExpression(node) && node.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+    else if (ts.isParenthesizedExpression(node)) {
+      // Simply compile the inner expression
+      compileExpression(node.expression);
+    }
+    else if (ts.isBinaryExpression(node)) {
+      const operator = node.operatorToken.kind;
+      
+      // Compile left and right operands
       compileExpression(node.left);
       compileExpression(node.right);
-      state.emit(OpCode.CONCAT);
+      
+      // Emit appropriate opcode based on operator
+      switch (operator) {
+        case ts.SyntaxKind.PlusToken:
+          // Determine if this is numeric addition or string concatenation
+          // For now, use simple heuristic: if both operands are numeric literals
+          // or identifiers, use ADD; otherwise use CONCAT
+          if (isLikelyNumeric(node.left) && isLikelyNumeric(node.right)) {
+            state.emit(OpCode.ADD);
+          } else {
+            state.emit(OpCode.CONCAT);
+          }
+          break;
+        case ts.SyntaxKind.MinusToken:
+          state.emit(OpCode.SUB);
+          break;
+        case ts.SyntaxKind.EqualsEqualsToken:
+          state.emit(OpCode.EQ);
+          break;
+        case ts.SyntaxKind.ExclamationEqualsToken:
+          state.emit(OpCode.NEQ);
+          break;
+        case ts.SyntaxKind.LessThanToken:
+          state.emit(OpCode.LT);
+          break;
+        case ts.SyntaxKind.GreaterThanToken:
+          state.emit(OpCode.GT);
+          break;
+        default:
+          // Unsupported operator - could add error handling here
+          break;
+      }
     }
     else if (ts.isTypeOfExpression(node)) {
       compileExpression(node.expression);
@@ -160,4 +198,21 @@ export function compile(source: string): CompileResult {
     bytecode: state.getBytecode(),
     errors: []
   };
+}
+
+// Helper to determine if an expression is likely numeric
+function isLikelyNumeric(node: ts.Node): boolean {
+  if (ts.isNumericLiteral(node)) return true;
+  if (ts.isIdentifier(node)) return true; // Assume variables could be numeric
+  if (ts.isParenthesizedExpression(node)) {
+    return isLikelyNumeric(node.expression);
+  }
+  if (ts.isBinaryExpression(node)) {
+    const op = node.operatorToken.kind;
+    return op === ts.SyntaxKind.PlusToken || 
+           op === ts.SyntaxKind.MinusToken ||
+           op === ts.SyntaxKind.AsteriskToken ||
+           op === ts.SyntaxKind.SlashToken;
+  }
+  return false;
 }

@@ -1,13 +1,15 @@
 # Progress - CVM Project Status
 
 ## What Works
-- ✅ Core platform fully functional with 146 tests passing
+- ✅ Core platform fully functional with 157 tests passing
 - ✅ Phase 1 language extensions (Arrays + JSON parsing)
 - ✅ Storage abstraction with MongoDB and File adapters
 - ✅ Published to npm as cvm-server v0.2.7
 - ✅ Multiple CC support working correctly
 - ✅ Phase 2 VM primitives (comparison & jump opcodes)
 - ✅ CompilerState with context stack infrastructure
+- ✅ Comparison operators (==, !=, <, >) in compiler
+- ✅ Arithmetic operators (ADD, SUB) with type detection
 
 ## What's Left to Build
 
@@ -18,7 +20,9 @@
   - ✅ cvmToNumber helper for numeric conversions
   - ✅ CompilerState class with context stack
   - ✅ Compiler refactored to use CompilerState
-  - Need: Comparison operators & if/else/while statements
+  - ✅ Comparison operators (==, !=, <, >)
+  - ✅ Arithmetic operators with ADD/SUB/CONCAT detection
+  - Need: if/else and while statements
 - [ ] **Phase 3: Iteration**
   - Opcodes defined (ITER_START, ITER_NEXT, ITER_END)
   - Need: foreach syntax and iterator state management
@@ -33,9 +37,9 @@
 - Performance optimizations
 
 ## Current Status
-**Phase**: Phase 2 compiler infrastructure ready, need control flow statements
+**Phase**: Phase 2 expressions complete, ready for control flow statements
 **Architecture**: Clean separation, all components integrated
-**Testing**: 146 tests passing across all packages
+**Testing**: 157 tests passing across all packages
 
 ## Key Technical Decisions
 1. **Context stack** for jump resolution (supports nesting)
@@ -50,8 +54,8 @@
 3. ✅ Add jump opcodes to VM (JUMP, JUMP_IF_FALSE)
 4. ✅ Create CompilerState class with context stack
 5. ✅ Refactor compiler to use CompilerState
-6. Add comparison operators (==, !=, <, >)
-7. Add if/else statement support
-8. Add while loop support
+6. ✅ Add comparison operators (==, !=, <, >)
+7. Add if/else statement support with backpatching
+8. Add while loop support with context stack
 
 See memory-bank/docs/PHASE2_IMPLEMENTATION_PLAN.md for details.
