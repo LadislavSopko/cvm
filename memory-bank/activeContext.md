@@ -2,6 +2,7 @@
 
 ## Current Focus
 Phase 2 (Branching) - COMPLETE! All control flow features implemented and tested.
+Critical Bug Fixes - COMPLETE! Fixed arithmetic and array assignment issues.
 
 ## Recent Achievements
 - ✅ Phase 1 Arrays + JSON parsing complete
@@ -22,6 +23,12 @@ Phase 2 (Branching) - COMPLETE! All control flow features implemented and tested
   - ✅ Smart ADD/CONCAT detection based on operand types
   - ✅ Integration tests validating all features E2E
   - ✅ 168 tests passing across all packages
+- ✅ Critical Bug Fixes:
+  - ✅ Fixed ADD/CONCAT detection - arithmetic now works correctly (10 + 20 = 30)
+  - ✅ Implemented ARRAY_SET opcode - CC values can be stored in arrays
+  - ✅ Improved hasStringOperand() to recursively check for string literals
+  - ✅ Added proper stack ordering for array assignments
+  - ✅ 174 tests now passing (added E2E arithmetic tests)
 
 ## Language Extension Status
 1. **Phase 1**: Arrays + JSON parsing ✅

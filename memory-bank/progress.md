@@ -1,14 +1,16 @@
 # Progress - CVM Project Status
 
 ## What Works
-- ✅ Core platform fully functional with 168 tests passing
+- ✅ Core platform fully functional with 174 tests passing
 - ✅ Phase 1 language extensions (Arrays + JSON parsing)
 - ✅ Phase 2 language extensions (Branching - if/else, while, comparisons, arithmetic)
+- ✅ ARRAY_SET opcode - arrays fully functional with assignments
+- ✅ Fixed arithmetic operations - proper numeric addition
 - ✅ Storage abstraction with MongoDB and File adapters
 - ✅ Published to npm as cvm-server v0.2.7
 - ✅ Multiple CC support working correctly
 - ✅ Full control flow with proper jump backpatching
-- ✅ Smart ADD/CONCAT detection for JavaScript-like behavior
+- ✅ Smart ADD/CONCAT detection with recursive string literal checking
 - ✅ Integration tests validating all features E2E
 
 ## What's Left to Build
@@ -43,7 +45,7 @@
 ## Current Status
 **Phase**: Phase 2 COMPLETE! Ready for Phase 3 (Iteration)
 **Architecture**: Clean separation, all components integrated
-**Testing**: 168 tests passing + integration test suite
+**Testing**: 174 tests passing + integration test suite
 **Features**: Full control flow (if/else, while), all operators, smart type handling
 
 ## Key Technical Decisions

@@ -14,6 +14,7 @@ export enum OpCode {
   ARRAY_NEW = 'ARRAY_NEW',
   ARRAY_PUSH = 'ARRAY_PUSH',
   ARRAY_GET = 'ARRAY_GET',
+  ARRAY_SET = 'ARRAY_SET',
   ARRAY_LEN = 'ARRAY_LEN',
   
   // Type operations

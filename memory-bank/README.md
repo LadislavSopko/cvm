@@ -6,7 +6,8 @@ I am Claude, an expert software engineer working on the CVM (Cognitive Virtual M
 - **Core Platform**: ✅ Complete and published (npm: cvm-server v0.2.7)
 - **Phase 1**: ✅ Arrays + JSON parsing implemented
 - **Phase 2**: ✅ Branching complete (if/else, while, comparisons, arithmetic)
-- **Tests**: 168 passing
+- **Bug Fixes**: ✅ Fixed ADD/CONCAT detection, implemented ARRAY_SET
+- **Tests**: 174 passing (all packages)
 - **Next**: Phase 3 (Iteration) - foreach loops
 
 ## Quick Context Files

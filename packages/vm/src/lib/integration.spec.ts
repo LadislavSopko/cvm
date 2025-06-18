@@ -48,7 +48,7 @@ describe('Parser-VM-MongoDB Integration', () => {
       const retrieved = await adapter.getProgram('integration-test-1');
       expect(retrieved).toBeDefined();
       // MongoDB converts undefined to null, so we need to handle that
-      const normalizedBytecode = retrieved!.bytecode.map(instr => ({
+      const normalizedBytecode = retrieved!.bytecode.map((instr: any) => ({
         ...instr,
         arg: instr.arg === null ? undefined : instr.arg
       }));

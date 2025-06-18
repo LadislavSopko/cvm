@@ -152,9 +152,20 @@ export function compile(source: string): CompileResult {
                expr.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
         // Compile the right-hand side
         compileExpression(expr.right);
-        // Store to the variable
+        // Store to the variable or array element
         if (ts.isIdentifier(expr.left)) {
           state.emit(OpCode.STORE, expr.left.text);
+        } else if (ts.isElementAccessExpression(expr.left)) {
+          // For array[index] = value
+          // Value is already on stack from right-hand side
+          // We need stack order: array, index, value
+          // Use a temp variable to reorder
+          const tempVar = `__temp_${state.getBytecode().length}`;
+          state.emit(OpCode.STORE, tempVar); // Store value temporarily
+          compileExpression(expr.left.expression); // Push array
+          compileExpression(expr.left.argumentExpression); // Push index
+          state.emit(OpCode.LOAD, tempVar); // Load value back on top
+          state.emit(OpCode.ARRAY_SET);
         }
       }
     }
@@ -246,12 +257,10 @@ export function compile(source: string): CompileResult {
           if (hasStringOperand(node.left, node.right)) {
             // If either operand is a string literal, always use CONCAT
             state.emit(OpCode.CONCAT);
-          } else if (isLikelyNumeric(node.left) && isLikelyNumeric(node.right)) {
-            // If both are likely numeric, use ADD
-            state.emit(OpCode.ADD);
           } else {
-            // Default to CONCAT for safety (JavaScript behavior)
-            state.emit(OpCode.CONCAT);
+            // For all other cases, use ADD
+            // The VM will handle type conversion with cvmToNumber
+            state.emit(OpCode.ADD);
           }
           break;
         case ts.SyntaxKind.MinusToken:
@@ -304,35 +313,21 @@ export function compile(source: string): CompileResult {
   };
 }
 
-// Helper to determine if an expression is likely numeric
-function isLikelyNumeric(node: ts.Node): boolean {
-  if (ts.isNumericLiteral(node)) return true;
-  if (ts.isParenthesizedExpression(node)) {
-    return isLikelyNumeric(node.expression);
-  }
-  if (ts.isBinaryExpression(node)) {
-    const op = node.operatorToken.kind;
-    // Arithmetic operations always produce numbers
-    return op === ts.SyntaxKind.MinusToken ||
-           op === ts.SyntaxKind.AsteriskToken ||
-           op === ts.SyntaxKind.SlashToken ||
-           op === ts.SyntaxKind.LessThanToken ||
-           op === ts.SyntaxKind.GreaterThanToken;
-  }
-  if (ts.isCallExpression(node)) {
-    // array.length is numeric
-    if (ts.isPropertyAccessExpression(node.expression) && 
-        node.expression.name.text === 'length') {
-      return true;
-    }
-  }
-  if (ts.isPropertyAccessExpression(node) && node.name.text === 'length') {
+
+// Helper to check if either operand contains a string literal
+function hasStringOperand(left: ts.Node, right: ts.Node): boolean {
+  // Check if either operand is a string literal
+  if (ts.isStringLiteral(left) || ts.isStringLiteral(right)) {
     return true;
   }
+  
+  // For binary expressions with +, check recursively
+  if (ts.isBinaryExpression(left) && left.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+    if (hasStringOperand(left.left, left.right)) return true;
+  }
+  if (ts.isBinaryExpression(right) && right.operatorToken.kind === ts.SyntaxKind.PlusToken) {
+    if (hasStringOperand(right.left, right.right)) return true;
+  }
+  
   return false;
-}
-
-// Helper to check if either operand is definitely a string
-function hasStringOperand(left: ts.Node, right: ts.Node): boolean {
-  return ts.isStringLiteral(left) || ts.isStringLiteral(right);
 }

@@ -164,6 +164,36 @@ export class VM {
           break;
         }
           
+        case OpCode.ARRAY_SET: {
+          const value = state.stack.pop();
+          const index = state.stack.pop();
+          const array = state.stack.pop();
+          if (value === undefined || index === undefined || array === undefined) {
+            state.status = 'error';
+            state.error = 'ARRAY_SET: Stack underflow';
+            break;
+          }
+          if (!isCVMArray(array)) {
+            state.status = 'error';
+            state.error = 'ARRAY_SET requires an array';
+            break;
+          }
+          if (!isCVMNumber(index)) {
+            state.status = 'error';
+            state.error = 'ARRAY_SET requires numeric index';
+            break;
+          }
+          const idx = Math.floor(index);
+          if (idx < 0) {
+            state.status = 'error';
+            state.error = 'ARRAY_SET: Negative index not allowed';
+            break;
+          }
+          array.elements[idx] = value;
+          state.pc++;
+          break;
+        }
+          
         case OpCode.ARRAY_LEN: {
           const array = state.stack.pop();
           if (array === undefined) {
