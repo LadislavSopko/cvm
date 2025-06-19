@@ -900,6 +900,40 @@ export class VM {
           state.pc++;
           break;
         }
+
+        case OpCode.BREAK: {
+          // BREAK instruction expects a target address as argument
+          if (instruction.arg === undefined) {
+            state.status = 'error';
+            state.error = 'BREAK requires a target address';
+            break;
+          }
+          const target = instruction.arg;
+          if (target < 0 || target >= bytecode.length) {
+            state.status = 'error';
+            state.error = `Invalid break target: ${target}`;
+            break;
+          }
+          state.pc = target;
+          break;
+        }
+
+        case OpCode.CONTINUE: {
+          // CONTINUE instruction expects a target address as argument
+          if (instruction.arg === undefined) {
+            state.status = 'error';
+            state.error = 'CONTINUE requires a target address';
+            break;
+          }
+          const target = instruction.arg;
+          if (target < 0 || target >= bytecode.length) {
+            state.status = 'error';
+            state.error = `Invalid continue target: ${target}`;
+            break;
+          }
+          state.pc = target;
+          break;
+        }
           
         default:
           state.status = 'error';

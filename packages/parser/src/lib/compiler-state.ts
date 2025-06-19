@@ -1,12 +1,13 @@
 import { Instruction, OpCode } from './bytecode.js';
 
 export interface JumpContext {
-  type: 'if' | 'loop';
+  type: 'if' | 'loop' | 'foreach';
   breakTargets?: number[];      // For loops: break statement targets
   continueTargets?: number[];   // For loops: continue statement targets
   elseTarget?: number;          // For if: else block target
   endTargets: number[];         // Common: where to jump after block
   startAddress?: number;        // For loops: loop start for continue
+  iterVariable?: string;        // For foreach: loop variable name
 }
 
 export class CompilerState {
@@ -73,7 +74,7 @@ export class CompilerState {
    */
   findLoopContext(): JumpContext | null {
     for (let i = this.contextStack.length - 1; i >= 0; i--) {
-      if (this.contextStack[i].type === 'loop') {
+      if (this.contextStack[i].type === 'loop' || this.contextStack[i].type === 'foreach') {
         return this.contextStack[i];
       }
     }

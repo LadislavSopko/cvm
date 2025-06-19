@@ -1,3 +1,23 @@
+## 0.6.0 (2025-06-19)
+
+### 🚀 Features
+
+- implement all unary operators (++, --, unary -, unary +)
+- add pre/post increment and decrement with proper return values
+- implement unary minus for negation and unary plus for type conversion
+- implement all compound assignment operators (+=, -=, *=, /=, %=)
+- add smart += detection: CONCAT for strings, ADD for numbers
+- support complex expressions in compound assignments (e.g., x += y * 2)
+
+### 🩹 Fixes
+
+- fix cvmToNumber to return 0 for empty strings (JavaScript behavior)
+- improve compiler handling of compound assignments with early return
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.5.0 (2025-06-19)
 
 ### 🚀 Features

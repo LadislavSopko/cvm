@@ -2,12 +2,21 @@
 
 ## Current Focus
 **Next priorities**:
-1. Phase 3 parser/compiler for foreach loops
+1. Add BREAK and CONTINUE opcode handlers to VM (final step for Phase 3)
 2. More string methods (slice, charAt, toUpperCase, toLowerCase)
-3. Phase 3 parser/compiler for foreach loops
-4. More string methods (slice, charAt, toUpperCase, toLowerCase)
 
 ## Latest Achievements
+✅ **FOR-OF LOOPS (PHASE 3) MOSTLY IMPLEMENTED!**
+- All for-of loops working: `for (const item of array) { ... }`
+- Supports const/let declarations and simple identifiers
+- Compiler generates ITER_START, ITER_NEXT, ITER_END opcodes
+- Works with array literals: `for (const x of [1, 2, 3])`
+- Works with variable arrays: `for (const item of myArray)`
+- Nested for-of loops working correctly
+- Integration tests show perfect basic functionality
+- ONLY MISSING: BREAK and CONTINUE opcode handlers in VM
+- 8 new compiler tests passing, integration test validates E2E
+- CompilerState extended to support 'foreach' contexts
 ✅ **COMPOUND ASSIGNMENTS IMPLEMENTED!**
 - All compound assignments working: +=, -=, *=, /=, %=
 - Implemented as compiler-only transformation (no new opcodes)
@@ -62,14 +71,17 @@
 ## What's Working
 - ✅ Phase 1: Arrays + JSON parsing
 - ✅ Phase 2: Full control flow (if/else, while)
+- ✅ Phase 3: For-of loops (99% complete - just need break/continue VM support)
 - ✅ ALL comparison operators (==, !=, <, >, <=, >=, ===, !==)
 - ✅ ALL arithmetic operators (+, -, *, /, %)
 - ✅ ALL logical operators (&&, ||, !)
+- ✅ ALL unary operators (++, --, unary -, unary +)
+- ✅ ALL compound assignments (+=, -=, *=, /=, %=)
 - ✅ Ternary operator (? :)
 - ✅ String/array length with .length property
 - ✅ Basic string methods (substring, indexOf, split)
 - ✅ Smart ADD/CONCAT detection
-- ✅ Phase 3 VM ready (iterators implemented)
+- ✅ Iterator opcodes (ITER_START, ITER_NEXT, ITER_END)
 - ✅ Return from main() with value propagation
 - ✅ Undefined value type with full JavaScript semantics
 
@@ -84,7 +96,22 @@
 - See memory-bank/docs/INTEGRATION_TESTING.md
 
 ## Next Steps
-1. Phase 3 parser/compiler (foreach loops)
+1. **URGENT**: Add BREAK and CONTINUE VM handlers to complete Phase 3
 2. More string methods (slice, charAt, toUpperCase, toLowerCase)
-3. Phase 3 parser/compiler (foreach loops)
-4. More string methods (slice, charAt, toUpperCase, toLowerCase)
+3. Phase 4: File operations (FS_LIST_FILES implementation)
+
+## Current Status Summary
+**PHASE 3 FOREACH LOOPS**: 99% COMPLETE! 🎉
+- ✅ Compiler: Generates correct ITER_START, ITER_NEXT, ITER_END bytecode
+- ✅ VM: Iterator opcodes fully implemented and working
+- ✅ Basic for-of loops: Working perfectly in integration tests
+- ✅ Nested loops: Working perfectly
+- ✅ Complex expressions: All supported
+- ❌ Break/continue: Compiler generates BREAK/CONTINUE opcodes but VM missing handlers
+- 📄 Integration test shows: "Error: Unknown opcode: BREAK (type: string)"
+
+**Files Modified**:
+- `/packages/parser/src/lib/compiler-state.ts` - Added 'foreach' context support
+- `/packages/parser/src/lib/compiler.ts` - Added for-of compilation + break/continue
+- `/packages/parser/src/lib/compiler-foreach.spec.ts` - 8 comprehensive tests
+- `/test/programs/test-foreach-loops.ts` - Integration test program

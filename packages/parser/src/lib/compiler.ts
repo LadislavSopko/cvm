@@ -104,6 +104,70 @@ export function compile(source: string): CompileResult {
         state.patchJumps(context.breakTargets || [], endAddress);
       }
     }
+    else if (ts.isForOfStatement(node)) {
+      // Extract variable name and iterable
+      const variable = node.initializer;
+      const iterable = node.expression;
+      
+      let variableName: string;
+      
+      // Handle both const/let declarations and simple identifiers
+      if (ts.isVariableDeclarationList(variable)) {
+        const decl = variable.declarations[0];
+        variableName = decl.name.getText();
+      } else if (ts.isIdentifier(variable)) {
+        variableName = variable.text;
+      } else {
+        throw new Error('Unsupported for-of variable declaration');
+      }
+      
+      // Compile the iterable (array to iterate over)
+      compileExpression(iterable);
+      
+      // Start iteration: ITER_START will setup iterator state
+      state.emit(OpCode.ITER_START);
+      
+      // Record loop start position (after ITER_START)
+      const loopStart = state.currentAddress();
+      
+      // Check if iteration should continue
+      state.emit(OpCode.ITER_NEXT);
+      
+      // ITER_NEXT pushes two values: element and hasMore
+      // We need to check hasMore (top of stack) to decide if we continue
+      const jumpIfFalseIndex = state.emit(OpCode.JUMP_IF_FALSE, -1);
+      
+      // Store the current element in the loop variable
+      state.emit(OpCode.STORE, variableName);
+      
+      // Push foreach context
+      const foreachContext: JumpContext = {
+        type: 'foreach',
+        breakTargets: [jumpIfFalseIndex],
+        continueTargets: [],
+        endTargets: [],
+        startAddress: loopStart,
+        iterVariable: variableName
+      };
+      state.pushContext(foreachContext);
+      
+      // Compile loop body
+      compileStatement(node.statement);
+      
+      // Jump back to loop start (ITER_NEXT)
+      state.emit(OpCode.JUMP, loopStart);
+      
+      // Pop context and patch break jumps
+      const context = state.popContext();
+      if (context) {
+        // Clean up iterator when loop ends
+        state.emit(OpCode.ITER_END);
+        
+        // Patch break jumps to point after ITER_END (current address)
+        const endAddress = state.currentAddress();
+        state.patchJumps(context.breakTargets || [], endAddress);
+      }
+    }
     else if (ts.isBlock(node)) {
       // Compile each statement in the block
       node.statements.forEach(stmt => {
@@ -249,6 +313,36 @@ export function compile(source: string): CompileResult {
         state.emit(OpCode.PUSH, null);
       }
       state.emit(OpCode.RETURN);
+    }
+    else if (ts.isBreakStatement(node)) {
+      // Find the nearest loop context
+      const loopContext = state.findLoopContext();
+      if (loopContext) {
+        // For foreach loops, we need to clean up the iterator first
+        if (loopContext.type === 'foreach') {
+          state.emit(OpCode.ITER_END);
+        }
+        
+        // Emit BREAK instruction
+        const breakIndex = state.emit(OpCode.BREAK, -1);
+        loopContext.breakTargets = loopContext.breakTargets || [];
+        loopContext.breakTargets.push(breakIndex);
+      } else {
+        throw new Error('break statement not in loop');
+      }
+    }
+    else if (ts.isContinueStatement(node)) {
+      // Find the nearest loop context
+      const loopContext = state.findLoopContext();
+      if (loopContext && loopContext.startAddress !== undefined) {
+        // For foreach loops, jump back to ITER_NEXT
+        // For regular loops, jump back to loop start
+        const continueIndex = state.emit(OpCode.CONTINUE, loopContext.startAddress);
+        loopContext.continueTargets = loopContext.continueTargets || [];
+        loopContext.continueTargets.push(continueIndex);
+      } else {
+        throw new Error('continue statement not in loop');
+      }
     }
   }
 

@@ -331,6 +331,83 @@ Converts value to boolean and negates it.
 !!42               // true (double negation)
 ```
 
+## Unary Operators
+
+### Pre/Post Increment (++)
+**Status**: ✅ Implemented
+
+```javascript
+let x = 5;
+let a = ++x;  // Pre-increment: x becomes 6, a = 6
+let b = x++;  // Post-increment: b = 6, x becomes 7
+```
+
+### Pre/Post Decrement (--)
+**Status**: ✅ Implemented
+
+```javascript
+let y = 10;
+let c = --y;  // Pre-decrement: y becomes 9, c = 9
+let d = y--;  // Post-decrement: d = 9, y becomes 8
+```
+
+### Unary Minus (-)
+**Status**: ✅ Implemented
+
+Negates a numeric value.
+
+```javascript
+let num = 42;
+let negative = -num;  // -42
+let positive = -(-5); // 5
+```
+
+### Unary Plus (+)
+**Status**: ✅ Implemented
+
+Converts value to number (JavaScript-like type conversion).
+
+```javascript
+let str = "42";
+let num = +str;    // 42 (number)
+let zero = +"";    // 0 (empty string becomes 0)
+let nan = +"abc";  // NaN for invalid strings
+```
+
+## Compound Assignment Operators
+
+### Addition Assignment (+=)
+**Status**: ✅ Implemented
+
+```javascript
+let x = 10;
+x += 5;  // x = 15 (equivalent to x = x + 5)
+
+// String concatenation
+let msg = "Hello";
+msg += " World";  // msg = "Hello World"
+```
+
+### Other Compound Assignments
+**Status**: ✅ Implemented
+
+```javascript
+let x = 20;
+x -= 5;   // x = 15 (subtraction)
+x *= 2;   // x = 30 (multiplication)
+x /= 3;   // x = 10 (division)
+x %= 3;   // x = 1  (modulo)
+
+// Works with complex expressions
+let y = 10;
+y += x * 2;  // y = 12
+```
+
+**Implementation notes**:
+- All compound assignments are compiler transformations (no new VM opcodes)
+- `+=` intelligently uses CONCAT for string literals, ADD for numeric operations
+- Supports complex right-hand expressions
+
 ## Conditional Operator (Ternary)
 
 ### condition ? trueValue : falseValue
@@ -367,6 +444,8 @@ CVM supports the following types:
 - All arithmetic operators (+, -, *, /, %)
 - All comparison operators (==, !=, <, >, <=, >=, ===, !==)
 - All logical operators (&&, ||, !)
+- All unary operators (++, --, unary -, unary +)
+- All compound assignment operators (+=, -=, *=, /=, %=)
 - Ternary operator (? :)
 - String concatenation
 - String operations:
@@ -396,9 +475,7 @@ CVM supports the following types:
 4. **Function parameters** - No parameter passing
 5. **for loops** - No traditional for(;;) loops
 6. **Error handling** - No try/catch/throw
-7. **Unary operators** - No ++, --, unary -
-8. **Compound assignments** - No +=, -=, *=, /=, %=
-9. **Additional string methods** - No slice, charAt, toUpperCase, toLowerCase, etc.
+7. **Additional string methods** - No slice, charAt, toUpperCase, toLowerCase, etc.
 
 ## Error Handling
 
