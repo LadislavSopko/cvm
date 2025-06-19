@@ -18,11 +18,12 @@
 - ✅ ALL comparison operators (==, !=, <, >, <=, >=, ===, !==)
 - ✅ ALL arithmetic operators (+, -, *, /, %)
 - ✅ ALL logical operators (&&, ||, !) with full compiler support
+- ✅ Universal LENGTH opcode for both strings and arrays
 
 ## What's Left to Build
 
 ### CRITICAL GAPS (Discovered during testing)
-- **string.length** - ESSENTIAL! No way to get string length
+- ✅ **string.length** - FIXED with universal LENGTH opcode!
 - **undefined** type - Missing fundamental JS value type
 - **String operations** - No string manipulation at all
 
@@ -61,9 +62,14 @@
 ## Current Status
 **Phase**: Phase 3 IN PROGRESS - VM implementation complete, need parser/compiler
 **Architecture**: Clean separation, all components integrated
-**Testing**: 283+ tests passing (includes logical operator compiler/integration tests)
-**Features**: Full control flow, ALL comparison/arithmetic/logical operators, iterator VM support ready
-**Next**: Unary operators, compound assignments, ternary operator, then Phase 3 parser/compiler
+**Testing**: 300+ tests passing (36 test files)
+**Integration Testing**: Full E2E testing via MCP in test/integration/
+**Next Priority**: Remaining operators, then Phase 3 parser/compiler
+
+### Recently Completed
+- ✅ Logical operators (&&, ||, !)
+- ✅ STRING LENGTH - Critical fix with universal LENGTH opcode
+- ✅ Integration test infrastructure with MCP client
 
 ## Key Technical Decisions
 1. **Context stack** for jump resolution (supports nesting)

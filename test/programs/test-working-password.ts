@@ -12,14 +12,15 @@ function main() {
   let matches = password === confirm;
   console.log("Passwords match: " + matches);
   
-  // Since we can't check string.length, we'll simulate
-  // In real CVM, we'd need a string length function
-  console.log("(Note: string.length not yet implemented in CVM)");
+  // Now we can check string length!
+  console.log("Password length: " + password.length);
   
-  if (matches) {
-    console.log("✓ Passwords match!");
-  } else {
+  if (!matches) {
     console.log("✗ Passwords don't match!");
+  } else if (password.length < 8) {
+    console.log("✗ Password too short! Must be at least 8 characters.");
+  } else {
+    console.log("✓ Password is valid!");
   }
   
   // Test with arrays (where .length works)

@@ -213,9 +213,9 @@ export function compile(source: string): CompileResult {
       state.emit(OpCode.ARRAY_GET);
     }
     else if (ts.isPropertyAccessExpression(node) && node.name.text === 'length') {
-      // Handle array.length
+      // Handle .length for both arrays and strings
       compileExpression(node.expression);
-      state.emit(OpCode.ARRAY_LEN);
+      state.emit(OpCode.LENGTH);
     }
     else if (ts.isIdentifier(node)) {
       state.emit(OpCode.LOAD, node.text);

@@ -17,6 +17,12 @@ export enum OpCode {
   ARRAY_SET = 'ARRAY_SET',
   ARRAY_LEN = 'ARRAY_LEN',
   
+  // String operations
+  STRING_LEN = 'STRING_LEN',
+  
+  // Universal operations
+  LENGTH = 'LENGTH',
+  
   // Type operations
   JSON_PARSE = 'JSON_PARSE',
   TYPEOF = 'TYPEOF',

@@ -1,6 +1,6 @@
 # CVM - Cognitive Virtual Machine
 
-A deterministic bytecode virtual machine that seamlessly integrates AI cognitive operations into program execution.
+A deterministic bytecode virtual machine designed for AI-driven execution through the Model Context Protocol.
 
 ## Quick Start
 
@@ -21,15 +21,60 @@ When using CVM in a git repository, add the data directory to your `.gitignore`:
 
 ## Overview
 
-CVM (Cognitive Virtual Machine) is an innovative approach to AI integration that inverts the typical pattern. Instead of AI systems calling functions, CVM programs make "cognitive calls" (CC) to AI models during execution. This creates a deterministic, debuggable environment for AI-enhanced applications.
+CVM (Cognitive Virtual Machine) is a passive execution environment that processes programs under AI control. The AI (like Claude) drives the entire execution by pulling tasks and pushing results through MCP tools. CVM never initiates actions - it only responds to AI requests.
+
+### How CVM Really Works
+
+**CVM is NOT a traditional VM that calls out to AI. Instead:**
+- The AI (Claude) drives the entire execution
+- CVM waits passively for the AI to request tasks
+- When encountering CC() instructions, CVM presents them as tasks
+- The AI provides responses and continues execution
+- All control flow is managed by the AI through MCP tools
+
+### Execution Flow Diagram
+
+```
+┌─────────────┐                    ┌─────────────┐
+│     AI      │                    │     CVM     │
+│  (Claude)   │                    │   Server    │
+└─────────────┘                    └─────────────┘
+      │                                   │
+      │  1. load(program)                │
+      ├──────────────────────────────────>│
+      │                                   │
+      │  2. start(executionId)           │
+      ├──────────────────────────────────>│
+      │                                   │
+      ┌───────────────────────────────────┐
+      │ EXECUTION LOOP (AI-driven)        │
+      │                                   │
+      │  3. getTask()                    │
+      ├──────────────────────────────────>│
+      │                                   │
+      │  4. Returns task/prompt          │
+      │<──────────────────────────────────┤
+      │                                   │
+      │  5. AI processes task            │
+      │  (e.g., answers CC prompt)       │
+      │                                   │
+      │  6. submitTask(result)           │
+      ├──────────────────────────────────>│
+      │                                   │
+      │  7. CVM executes next steps      │
+      │     until next CC() or end       │
+      │                                   │
+      └───────────────────────────────────┘
+           Repeat until program ends
+```
 
 ### Key Features
 
-- **Deterministic Execution**: Programs execute in a predictable, step-by-step manner
-- **Cognitive Calls**: Seamlessly integrate AI reasoning into your program flow
-- **State Persistence**: All execution state is preserved between cognitive operations
-- **MCP Protocol**: Built on the Model Context Protocol for standardized AI communication
-- **Multiple Storage Backends**: File-based (default) or MongoDB for production
+- **AI-Driven Execution**: The AI controls program flow by pulling tasks
+- **Passive State Machine**: CVM only responds to MCP tool calls
+- **Deterministic**: Each step is predictable and debuggable
+- **State Persistence**: Execution state preserved between AI interactions
+- **MCP Protocol**: Standard interface for AI-VM communication
 
 ## Installation
 
@@ -89,14 +134,52 @@ function main() {
 }
 ```
 
+### Execution Example
+
+Here's what actually happens when this program runs:
+
+```
+1. AI: load("function main() { ... }")
+   CVM: Program loaded as program-123
+
+2. AI: start("execution-456", "program-123")
+   CVM: Execution started
+
+3. AI: getTask("execution-456")
+   CVM: No task (executes console.log)
+
+4. AI: getTask("execution-456")
+   CVM: { prompt: "What's an interesting topic for a short story?" }
+
+5. AI: submitTask("execution-456", "A time-traveling detective")
+   CVM: Stored response, continues execution
+
+6. AI: getTask("execution-456")
+   CVM: No task (executes console.log)
+
+7. AI: getTask("execution-456")
+   CVM: { prompt: "Create a brief outline for a story about: A time-traveling detective" }
+
+8. AI: submitTask("execution-456", "1. Detective discovers time anomaly...")
+   CVM: Stored response, continues execution
+
+... (pattern continues until program completes)
+```
+
+**Remember**: CVM never initiates communication. The AI must continuously poll for tasks.
+
 ## How It Works
 
-1. **Load Program**: CVM compiles your TypeScript-like program into bytecode
-2. **Execute**: The VM executes instructions deterministically
-3. **Cognitive Calls**: When a CC() is encountered, execution pauses
-4. **AI Processing**: The MCP client (like Claude) processes the cognitive request
-5. **Resume**: Execution continues with the AI's response
-6. **Persist**: All state is saved between operations
+1. **AI Loads Program**: The AI calls `load()` with your TypeScript-like program
+2. **AI Starts Execution**: The AI calls `start()` to begin execution
+3. **AI Pulls Tasks**: The AI repeatedly calls `getTask()` to check for work
+4. **CVM Responds**: When reaching CC(), CVM returns the prompt as a task
+5. **AI Processes**: The AI determines the response to the prompt
+6. **AI Submits Result**: The AI calls `submitTask()` with the response
+7. **CVM Continues**: CVM processes the response and executes until next CC()
+8. **Repeat**: The AI continues pulling tasks until the program completes
+
+**Key Point**: The AI drives everything. CVM never "calls" the AI - it only responds when the AI asks for tasks.
 
 ## Architecture
 

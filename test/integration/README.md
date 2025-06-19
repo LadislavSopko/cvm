@@ -40,11 +40,31 @@ Test programs are located in `../programs/`:
 
 ## Important Notes
 
-1. Always rebuild before testing:
+### CRITICAL: Testing Flow
+
+**ALWAYS follow these steps when testing after ANY code changes:**
+
+1. **Reset and rebuild ALL packages** (required after any VM/parser changes):
 ```bash
+# From project root
 npx nx reset
 npx nx run-many --target=build --all --skip-nx-cache
 ```
 
-2. The `.cvm` directory is created in the test/integration directory
-3. Make sure to provide enough responses for all CC calls in your test program
+2. **Run the integration test**:
+```bash
+# From project root
+cd test/integration
+npx tsx mcp-test-client.ts ../programs/your-test.ts [cc-responses...]
+```
+
+### Why rebuilding is critical:
+- The cvm-server runs from compiled JavaScript in `dist/`
+- Changes to opcodes, VM, or parser won't work until rebuilt
+- `nx reset` clears the cache to ensure clean builds
+- `--skip-nx-cache` forces fresh builds
+
+### Other notes:
+- The `.cvm` directory is created in the test/integration directory
+- Make sure to provide enough responses for all CC calls in your test program
+- Output files are saved in `.cvm/outputs/`

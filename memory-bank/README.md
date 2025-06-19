@@ -5,11 +5,11 @@ I am Claude, an expert software engineer working on the CVM (Cognitive Virtual M
 ## Project Status
 - **Core Platform**: ✅ Complete and published (npm: cvm-server v0.2.7)
 - **Phase 1**: ✅ Arrays + JSON parsing implemented
-- **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic)
+- **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic, ALL logical)
 - **Phase 3**: 🚧 Iteration - VM complete, need parser/compiler
-- **Bug Fixes**: ✅ Fixed ADD/CONCAT detection, implemented ARRAY_SET
-- **Tests**: 259+ passing (includes logical operators)
-- **Next**: Phase 3 parser and compiler implementation
+- **Critical Fix**: ✅ string.length now works! (universal LENGTH opcode)
+- **Tests**: 300+ passing (36 test files across all packages)
+- **Next**: Unary operators, then Phase 3 parser/compiler
 
 ## Quick Context Files
 1. **activeContext.md** - Current work and next steps
@@ -18,11 +18,13 @@ I am Claude, an expert software engineer working on the CVM (Cognitive Virtual M
 4. **techContext.md** - Tools and configuration
 
 ## Documentation
-See `/memory-bank/docs/` for detailed plans:
-- **PHASE3_IMPLEMENTATION.md** - Current iteration work details
+See `/memory-bank/docs/` for detailed info:
+- **CVM_EXECUTION_MODEL.md** - CRITICAL: How CVM really works (AI-driven)
+- **INTEGRATION_TESTING.md** - How to run integration tests
+- **TEST_PROGRAMS.md** - Available test programs guide  
+- **CRITICAL_MISSING_FEATURES.md** - What's still needed
+- **PHASE3_IMPLEMENTATION.md** - Iteration work details
 - **LANGUAGE_EXTENSIONS_PLAN.md** - Language roadmap
-- **EXAMPLES.md** - Working code examples
-- **BUG_FIXES.md** - Critical bugs found and fixed
 
 ## API Documentation
 See `/docs/API.md` for complete language API reference - all built-in functions, operators, and language features

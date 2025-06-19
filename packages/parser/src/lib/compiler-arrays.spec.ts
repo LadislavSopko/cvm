@@ -153,7 +153,7 @@ describe('compiler - array support', () => {
       
       expect(result.success).toBe(true);
       expect(result.bytecode).toContainEqual({ op: OpCode.LOAD, arg: 'arr' });
-      expect(result.bytecode).toContainEqual({ op: OpCode.ARRAY_LEN });
+      expect(result.bytecode).toContainEqual({ op: OpCode.LENGTH });
       expect(result.bytecode).toContainEqual({ op: OpCode.STORE, arg: 'len' });
     });
   });

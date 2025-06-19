@@ -54,9 +54,28 @@ typeof "hello"    // "string"
 typeof 42         // "number"
 typeof true       // "boolean"
 typeof null       // "null"
-typeof undefined  // "undefined"
-typeof []         // "object"
+typeof []         // "array"
 ```
+
+**Note**: undefined is not implemented, typeof returns "array" for arrays (not "object")
+
+## String Operations
+
+### string.length → number
+**Status**: ✅ Implemented
+
+Returns the length of a string.
+
+```javascript
+let name = "John Doe";
+let len = name.length;  // 8
+
+"hello".length         // 5
+"".length             // 0
+CC("Enter password").length  // Gets length of user input
+```
+
+**Note**: String methods like substring(), indexOf(), split() are NOT implemented.
 
 ## Array Operations
 
@@ -258,7 +277,7 @@ CVM supports the following types:
 - **number**: Numeric values (integers and floats)
 - **boolean**: `true` or `false`
 - **null**: The `null` value
-- **undefined**: Uninitialized variables
+- **undefined**: NOT IMPLEMENTED - Use null instead
 - **array**: Ordered collections (internally objects with type "array")
 
 ## Implementation Status
@@ -271,6 +290,8 @@ CVM supports the following types:
 - All comparison operators (==, !=, <, >, <=, >=, ===, !==)
 - All logical operators (&&, ||, !)
 - String concatenation
+- String length (string.length)
+- Array length (array.length)
 - if/else statements
 - while loops
 - Type checking (typeof)

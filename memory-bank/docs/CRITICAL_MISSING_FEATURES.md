@@ -2,11 +2,11 @@
 
 ## Discovered During Integration Testing
 
-### 1. string.length - CRITICAL
-- **Issue**: Cannot get length of strings AT ALL
-- **Impact**: Makes string validation impossible (passwords, input validation)
-- **Example that fails**: `let len = password.length;`
-- **Current workaround**: None - feature completely missing
+### 1. string.length - ✅ IMPLEMENTED!
+- **Status**: FIXED - Added universal LENGTH opcode
+- **Solution**: LENGTH opcode works for both strings and arrays
+- **Example that now works**: `let len = password.length;`
+- **Tested**: Full integration test suite passes
 
 ### 2. undefined value - CRITICAL  
 - **Issue**: No `undefined` type or keyword

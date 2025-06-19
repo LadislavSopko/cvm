@@ -210,6 +210,45 @@ export class VM {
           state.pc++;
           break;
         }
+        
+        case OpCode.STRING_LEN: {
+          const str = state.stack.pop();
+          if (str === undefined) {
+            state.status = 'error';
+            state.error = 'STRING_LEN: Stack underflow';
+            break;
+          }
+          if (!isCVMString(str)) {
+            state.status = 'error';
+            state.error = 'STRING_LEN requires a string';
+            break;
+          }
+          state.stack.push(str.length);
+          state.pc++;
+          break;
+        }
+        
+        case OpCode.LENGTH: {
+          const value = state.stack.pop();
+          if (value === undefined) {
+            state.status = 'error';
+            state.error = 'LENGTH: Stack underflow';
+            break;
+          }
+          
+          if (isCVMString(value)) {
+            state.stack.push(value.length);
+          } else if (isCVMArray(value)) {
+            state.stack.push(value.elements.length);
+          } else {
+            state.status = 'error';
+            state.error = 'LENGTH requires a string or array';
+            break;
+          }
+          
+          state.pc++;
+          break;
+        }
           
         case OpCode.JSON_PARSE: {
           const str = state.stack.pop();
