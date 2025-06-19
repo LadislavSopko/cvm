@@ -23,6 +23,7 @@
 - ✅ Integration tests to catch build/dependency issues
 - ✅ Undefined value type with full JavaScript semantics
 - ✅ Basic string methods (substring, indexOf, split)
+- ✅ Unary operators (++, --, unary -, unary +)
 
 ## What's Left to Build
 
@@ -67,11 +68,12 @@
 ## Current Status
 **Phase**: Phase 3 IN PROGRESS - VM implementation complete, need parser/compiler
 **Architecture**: Clean separation, all components integrated
-**Testing**: 390 tests passing (38 test files + new ternary tests)
+**Testing**: 400+ tests passing (40 test files + unary operator tests)
 **Integration Testing**: Full E2E testing via MCP in test/integration/
-**Next Priority**: Unary operators, then compound assignments
+**Next Priority**: Compound assignments (+=, -=, *=, /=, %=)
 
 ### Recently Completed
+- ✅ UNARY OPERATORS - ++, --, unary -, unary + (with pre/post variants)
 - ✅ TERNARY OPERATOR - condition ? trueValue : falseValue
 - ✅ STRING METHODS - substring, indexOf, split with full JavaScript semantics
 - ✅ Logical operators (&&, ||, !)

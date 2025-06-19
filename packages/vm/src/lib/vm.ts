@@ -378,6 +378,73 @@ export class VM {
           break;
         }
 
+        // Unary operations
+        case OpCode.UNARY_MINUS: {
+          const value = state.stack.pop();
+          if (value === undefined) {
+            state.status = 'error';
+            state.error = 'UNARY_MINUS: Stack underflow';
+            break;
+          }
+          const num = cvmToNumber(value);
+          state.stack.push(-num);
+          state.pc++;
+          break;
+        }
+
+        case OpCode.UNARY_PLUS: {
+          const value = state.stack.pop();
+          if (value === undefined) {
+            state.status = 'error';
+            state.error = 'UNARY_PLUS: Stack underflow';
+            break;
+          }
+          const num = cvmToNumber(value);
+          state.stack.push(num);
+          state.pc++;
+          break;
+        }
+
+        case OpCode.INC: {
+          // Increment expects: [variable_name] on stack
+          const varName = state.stack.pop();
+          if (varName === undefined || typeof varName !== 'string') {
+            state.status = 'error';
+            state.error = 'INC: Invalid variable name';
+            break;
+          }
+          const currentValue = state.variables.get(varName) ?? 0;
+          const newValue = cvmToNumber(currentValue) + 1;
+          state.variables.set(varName, newValue);
+          // For post-increment, we push the old value
+          // For pre-increment, we push the new value
+          // The compiler will indicate which via the instruction arg
+          const isPost = instruction.arg === true;
+          state.stack.push(isPost ? cvmToNumber(currentValue) : newValue);
+          state.pc++;
+          break;
+        }
+
+        case OpCode.DEC: {
+          // Decrement expects: [variable_name] on stack
+          const varName = state.stack.pop();
+          if (varName === undefined || typeof varName !== 'string') {
+            state.status = 'error';
+            state.error = 'DEC: Invalid variable name';
+            break;
+          }
+          const currentValue = state.variables.get(varName) ?? 0;
+          const newValue = cvmToNumber(currentValue) - 1;
+          state.variables.set(varName, newValue);
+          // For post-decrement, we push the old value
+          // For pre-decrement, we push the new value
+          // The compiler will indicate which via the instruction arg
+          const isPost = instruction.arg === true;
+          state.stack.push(isPost ? cvmToNumber(currentValue) : newValue);
+          state.pc++;
+          break;
+        }
+
         // Comparison operations
         case OpCode.EQ: {
           const right = state.stack.pop();

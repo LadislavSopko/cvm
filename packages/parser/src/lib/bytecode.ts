@@ -38,6 +38,12 @@ export enum OpCode {
   DIV = 'DIV',
   MOD = 'MOD',
   
+  // Unary operations
+  UNARY_MINUS = 'UNARY_MINUS',
+  UNARY_PLUS = 'UNARY_PLUS',
+  INC = 'INC',  // Increment (++)
+  DEC = 'DEC',  // Decrement (--)
+  
   // Comparison
   EQ = 'EQ',
   NEQ = 'NEQ',

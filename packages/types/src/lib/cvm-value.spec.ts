@@ -147,9 +147,12 @@ describe('CVMValue Type System', () => {
 
       it('should return NaN for non-numeric strings', () => {
         expect(cvmToNumber('hello')).toBeNaN();
-        expect(cvmToNumber('')).toBeNaN();
         expect(cvmToNumber('123abc')).toBeNaN();
         expect(cvmToNumber('true')).toBeNaN();
+      });
+
+      it('should return 0 for empty string', () => {
+        expect(cvmToNumber('')).toBe(0);  // JavaScript: Number("") === 0
       });
 
       it('should return NaN for arrays', () => {

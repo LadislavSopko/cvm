@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
-import { createCVMArray, createCVMUndefined } from '@cvm/types';
+import { createCVMArray } from '@cvm/types';
 
 describe('VM - String method opcodes', () => {
   let vm: VM;

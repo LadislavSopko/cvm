@@ -2,12 +2,22 @@
 
 ## Current Focus
 **Next priorities**:
-1. Unary operators (++, --, unary -)
-2. Compound assignments (+=, -=, *=, /=, %=)
+1. Compound assignments (+=, -=, *=, /=, %=)
+2. Phase 3 parser/compiler for foreach loops
 3. Phase 3 parser/compiler for foreach loops
 4. More string methods (slice, charAt, toUpperCase, toLowerCase)
 
 ## Latest Achievements
+✅ **UNARY OPERATORS IMPLEMENTED!**
+- All unary operators working: ++, --, unary -, unary +
+- Pre-increment/decrement: ++x, --x (returns new value)
+- Post-increment/decrement: x++, x-- (returns old value)
+- Unary minus for negation: -x
+- Unary plus for type conversion: +x (converts to number)
+- Fixed cvmToNumber to return 0 for empty strings (JavaScript behavior)
+- 24 new tests added (14 VM, 10 compiler)
+- Full integration test validation
+
 ✅ **TERNARY OPERATOR IMPLEMENTED!**
 - condition ? trueValue : falseValue syntax fully working
 - Nested ternary operators supported
@@ -61,12 +71,12 @@
 3. ✅ ~~String methods~~ - FIXED!
 
 ## Testing
-- 390 tests passing (up from 381)
+- 400+ tests passing
 - Integration testing via MCP in test/integration/
 - See memory-bank/docs/INTEGRATION_TESTING.md
 
 ## Next Steps
-1. Unary operators (++, --, unary -)
-2. Compound assignments (+=, -=, *=, /=, %=)
+1. Compound assignments (+=, -=, *=, /=, %=)
+2. Phase 3 parser/compiler (foreach loops)
 3. Phase 3 parser/compiler (foreach loops)
 4. More string methods (slice, charAt, toUpperCase, toLowerCase)

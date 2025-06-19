@@ -85,7 +85,7 @@ export function cvmToNumber(value: CVMValue): number {
   if (isCVMString(value)) {
     // Parse string to number, returns NaN if not parseable
     const trimmed = value.trim();
-    if (trimmed === '') return NaN;
+    if (trimmed === '') return 0; // JavaScript behavior: Number("") === 0
     return Number(trimmed);
   }
   if (isCVMArray(value)) return NaN;

@@ -147,6 +147,12 @@ export function compile(source: string): CompileResult {
         }
         state.emit(OpCode.ARRAY_PUSH);
       }
+      // Handle increment/decrement statements (e.g., i++ or ++i)
+      else if (ts.isPostfixUnaryExpression(expr) || ts.isPrefixUnaryExpression(expr)) {
+        compileExpression(expr);
+        // Pop the result since it's not being used
+        state.emit(OpCode.POP);
+      }
       // Handle assignment expressions (e.g., i = i + 1)
       else if (ts.isBinaryExpression(expr) && 
                expr.operatorToken.kind === ts.SyntaxKind.EqualsToken) {
@@ -374,7 +380,7 @@ export function compile(source: string): CompileResult {
       }
     }
     else if (ts.isPrefixUnaryExpression(node)) {
-      // Handle unary operators like !
+      // Handle unary operators like !, -, +, ++, --
       switch (node.operator) {
         case ts.SyntaxKind.ExclamationToken:
           // Compile the operand first
@@ -382,8 +388,51 @@ export function compile(source: string): CompileResult {
           // Then apply NOT
           state.emit(OpCode.NOT);
           break;
+        case ts.SyntaxKind.MinusToken:
+          // Unary minus
+          compileExpression(node.operand);
+          state.emit(OpCode.UNARY_MINUS);
+          break;
+        case ts.SyntaxKind.PlusToken:
+          // Unary plus
+          compileExpression(node.operand);
+          state.emit(OpCode.UNARY_PLUS);
+          break;
+        case ts.SyntaxKind.PlusPlusToken:
+          // Pre-increment: ++x
+          if (ts.isIdentifier(node.operand)) {
+            state.emit(OpCode.PUSH, node.operand.text);
+            state.emit(OpCode.INC, false); // false = pre-increment
+          }
+          break;
+        case ts.SyntaxKind.MinusMinusToken:
+          // Pre-decrement: --x
+          if (ts.isIdentifier(node.operand)) {
+            state.emit(OpCode.PUSH, node.operand.text);
+            state.emit(OpCode.DEC, false); // false = pre-decrement
+          }
+          break;
         default:
           // Other unary operators not yet implemented
+          break;
+      }
+    }
+    else if (ts.isPostfixUnaryExpression(node)) {
+      // Handle post-increment and post-decrement: x++, x--
+      switch (node.operator) {
+        case ts.SyntaxKind.PlusPlusToken:
+          // Post-increment: x++
+          if (ts.isIdentifier(node.operand)) {
+            state.emit(OpCode.PUSH, node.operand.text);
+            state.emit(OpCode.INC, true); // true = post-increment
+          }
+          break;
+        case ts.SyntaxKind.MinusMinusToken:
+          // Post-decrement: x--
+          if (ts.isIdentifier(node.operand)) {
+            state.emit(OpCode.PUSH, node.operand.text);
+            state.emit(OpCode.DEC, true); // true = post-decrement
+          }
           break;
       }
     }
