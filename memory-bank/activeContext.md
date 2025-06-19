@@ -4,11 +4,17 @@
 **Next priorities**:
 1. Unary operators (++, --, unary -)
 2. Compound assignments (+=, -=, *=, /=, %=)
-3. Ternary operator (? :)
-4. Phase 3 parser/compiler for foreach loops
-5. More string methods (slice, charAt, toUpperCase, toLowerCase)
+3. Phase 3 parser/compiler for foreach loops
+4. More string methods (slice, charAt, toUpperCase, toLowerCase)
 
 ## Latest Achievements
+✅ **TERNARY OPERATOR IMPLEMENTED!**
+- condition ? trueValue : falseValue syntax fully working
+- Nested ternary operators supported
+- No new VM opcodes needed - uses existing jump instructions
+- 9 new tests added (5 compiler, 4 VM)
+- All test programs now pass without errors
+
 ✅ **STRING METHODS IMPLEMENTED!**
 - substring(start, end) - Extract portions of strings
 - indexOf(search) - Find position of substrings
@@ -41,6 +47,7 @@
 - ✅ ALL comparison operators (==, !=, <, >, <=, >=, ===, !==)
 - ✅ ALL arithmetic operators (+, -, *, /, %)
 - ✅ ALL logical operators (&&, ||, !)
+- ✅ Ternary operator (? :)
 - ✅ String/array length with .length property
 - ✅ Basic string methods (substring, indexOf, split)
 - ✅ Smart ADD/CONCAT detection
@@ -54,13 +61,12 @@
 3. ✅ ~~String methods~~ - FIXED!
 
 ## Testing
-- 381 tests passing (up from 353)
+- 390 tests passing (up from 381)
 - Integration testing via MCP in test/integration/
 - See memory-bank/docs/INTEGRATION_TESTING.md
 
 ## Next Steps
 1. Unary operators (++, --, unary -)
 2. Compound assignments (+=, -=, *=, /=, %=)
-3. Ternary operator (? :)
-4. Phase 3 parser/compiler (foreach loops)
-5. More string methods (slice, charAt, toUpperCase, toLowerCase)
+3. Phase 3 parser/compiler (foreach loops)
+4. More string methods (slice, charAt, toUpperCase, toLowerCase)

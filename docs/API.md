@@ -331,6 +331,23 @@ Converts value to boolean and negates it.
 !!42               // true (double negation)
 ```
 
+## Conditional Operator (Ternary)
+
+### condition ? trueValue : falseValue
+**Status**: ✅ Implemented
+
+Evaluates to trueValue if condition is truthy, otherwise falseValue.
+
+```javascript
+const age = 25;
+const status = age >= 18 ? "adult" : "minor";  // "adult"
+
+const score = 85;
+const grade = score >= 90 ? "A" : score >= 80 ? "B" : "C";  // "B"
+
+const message = "Value is " + (x > 5 ? "high" : "low");
+```
+
 ## Type System
 
 CVM supports the following types:
@@ -350,6 +367,7 @@ CVM supports the following types:
 - All arithmetic operators (+, -, *, /, %)
 - All comparison operators (==, !=, <, >, <=, >=, ===, !==)
 - All logical operators (&&, ||, !)
+- Ternary operator (? :)
 - String concatenation
 - String operations:
   - string.length
@@ -380,8 +398,7 @@ CVM supports the following types:
 6. **Error handling** - No try/catch/throw
 7. **Unary operators** - No ++, --, unary -
 8. **Compound assignments** - No +=, -=, *=, /=, %=
-9. **Ternary operator** - No ? : operator
-10. **Additional string methods** - No slice, charAt, toUpperCase, toLowerCase, etc.
+9. **Additional string methods** - No slice, charAt, toUpperCase, toLowerCase, etc.
 
 ## Error Handling
 
@@ -455,13 +472,14 @@ main();
 ## Test Coverage
 
 The implementation has comprehensive test coverage:
-- **381 total tests passing** across all packages
+- **390 total tests passing** across all packages
 - **38 iterator tests** validating ITER_START, ITER_NEXT, ITER_END
 - **23 new operator tests** for %, <=, >=, ===, !==
 - **24 logical operator tests** for VM implementation of &&, ||, !
 - **16 compiler tests** for logical operator compilation
 - **19 string method tests** for substring, indexOf, split
 - **9 undefined type tests** for JavaScript undefined semantics
+- **9 ternary operator tests** (5 compiler, 4 VM)
 - **6 integration tests** for logical operators E2E
 - **Arithmetic E2E tests** confirming numeric operations work correctly
 - **Control flow tests** for if/else and while loops

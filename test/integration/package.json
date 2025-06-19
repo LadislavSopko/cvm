@@ -6,7 +6,8 @@
     "test": "tsx test-client.ts"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.2"
+    "@modelcontextprotocol/sdk": "^1.12.2",
+    "cvm-server": "file:../../apps/cvm-server"
   },
   "devDependencies": {
     "tsx": "^4.7.0"

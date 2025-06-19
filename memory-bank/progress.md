@@ -33,6 +33,7 @@
 
 ### Language Extensions
 - [x] **Phase 2: Branching** ✅ COMPLETE!
+- [x] **Ternary operator** ✅ COMPLETE!
   - ✅ Opcodes (EQ, NEQ, LT, GT, JUMP, JUMP_IF_FALSE)
   - ✅ VM implementation with full test coverage
   - ✅ cvmToNumber helper for numeric conversions
@@ -66,11 +67,12 @@
 ## Current Status
 **Phase**: Phase 3 IN PROGRESS - VM implementation complete, need parser/compiler
 **Architecture**: Clean separation, all components integrated
-**Testing**: 381 tests passing (38 test files)
+**Testing**: 390 tests passing (38 test files + new ternary tests)
 **Integration Testing**: Full E2E testing via MCP in test/integration/
 **Next Priority**: Unary operators, then compound assignments
 
 ### Recently Completed
+- ✅ TERNARY OPERATOR - condition ? trueValue : falseValue
 - ✅ STRING METHODS - substring, indexOf, split with full JavaScript semantics
 - ✅ Logical operators (&&, ||, !)
 - ✅ STRING LENGTH - Critical fix with universal LENGTH opcode
