@@ -46,8 +46,10 @@ Phase 3 (Iteration) - IN PROGRESS
   - ✅ Greater than or equal (>=) - GTE opcode
   - ✅ Strict equality (===) - EQ_STRICT opcode
   - ✅ Strict inequality (!==) - NEQ_STRICT opcode
-  - ✅ Full compiler support for all new operators
-  - ✅ 235+ tests now passing
+  - ✅ Logical operators (&&, ||, !) - AND, OR, NOT opcodes
+  - ✅ Full compiler support for arithmetic/comparison operators
+  - ✅ Full compiler support for logical operators
+  - ✅ 283+ tests now passing (added 24 new tests)
 
 ## Language Extension Status
 1. **Phase 1**: Arrays + JSON parsing ✅
@@ -66,13 +68,22 @@ Phase 3 (Iteration) - IN PROGRESS
    - Need: Compiler implementation
 4. **Phase 4**: File operations (PLANNED)
 
-## Next: Phase 3 Completion
-1. ✅ Implement ITER_START, ITER_NEXT, ITER_END opcodes in VM
-2. ✅ Create iterator state management
-3. Add foreach syntax to parser
-4. Implement compiler support for foreach loops
-5. Handle break/continue compilation
-6. Integration tests with real foreach syntax
+## CRITICAL MISSING FEATURES (High Priority!)
+1. **string.length** - Cannot get string length! Major limitation
+2. **undefined** value - No undefined type/keyword, breaks many patterns
+3. **String methods** - No substring, indexOf, split, etc.
+
+## Current Work: Additional Operators
+1. ✅ Logical operators (&&, ||, !) - COMPLETE (VM + Compiler + Tests)
+2. Pending: Unary operators (++, --, unary -)
+3. Pending: Compound assignments (+=, -=, *=, /=, %=)
+4. Pending: Ternary operator (? :)
+
+## Next: Phase 3 Completion (after operators)
+1. ✅ VM opcodes for iteration ready
+2. Add for-of syntax to parser
+3. Implement compiler support for for-of loops
+4. Handle break/continue compilation
 
 ## Key Design Decisions
 - **Context stack**: Enables nested control structures

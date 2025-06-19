@@ -211,6 +211,46 @@ while (i < 10) {
 ### break/continue
 **Status**: ❌ Not Implemented (Opcodes exist, compiler support missing)
 
+## Logical Operators
+
+### AND (&&)
+**Status**: ✅ Implemented
+
+Returns the first falsy value or the last value if all are truthy.
+
+```javascript
+true && true        // true
+true && false       // false
+"hello" && 42       // 42
+0 && "world"        // 0
+```
+
+### OR (||)
+**Status**: ✅ Implemented
+
+Returns the first truthy value or the last value if all are falsy.
+
+```javascript
+true || false       // true
+false || false      // false
+"hello" || "world"  // "hello"
+0 || "fallback"     // "fallback"
+```
+
+### NOT (!)
+**Status**: ✅ Implemented
+
+Converts value to boolean and negates it.
+
+```javascript
+!true              // false
+!false             // true
+!"hello"           // false
+!0                 // true
+!null              // true
+!!42               // true (double negation)
+```
+
 ## Type System
 
 CVM supports the following types:
@@ -229,6 +269,7 @@ CVM supports the following types:
 - Arrays (literals, access, push, length, assignment)
 - All arithmetic operators (+, -, *, /, %)
 - All comparison operators (==, !=, <, >, <=, >=, ===, !==)
+- All logical operators (&&, ||, !)
 - String concatenation
 - if/else statements
 - while loops
@@ -240,9 +281,8 @@ CVM supports the following types:
 ### 🔧 VM Ready, Awaiting Compiler Support:
 1. **for-of loops** - ITER_START, ITER_NEXT, ITER_END opcodes fully implemented and tested
 2. **break/continue** - BREAK, CONTINUE opcodes defined but not compiled
-3. **Logical operators** - AND, OR, NOT opcodes defined
-4. **Function calls** - CALL, RETURN opcodes defined
-5. **Additional jumps** - JUMP_IF, JUMP_IF_TRUE opcodes available
+3. **Function calls** - CALL, RETURN opcodes defined
+4. **Additional jumps** - JUMP_IF, JUMP_IF_TRUE opcodes available
 
 ### ❌ Not Implemented:
 1. **File operations** - FS_LIST_FILES opcode defined but no VM implementation
@@ -252,7 +292,9 @@ CVM supports the following types:
 5. **Return statements** - No return from main()
 6. **for loops** - No traditional for(;;) loops
 7. **Error handling** - No try/catch/throw
-8. **Logical operators** - No &&, ||, ! (AND, OR, NOT opcodes defined but not implemented)
+8. **Unary operators** - No ++, --, unary -
+9. **Compound assignments** - No +=, -=, *=, /=, %=
+10. **Ternary operator** - No ? : operator
 
 ## Error Handling
 
@@ -301,13 +343,37 @@ function main() {
 main();
 ```
 
+### Logical Operators Example
+```javascript
+function main() {
+  let age = 25;
+  let hasLicense = true;
+  
+  if (age >= 18 && hasLicense) {
+    console.log("You can drive");
+  }
+  
+  let name = "";
+  let displayName = name || "Anonymous";
+  console.log("Hello " + displayName);
+  
+  let isLoggedIn = !false;
+  if (isLoggedIn) {
+    console.log("Welcome back!");
+  }
+}
+main();
+```
+
 ## Test Coverage
 
 The implementation has comprehensive test coverage:
-- **235+ total tests passing** across all packages
+- **283+ total tests passing** across all packages
 - **38 iterator tests** validating ITER_START, ITER_NEXT, ITER_END
 - **23 new operator tests** for %, <=, >=, ===, !==
-- **12 compiler tests** for new operator compilation
+- **24 logical operator tests** for VM implementation of &&, ||, !
+- **16 compiler tests** for logical operator compilation
+- **6 integration tests** for logical operators E2E
 - **Arithmetic E2E tests** confirming numeric operations work correctly
 - **Control flow tests** for if/else and while loops
 - **Integration tests** with MongoDB storage

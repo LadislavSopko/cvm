@@ -299,8 +299,28 @@ export function compile(source: string): CompileResult {
         case ts.SyntaxKind.ExclamationEqualsEqualsToken:
           state.emit(OpCode.NEQ_STRICT);
           break;
+        case ts.SyntaxKind.AmpersandAmpersandToken:
+          state.emit(OpCode.AND);
+          break;
+        case ts.SyntaxKind.BarBarToken:
+          state.emit(OpCode.OR);
+          break;
         default:
           // Unsupported operator - could add error handling here
+          break;
+      }
+    }
+    else if (ts.isPrefixUnaryExpression(node)) {
+      // Handle unary operators like !
+      switch (node.operator) {
+        case ts.SyntaxKind.ExclamationToken:
+          // Compile the operand first
+          compileExpression(node.operand);
+          // Then apply NOT
+          state.emit(OpCode.NOT);
+          break;
+        default:
+          // Other unary operators not yet implemented
           break;
       }
     }

@@ -599,6 +599,56 @@ export class VM {
           state.pc++;
           break;
         }
+        
+        // Logical operators
+        case OpCode.AND: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'AND: Stack underflow';
+            break;
+          }
+          // JavaScript-like && behavior: returns first falsy or last value
+          if (!cvmToBoolean(left)) {
+            state.stack.push(left);
+          } else {
+            state.stack.push(right);
+          }
+          state.pc++;
+          break;
+        }
+        
+        case OpCode.OR: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'OR: Stack underflow';
+            break;
+          }
+          // JavaScript-like || behavior: returns first truthy or last value
+          if (cvmToBoolean(left)) {
+            state.stack.push(left);
+          } else {
+            state.stack.push(right);
+          }
+          state.pc++;
+          break;
+        }
+        
+        case OpCode.NOT: {
+          const value = state.stack.pop();
+          if (value === undefined) {
+            state.status = 'error';
+            state.error = 'NOT: Stack underflow';
+            break;
+          }
+          // Logical NOT: convert to boolean and negate
+          state.stack.push(!cvmToBoolean(value));
+          state.pc++;
+          break;
+        }
           
         default:
           state.status = 'error';
