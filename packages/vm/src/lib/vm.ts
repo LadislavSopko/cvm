@@ -5,11 +5,14 @@ import {
   isCVMArray, 
   isCVMString, 
   isCVMNumber,
+  isCVMNull,
+  isCVMUndefined,
   cvmToString,
   cvmTypeof,
   cvmToNumber,
   cvmToBoolean,
-  createCVMArray 
+  createCVMArray,
+  createCVMUndefined
 } from '@cvm/types';
 
 export type VMStatus = 'running' | 'waiting_cc' | 'complete' | 'error';
@@ -56,6 +59,11 @@ export class VM {
           state.pc++;
           break;
           
+        case OpCode.PUSH_UNDEFINED:
+          state.stack.push(createCVMUndefined());
+          state.pc++;
+          break;
+          
         case OpCode.POP:
           state.stack.pop();
           state.pc++;
@@ -64,11 +72,11 @@ export class VM {
         case OpCode.LOAD: {
           const varName = instruction.arg;
           if (!state.variables.has(varName)) {
-            state.status = 'error';
-            state.error = `LOAD: Variable '${varName}' is not defined`;
-            break;
+            // Return undefined for uninitialized variables (JavaScript behavior)
+            state.stack.push(createCVMUndefined());
+          } else {
+            state.stack.push(state.variables.get(varName)!);
           }
-          state.stack.push(state.variables.get(varName)!);
           state.pc++;
           break;
         }
@@ -379,14 +387,23 @@ export class VM {
             state.error = 'EQ: Stack underflow';
             break;
           }
+          
           // JavaScript-like == comparison with type coercion
-          const leftNum = cvmToNumber(left);
-          const rightNum = cvmToNumber(right);
-          if (!isNaN(leftNum) && !isNaN(rightNum)) {
-            state.stack.push(leftNum === rightNum);
+          // Special case: null == undefined is true
+          if ((isCVMNull(left) && isCVMUndefined(right)) || 
+              (isCVMUndefined(left) && isCVMNull(right))) {
+            state.stack.push(true);
+          } else if (isCVMUndefined(left) && isCVMUndefined(right)) {
+            state.stack.push(true);
           } else {
-            // If either can't be converted to number, do string comparison
-            state.stack.push(cvmToString(left) === cvmToString(right));
+            const leftNum = cvmToNumber(left);
+            const rightNum = cvmToNumber(right);
+            if (!isNaN(leftNum) && !isNaN(rightNum)) {
+              state.stack.push(leftNum === rightNum);
+            } else {
+              // If either can't be converted to number, do string comparison
+              state.stack.push(cvmToString(left) === cvmToString(right));
+            }
           }
           state.pc++;
           break;
@@ -400,14 +417,23 @@ export class VM {
             state.error = 'NEQ: Stack underflow';
             break;
           }
+          
           // JavaScript-like != comparison with type coercion
-          const leftNum = cvmToNumber(left);
-          const rightNum = cvmToNumber(right);
-          if (!isNaN(leftNum) && !isNaN(rightNum)) {
-            state.stack.push(leftNum !== rightNum);
+          // Special case: null != undefined is false
+          if ((isCVMNull(left) && isCVMUndefined(right)) || 
+              (isCVMUndefined(left) && isCVMNull(right))) {
+            state.stack.push(false);
+          } else if (isCVMUndefined(left) && isCVMUndefined(right)) {
+            state.stack.push(false);
           } else {
-            // If either can't be converted to number, do string comparison
-            state.stack.push(cvmToString(left) !== cvmToString(right));
+            const leftNum = cvmToNumber(left);
+            const rightNum = cvmToNumber(right);
+            if (!isNaN(leftNum) && !isNaN(rightNum)) {
+              state.stack.push(leftNum !== rightNum);
+            } else {
+              // If either can't be converted to number, do string comparison
+              state.stack.push(cvmToString(left) !== cvmToString(right));
+            }
           }
           state.pc++;
           break;

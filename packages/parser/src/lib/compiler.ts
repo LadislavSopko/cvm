@@ -228,7 +228,11 @@ export function compile(source: string): CompileResult {
       state.emit(OpCode.LENGTH);
     }
     else if (ts.isIdentifier(node)) {
-      state.emit(OpCode.LOAD, node.text);
+      if (node.text === 'undefined') {
+        state.emit(OpCode.PUSH_UNDEFINED);
+      } else {
+        state.emit(OpCode.LOAD, node.text);
+      }
     }
     else if (ts.isCallExpression(node)) {
       // Handle JSON.parse()

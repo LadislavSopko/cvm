@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
-import { createCVMArray } from '@cvm/types';
+import { createCVMArray, createCVMUndefined } from '@cvm/types';
 
 describe('VM - ITER_START opcode', () => {
   let vm: VM;
@@ -158,7 +158,7 @@ describe('VM - ITER_START opcode', () => {
   });
 
   it('should handle arrays with mixed types including null and undefined', () => {
-    const array = createCVMArray(['string', 42, true, null, undefined, createCVMArray([1, 2])]);
+    const array = createCVMArray(['string', 42, true, null, createCVMUndefined(), createCVMArray([1, 2])]);
     const bytecode = [
       { op: OpCode.PUSH, arg: array },
       { op: OpCode.ITER_START },

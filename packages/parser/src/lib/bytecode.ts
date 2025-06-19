@@ -1,6 +1,7 @@
 export enum OpCode {
   // Stack operations
   PUSH = 'PUSH',
+  PUSH_UNDEFINED = 'PUSH_UNDEFINED',
   POP = 'POP',
   
   // Variables
