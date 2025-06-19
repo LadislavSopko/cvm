@@ -268,11 +268,68 @@ while (i < 10) {
 }
 ```
 
-### for loops
-**Status**: ❌ Not Implemented (Phase 3)
+### for-of loops
+**Status**: ✅ Implemented
+
+Iterate over arrays with for-of syntax.
+
+```javascript
+for (const item of [1, 2, 3]) {
+  console.log("Item: " + item);
+}
+
+// With variables
+const arr = ["a", "b", "c"];
+for (const element of arr) {
+  console.log(element);
+}
+
+// Nested loops work
+for (const i of [1, 2]) {
+  for (const j of ["a", "b"]) {
+    console.log(i + "-" + j);  // "1-a", "1-b", "2-a", "2-b"
+  }
+}
+```
+
+**Features**:
+- Supports `const` and `let` declarations
+- Supports simple identifiers
+- Nested for-of loops supported
+- Works with array literals and variables
+- Safe iteration (array snapshots prevent corruption)
 
 ### break/continue
-**Status**: ❌ Not Implemented (Opcodes exist, compiler support missing)
+**Status**: ✅ Implemented
+
+Control loop execution with break and continue statements.
+
+```javascript
+// break exits the loop
+for (const item of [1, 2, 3, 4, 5]) {
+  if (item === 3) {
+    break;
+  }
+  console.log(item);  // Prints: 1, 2
+}
+
+// continue skips to next iteration
+for (const item of [1, 2, 3, 4, 5]) {
+  if (item % 2 === 0) {
+    continue;
+  }
+  console.log(item);  // Prints: 1, 3, 5
+}
+
+// Works in while loops too
+let i = 0;
+while (i < 10) {
+  i++;
+  if (i === 5) continue;
+  if (i === 8) break;
+  console.log(i);
+}
+```
 
 ### return statements
 **Status**: ✅ Implemented
@@ -456,6 +513,8 @@ CVM supports the following types:
 - Array length (array.length)
 - if/else statements
 - while loops
+- **for-of loops** - Complete iteration support with array snapshots
+- **break/continue** - Full support in all loop types
 - return statements (from main() only)
 - Type checking (typeof)
 - CC() cognitive calls
@@ -463,10 +522,8 @@ CVM supports the following types:
 - JSON.parse() (safe mode)
 
 ### 🔧 VM Ready, Awaiting Compiler Support:
-1. **for-of loops** - ITER_START, ITER_NEXT, ITER_END opcodes fully implemented and tested
-2. **break/continue** - BREAK, CONTINUE opcodes defined but not compiled
-3. **Function calls** - CALL, RETURN opcodes defined
-4. **Additional jumps** - JUMP_IF, JUMP_IF_TRUE opcodes available
+1. **Function calls** - CALL, RETURN opcodes defined
+2. **Additional jumps** - JUMP_IF, JUMP_IF_TRUE opcodes available
 
 ### ❌ Not Implemented:
 1. **File operations** - FS_LIST_FILES opcode defined but no VM implementation
@@ -564,10 +621,10 @@ The implementation has comprehensive test coverage:
 
 ## Next Development Phases
 
-### Phase 3 (Current): Iteration
-- Add for-of loop compiler support (VM already ready)
-- Enable: `for (const item of array) { ... }`
-- Possibly add break/continue support
+### Phase 3: Iteration ✅ COMPLETE
+- ✅ for-of loop support: `for (const item of array) { ... }`
+- ✅ break/continue support in all loops
+- ✅ Nested loop support with iterator stack
 
 ### Phase 4: File Operations
 - Implement FS_LIST_FILES opcode in VM

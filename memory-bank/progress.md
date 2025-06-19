@@ -1,108 +1,42 @@
 # Progress - CVM Project Status
 
 ## What Works
-- ✅ Core platform fully functional with 212 tests passing
-- ✅ Phase 1 language extensions (Arrays + JSON parsing)
-- ✅ Phase 2 language extensions (Branching - if/else, while, comparisons, arithmetic)
-- ✅ Phase 3 VM implementation (ITER_START, ITER_NEXT, ITER_END opcodes)
-- ✅ ARRAY_SET opcode - arrays fully functional with assignments
-- ✅ Fixed arithmetic operations - proper numeric addition
-- ✅ Storage abstraction with MongoDB and File adapters
-- ✅ Published to npm as cvm-server v0.2.7
-- ✅ Multiple CC support working correctly
-- ✅ Full control flow with proper jump backpatching
-- ✅ Smart ADD/CONCAT detection with recursive string literal checking
-- ✅ Integration tests validating all features E2E
-- ✅ Iterator stack management with nested loop support
-- ✅ Array snapshot behavior for safe iteration
-- ✅ ALL comparison operators (==, !=, <, >, <=, >=, ===, !==)
-- ✅ ALL arithmetic operators (+, -, *, /, %)
-- ✅ ALL logical operators (&&, ||, !) with full compiler support
-- ✅ Universal LENGTH opcode for both strings and arrays
-- ✅ Return from main() - programs can produce results
-- ✅ Integration tests to catch build/dependency issues
-- ✅ Undefined value type with full JavaScript semantics
-- ✅ Basic string methods (substring, indexOf, split)
-- ✅ Unary operators (++, --, unary -, unary +)
-- ✅ Compound assignments (+=, -=, *=, /=, %=)
+- ✅ **Phase 1**: Arrays + JSON parsing
+- ✅ **Phase 2**: Complete branching (if/else, while, comparisons, arithmetic, logical)
+- ✅ **Phase 3**: Complete iteration (for-of loops, break/continue)
+- ✅ **Core Types**: string, number, boolean, null, undefined, array
+- ✅ **All Operators**: arithmetic, comparison, logical, unary, compound assignment, ternary
+- ✅ **String Operations**: length, substring, indexOf, split  
+- ✅ **Array Operations**: literals, access, assignment, push, length
+- ✅ **Control Flow**: if/else, while, for-of, break/continue, return
+- ✅ **Core Functions**: CC(), console.log(), JSON.parse(), typeof
+- ✅ **Advanced Features**: undefined semantics, return values, iterator stacks
 
 ## What's Left to Build
 
-### CRITICAL GAPS (Discovered during testing)
-- ✅ **string.length** - FIXED with universal LENGTH opcode!
-- ✅ **undefined type** - FIXED with CVMUndefined and PUSH_UNDEFINED!
-- ✅ **String operations** - FIXED with substring, indexOf, split!
+### Immediate (String Methods)
+- slice, charAt, toUpperCase, toLowerCase
 
-### Language Extensions
-- [x] **Phase 2: Branching** ✅ COMPLETE!
-- [x] **Ternary operator** ✅ COMPLETE!
-  - ✅ Opcodes (EQ, NEQ, LT, GT, JUMP, JUMP_IF_FALSE)
-  - ✅ VM implementation with full test coverage
-  - ✅ cvmToNumber helper for numeric conversions
-  - ✅ CompilerState class with context stack
-  - ✅ Compiler refactored to use CompilerState
-  - ✅ Comparison operators (==, !=, <, >)
-  - ✅ Arithmetic operators (ADD, SUB, MUL, DIV)
-  - ✅ If/else statements with proper backpatching
-  - ✅ While loops with context management
-  - ✅ Assignment expressions
-  - ✅ E2E validation complete
-- [ ] **Phase 3: Iteration** (IN PROGRESS)
-  - ✅ Opcodes defined (ITER_START, ITER_NEXT, ITER_END, BREAK, CONTINUE)
-  - ✅ VM implementation complete with comprehensive tests
-  - ✅ Iterator state management with stack-based approach
-  - ✅ Support for nested iterators (max depth: 10)
-  - ✅ Array snapshot behavior (modifications don't affect iteration)
-  - Need: foreach syntax in parser
-  - Need: Compiler support for foreach loops
-  - Need: Break/continue compilation
-- [ ] **Phase 4: File Operations**
-  - Opcode defined (FS_LIST_FILES)
-  - Need: Implementation with path sandboxing
+### Phase 4: File Operations  
+- FS_LIST_FILES opcode implementation
+- Path sandboxing for security
 
 ### Future Features
-- ✅ Return values from main() - IMPLEMENTED!
-- Function definitions
-- Error handling improvements
-- Performance optimizations
+- Function definitions beyond main()
+- Objects and property access
+- Error handling (try/catch)
+- Traditional for(;;) loops
 
 ## Current Status
-**Phase**: Phase 3 IN PROGRESS - VM implementation complete, need parser/compiler
-**Architecture**: Clean separation, all components integrated
-**Testing**: 410+ tests passing (41 test files + compound assignment tests)
-**Integration Testing**: Full E2E testing via MCP in test/integration/
-**Next Priority**: Phase 3 parser/compiler for foreach loops
+**Phase**: Phase 3 ✅ COMPLETE
+**Architecture**: Stable and locked
+**Testing**: 400+ tests passing
+**Next Priority**: Additional string methods
 
-### Recently Completed
-- ✅ COMPOUND ASSIGNMENTS - +=, -=, *=, /=, %= (compiler-only implementation)
-- ✅ UNARY OPERATORS - ++, --, unary -, unary + (with pre/post variants)
-- ✅ TERNARY OPERATOR - condition ? trueValue : falseValue
-- ✅ STRING METHODS - substring, indexOf, split with full JavaScript semantics
-- ✅ Logical operators (&&, ||, !)
-- ✅ STRING LENGTH - Critical fix with universal LENGTH opcode
-- ✅ UNDEFINED TYPE - Full JavaScript semantics implementation
-- ✅ Integration test infrastructure with MCP client
-- ✅ Return from main() with proper value propagation
-- ✅ VM+Compiler integration tests to prevent stale builds
-
-## Key Technical Decisions
-1. **Context stack** for jump resolution (supports nesting)
-2. **JavaScript-like semantics** for comparisons
-3. **Single-pass compilation** with backpatching
-4. **TypeScript ES modules** with .js imports
-5. **STRICT TDD** - no code without tests
-6. **Iterator stack** for nested foreach support
-7. **Two-value ITER_NEXT** push (element, hasMore) for efficiency
-8. **Array snapshots** to prevent iteration corruption
-
-## Phase 3 Next Steps
-1. ✅ Design iterator state management in VM
-2. ✅ Implement ITER_START opcode (initialize iterator)
-3. ✅ Implement ITER_NEXT opcode (advance iterator)
-4. ✅ Implement ITER_END opcode (cleanup iterator)
-5. Add foreach syntax to parser
-6. Extend CompilerState for loop contexts (break/continue)
-7. Implement compiler foreach generation
-8. Integration test with real foreach syntax
-
-See memory-bank/docs/LANGUAGE_EXTENSIONS_PLAN.md for Phase 3 details.
+## Key Technical Achievements
+- **Iterator Stack**: Enables nested for-of loops
+- **Array Snapshots**: Safe iteration preventing corruption  
+- **Context Stack**: Manages break/continue in nested contexts
+- **Smart Type Detection**: CONCAT vs ADD based on literal analysis
+- **Universal Opcodes**: LENGTH works for strings and arrays
+- **JavaScript Semantics**: Proper undefined, type coercion, operator behavior

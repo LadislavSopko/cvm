@@ -41,11 +41,13 @@
 - File storage uses .cvm directory structure
 - Output stored separately from execution state
 
-#### Compiler Architecture (Phase 2)
+#### Compiler Architecture
 - Uses TypeScript AST directly via ts.createSourceFile()
 - Single-pass with backpatching for jumps
-- Context stack for nested control structures
+- Context stack for nested control structures (if/while/foreach)
 - CompilerState class manages bytecode emission
+- Iterator stack for nested for-of loops
+- Smart literal detection for CONCAT vs ADD
 
 #### VM Execution
 - Stack-based with CVMValue[] stack
@@ -55,13 +57,21 @@
 
 ## Critical Implementation Paths
 
-### Control Flow (Phase 2)
+### Control Flow Patterns
 ```
 If Statement:
   [condition] → JUMP_IF_FALSE else_addr → [then] → JUMP end → [else] → [end]
 
 While Loop:
   [start] → [condition] → JUMP_IF_FALSE end → [body] → JUMP start → [end]
+
+For-of Loop:
+  [array] → ITER_START → [loop_start] → ITER_NEXT → JUMP_IF_FALSE end 
+  → STORE var → [body] → JUMP loop_start → [end] → ITER_END
+
+Break/Continue:
+  BREAK target_addr  (jumps to loop end)
+  CONTINUE target_addr  (jumps to loop start)
 ```
 
 ### Jump Resolution

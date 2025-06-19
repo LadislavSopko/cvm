@@ -18,12 +18,17 @@
 │   ├── vm/              # Bytecode executor
 │   ├── mcp-server/      # MCP protocol layer
 │   ├── storage/         # Storage abstraction
+│   ├── mongodb/         # MongoDB adapter
 │   └── types/           # Shared types & CVMValue
 ├── apps/
-│   └── cvm-server/      # npm package (v0.2.7)
+│   └── cvm-server/      # npm package (v0.4.3)
 ├── memory-bank/         # Project documentation
-├── examples/            # Example CVM programs
-└── test/               # Integration tests
+├── docs/               # API documentation
+├── test/               # Testing
+│   ├── examples/       # Simple test programs
+│   ├── programs/       # Integration test programs
+│   └── integration/    # Integration testing client
+└── tmp/                # Temporary debugging files
 ```
 
 ## Critical Configuration
@@ -71,7 +76,20 @@ CVM_DATA_DIR=./.cvm       # for file storage
 2. **MongoDB**: Full persistence, requires connection
 
 ## Testing Strategy
-- Unit tests next to source files
-- Integration tests in test/integration
-- 118 tests currently passing
-- NO code without tests
+- Unit tests next to source files (.spec.ts, .test.ts)
+- Integration tests in test/integration/ with MCP client
+- Test programs in test/programs/ for E2E validation  
+- Test examples in test/examples/ for simple scenarios
+- 400+ tests currently passing across all packages
+- NO code without tests (STRICT TDD)
+
+## Integration Testing
+```bash
+# CRITICAL: Always rebuild before integration testing
+npx nx reset
+npx nx run-many --target=build --all --skip-nx-cache
+
+# Run integration tests
+cd test/integration
+npx tsx mcp-test-client.ts ../programs/test-name.ts [cc-responses...]
+```
