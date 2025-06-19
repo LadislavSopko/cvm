@@ -3,6 +3,8 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { z } from 'zod';
 import { VMManager } from '@cvm/vm';
+import { readFile } from 'fs/promises';
+import { resolve } from 'path';
 
 /**
  * MCP Server - A thin interface layer for the CVM
@@ -48,6 +50,50 @@ export class CVMMcpServer {
             content: [{ type: 'text', text: `Program loaded successfully: ${programId}` }]
           };
         } catch (error) {
+          return {
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+            isError: true
+          };
+        }
+      }
+    );
+
+    // Load a CVM program from file path
+    this.server.tool(
+      'loadFile',
+      {
+        programId: z.string(),
+        filePath: z.string()
+      },
+      async ({ programId, filePath }) => {
+        try {
+          // Resolve the path to prevent directory traversal
+          const resolvedPath = resolve(filePath);
+          
+          // Read the file
+          const source = await readFile(resolvedPath, 'utf-8');
+          
+          // Load the program using existing VMManager method
+          await this.vmManager.loadProgram(programId, source);
+          
+          return {
+            content: [{ type: 'text', text: `Program loaded successfully from ${filePath}: ${programId}` }]
+          };
+        } catch (error) {
+          if (error instanceof Error) {
+            const nodeError = error as NodeJS.ErrnoException;
+            if (nodeError.code === 'ENOENT') {
+              return {
+                content: [{ type: 'text', text: `Error: File not found: ${filePath}` }],
+                isError: true
+              };
+            } else if (nodeError.code === 'EACCES') {
+              return {
+                content: [{ type: 'text', text: `Error: Permission denied: ${filePath}` }],
+                isError: true
+              };
+            }
+          }
           return {
             content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
             isError: true

@@ -3,12 +3,13 @@
 I am Claude, an expert software engineer working on the CVM (Cognitive Virtual Machine) project. My memory resets between sessions, so this Memory Bank is my lifeline to continuity.
 
 ## Project Status
-- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.4.3)
+- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.5.0)
 - **Phase 1**: ✅ Arrays + JSON parsing implemented
 - **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic, ALL logical)
 - **Phase 3**: ✅ **COMPLETE!** For-of loops with break/continue support
+- **LoadFile Tool**: ✅ **NEW!** Token-saving file loading via `mcp__cvm__loadFile`
 - **Critical Features**: ✅ All major language features implemented
-- **Tests**: 400+ passing across all packages
+- **Tests**: 453+ passing across all packages (18 new MCP server tests)
 - **Next**: Additional string methods, then Phase 4 (File operations)
 
 ## What Works (Major Features)
@@ -41,3 +42,11 @@ See `/memory-bank/docs/` for technical details (historical reference).
 
 ## Current Task
 Next priority: Additional string methods (slice, charAt, toUpperCase, toLowerCase)
+
+## Recent Achievement
+✅ **LoadFile Tool** - Major productivity improvement:
+- `mcp__cvm__loadFile(programId, filePath)` - Load programs from disk
+- Saves massive tokens on large files
+- Full error handling and security
+- 5 comprehensive tests added
+- Published in v0.5.0
