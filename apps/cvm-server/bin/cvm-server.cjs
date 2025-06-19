@@ -14,4 +14,4 @@
 // limitations under the License.
 
 // Simple wrapper that starts the compiled server
-require('../main.js');
+require('../main.cjs');

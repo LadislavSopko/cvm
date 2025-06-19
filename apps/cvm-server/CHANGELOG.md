@@ -1,3 +1,13 @@
+## 0.4.1 (2025-06-19)
+
+### 🩹 Fixes
+
+- fix critical bin script error requiring wrong file extension (main.js instead of main.cjs)
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.4.0 (2025-06-19)
 
 ### 🚀 Features
