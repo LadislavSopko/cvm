@@ -7,6 +7,7 @@ export interface ExecutionResult {
   type: 'completed' | 'waiting' | 'error';
   message?: string;
   error?: string;
+  result?: CVMValue;
 }
 
 export interface ExecutionStatus {
@@ -142,12 +143,19 @@ export class VMManager {
 
       if (state.status === 'complete') {
         execution.state = 'COMPLETED';
+        
+        // Save return value if present
+        if (state.returnValue !== undefined) {
+          execution.returnValue = state.returnValue;
+        }
+        
         await this.storage.saveExecution(execution);
         this.vms.delete(executionId);
         
         return {
           type: 'completed',
-          message: 'Execution completed'
+          message: 'Execution completed',
+          result: state.returnValue
         };
       } else if (state.status === 'waiting_cc') {
         execution.state = 'AWAITING_COGNITIVE_RESULT';
@@ -238,6 +246,12 @@ export class VMManager {
     
     if (newState.status === 'complete') {
       execution.state = 'COMPLETED';
+      
+      // Save return value if present
+      if (newState.returnValue !== undefined) {
+        execution.returnValue = newState.returnValue;
+      }
+      
       this.vms.delete(executionId);
     } else if (newState.status === 'error') {
       execution.state = 'ERROR';

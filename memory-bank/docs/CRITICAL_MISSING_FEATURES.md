@@ -31,8 +31,15 @@ These aren't nice-to-have features - they're FUNDAMENTAL for any real programmin
 
 ## Implementation Priority
 
-1. **string.length** - Add STRING_LEN opcode similar to ARRAY_LEN
-2. **undefined** - Add as a proper value type in the VM
-3. **Basic string methods** - Start with substring and indexOf
+1. ✅ **string.length** - IMPLEMENTED with universal LENGTH opcode
+2. ✅ **return from main()** - IMPLEMENTED, returns value to AI
+3. **undefined** - Add as a proper value type in the VM
+4. **Basic string methods** - Start with substring and indexOf
 
-Without these, CVM is severely limited for real-world use cases.
+## Lessons Learned
+
+The "Unknown opcode: RETURN" issue revealed critical testing gaps:
+- Unit tests alone are insufficient - need integration tests
+- Monorepo build artifacts can become stale
+- Always test the full compile → execute flow
+- Add type information to error messages for debugging

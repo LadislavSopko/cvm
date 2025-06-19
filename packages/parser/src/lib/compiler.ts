@@ -176,6 +176,16 @@ export function compile(source: string): CompileResult {
         state.emit(OpCode.STORE, decl.name.getText());
       }
     }
+    else if (ts.isReturnStatement(node)) {
+      if (node.expression) {
+        // Return with value: compile expression (result goes on stack)
+        compileExpression(node.expression);
+      } else {
+        // Return without value: push null
+        state.emit(OpCode.PUSH, null);
+      }
+      state.emit(OpCode.RETURN);
+    }
   }
 
   function compileExpression(node: ts.Node): void {

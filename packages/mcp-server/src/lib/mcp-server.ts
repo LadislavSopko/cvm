@@ -89,8 +89,11 @@ export class CVMMcpServer {
           const result = await this.vmManager.getNext(executionId);
           
           if (result.type === 'completed') {
+            const response = result.result !== undefined 
+              ? `Execution completed with result: ${JSON.stringify(result.result)}`
+              : 'Execution completed';
             return {
-              content: [{ type: 'text', text: 'Execution completed' }]
+              content: [{ type: 'text', text: response }]
             };
           } else if (result.type === 'waiting') {
             return {

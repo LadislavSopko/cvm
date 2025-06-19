@@ -19,6 +19,8 @@
 - ✅ ALL arithmetic operators (+, -, *, /, %)
 - ✅ ALL logical operators (&&, ||, !) with full compiler support
 - ✅ Universal LENGTH opcode for both strings and arrays
+- ✅ Return from main() - programs can produce results
+- ✅ Integration tests to catch build/dependency issues
 
 ## What's Left to Build
 
@@ -54,7 +56,7 @@
   - Need: Implementation with path sandboxing
 
 ### Future Features
-- Return values from main()
+- ✅ Return values from main() - IMPLEMENTED!
 - Function definitions
 - Error handling improvements
 - Performance optimizations
@@ -70,6 +72,8 @@
 - ✅ Logical operators (&&, ||, !)
 - ✅ STRING LENGTH - Critical fix with universal LENGTH opcode
 - ✅ Integration test infrastructure with MCP client
+- ✅ Return from main() with proper value propagation
+- ✅ VM+Compiler integration tests to prevent stale builds
 
 ## Key Technical Decisions
 1. **Context stack** for jump resolution (supports nesting)

@@ -19,6 +19,7 @@ I am Claude, an expert software engineer working on the CVM (Cognitive Virtual M
 
 ## Documentation
 See `/memory-bank/docs/` for detailed info:
+- **ARCHITECTURE_UNDERSTANDING.md** - How parser→compiler→VM works
 - **CVM_EXECUTION_MODEL.md** - CRITICAL: How CVM really works (AI-driven)
 - **INTEGRATION_TESTING.md** - How to run integration tests
 - **TEST_PROGRAMS.md** - Available test programs guide  

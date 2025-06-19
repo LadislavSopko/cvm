@@ -21,6 +21,7 @@ export interface Execution {
   variables: Record<string, any>;
   error?: string;
   ccPrompt?: string; // Store CC prompt for stateless operation
+  returnValue?: any; // Store return value from main()
   created: Date;
   updated?: Date;
 }

@@ -230,6 +230,23 @@ while (i < 10) {
 ### break/continue
 **Status**: ❌ Not Implemented (Opcodes exist, compiler support missing)
 
+### return statements
+**Status**: ✅ Implemented
+
+Returns a value from main() which becomes the program's result.
+
+```javascript
+function main() {
+  return 42;  // Program result will be 42
+}
+
+function main() {
+  return;  // Program result will be null
+}
+```
+
+**Note**: Only works in main(). Other functions are not yet supported.
+
 ## Logical Operators
 
 ### AND (&&)
@@ -294,6 +311,7 @@ CVM supports the following types:
 - Array length (array.length)
 - if/else statements
 - while loops
+- return statements (from main() only)
 - Type checking (typeof)
 - CC() cognitive calls
 - console.log() output

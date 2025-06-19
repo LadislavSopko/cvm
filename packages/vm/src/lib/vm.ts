@@ -28,6 +28,7 @@ export interface VMState {
   ccPrompt?: string;
   error?: string;
   iterators: IteratorContext[];
+  returnValue?: CVMValue;
 }
 
 export class VM {
@@ -688,10 +689,18 @@ export class VM {
           state.pc++;
           break;
         }
+        
+        case OpCode.RETURN: {
+          // Pop return value from stack (or use null if empty)
+          const returnValue = state.stack.pop() ?? null;
+          state.returnValue = returnValue;
+          state.status = 'complete';
+          break;
+        }
           
         default:
           state.status = 'error';
-          state.error = `Unknown opcode: ${instruction.op}`;
+          state.error = `Unknown opcode: ${instruction.op} (type: ${typeof instruction.op})`;
       }
     }
 
