@@ -1,27 +1,30 @@
-# CVM Documentation Overview
+# CVM Documentation
 
-## Quick Links
-- [Architecture](ARCHITECTURE.md) - System design and components
-- [Language Extensions](LANGUAGE_EXTENSIONS_PLAN.md) - Language feature roadmap
-- [Phase 2 Implementation](PHASE2_IMPLEMENTATION_PLAN.md) - Current work: Branching
-- [Development Roadmap](DEVELOPMENT_ROADMAP.md) - Overall project phases
-- [Examples](EXAMPLES.md) - Example CVM programs
+## Current & Accurate Documentation
 
-## Project Status
-- **Core Platform**: ✅ Complete (118 tests passing)
-- **Phase 1**: ✅ Arrays + JSON parsing
-- **Phase 2**: 🚧 Branching (if/else, while) - Ready to implement
-- **Published**: ✅ npm package `cvm-server` v0.2.7
+These docs are verified to be current and aligned with the actual implementation:
 
-## Key Concepts
-CVM is a deterministic bytecode VM that integrates AI cognitive operations:
-- Programs pause at `CC()` instructions for AI processing
-- State persists between cognitive calls
-- Claude drives execution by polling for tasks
-- Storage abstraction supports MongoDB or file system
+### ✅ Essential Technical References
+- **[ARCHITECTURE_UNDERSTANDING.md](ARCHITECTURE_UNDERSTANDING.md)** - How Parser → Compiler → VM works (CRITICAL - use this!)
+- **[CVM_EXECUTION_MODEL.md](CVM_EXECUTION_MODEL.md)** - How CVM really works as AI-driven state machine (CRITICAL)
+- **[INTEGRATION_TESTING.md](INTEGRATION_TESTING.md)** - How to rebuild and run integration tests (ESSENTIAL)
+- **[MCP_PROTOCOL.md](MCP_PROTOCOL.md)** - Model Context Protocol implementation details
 
-## Development Guidelines
-- **STRICT TDD**: Write tests first, always
-- **TypeScript ES Modules**: Use .js imports
-- **NX Commands**: All builds via `npx nx`
-- **Context Stack**: For control flow (Phase 2)
+## Documentation Policy
+
+Only the docs above exist - all outdated/incorrect documentation has been permanently removed to prevent misleading development. The Memory Bank now contains only current, accurate information.
+
+## Current Project Status
+
+For accurate, up-to-date information about what's implemented and what's next:
+
+- **`../README.md`** - Project overview and current status
+- **`../activeContext.md`** - Current work and immediate next steps  
+- **`../progress.md`** - What's completed vs what's remaining
+- **`/docs/API.md`** - Complete and current language reference
+
+## Safe Development Practice
+
+**ONLY use the 4 verified docs above** for technical implementation details. For everything else, refer to the main Memory Bank files or check the actual code implementation to avoid being misled by outdated information.
+
+For test programs, simply check `test/programs/` directory - the programs are self-documenting.
