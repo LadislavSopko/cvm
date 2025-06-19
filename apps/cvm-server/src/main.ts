@@ -34,10 +34,25 @@ async function main() {
     initLogger(config.logging.level);
     const logger = getLogger();
     
-    // Get version from package.json
-    const packageJsonPath = join(__dirname, '..', 'package.json');
-    const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
-    const version = packageJson.version || '0.0.1';
+    // Get version - try multiple locations for different deployment scenarios
+    let version = '0.4.3'; // Fallback version
+    const possiblePaths = [
+      join(__dirname, '..', 'package.json'), // Development
+      join(__dirname, 'package.json'),       // Bundled dist
+      join(process.cwd(), 'package.json')    // Current directory
+    ];
+    
+    for (const packageJsonPath of possiblePaths) {
+      try {
+        const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
+        if (packageJson.name === 'cvm-server' && packageJson.version) {
+          version = packageJson.version;
+          break;
+        }
+      } catch (e) {
+        // Try next path
+      }
+    }
     
     logger.info('Starting CVM Server...', {
       env: config.env,

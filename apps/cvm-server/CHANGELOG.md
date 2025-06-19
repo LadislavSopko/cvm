@@ -1,3 +1,14 @@
+## 0.4.3 (2025-06-19)
+
+### 🩹 Fixes
+
+- fix package.json loading error in npx context by trying multiple paths
+- add fallback version when package.json cannot be found
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.4.2 (2025-06-19)
 
 ### 🩹 Fixes
