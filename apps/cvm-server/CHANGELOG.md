@@ -1,3 +1,13 @@
+## 0.4.2 (2025-06-19)
+
+### 🩹 Fixes
+
+- republish with correct build from proper directory
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.4.1 (2025-06-19)
 
 ### 🩹 Fixes
