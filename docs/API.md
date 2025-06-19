@@ -54,10 +54,11 @@ typeof "hello"    // "string"
 typeof 42         // "number"
 typeof true       // "boolean"
 typeof null       // "null"
+typeof undefined  // "undefined"
 typeof []         // "array"
 ```
 
-**Note**: undefined is not implemented, typeof returns "array" for arrays (not "object")
+**Note**: typeof returns "array" for arrays (not "object")
 
 ## String Operations
 
@@ -75,7 +76,50 @@ let len = name.length;  // 8
 CC("Enter password").length  // Gets length of user input
 ```
 
-**Note**: String methods like substring(), indexOf(), split() are NOT implemented.
+### string.substring(start[, end]) → string
+**Status**: ✅ Implemented
+
+Extracts a section of a string between start and end indices.
+
+```javascript
+let str = "Hello, World!";
+str.substring(7, 12);     // "World"
+str.substring(7);         // "World!"
+str.substring(-3, -1);    // "ld" (negative indices supported)
+```
+
+**Special behaviors**:
+- Negative indices count from the end
+- If end is omitted, extracts to the end of the string
+- If start > end, they are swapped
+
+### string.indexOf(searchString) → number
+**Status**: ✅ Implemented
+
+Returns the index of the first occurrence of searchString, or -1 if not found.
+
+```javascript
+let str = "Hello, World!";
+str.indexOf("World");     // 7
+str.indexOf("xyz");       // -1
+str.indexOf("");          // 0 (empty string always found at start)
+```
+
+### string.split(delimiter) → array
+**Status**: ✅ Implemented
+
+Splits a string into an array of substrings.
+
+```javascript
+"apple,banana,cherry".split(",");    // ["apple", "banana", "cherry"]
+"Hello".split("");                   // ["H", "e", "l", "l", "o"]
+"a,,b".split(",");                   // ["a", "", "b"]
+"no-delimiter".split(",");           // ["no-delimiter"]
+```
+
+**Special behaviors**:
+- Empty delimiter splits into individual characters
+- Consecutive delimiters create empty strings in the result
 
 ## Array Operations
 
@@ -294,20 +338,24 @@ CVM supports the following types:
 - **number**: Numeric values (integers and floats)
 - **boolean**: `true` or `false`
 - **null**: The `null` value
-- **undefined**: NOT IMPLEMENTED - Use null instead
+- **undefined**: The undefined value (uninitialized variables return undefined)
 - **array**: Ordered collections (internally objects with type "array")
 
 ## Implementation Status
 
 ### ✅ Fully Working (VM + Compiler):
-- Basic types: string, number, boolean, null
+- Basic types: string, number, boolean, null, undefined
 - Variables and assignments
 - Arrays (literals, access, push, length, assignment)
 - All arithmetic operators (+, -, *, /, %)
 - All comparison operators (==, !=, <, >, <=, >=, ===, !==)
 - All logical operators (&&, ||, !)
 - String concatenation
-- String length (string.length)
+- String operations:
+  - string.length
+  - string.substring(start[, end])
+  - string.indexOf(search)
+  - string.split(delimiter)
 - Array length (array.length)
 - if/else statements
 - while loops
@@ -328,12 +376,12 @@ CVM supports the following types:
 2. **Objects** - No object literal or property access support
 3. **Function definitions** - Only main() is supported
 4. **Function parameters** - No parameter passing
-5. **Return statements** - No return from main()
-6. **for loops** - No traditional for(;;) loops
-7. **Error handling** - No try/catch/throw
-8. **Unary operators** - No ++, --, unary -
-9. **Compound assignments** - No +=, -=, *=, /=, %=
-10. **Ternary operator** - No ? : operator
+5. **for loops** - No traditional for(;;) loops
+6. **Error handling** - No try/catch/throw
+7. **Unary operators** - No ++, --, unary -
+8. **Compound assignments** - No +=, -=, *=, /=, %=
+9. **Ternary operator** - No ? : operator
+10. **Additional string methods** - No slice, charAt, toUpperCase, toLowerCase, etc.
 
 ## Error Handling
 
@@ -407,11 +455,13 @@ main();
 ## Test Coverage
 
 The implementation has comprehensive test coverage:
-- **283+ total tests passing** across all packages
+- **381 total tests passing** across all packages
 - **38 iterator tests** validating ITER_START, ITER_NEXT, ITER_END
 - **23 new operator tests** for %, <=, >=, ===, !==
 - **24 logical operator tests** for VM implementation of &&, ||, !
 - **16 compiler tests** for logical operator compilation
+- **19 string method tests** for substring, indexOf, split
+- **9 undefined type tests** for JavaScript undefined semantics
 - **6 integration tests** for logical operators E2E
 - **Arithmetic E2E tests** confirming numeric operations work correctly
 - **Control flow tests** for if/else and while loops
@@ -424,10 +474,10 @@ The implementation has comprehensive test coverage:
 - Enable: `for (const item of array) { ... }`
 - Possibly add break/continue support
 
-### Phase 4: Return Values
-- Implement return statements from main()
-- Enable programs to produce final results
-- Modify VM to capture return value
+### Phase 4: File Operations
+- Implement FS_LIST_FILES opcode in VM
+- Add compiler support for file operations
+- Implement path sandboxing for security
 
 ### Phase 5: Functions
 - Add function definitions beyond main()

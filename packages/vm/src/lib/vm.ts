@@ -723,6 +723,116 @@ export class VM {
           state.status = 'complete';
           break;
         }
+
+        // String methods
+        case OpCode.STRING_SUBSTRING: {
+          // The compiler pushes: string, start, [end]
+          // So we pop in reverse order: [end], start, string
+          
+          if (state.stack.length < 2) {
+            state.status = 'error';
+            state.error = 'STRING_SUBSTRING: Stack underflow';
+            break;
+          }
+          
+          // First check how many arguments we have
+          const stackSize = state.stack.length;
+          let str: CVMValue;
+          let start: number;
+          let end: number | undefined;
+          
+          // Save the current stack to restore if we need to check argument count
+          const arg1 = state.stack[stackSize - 1]; // Top of stack
+          const arg2 = state.stack[stackSize - 2]; // Second from top
+          
+          // Check if we have 3 arguments (string, start, end)
+          if (stackSize >= 3 && typeof arg1 === 'number' && typeof arg2 === 'number') {
+            // Three arguments case
+            end = state.stack.pop() as number;
+            start = state.stack.pop() as number;
+            str = state.stack.pop()!;
+          } else {
+            // Two arguments case
+            start = state.stack.pop() as number;
+            str = state.stack.pop()!;
+            end = undefined;
+          }
+          
+          if (!isCVMString(str)) {
+            state.status = 'error';
+            state.error = 'STRING_SUBSTRING requires a string';
+            break;
+          }
+          
+          if (typeof start !== 'number') {
+            state.status = 'error';
+            state.error = 'STRING_SUBSTRING requires numeric start index';
+            break;
+          }
+          
+          // Handle negative indices
+          const len = str.length;
+          if (start < 0) start = Math.max(0, len + start);
+          if (end !== undefined && end < 0) end = Math.max(0, len + end);
+          
+          // JavaScript substring behavior
+          const result = end !== undefined ? str.substring(start, end) : str.substring(start);
+          state.stack.push(result);
+          state.pc++;
+          break;
+        }
+
+        case OpCode.STRING_INDEXOF: {
+          // Stack: haystack, needle
+          const needle = state.stack.pop();
+          const haystack = state.stack.pop();
+          
+          if (needle === undefined || haystack === undefined) {
+            state.status = 'error';
+            state.error = 'STRING_INDEXOF: Stack underflow';
+            break;
+          }
+          
+          if (!isCVMString(haystack) || !isCVMString(needle)) {
+            state.status = 'error';
+            state.error = 'STRING_INDEXOF requires string arguments';
+            break;
+          }
+          
+          state.stack.push(haystack.indexOf(needle));
+          state.pc++;
+          break;
+        }
+
+        case OpCode.STRING_SPLIT: {
+          // Stack: string, delimiter
+          const delimiter = state.stack.pop();
+          const str = state.stack.pop();
+          
+          if (delimiter === undefined || str === undefined) {
+            state.status = 'error';
+            state.error = 'STRING_SPLIT: Stack underflow';
+            break;
+          }
+          
+          if (!isCVMString(str) || !isCVMString(delimiter)) {
+            state.status = 'error';
+            state.error = 'STRING_SPLIT requires string arguments';
+            break;
+          }
+          
+          // Handle empty delimiter - split into characters
+          let parts: string[];
+          if (delimiter === '') {
+            parts = str.split('');
+          } else {
+            parts = str.split(delimiter);
+          }
+          
+          state.stack.push(createCVMArray(parts));
+          state.pc++;
+          break;
+        }
           
         default:
           state.status = 'error';

@@ -252,6 +252,55 @@ export function compile(source: string): CompileResult {
         }
         state.emit(OpCode.CC);
       }
+      // Handle string methods
+      else if (ts.isPropertyAccessExpression(node.expression)) {
+        const methodName = node.expression.name.text;
+        
+        if (methodName === 'substring') {
+          // Compile the string expression
+          compileExpression(node.expression.expression);
+          
+          // Compile start argument
+          if (node.arguments.length > 0) {
+            compileExpression(node.arguments[0]);
+          } else {
+            state.emit(OpCode.PUSH, 0);
+          }
+          
+          // Compile end argument if provided
+          if (node.arguments.length > 1) {
+            compileExpression(node.arguments[1]);
+          }
+          
+          state.emit(OpCode.STRING_SUBSTRING);
+        }
+        else if (methodName === 'indexOf') {
+          // Compile the string expression
+          compileExpression(node.expression.expression);
+          
+          // Compile search string
+          if (node.arguments.length > 0) {
+            compileExpression(node.arguments[0]);
+          } else {
+            state.emit(OpCode.PUSH, '');
+          }
+          
+          state.emit(OpCode.STRING_INDEXOF);
+        }
+        else if (methodName === 'split') {
+          // Compile the string expression
+          compileExpression(node.expression.expression);
+          
+          // Compile delimiter
+          if (node.arguments.length > 0) {
+            compileExpression(node.arguments[0]);
+          } else {
+            state.emit(OpCode.PUSH, '');
+          }
+          
+          state.emit(OpCode.STRING_SPLIT);
+        }
+      }
     }
     else if (ts.isParenthesizedExpression(node)) {
       // Simply compile the inner expression

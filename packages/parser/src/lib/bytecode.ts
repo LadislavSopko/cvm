@@ -20,6 +20,9 @@ export enum OpCode {
   
   // String operations
   STRING_LEN = 'STRING_LEN',
+  STRING_SUBSTRING = 'STRING_SUBSTRING',
+  STRING_INDEXOF = 'STRING_INDEXOF',
+  STRING_SPLIT = 'STRING_SPLIT',
   
   // Universal operations
   LENGTH = 'LENGTH',

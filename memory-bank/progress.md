@@ -22,13 +22,14 @@
 - ✅ Return from main() - programs can produce results
 - ✅ Integration tests to catch build/dependency issues
 - ✅ Undefined value type with full JavaScript semantics
+- ✅ Basic string methods (substring, indexOf, split)
 
 ## What's Left to Build
 
 ### CRITICAL GAPS (Discovered during testing)
 - ✅ **string.length** - FIXED with universal LENGTH opcode!
 - ✅ **undefined type** - FIXED with CVMUndefined and PUSH_UNDEFINED!
-- **String operations** - No string manipulation at all
+- ✅ **String operations** - FIXED with substring, indexOf, split!
 
 ### Language Extensions
 - [x] **Phase 2: Branching** ✅ COMPLETE!
@@ -65,11 +66,12 @@
 ## Current Status
 **Phase**: Phase 3 IN PROGRESS - VM implementation complete, need parser/compiler
 **Architecture**: Clean separation, all components integrated
-**Testing**: 353 tests passing (37 test files)
+**Testing**: 381 tests passing (38 test files)
 **Integration Testing**: Full E2E testing via MCP in test/integration/
-**Next Priority**: String methods, then remaining operators
+**Next Priority**: Unary operators, then compound assignments
 
 ### Recently Completed
+- ✅ STRING METHODS - substring, indexOf, split with full JavaScript semantics
 - ✅ Logical operators (&&, ||, !)
 - ✅ STRING LENGTH - Critical fix with universal LENGTH opcode
 - ✅ UNDEFINED TYPE - Full JavaScript semantics implementation

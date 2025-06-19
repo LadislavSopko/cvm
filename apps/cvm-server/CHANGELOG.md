@@ -1,3 +1,23 @@
+## 0.5.0 (2025-06-19)
+
+### 🚀 Features
+
+- implement essential string methods (substring, indexOf, split)
+- add STRING_SUBSTRING, STRING_INDEXOF, STRING_SPLIT opcodes
+- support method chaining for string operations
+- handle edge cases: negative indices, empty delimiters
+- implement undefined value type with full JavaScript semantics
+- add PUSH_UNDEFINED opcode for undefined literals
+
+### 🩹 Fixes
+
+- fix LOAD opcode to return undefined for uninitialized variables (JavaScript behavior)
+- improve stack handling for string method arguments
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.4.3 (2025-06-19)
 
 ### 🩹 Fixes
