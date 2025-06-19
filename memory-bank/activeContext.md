@@ -22,8 +22,10 @@ Phase 3 (Iteration) - IN PROGRESS
   - ✅ While loops with context management
   - ✅ Assignment expressions (i = i + 1)
   - ✅ Smart ADD/CONCAT detection based on operand types
+  - ✅ ALL comparison operators (==, !=, <, >, <=, >=, ===, !==)
+  - ✅ ALL arithmetic operators (ADD, SUB, MUL, DIV, MOD)
   - ✅ Integration tests validating all features E2E
-  - ✅ 168 tests passing across all packages
+  - ✅ 235+ tests passing across all packages
 - ✅ Critical Bug Fixes:
   - ✅ Fixed ADD/CONCAT detection - arithmetic now works correctly (10 + 20 = 30)
   - ✅ Implemented ARRAY_SET opcode - CC values can be stored in arrays
@@ -38,7 +40,14 @@ Phase 3 (Iteration) - IN PROGRESS
   - ✅ Array snapshot behavior for safe iteration
   - ✅ Two-value ITER_NEXT push (element, hasMore)
   - ✅ Comprehensive test suite (38 new tests)
-  - ✅ 212 tests now passing
+- ✅ Additional Operators Implemented:
+  - ✅ Modulo operator (%) - MOD opcode
+  - ✅ Less than or equal (<=) - LTE opcode
+  - ✅ Greater than or equal (>=) - GTE opcode
+  - ✅ Strict equality (===) - EQ_STRICT opcode
+  - ✅ Strict inequality (!==) - NEQ_STRICT opcode
+  - ✅ Full compiler support for all new operators
+  - ✅ 235+ tests now passing
 
 ## Language Extension Status
 1. **Phase 1**: Arrays + JSON parsing ✅

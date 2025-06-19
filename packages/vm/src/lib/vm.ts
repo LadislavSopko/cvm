@@ -314,6 +314,21 @@ export class VM {
           state.pc++;
           break;
         }
+          
+        case OpCode.MOD: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'MOD: Stack underflow';
+            break;
+          }
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          state.stack.push(leftNum % rightNum);
+          state.pc++;
+          break;
+        }
 
         // Comparison operations
         case OpCode.EQ: {
@@ -388,6 +403,66 @@ export class VM {
           const rightNum = cvmToNumber(right);
           // NaN comparisons always return false
           state.stack.push(leftNum > rightNum);
+          state.pc++;
+          break;
+        }
+        
+        case OpCode.LTE: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'LTE: Stack underflow';
+            break;
+          }
+          // Convert to numbers for comparison
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          state.stack.push(leftNum <= rightNum);
+          state.pc++;
+          break;
+        }
+        
+        case OpCode.GTE: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'GTE: Stack underflow';
+            break;
+          }
+          // Convert to numbers for comparison
+          const leftNum = cvmToNumber(left);
+          const rightNum = cvmToNumber(right);
+          state.stack.push(leftNum >= rightNum);
+          state.pc++;
+          break;
+        }
+        
+        case OpCode.EQ_STRICT: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'EQ_STRICT: Stack underflow';
+            break;
+          }
+          // Strict equality - no type coercion
+          state.stack.push(left === right);
+          state.pc++;
+          break;
+        }
+        
+        case OpCode.NEQ_STRICT: {
+          const right = state.stack.pop();
+          const left = state.stack.pop();
+          if (left === undefined || right === undefined) {
+            state.status = 'error';
+            state.error = 'NEQ_STRICT: Stack underflow';
+            break;
+          }
+          // Strict inequality - no type coercion
+          state.stack.push(left !== right);
           state.pc++;
           break;
         }

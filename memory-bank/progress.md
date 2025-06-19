@@ -15,6 +15,8 @@
 - ✅ Integration tests validating all features E2E
 - ✅ Iterator stack management with nested loop support
 - ✅ Array snapshot behavior for safe iteration
+- ✅ ALL comparison operators (==, !=, <, >, <=, >=, ===, !==)
+- ✅ ALL arithmetic operators (+, -, *, /, %)
 
 ## What's Left to Build
 
@@ -53,8 +55,9 @@
 ## Current Status
 **Phase**: Phase 3 IN PROGRESS - VM implementation complete, need parser/compiler
 **Architecture**: Clean separation, all components integrated
-**Testing**: 212 tests passing (38 new iterator tests)
-**Features**: Full control flow, all operators, iterator VM support ready
+**Testing**: 235+ tests passing (includes all operator tests)
+**Features**: Full control flow, ALL comparison/arithmetic operators, iterator VM support ready
+**Missing**: Logical operators (&&, ||, !) not yet implemented
 
 ## Key Technical Decisions
 1. **Context stack** for jump resolution (supports nesting)

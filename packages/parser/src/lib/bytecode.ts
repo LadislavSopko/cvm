@@ -26,12 +26,17 @@ export enum OpCode {
   SUB = 'SUB',
   MUL = 'MUL',
   DIV = 'DIV',
+  MOD = 'MOD',
   
   // Comparison
   EQ = 'EQ',
   NEQ = 'NEQ',
   LT = 'LT',
   GT = 'GT',
+  LTE = 'LTE',
+  GTE = 'GTE',
+  EQ_STRICT = 'EQ_STRICT',
+  NEQ_STRICT = 'NEQ_STRICT',
   
   // Control flow
   JUMP = 'JUMP',

@@ -5,10 +5,10 @@ I am Claude, an expert software engineer working on the CVM (Cognitive Virtual M
 ## Project Status
 - **Core Platform**: ✅ Complete and published (npm: cvm-server v0.2.7)
 - **Phase 1**: ✅ Arrays + JSON parsing implemented
-- **Phase 2**: ✅ Branching complete (if/else, while, comparisons, arithmetic)
+- **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic)
 - **Phase 3**: 🚧 Iteration - VM complete, need parser/compiler
 - **Bug Fixes**: ✅ Fixed ADD/CONCAT detection, implemented ARRAY_SET
-- **Tests**: 212 passing (38 new iterator tests)
+- **Tests**: 235+ passing (includes all new operator tests)
 - **Next**: Phase 3 parser and compiler implementation
 
 ## Quick Context Files

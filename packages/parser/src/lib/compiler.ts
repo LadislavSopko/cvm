@@ -272,6 +272,9 @@ export function compile(source: string): CompileResult {
         case ts.SyntaxKind.SlashToken:
           state.emit(OpCode.DIV);
           break;
+        case ts.SyntaxKind.PercentToken:
+          state.emit(OpCode.MOD);
+          break;
         case ts.SyntaxKind.EqualsEqualsToken:
           state.emit(OpCode.EQ);
           break;
@@ -283,6 +286,18 @@ export function compile(source: string): CompileResult {
           break;
         case ts.SyntaxKind.GreaterThanToken:
           state.emit(OpCode.GT);
+          break;
+        case ts.SyntaxKind.LessThanEqualsToken:
+          state.emit(OpCode.LTE);
+          break;
+        case ts.SyntaxKind.GreaterThanEqualsToken:
+          state.emit(OpCode.GTE);
+          break;
+        case ts.SyntaxKind.EqualsEqualsEqualsToken:
+          state.emit(OpCode.EQ_STRICT);
+          break;
+        case ts.SyntaxKind.ExclamationEqualsEqualsToken:
+          state.emit(OpCode.NEQ_STRICT);
           break;
         default:
           // Unsupported operator - could add error handling here

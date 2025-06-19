@@ -128,20 +128,20 @@ arr[0] = "new";
 ## Operators
 
 ### Arithmetic Operators
-**Status**: ✅ Implemented (except modulo)
+**Status**: ✅ All Implemented
 
 - `+` Addition (numeric)
 - `-` Subtraction  
 - `*` Multiplication
 - `/` Division
-- `%` Modulo - **❌ Not Implemented**
+- `%` Modulo
 
 ```javascript
 let sum = 10 + 20;      // 30
 let diff = 20 - 5;      // 15
 let product = 3 * 4;    // 12
 let quotient = 10 / 2;  // 5
-let remainder = 10 % 3; // Would be 1, but NOT SUPPORTED YET
+let remainder = 10 % 3; // 1
 ```
 
 **Type coercion**: Strings are converted to numbers when possible.
@@ -163,15 +163,21 @@ let message = "Count: " + 42;
 - `!=` Inequality (with type coercion)
 - `<` Less than
 - `>` Greater than
+- `<=` Less than or equal
+- `>=` Greater than or equal
+- `===` Strict equality (no type coercion)
+- `!==` Strict inequality (no type coercion)
 
 ```javascript
 5 == "5"        // true (type coercion)
+5 === "5"       // false (no type coercion)
 5 != "6"        // true
+5 !== "5"       // true (different types)
 10 < 20         // true
-"7" > 5         // true (string converted to number)
+10 <= 10        // true
+20 > 10         // true
+20 >= 20        // true
 ```
-
-**Note**: No `<=`, `>=`, `===`, or `!==` operators yet.
 
 ## Control Flow
 
@@ -221,8 +227,8 @@ CVM supports the following types:
 - Basic types: string, number, boolean, null
 - Variables and assignments
 - Arrays (literals, access, push, length, assignment)
-- Arithmetic operators (+, -, *, /)
-- Comparison operators (==, !=, <, >)
+- All arithmetic operators (+, -, *, /, %)
+- All comparison operators (==, !=, <, >, <=, >=, ===, !==)
 - String concatenation
 - if/else statements
 - while loops
@@ -239,16 +245,14 @@ CVM supports the following types:
 5. **Additional jumps** - JUMP_IF, JUMP_IF_TRUE opcodes available
 
 ### ❌ Not Implemented:
-1. **Modulo operator** - % for remainder operation
-2. **File operations** - FS_LIST_FILES opcode defined but no VM implementation
-3. **Objects** - No object literal or property access support
-4. **Function definitions** - Only main() is supported
-5. **Function parameters** - No parameter passing
-6. **Return statements** - No return from main()
-7. **for loops** - No traditional for(;;) loops
-8. **Comparison operators** - No <=, >=
-9. **Strict equality** - No ===, !==
-10. **Error handling** - No try/catch/throw
+1. **File operations** - FS_LIST_FILES opcode defined but no VM implementation
+2. **Objects** - No object literal or property access support
+3. **Function definitions** - Only main() is supported
+4. **Function parameters** - No parameter passing
+5. **Return statements** - No return from main()
+6. **for loops** - No traditional for(;;) loops
+7. **Error handling** - No try/catch/throw
+8. **Logical operators** - No &&, ||, ! (AND, OR, NOT opcodes defined but not implemented)
 
 ## Error Handling
 
@@ -300,8 +304,10 @@ main();
 ## Test Coverage
 
 The implementation has comprehensive test coverage:
-- **212 total tests passing** across all packages
+- **235+ total tests passing** across all packages
 - **38 iterator tests** validating ITER_START, ITER_NEXT, ITER_END
+- **23 new operator tests** for %, <=, >=, ===, !==
+- **12 compiler tests** for new operator compilation
 - **Arithmetic E2E tests** confirming numeric operations work correctly
 - **Control flow tests** for if/else and while loops
 - **Integration tests** with MongoDB storage
