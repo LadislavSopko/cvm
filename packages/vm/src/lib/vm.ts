@@ -436,6 +436,94 @@ export class VM {
           }
           break;
         }
+
+        case OpCode.ITER_START: {
+          if (state.stack.length === 0) {
+            state.status = 'error';
+            state.error = 'ITER_START: Stack underflow';
+            break;
+          }
+          
+          const array = state.stack.pop();
+          
+          // Check for null or undefined
+          if (array === null || array === undefined) {
+            state.status = 'error';
+            state.error = 'TypeError: Cannot iterate over null or undefined';
+            break;
+          }
+          
+          // Check if it's an array
+          if (!isCVMArray(array)) {
+            state.status = 'error';
+            state.error = 'TypeError: Cannot iterate over non-array value';
+            break;
+          }
+          
+          // Check iterator depth limit
+          if (state.iterators.length >= 10) {
+            state.status = 'error';
+            state.error = 'RuntimeError: Maximum iterator depth exceeded';
+            break;
+          }
+          
+          // Create a snapshot of the array
+          const snapshot = createCVMArray([...array.elements]);
+          
+          // Push new iterator context
+          state.iterators.push({
+            array: snapshot,
+            index: 0
+          });
+          
+          state.pc++;
+          break;
+        }
+
+        case OpCode.ITER_NEXT: {
+          // Check if there's an active iterator
+          if (state.iterators.length === 0) {
+            state.status = 'error';
+            state.error = 'ITER_NEXT: No active iterator';
+            break;
+          }
+          
+          // Get the current (top) iterator
+          const iterator = state.iterators[state.iterators.length - 1];
+          
+          // Check if we have more elements
+          if (iterator.index < iterator.array.elements.length) {
+            // Push current element
+            state.stack.push(iterator.array.elements[iterator.index]);
+            // Push hasMore flag (true)
+            state.stack.push(true);
+            // Advance iterator
+            iterator.index++;
+          } else {
+            // No more elements
+            state.stack.push(null);
+            // Push hasMore flag (false)
+            state.stack.push(false);
+          }
+          
+          state.pc++;
+          break;
+        }
+
+        case OpCode.ITER_END: {
+          // Check if there's an active iterator
+          if (state.iterators.length === 0) {
+            state.status = 'error';
+            state.error = 'ITER_END: No active iterator';
+            break;
+          }
+          
+          // Remove the current (top) iterator
+          state.iterators.pop();
+          
+          state.pc++;
+          break;
+        }
           
         default:
           state.status = 'error';

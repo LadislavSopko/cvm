@@ -46,6 +46,10 @@ export enum OpCode {
   OR = 'OR',
   NOT = 'NOT',
   
+  // Loop control
+  BREAK = 'BREAK',
+  CONTINUE = 'CONTINUE',
+  
   // Iteration
   ITER_START = 'ITER_START',
   ITER_NEXT = 'ITER_NEXT',

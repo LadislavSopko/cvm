@@ -1,8 +1,9 @@
 # Active Context - CVM Project
 
 ## Current Focus
-Phase 2 (Branching) - COMPLETE! All control flow features implemented and tested.
-Critical Bug Fixes - COMPLETE! Fixed arithmetic and array assignment issues.
+Phase 3 (Iteration) - IN PROGRESS
+- VM implementation COMPLETE (ITER_START, ITER_NEXT, ITER_END)
+- Next: Parser and compiler support for foreach loops
 
 ## Recent Achievements
 - ✅ Phase 1 Arrays + JSON parsing complete
@@ -29,6 +30,15 @@ Critical Bug Fixes - COMPLETE! Fixed arithmetic and array assignment issues.
   - ✅ Improved hasStringOperand() to recursively check for string literals
   - ✅ Added proper stack ordering for array assignments
   - ✅ 174 tests now passing (added E2E arithmetic tests)
+- ✅ Phase 3 VM Implementation:
+  - ✅ ITER_START, ITER_NEXT, ITER_END opcodes implemented
+  - ✅ BREAK, CONTINUE opcodes defined
+  - ✅ Iterator stack management with IteratorContext
+  - ✅ Support for nested iterators (max depth: 10)
+  - ✅ Array snapshot behavior for safe iteration
+  - ✅ Two-value ITER_NEXT push (element, hasMore)
+  - ✅ Comprehensive test suite (38 new tests)
+  - ✅ 212 tests now passing
 
 ## Language Extension Status
 1. **Phase 1**: Arrays + JSON parsing ✅
@@ -40,15 +50,20 @@ Critical Bug Fixes - COMPLETE! Fixed arithmetic and array assignment issues.
    - ✅ If/else statements
    - ✅ While loops
    - ✅ Full E2E validation
-3. **Phase 3**: Iteration (NEXT)
+3. **Phase 3**: Iteration (IN PROGRESS)
+   - ✅ VM opcodes implemented
+   - ✅ Iterator state management ready
+   - Need: Parser foreach syntax
+   - Need: Compiler implementation
 4. **Phase 4**: File operations (PLANNED)
 
-## Next: Phase 3 (Iteration)
-1. Implement ITER_START, ITER_NEXT, ITER_END opcodes in VM
-2. Add foreach syntax to parser
-3. Create iterator state management
-4. Handle break/continue in loops
-5. Test with arrays and other iterables
+## Next: Phase 3 Completion
+1. ✅ Implement ITER_START, ITER_NEXT, ITER_END opcodes in VM
+2. ✅ Create iterator state management
+3. Add foreach syntax to parser
+4. Implement compiler support for foreach loops
+5. Handle break/continue compilation
+6. Integration tests with real foreach syntax
 
 ## Key Design Decisions
 - **Context stack**: Enables nested control structures
@@ -63,6 +78,9 @@ Critical Bug Fixes - COMPLETE! Fixed arithmetic and array assignment issues.
 - **JavaScript Semantics**: EQ/NEQ use type coercion, LT/GT convert to numbers
 - **Context Stack**: Push/pop contexts for nested control structures
 - **Type Detection**: isLikelyNumeric() helps choose ADD vs CONCAT
+- **Iterator Stack**: Separate stack for managing nested iterators
+- **Two-Value Push**: ITER_NEXT pushes element then hasMore flag
+- **Array Snapshots**: Iterator creates copy to prevent corruption
 
 ## Validation Results
 - **test-comparisons.ts**: All operators work correctly

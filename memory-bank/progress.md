@@ -1,9 +1,10 @@
 # Progress - CVM Project Status
 
 ## What Works
-- ✅ Core platform fully functional with 174 tests passing
+- ✅ Core platform fully functional with 212 tests passing
 - ✅ Phase 1 language extensions (Arrays + JSON parsing)
 - ✅ Phase 2 language extensions (Branching - if/else, while, comparisons, arithmetic)
+- ✅ Phase 3 VM implementation (ITER_START, ITER_NEXT, ITER_END opcodes)
 - ✅ ARRAY_SET opcode - arrays fully functional with assignments
 - ✅ Fixed arithmetic operations - proper numeric addition
 - ✅ Storage abstraction with MongoDB and File adapters
@@ -12,6 +13,8 @@
 - ✅ Full control flow with proper jump backpatching
 - ✅ Smart ADD/CONCAT detection with recursive string literal checking
 - ✅ Integration tests validating all features E2E
+- ✅ Iterator stack management with nested loop support
+- ✅ Array snapshot behavior for safe iteration
 
 ## What's Left to Build
 
@@ -28,10 +31,15 @@
   - ✅ While loops with context management
   - ✅ Assignment expressions
   - ✅ E2E validation complete
-- [ ] **Phase 3: Iteration** (Next Focus)
-  - Opcodes defined (ITER_START, ITER_NEXT, ITER_END)
-  - Need: foreach syntax and iterator state management
-  - Need: break/continue support
+- [ ] **Phase 3: Iteration** (IN PROGRESS)
+  - ✅ Opcodes defined (ITER_START, ITER_NEXT, ITER_END, BREAK, CONTINUE)
+  - ✅ VM implementation complete with comprehensive tests
+  - ✅ Iterator state management with stack-based approach
+  - ✅ Support for nested iterators (max depth: 10)
+  - ✅ Array snapshot behavior (modifications don't affect iteration)
+  - Need: foreach syntax in parser
+  - Need: Compiler support for foreach loops
+  - Need: Break/continue compilation
 - [ ] **Phase 4: File Operations**
   - Opcode defined (FS_LIST_FILES)
   - Need: Implementation with path sandboxing
@@ -43,10 +51,10 @@
 - Performance optimizations
 
 ## Current Status
-**Phase**: Phase 2 COMPLETE! Ready for Phase 3 (Iteration)
+**Phase**: Phase 3 IN PROGRESS - VM implementation complete, need parser/compiler
 **Architecture**: Clean separation, all components integrated
-**Testing**: 174 tests passing + integration test suite
-**Features**: Full control flow (if/else, while), all operators, smart type handling
+**Testing**: 212 tests passing (38 new iterator tests)
+**Features**: Full control flow, all operators, iterator VM support ready
 
 ## Key Technical Decisions
 1. **Context stack** for jump resolution (supports nesting)
@@ -54,15 +62,18 @@
 3. **Single-pass compilation** with backpatching
 4. **TypeScript ES modules** with .js imports
 5. **STRICT TDD** - no code without tests
+6. **Iterator stack** for nested foreach support
+7. **Two-value ITER_NEXT** push (element, hasMore) for efficiency
+8. **Array snapshots** to prevent iteration corruption
 
 ## Phase 3 Next Steps
-1. Design iterator state management in VM
-2. Implement ITER_START opcode (initialize iterator)
-3. Implement ITER_NEXT opcode (advance iterator)
-4. Implement ITER_END opcode (cleanup iterator)
+1. ✅ Design iterator state management in VM
+2. ✅ Implement ITER_START opcode (initialize iterator)
+3. ✅ Implement ITER_NEXT opcode (advance iterator)
+4. ✅ Implement ITER_END opcode (cleanup iterator)
 5. Add foreach syntax to parser
-6. Update CompilerState for break/continue
-7. Create comprehensive tests
-8. Integration test with arrays
+6. Extend CompilerState for loop contexts (break/continue)
+7. Implement compiler foreach generation
+8. Integration test with real foreach syntax
 
 See memory-bank/docs/LANGUAGE_EXTENSIONS_PLAN.md for Phase 3 details.
