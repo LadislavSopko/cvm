@@ -24,6 +24,7 @@
 - ✅ Undefined value type with full JavaScript semantics
 - ✅ Basic string methods (substring, indexOf, split)
 - ✅ Unary operators (++, --, unary -, unary +)
+- ✅ Compound assignments (+=, -=, *=, /=, %=)
 
 ## What's Left to Build
 
@@ -68,11 +69,12 @@
 ## Current Status
 **Phase**: Phase 3 IN PROGRESS - VM implementation complete, need parser/compiler
 **Architecture**: Clean separation, all components integrated
-**Testing**: 400+ tests passing (40 test files + unary operator tests)
+**Testing**: 410+ tests passing (41 test files + compound assignment tests)
 **Integration Testing**: Full E2E testing via MCP in test/integration/
-**Next Priority**: Compound assignments (+=, -=, *=, /=, %=)
+**Next Priority**: Phase 3 parser/compiler for foreach loops
 
 ### Recently Completed
+- ✅ COMPOUND ASSIGNMENTS - +=, -=, *=, /=, %= (compiler-only implementation)
 - ✅ UNARY OPERATORS - ++, --, unary -, unary + (with pre/post variants)
 - ✅ TERNARY OPERATOR - condition ? trueValue : falseValue
 - ✅ STRING METHODS - substring, indexOf, split with full JavaScript semantics
