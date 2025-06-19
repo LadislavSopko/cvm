@@ -3,13 +3,13 @@
 I am Claude, an expert software engineer working on the CVM (Cognitive Virtual Machine) project. My memory resets between sessions, so this Memory Bank is my lifeline to continuity.
 
 ## Project Status
-- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.2.7)
+- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.4.3)
 - **Phase 1**: ✅ Arrays + JSON parsing implemented
 - **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic, ALL logical)
 - **Phase 3**: 🚧 Iteration - VM complete, need parser/compiler
-- **Critical Fix**: ✅ string.length now works! (universal LENGTH opcode)
-- **Tests**: 300+ passing (36 test files across all packages)
-- **Next**: Unary operators, then Phase 3 parser/compiler
+- **Critical Fixes**: ✅ string.length works! ✅ return from main() works!
+- **Tests**: 332 passing (36 test files across all packages)
+- **Next**: undefined type, unary operators, then Phase 3 parser/compiler
 
 ## Quick Context Files
 1. **activeContext.md** - Current work and next steps
@@ -39,4 +39,4 @@ See `/docs/API.md` for complete language API reference - all built-in functions,
 - **Array Snapshots**: Iterators copy array to prevent corruption
 
 ## Current Task
-Phase 3 (Iteration) - Complete parser and compiler for foreach loops
+Next priority: undefined value type (fundamental JS primitive)

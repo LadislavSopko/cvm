@@ -1,13 +1,6 @@
 # Active Context - CVM Project
 
 ## Current Focus
-**DONE**: ✅ Return from main() - IMPLEMENTED!
-- Added returnValue to VMState
-- Fixed RETURN opcode implementation
-- Added compiler support for return statements
-- MCP returns value as "Execution completed with result: X"
-- Created integration tests to prevent future issues
-
 **Next priorities**:
 1. undefined value type
 2. Basic string methods
@@ -16,7 +9,13 @@
 5. Ternary operator (? :)
 6. Phase 3 parser/compiler for foreach loops
 
-## Latest Achievement
+## Latest Achievements
+✅ **RETURN FROM MAIN() IMPLEMENTED!**
+- Programs can now produce results via return statements
+- MCP protocol returns "Execution completed with result: X"
+- Full e2e tests confirm working implementation
+- Published as v0.4.3 with all fixes
+
 ✅ **STRING.LENGTH FIXED!** - Universal LENGTH opcode
 - Works for both strings and arrays
 - Password validation now possible
@@ -31,6 +30,7 @@
 - ✅ String/array length with .length property
 - ✅ Smart ADD/CONCAT detection
 - ✅ Phase 3 VM ready (iterators implemented)
+- ✅ Return from main() with value propagation
 
 ## Critical Missing Features
 1. ✅ ~~string.length~~ - FIXED!

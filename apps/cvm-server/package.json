@@ -95,7 +95,7 @@
         ],
         "options": {
           "commands": [
-            "cd apps/cvm-server/dist && npm publish"
+            "cd apps/cvm-server/dist && npm publish --otp={args.otp}"
           ]
         }
       },
