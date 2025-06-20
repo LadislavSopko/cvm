@@ -1,68 +1,45 @@
 # Active Context - CVM Project
 
 ## Current Status
-🎉 **ITERATOR BUG FIXED!** For-of loops now work correctly with fs.listFiles() and CC calls!
+🔧 **COMPILER REFACTORING** - Transforming monolithic compiler to visitor pattern
 
-## What Just Completed
-✅ **Iterator State Persistence Fix**:
-- Fixed critical bug where for-of loop iterators were lost during CC calls
-- Added `iterators` field to Execution interface for state persistence
-- Updated VMManager to save/restore iterator state across CC interruptions
-- All 279 VM tests passing
-- analyze-directory.ts now works correctly!
+## Current Task Details
+- **Goal**: Refactor 700+ line compiler.ts into modular visitor pattern
+- **Approach**: Zero functional changes - pure structural refactoring
+- **Plan**: `/home/laco/cvm/packages/vm/COMPILER_REFACTORING_PLAN.md`
+- **Status**: Ready to begin Phase 1 (Setup Infrastructure)
 
-### Bug Details
-- **Issue**: For-of loops failed after first iteration when combined with CC calls
-- **Cause**: Iterator state wasn't persisted in Execution storage
-- **Fix**: Added iterator persistence to maintain loop state across async operations
+### Why This Refactoring?
+- Current compiler has giant if/else chains that are hard to maintain
+- Visitor pattern will make it modular and testable
+- Prerequisites for future features (block scoping, functions)
+- All tests passing - safe to refactor
 
-## Previous Completion
-✅ **FS.LISTFILES()** - Full implementation:
-- `fs.listFiles(path, options)` - List files and directories
-- Sandboxing via `CVM_SANDBOX_PATHS` environment variable
-- Options support: `recursive` and `filter` (glob patterns)
-- Returns array of absolute file paths (strings)
-- 20 new tests added (8 VM + 12 compiler)
-- Integration test validates file listing functionality
-- API documentation updated with security notes
-- Proper encapsulation - VM uses waiting_fs state
+### Implementation Phases
+1. **Phase 0**: Setup infrastructure and types
+2. **Phase 1**: Extract expression visitors (literals first, then complex)
+3. **Phase 2**: Extract statement visitors 
+4. **Phase 3**: Remove old code, finalize dispatch
+5. **Phase 4**: Type-safe dispatch and cleanup
 
-## Next Priorities
-1. **Additional File Operations**:
-   - fs.readFile(path) - Read file contents as string
-   - fs.writeFile(path, content) - Write string to file
-   - fs.exists(path) - Check if file/directory exists
-   - fs.mkdir(path) - Create directory
-   - fs.rm(path) - Remove file/directory
+## Recent Decisions
+- **Variable Scoping**: Keep current var-like behavior (function scoping)
+- **Block Scoping**: Deferred until after compiler refactoring
+- **Focus**: Structure and maintainability over new features
 
-2. **Phase 5: Functions**:
-   - Function definitions beyond main()
-   - Function calls with parameters
-   - Local variable scopes
-   - Return values from functions
-
-3. **Objects & Properties**:
-   - Object literals: `{ name: "John", age: 30 }`
-   - Property access: `obj.name`, `obj["age"]`
-   - Needed for better file info access
-
-## Current Language Capabilities
-- **Control Flow**: if/else, while, for-of, break/continue, ternary, return
-- **Operators**: All arithmetic (+,-,*,/,%), comparison (==,!=,<,>,<=,>=,===,!==), logical (&&,||,!), unary (++,--,-,+), compound (+=,-=,*=,/=,%=)
+## Language Status
+CVM supports these TypeScript/JavaScript features:
+- **Statements**: if/else, while, for-of, blocks, variables, return, break/continue
+- **Expressions**: literals, arrays, binary ops, unary ops, calls, property access
 - **Types**: string, number, boolean, null, undefined, array
-- **String Methods**: length, substring, indexOf, split, slice, charAt, toUpperCase, toLowerCase
-- **Array Operations**: literals, access, assignment, push, length
-- **Functions**: CC(), console.log(), JSON.parse(), typeof
+- **Built-ins**: CC(), console.log(), fs.listFiles(), JSON.parse(), typeof
 
-## Technical Notes
-- All tests passing (400+)
-- Integration tests confirm E2E functionality
-- API documentation updated and current
-- Memory Bank compressed to focus on active work
+## Next Steps After Refactoring
+1. Consider implementing block scoping (let/const semantics)
+2. Additional file operations (readFile, writeFile, etc.)
+3. Phase 5: Functions (biggest remaining feature)
 
-## Architecture Stability
-Core architecture is locked and working perfectly:
-- Parser → Compiler → VM pipeline solid
-- Opcode system extensible
-- Test coverage comprehensive
-- Build system reliable
+## Technical Context
+- All 400+ tests passing
+- Version 0.7.0 released with iterator fix
+- No breaking changes planned during refactoring

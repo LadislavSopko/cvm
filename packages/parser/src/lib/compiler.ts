@@ -2,6 +2,7 @@ import * as ts from 'typescript';
 import { OpCode, Instruction } from './bytecode.js';
 import { parseProgram } from './parser.js';
 import { CompilerState, JumpContext } from './compiler-state.js';
+import { statementVisitors, expressionVisitors, CompilerContext } from './compiler/index.js';
 
 export interface CompileResult {
   success: boolean;
@@ -23,8 +24,25 @@ export function compile(source: string): CompileResult {
   const state = new CompilerState();
   const sourceFile = ts.createSourceFile('program.ts', source, ts.ScriptTarget.Latest, true);
   
+  // Create compiler context for visitor pattern
+  const context: CompilerContext = {
+    compileStatement,
+    compileExpression,
+    reportError: (node: ts.Node, message: string): never => {
+      throw new Error(message);
+    }
+  };
+  
   // Simple compiler - just handle main() for now
   function compileStatement(node: ts.Node): void {
+    // Try new visitor pattern first
+    const visitor = statementVisitors[node.kind];
+    if (visitor) {
+      visitor(node as any, state, context);
+      return;
+    }
+    
+    // Fall back to old pattern
     if (ts.isIfStatement(node)) {
       // Compile condition
       compileExpression(node.expression);
@@ -347,6 +365,14 @@ export function compile(source: string): CompileResult {
   }
 
   function compileExpression(node: ts.Node): void {
+    // Try new visitor pattern first
+    const visitor = expressionVisitors[node.kind];
+    if (visitor) {
+      visitor(node as any, state, context);
+      return;
+    }
+    
+    // Fall back to old pattern
     if (ts.isStringLiteral(node)) {
       state.emit(OpCode.PUSH, node.text);
     }

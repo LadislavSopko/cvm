@@ -3,17 +3,17 @@
 I am Claude, an expert software engineer working on the CVM (Cognitive Virtual Machine) project. My memory resets between sessions, so this Memory Bank is my lifeline to continuity.
 
 ## Project Status
-- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.6.0)
+- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.7.0)
 - **Phase 1**: ✅ Arrays + JSON parsing implemented
 - **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic, ALL logical)
 - **Phase 3**: ✅ **COMPLETE!** For-of loops with break/continue support
+- **Phase 4**: ✅ File operations - fs.listFiles() with sandboxing
 - **LoadFile Tool**: ✅ Token-saving file loading via `mcp__cvm__loadFile`
 - **String Methods**: ✅ slice(), charAt(), toUpperCase(), toLowerCase() implemented
-- **File Operations**: ✅ fs.listFiles() with sandboxing, recursion, and glob filtering
-- **Iterator Fix**: ✅ **FIXED!** For-of loops now work correctly with CC calls
+- **Iterator Fix**: ✅ **FIXED!** For-of loops now work correctly with CC calls (v0.7.0)
 - **Critical Features**: ✅ All major language features implemented
-- **Tests**: 279 VM tests + 200+ other tests all passing
-- **Next**: Version 0.7.0 release, then additional file operations or Phase 5 (Functions)
+- **Tests**: 400+ tests all passing
+- **Next**: Compiler refactoring to visitor pattern, then block scoping or Phase 5 (Functions)
 
 ## What Works (Major Features)
 - ✅ All operators (arithmetic, comparison, logical, unary, compound assignment)
@@ -45,16 +45,19 @@ See `/memory-bank/docs/` for technical details (historical reference).
 - **Integration Testing**: Always rebuild with `npx nx reset && npx nx run-many --target=build --all --skip-nx-cache` before testing
 
 ## Current Task
-Next priority: Phase 4 - File operations (FS_LIST_FILES implementation)
-- Sandboxed file listing with configurable root paths
-- Environment-based security configuration
-- See activeContext.md for detailed implementation plan
+**Compiler Refactoring** - Transform monolithic compiler to visitor pattern
+- Zero functional changes - pure structural refactoring
+- Extract 700+ line file into modular visitor pattern
+- See `/home/laco/cvm/packages/vm/COMPILER_REFACTORING_PLAN.md` for detailed plan
+- All tests passing - safe to refactor
 
-## Recent Achievement
-✅ **String Methods** - Major functionality expansion:
-- slice(start, end) - Extract substring with negative index support
-- charAt(index) - Get character at position
-- toUpperCase() - Convert to uppercase
-- toLowerCase() - Convert to lowercase
-- 30 new tests added (VM + compiler + integration)
-- Full integration test coverage
+## Variable Scoping Decision
+- CVM currently has function-level scoping (like JavaScript `var`)
+- All variables leak out of blocks - this is CORRECT for var semantics
+- Decided to keep current behavior for now
+- Future: May implement block scoping (ES6 let/const) after compiler refactoring
+
+## Recent Achievements
+✅ **Version 0.7.0 Released** - Iterator state persistence fix
+✅ **fs.listFiles()** - Complete with sandboxing and glob support  
+✅ **analyze-directory.ts** - Now works correctly with iterator fix
