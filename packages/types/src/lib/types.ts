@@ -19,6 +19,7 @@ export interface Execution {
   pc: number;
   stack: any[];
   variables: Record<string, any>;
+  iterators?: any[]; // Store iterator state for for-of loops
   error?: string;
   ccPrompt?: string; // Store CC prompt for stateless operation
   returnValue?: any; // Store return value from main()

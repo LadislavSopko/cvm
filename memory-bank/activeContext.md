@@ -1,24 +1,31 @@
 # Active Context - CVM Project
 
 ## Current Status
-🎉 **FS.LISTFILES() COMPLETE!** File listing with sandboxing, recursion, and filtering!
+🎉 **ITERATOR BUG FIXED!** For-of loops now work correctly with fs.listFiles() and CC calls!
 
 ## What Just Completed
+✅ **Iterator State Persistence Fix**:
+- Fixed critical bug where for-of loop iterators were lost during CC calls
+- Added `iterators` field to Execution interface for state persistence
+- Updated VMManager to save/restore iterator state across CC interruptions
+- All 279 VM tests passing
+- analyze-directory.ts now works correctly!
+
+### Bug Details
+- **Issue**: For-of loops failed after first iteration when combined with CC calls
+- **Cause**: Iterator state wasn't persisted in Execution storage
+- **Fix**: Added iterator persistence to maintain loop state across async operations
+
+## Previous Completion
 ✅ **FS.LISTFILES()** - Full implementation:
 - `fs.listFiles(path, options)` - List files and directories
 - Sandboxing via `CVM_SANDBOX_PATHS` environment variable
 - Options support: `recursive` and `filter` (glob patterns)
-- Returns array of file info objects (name, type, size, modified)
+- Returns array of absolute file paths (strings)
 - 20 new tests added (8 VM + 12 compiler)
 - Integration test validates file listing functionality
 - API documentation updated with security notes
 - Proper encapsulation - VM uses waiting_fs state
-
-### Architecture Notes
-- Followed proper encapsulation pattern like CC
-- VM enters `waiting_fs` state when FS_LIST_FILES executed
-- VMManager handles actual file operations via FileSystemService
-- No direct dependencies in VM - clean separation of concerns
 
 ## Next Priorities
 1. **Additional File Operations**:

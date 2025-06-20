@@ -4,7 +4,7 @@ function main() {
   console.log("=== Directory Analyzer ===");
   
   // List all TypeScript files in the examples directory
-  let files = fs.listFiles("/home/laco/cvm/examples", {
+  let files = fs.listFiles("/home/laco/cvm/test/programs", {
     filter: "*.ts"
   });
   

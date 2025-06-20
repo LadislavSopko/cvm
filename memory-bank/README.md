@@ -3,16 +3,17 @@
 I am Claude, an expert software engineer working on the CVM (Cognitive Virtual Machine) project. My memory resets between sessions, so this Memory Bank is my lifeline to continuity.
 
 ## Project Status
-- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.5.0)
+- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.6.0)
 - **Phase 1**: ✅ Arrays + JSON parsing implemented
 - **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic, ALL logical)
 - **Phase 3**: ✅ **COMPLETE!** For-of loops with break/continue support
 - **LoadFile Tool**: ✅ Token-saving file loading via `mcp__cvm__loadFile`
 - **String Methods**: ✅ slice(), charAt(), toUpperCase(), toLowerCase() implemented
-- **File Operations**: ✅ **NEW!** fs.listFiles() with sandboxing, recursion, and glob filtering
+- **File Operations**: ✅ fs.listFiles() with sandboxing, recursion, and glob filtering
+- **Iterator Fix**: ✅ **FIXED!** For-of loops now work correctly with CC calls
 - **Critical Features**: ✅ All major language features implemented
-- **Tests**: 503+ passing across all packages (20 new tests for fs.listFiles)
-- **Next**: Additional file operations or Phase 5 (Functions)
+- **Tests**: 279 VM tests + 200+ other tests all passing
+- **Next**: Version 0.7.0 release, then additional file operations or Phase 5 (Functions)
 
 ## What Works (Major Features)
 - ✅ All operators (arithmetic, comparison, logical, unary, compound assignment)

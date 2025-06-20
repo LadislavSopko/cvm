@@ -14,7 +14,8 @@
       "env": {
         "CVM_STORAGE_TYPE": "file",
         "CVM_DATA_DIR": ".cvm-examples",
-        "CVM_LOG_LEVEL": "info"
+        "CVM_LOG_LEVEL": "info",
+        "CVM_SANDBOX_PATHS": "/home/laco/cvm/test"
       }
     }
   }

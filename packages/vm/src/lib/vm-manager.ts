@@ -143,6 +143,7 @@ export class VMManager {
       execution.pc = state.pc;
       execution.stack = state.stack;
       execution.variables = Object.fromEntries(state.variables);
+      execution.iterators = state.iterators;
 
       if (state.status === 'complete') {
         execution.state = 'COMPLETED';
@@ -186,6 +187,7 @@ export class VMManager {
           execution.pc = resumedState.pc;
           execution.stack = resumedState.stack;
           execution.variables = Object.fromEntries(resumedState.variables);
+          execution.iterators = resumedState.iterators;
           
           // Check final status after resume
           if (resumedState.status === 'complete') {
@@ -291,7 +293,7 @@ export class VMManager {
       status: 'waiting_cc' as const,
       output: [], // Start with empty output for resumed execution
       ccPrompt: undefined,
-      iterators: [] // TODO: persist iterators in future
+      iterators: execution.iterators || []
     };
 
     // Resume execution - this pushes result to stack and continues
@@ -306,6 +308,7 @@ export class VMManager {
     execution.pc = newState.pc;
     execution.stack = newState.stack;
     execution.variables = Object.fromEntries(newState.variables);
+    execution.iterators = newState.iterators;
     
     if (newState.status === 'complete') {
       execution.state = 'COMPLETED';
