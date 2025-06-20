@@ -2,6 +2,7 @@ import { VM, VMState } from './vm.js';
 import { compile } from '@cvm/parser';
 import { StorageAdapter, StorageFactory } from '@cvm/storage';
 import { Program, Execution, CVMValue } from '@cvm/types';
+import { FileSystemService, SandboxedFileSystem } from './file-system.js';
 
 export interface ExecutionResult {
   type: 'completed' | 'waiting' | 'error';
@@ -25,14 +26,16 @@ export interface ExecutionStatus {
 export class VMManager {
   private vms: Map<string, VM> = new Map();
   private storage: StorageAdapter;
+  private fileSystem: FileSystemService;
   
-  constructor(storageAdapter?: StorageAdapter) {
+  constructor(storageAdapter?: StorageAdapter, fileSystem?: FileSystemService) {
     if (storageAdapter) {
       this.storage = storageAdapter;
     } else {
       // Create default storage from environment for backward compatibility
       this.storage = StorageFactory.create();
     }
+    this.fileSystem = fileSystem || new SandboxedFileSystem();
   }
   
   /**
@@ -166,6 +169,66 @@ export class VMManager {
           type: 'waiting',
           message: state.ccPrompt || 'Waiting for input'
         };
+      } else if (state.status === 'waiting_fs') {
+        // Handle file system operation synchronously
+        if (state.fsOperation) {
+          const fsResult = this.fileSystem.listFiles(state.fsOperation.path, state.fsOperation.options);
+          
+          // Resume VM with the result
+          const resumedState = vm.resumeWithFsResult(state, fsResult, program.bytecode);
+          
+          // Extract and save output
+          if (resumedState.output.length > 0) {
+            await this.storage.appendOutput(executionId, resumedState.output);
+          }
+          
+          // Update execution state
+          execution.pc = resumedState.pc;
+          execution.stack = resumedState.stack;
+          execution.variables = Object.fromEntries(resumedState.variables);
+          
+          // Check final status after resume
+          if (resumedState.status === 'complete') {
+            execution.state = 'COMPLETED';
+            if (resumedState.returnValue !== undefined) {
+              execution.returnValue = resumedState.returnValue;
+            }
+            await this.storage.saveExecution(execution);
+            this.vms.delete(executionId);
+            
+            return {
+              type: 'completed',
+              message: 'Execution completed',
+              result: resumedState.returnValue
+            };
+          } else if (resumedState.status === 'error') {
+            execution.state = 'ERROR';
+            execution.error = resumedState.error;
+            await this.storage.saveExecution(execution);
+            this.vms.delete(executionId);
+            
+            return {
+              type: 'error',
+              error: resumedState.error
+            };
+          } else if (resumedState.status === 'waiting_cc') {
+            execution.state = 'AWAITING_COGNITIVE_RESULT';
+            execution.ccPrompt = resumedState.ccPrompt;
+            await this.storage.saveExecution(execution);
+            
+            return {
+              type: 'waiting',
+              message: resumedState.ccPrompt || 'Waiting for input'
+            };
+          }
+          // If still running or waiting_fs again, we need to handle it
+          // For now, save state and return to process next iteration
+          execution.state = 'RUNNING';
+          await this.storage.saveExecution(execution);
+          
+          // Recursively call getNext to continue processing
+          return this.getNext(executionId);
+        }
       } else if (state.status === 'error') {
         execution.state = 'ERROR';
         execution.error = state.error;

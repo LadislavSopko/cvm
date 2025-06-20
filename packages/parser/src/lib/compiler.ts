@@ -393,8 +393,27 @@ export function compile(source: string): CompileResult {
       }
     }
     else if (ts.isCallExpression(node)) {
-      // Handle JSON.parse()
+      // Handle fs.listFiles()
       if (ts.isPropertyAccessExpression(node.expression) &&
+          ts.isIdentifier(node.expression.expression) &&
+          node.expression.expression.text === 'fs' &&
+          node.expression.name.text === 'listFiles') {
+        // Compile path argument
+        if (node.arguments.length > 0) {
+          compileExpression(node.arguments[0]);
+        } else {
+          state.emit(OpCode.PUSH, '.');  // Default to current directory
+        }
+        
+        // Compile options argument if provided
+        if (node.arguments.length > 1) {
+          compileExpression(node.arguments[1]);
+        }
+        
+        state.emit(OpCode.FS_LIST_FILES);
+      }
+      // Handle JSON.parse()
+      else if (ts.isPropertyAccessExpression(node.expression) &&
           ts.isIdentifier(node.expression.expression) &&
           node.expression.expression.text === 'JSON' &&
           node.expression.name.text === 'parse') {

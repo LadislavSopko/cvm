@@ -7,11 +7,12 @@ I am Claude, an expert software engineer working on the CVM (Cognitive Virtual M
 - **Phase 1**: ✅ Arrays + JSON parsing implemented
 - **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic, ALL logical)
 - **Phase 3**: ✅ **COMPLETE!** For-of loops with break/continue support
-- **LoadFile Tool**: ✅ **NEW!** Token-saving file loading via `mcp__cvm__loadFile`
-- **String Methods**: ✅ **NEW!** slice(), charAt(), toUpperCase(), toLowerCase() implemented
+- **LoadFile Tool**: ✅ Token-saving file loading via `mcp__cvm__loadFile`
+- **String Methods**: ✅ slice(), charAt(), toUpperCase(), toLowerCase() implemented
+- **File Operations**: ✅ **NEW!** fs.listFiles() with sandboxing, recursion, and glob filtering
 - **Critical Features**: ✅ All major language features implemented
-- **Tests**: 483+ passing across all packages (30 new tests for string methods)
-- **Next**: Phase 4 (File operations - FS_LIST_FILES)
+- **Tests**: 503+ passing across all packages (20 new tests for fs.listFiles)
+- **Next**: Additional file operations or Phase 5 (Functions)
 
 ## What Works (Major Features)
 - ✅ All operators (arithmetic, comparison, logical, unary, compound assignment)
@@ -20,6 +21,7 @@ I am Claude, an expert software engineer working on the CVM (Cognitive Virtual M
 - ✅ String methods (length, substring, indexOf, split, slice, charAt, toUpperCase, toLowerCase)
 - ✅ Array operations (literals, access, assignment, push, length)
 - ✅ Core functions (CC, console.log, JSON.parse, typeof)
+- ✅ File operations (fs.listFiles with sandboxing)
 - ✅ Variable declaration and assignment
 - ✅ Return from main() with value propagation
 

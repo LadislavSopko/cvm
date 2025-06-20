@@ -42,6 +42,46 @@ let array = JSON.parse('["a", "b", "c"]');
 - Returns empty array `[]` for non-array JSON values
 - **Note**: This safe behavior prevents runtime errors but may need adjustment for object support
 
+### fs.listFiles(path: string, options?: object) → array
+**Status**: ✅ Implemented
+
+Lists files and directories at the specified path with optional filtering and recursion.
+
+```javascript
+// Basic listing
+let files = fs.listFiles("/home/user/docs");
+
+// With options
+let tsFiles = fs.listFiles("/src", {
+  recursive: true,     // Include subdirectories
+  filter: "*.ts"       // Glob pattern filtering
+});
+
+// No arguments defaults to current directory
+let currentFiles = fs.listFiles();
+```
+
+**Options**:
+- `recursive: boolean` - If true, lists files in subdirectories recursively
+- `filter: string` - Glob pattern to filter files (e.g., "*.js", "test-*", "**/*.md")
+
+**Returns**: Array of absolute file paths as strings:
+```javascript
+[
+  "/home/user/docs/file.txt",
+  "/home/user/docs/subdir",
+  "/home/user/docs/subdir/nested.js"
+]
+```
+
+**Security**:
+- Sandboxed to paths defined in `CVM_SANDBOX_PATHS` environment variable
+- No parent directory traversal allowed
+- Symbolic links are not followed
+- Returns empty array for unauthorized or non-existent paths
+
+**Note**: Currently returns string paths instead of file objects because CVM doesn't support object property access yet. This will be updated once objects are implemented.
+
 ## Type Operations
 
 ### typeof value → string
@@ -566,6 +606,10 @@ CVM supports the following types:
   - string.substring(start[, end])
   - string.indexOf(search)
   - string.split(delimiter)
+  - string.slice(start[, end])
+  - string.charAt(index)
+  - string.toUpperCase()
+  - string.toLowerCase()
 - Array length (array.length)
 - if/else statements
 - while loops
@@ -576,19 +620,20 @@ CVM supports the following types:
 - CC() cognitive calls
 - console.log() output
 - JSON.parse() (safe mode)
+- fs.listFiles() with sandboxing
 
 ### 🔧 VM Ready, Awaiting Compiler Support:
 1. **Function calls** - CALL, RETURN opcodes defined
 2. **Additional jumps** - JUMP_IF, JUMP_IF_TRUE opcodes available
 
 ### ❌ Not Implemented:
-1. **File operations** - FS_LIST_FILES opcode defined but no VM implementation
-2. **Objects** - No object literal or property access support
-3. **Function definitions** - Only main() is supported
-4. **Function parameters** - No parameter passing
-5. **for loops** - No traditional for(;;) loops
+1. **Objects** - No object literal or property access support
+2. **Function definitions** - Only main() is supported
+3. **Function parameters** - No parameter passing
+4. **for loops** - No traditional for(;;) loops
+5. **Additional file operations** - Only fs.listFiles() is implemented
 6. **Error handling** - No try/catch/throw
-7. **Additional string methods** - No slice, charAt, toUpperCase, toLowerCase, etc.
+7. **Additional string methods** - trim, replace, etc.
 
 ## Error Handling
 
@@ -682,10 +727,11 @@ The implementation has comprehensive test coverage:
 - ✅ break/continue support in all loops
 - ✅ Nested loop support with iterator stack
 
-### Phase 4: File Operations
-- Implement FS_LIST_FILES opcode in VM
-- Add compiler support for file operations
-- Implement path sandboxing for security
+### Phase 4: File Operations ✅ PARTIALLY COMPLETE
+- ✅ fs.listFiles() with path sandboxing
+- ✅ Support for recursive listing and glob filters
+- ✅ Security through CVM_SANDBOX_PATHS environment variable
+- ❌ Additional operations: fs.readFile(), fs.writeFile(), etc.
 
 ### Phase 5: Functions
 - Add function definitions beyond main()

@@ -15,7 +15,7 @@ import {
   createCVMUndefined
 } from '@cvm/types';
 
-export type VMStatus = 'running' | 'waiting_cc' | 'complete' | 'error';
+export type VMStatus = 'running' | 'waiting_cc' | 'waiting_fs' | 'complete' | 'error';
 
 export interface IteratorContext {
   array: CVMArray;
@@ -29,6 +29,11 @@ export interface VMState {
   status: VMStatus;
   output: string[];
   ccPrompt?: string;
+  fsOperation?: {
+    type: 'listFiles';
+    path: string;
+    options?: any;
+  };
   error?: string;
   iterators: IteratorContext[];
   returnValue?: CVMValue;
@@ -1058,6 +1063,45 @@ export class VM {
           state.pc = target;
           break;
         }
+
+        case OpCode.FS_LIST_FILES: {
+          // Pop options (if present) and path from stack
+          // We need to check if we have 1 or 2 arguments
+          if (state.stack.length < 1) {
+            state.status = 'error';
+            state.error = 'FS_LIST_FILES: Stack underflow';
+            break;
+          }
+
+          let path: CVMValue;
+          let options: any = {};
+
+          // Check if top of stack is an object (options)
+          const top = state.stack[state.stack.length - 1];
+          if (state.stack.length >= 2 && typeof top === 'object' && top !== null && !isCVMArray(top)) {
+            // Two arguments: path and options
+            options = state.stack.pop();
+            path = state.stack.pop()!;
+          } else {
+            // One argument: just path
+            path = state.stack.pop()!;
+          }
+
+          if (!isCVMString(path)) {
+            state.status = 'error';
+            state.error = 'FS_LIST_FILES requires a string path';
+            break;
+          }
+
+          // Set up file system operation and pause execution
+          state.fsOperation = {
+            type: 'listFiles',
+            path: path,
+            options: options
+          };
+          state.status = 'waiting_fs';
+          break;
+        }
           
         default:
           state.status = 'error';
@@ -1079,6 +1123,24 @@ export class VM {
       stack: [...state.stack, ccResult],
       status: 'running' as VMStatus,
       ccPrompt: undefined,
+      pc: state.pc + 1
+    };
+
+    // Continue execution from where we left off
+    return this.execute(bytecode, newState);
+  }
+
+  resumeWithFsResult(state: VMState, result: CVMValue, bytecode: Instruction[]): VMState {
+    if (state.status !== 'waiting_fs') {
+      throw new Error('Cannot resume: VM not waiting for FS operation');
+    }
+
+    // Push FS result and continue
+    const newState = {
+      ...state,
+      stack: [...state.stack, result],
+      status: 'running' as VMStatus,
+      fsOperation: undefined,
       pc: state.pc + 1
     };
 
