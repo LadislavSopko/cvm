@@ -1,3 +1,22 @@
+## 0.7.0 (2025-06-20)
+
+### 🚀 Features
+
+- implement fs.listFiles() with sandboxing and glob pattern support
+- add FS_LIST_FILES opcode with waiting_fs state management
+- support recursive directory listing and file filtering
+- implement sandboxed file system with CVM_SANDBOX_PATHS environment variable
+
+### 🩹 Fixes
+
+- fix critical bug where for-of loop iterators were lost during CC calls
+- add iterators field to Execution interface for state persistence
+- update VMManager to save/restore iterator state across async operations
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.6.0 (2025-06-19)
 
 ### 🚀 Features
