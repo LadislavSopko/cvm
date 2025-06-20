@@ -8,15 +8,16 @@ I am Claude, an expert software engineer working on the CVM (Cognitive Virtual M
 - **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic, ALL logical)
 - **Phase 3**: ✅ **COMPLETE!** For-of loops with break/continue support
 - **LoadFile Tool**: ✅ **NEW!** Token-saving file loading via `mcp__cvm__loadFile`
+- **String Methods**: ✅ **NEW!** slice(), charAt(), toUpperCase(), toLowerCase() implemented
 - **Critical Features**: ✅ All major language features implemented
-- **Tests**: 453+ passing across all packages (18 new MCP server tests)
-- **Next**: Additional string methods, then Phase 4 (File operations)
+- **Tests**: 483+ passing across all packages (30 new tests for string methods)
+- **Next**: Phase 4 (File operations - FS_LIST_FILES)
 
 ## What Works (Major Features)
 - ✅ All operators (arithmetic, comparison, logical, unary, compound assignment)
 - ✅ All control flow (if/else, while, for-of, break/continue, ternary)
 - ✅ All basic types (string, number, boolean, null, undefined, array)
-- ✅ String methods (length, substring, indexOf, split)
+- ✅ String methods (length, substring, indexOf, split, slice, charAt, toUpperCase, toLowerCase)
 - ✅ Array operations (literals, access, assignment, push, length)
 - ✅ Core functions (CC, console.log, JSON.parse, typeof)
 - ✅ Variable declaration and assignment
@@ -41,12 +42,16 @@ See `/memory-bank/docs/` for technical details (historical reference).
 - **Integration Testing**: Always rebuild with `npx nx reset && npx nx run-many --target=build --all --skip-nx-cache` before testing
 
 ## Current Task
-Next priority: Additional string methods (slice, charAt, toUpperCase, toLowerCase)
+Next priority: Phase 4 - File operations (FS_LIST_FILES implementation)
+- Sandboxed file listing with configurable root paths
+- Environment-based security configuration
+- See activeContext.md for detailed implementation plan
 
 ## Recent Achievement
-✅ **LoadFile Tool** - Major productivity improvement:
-- `mcp__cvm__loadFile(programId, filePath)` - Load programs from disk
-- Saves massive tokens on large files
-- Full error handling and security
-- 5 comprehensive tests added
-- Published in v0.5.0
+✅ **String Methods** - Major functionality expansion:
+- slice(start, end) - Extract substring with negative index support
+- charAt(index) - Get character at position
+- toUpperCase() - Convert to uppercase
+- toLowerCase() - Convert to lowercase
+- 30 new tests added (VM + compiler + integration)
+- Full integration test coverage

@@ -458,6 +458,49 @@ export function compile(source: string): CompileResult {
           
           state.emit(OpCode.STRING_SPLIT);
         }
+        else if (methodName === 'slice') {
+          // Compile the string expression
+          compileExpression(node.expression.expression);
+          
+          // Compile start argument
+          if (node.arguments.length > 0) {
+            compileExpression(node.arguments[0]);
+          } else {
+            state.emit(OpCode.PUSH, 0);
+          }
+          
+          // Compile end argument if provided
+          if (node.arguments.length > 1) {
+            compileExpression(node.arguments[1]);
+          }
+          
+          state.emit(OpCode.STRING_SLICE);
+        }
+        else if (methodName === 'charAt') {
+          // Compile the string expression
+          compileExpression(node.expression.expression);
+          
+          // Compile index argument
+          if (node.arguments.length > 0) {
+            compileExpression(node.arguments[0]);
+          } else {
+            state.emit(OpCode.PUSH, 0);
+          }
+          
+          state.emit(OpCode.STRING_CHARAT);
+        }
+        else if (methodName === 'toUpperCase') {
+          // Compile the string expression
+          compileExpression(node.expression.expression);
+          
+          state.emit(OpCode.STRING_TOUPPERCASE);
+        }
+        else if (methodName === 'toLowerCase') {
+          // Compile the string expression
+          compileExpression(node.expression.expression);
+          
+          state.emit(OpCode.STRING_TOLOWERCASE);
+        }
       }
     }
     else if (ts.isParenthesizedExpression(node)) {

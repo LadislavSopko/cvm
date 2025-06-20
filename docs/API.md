@@ -121,6 +121,62 @@ Splits a string into an array of substrings.
 - Empty delimiter splits into individual characters
 - Consecutive delimiters create empty strings in the result
 
+### string.slice(start[, end]) → string
+**Status**: ✅ Implemented
+
+Extracts a section of the string and returns it as a new string.
+
+```javascript
+"hello world".slice(6);          // "world"
+"hello world".slice(0, 5);       // "hello"
+"hello world".slice(-5);         // "world" (negative index from end)
+"hello world".slice(-5, -1);     // "worl"
+"hello".slice(10);               // "" (out of bounds)
+```
+
+**Special behaviors**:
+- Negative indices count from the end of the string
+- If end is omitted, extracts to the end of the string
+- Returns empty string if start is beyond string length
+
+### string.charAt(index) → string
+**Status**: ✅ Implemented
+
+Returns the character at the specified index.
+
+```javascript
+"hello".charAt(0);    // "h"
+"hello".charAt(1);    // "e"
+"hello".charAt(10);   // "" (out of bounds)
+"hello".charAt(-1);   // "" (negative index returns empty)
+```
+
+**Special behaviors**:
+- Returns empty string for out-of-bounds indices
+- Negative indices return empty string (unlike slice)
+
+### string.toUpperCase() → string
+**Status**: ✅ Implemented
+
+Returns the string converted to uppercase.
+
+```javascript
+"hello world".toUpperCase();     // "HELLO WORLD"
+"Hello123!".toUpperCase();       // "HELLO123!"
+"".toUpperCase();                // ""
+```
+
+### string.toLowerCase() → string
+**Status**: ✅ Implemented
+
+Returns the string converted to lowercase.
+
+```javascript
+"HELLO WORLD".toLowerCase();     // "hello world"
+"Hello123!".toLowerCase();       // "hello123!"
+"".toLowerCase();                // ""
+```
+
 ## Array Operations
 
 ### Array literal

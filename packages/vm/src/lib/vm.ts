@@ -901,6 +901,130 @@ export class VM {
           break;
         }
 
+        case OpCode.STRING_SLICE: {
+          // The compiler pushes: string, start, [end]
+          // So we pop in reverse order: [end], start, string
+          
+          if (state.stack.length < 2) {
+            state.status = 'error';
+            state.error = 'STRING_SLICE: Stack underflow';
+            break;
+          }
+          
+          // First check how many arguments we have
+          const stackSize = state.stack.length;
+          let str: CVMValue;
+          let start: number;
+          let end: number | undefined;
+          
+          // Save the current stack to restore if we need to check argument count
+          const arg1 = state.stack[stackSize - 1]; // Top of stack
+          const arg2 = state.stack[stackSize - 2]; // Second from top
+          
+          // Check if we have 3 arguments (string, start, end)
+          if (stackSize >= 3 && typeof arg1 === 'number' && typeof arg2 === 'number') {
+            // Three arguments case
+            end = state.stack.pop() as number;
+            start = state.stack.pop() as number;
+            str = state.stack.pop()!;
+          } else {
+            // Two arguments case
+            start = state.stack.pop() as number;
+            str = state.stack.pop()!;
+            end = undefined;
+          }
+          
+          if (!isCVMString(str)) {
+            state.status = 'error';
+            state.error = 'STRING_SLICE requires a string';
+            break;
+          }
+          
+          if (typeof start !== 'number') {
+            state.status = 'error';
+            state.error = 'STRING_SLICE requires numeric start index';
+            break;
+          }
+          
+          // JavaScript slice behavior - handles negative indices
+          const result = end !== undefined ? str.slice(start, end) : str.slice(start);
+          state.stack.push(result);
+          state.pc++;
+          break;
+        }
+
+        case OpCode.STRING_CHARAT: {
+          // Stack: string, index
+          const index = state.stack.pop();
+          const str = state.stack.pop();
+          
+          if (index === undefined || str === undefined) {
+            state.status = 'error';
+            state.error = 'STRING_CHARAT: Stack underflow';
+            break;
+          }
+          
+          if (!isCVMString(str)) {
+            state.status = 'error';
+            state.error = 'STRING_CHARAT requires a string';
+            break;
+          }
+          
+          if (typeof index !== 'number') {
+            state.status = 'error';
+            state.error = 'STRING_CHARAT requires numeric index';
+            break;
+          }
+          
+          // JavaScript charAt behavior - returns empty string if out of bounds
+          const result = str.charAt(index);
+          state.stack.push(result);
+          state.pc++;
+          break;
+        }
+
+        case OpCode.STRING_TOUPPERCASE: {
+          // Stack: string
+          const str = state.stack.pop();
+          
+          if (str === undefined) {
+            state.status = 'error';
+            state.error = 'STRING_TOUPPERCASE: Stack underflow';
+            break;
+          }
+          
+          if (!isCVMString(str)) {
+            state.status = 'error';
+            state.error = 'STRING_TOUPPERCASE requires a string';
+            break;
+          }
+          
+          state.stack.push(str.toUpperCase());
+          state.pc++;
+          break;
+        }
+
+        case OpCode.STRING_TOLOWERCASE: {
+          // Stack: string
+          const str = state.stack.pop();
+          
+          if (str === undefined) {
+            state.status = 'error';
+            state.error = 'STRING_TOLOWERCASE: Stack underflow';
+            break;
+          }
+          
+          if (!isCVMString(str)) {
+            state.status = 'error';
+            state.error = 'STRING_TOLOWERCASE requires a string';
+            break;
+          }
+          
+          state.stack.push(str.toLowerCase());
+          state.pc++;
+          break;
+        }
+
         case OpCode.BREAK: {
           // BREAK instruction expects a target address as argument
           if (instruction.arg === undefined) {
