@@ -13,7 +13,7 @@ export interface CVMUndefined {
 
 export interface CVMObject {
   type: 'object';
-  properties: Map<string, CVMValue>;
+  properties: Record<string, CVMValue>;
 }
 
 export type CVMValue = string | boolean | number | CVMArray | CVMObject | null | CVMUndefined;
@@ -118,6 +118,6 @@ export function createCVMUndefined(): CVMUndefined {
 }
 
 // Object creation helper
-export function createCVMObject(properties: Map<string, CVMValue> = new Map()): CVMObject {
+export function createCVMObject(properties: Record<string, CVMValue> = {}): CVMObject {
   return { type: 'object', properties };
 }

@@ -97,15 +97,20 @@ function main() {
   for (const file of files) {
     // This creates a task for Claude, doesn't "call" Claude
     const content = CC("Read and summarize this file: " + file);
-    // Store as string pairs since CVM doesn't support objects yet
-    summaries.push(file + "|||" + content);
+    // Now we can use objects!
+    summaries.push({
+      filename: file,
+      summary: content
+    });
     console.log("Processed: " + file);
   }
   
-  // Join summaries into a single string for the final task
-  const allSummaries = summaries.join("\n---\n");
-  const report = CC("Create a final report from these file summaries: " + allSummaries);
+  // Convert summaries array to JSON for the final task
+  const summariesJson = JSON.stringify(summaries);
+  const report = CC("Create a final report from these file summaries: " + summariesJson);
   console.log("Final Report: " + report);
+  
+  return report;
 }
 ```
 
@@ -137,7 +142,7 @@ While Claude processes tasks, CVM maintains:
 - All variables and their values
 - Current execution position
 - Loop counters and conditions
-- Arrays and data structures
+- Arrays, objects, and complex data structures
 
 ## Installation
 
@@ -171,8 +176,10 @@ Claude uses these tools to interact with CVM:
 ## Language Features
 
 CVM executes a TypeScript-like language:
-- Variables, arrays, loops, conditions
+- Variables, arrays, objects, loops, conditions
 - String/array operations
+- Object literals and property access
+- `JSON.stringify()` and `JSON.parse()`
 - `CC()` for task creation
 - `fs.listFiles()` for file operations
 - `console.log()` for output

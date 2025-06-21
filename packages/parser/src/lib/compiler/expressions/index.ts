@@ -17,6 +17,7 @@ import { compileBinaryExpression } from './binary-expression.js';
 import { compileConditionalExpression } from './conditional-expression.js';
 import { compileTypeOfExpression } from './typeof-expression.js';
 import { compileCallExpression } from './call-expression.js';
+import { compileObjectLiteral } from './object-literal.js';
 
 // Registry populated as we extract visitors
 export const expressionVisitors: Partial<Record<ts.SyntaxKind, ExpressionVisitor<any>>> = {
@@ -36,4 +37,5 @@ export const expressionVisitors: Partial<Record<ts.SyntaxKind, ExpressionVisitor
   [ts.SyntaxKind.ConditionalExpression]: compileConditionalExpression,
   [ts.SyntaxKind.TypeOfExpression]: compileTypeOfExpression,
   [ts.SyntaxKind.ParenthesizedExpression]: compileParenthesizedExpression,
+  [ts.SyntaxKind.ObjectLiteralExpression]: compileObjectLiteral,
 };

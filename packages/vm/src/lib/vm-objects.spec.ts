@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
-import { createCVMObject, createCVMUndefined, isCVMObject, isCVMString } from '@cvm/types';
+import { isCVMObject, isCVMString } from '@cvm/types';
 
 describe('VM Object Operations', () => {
   let vm: VM;
@@ -21,7 +21,7 @@ describe('VM Object Operations', () => {
       const obj = state.stack[0];
       expect(isCVMObject(obj)).toBe(true);
       if (isCVMObject(obj)) {
-        expect(obj.properties.size).toBe(0);
+        expect(Object.keys(obj.properties).length).toBe(0);
       }
     });
   });
@@ -40,7 +40,7 @@ describe('VM Object Operations', () => {
       const result = state.stack[0];
       expect(isCVMObject(result)).toBe(true);
       if (isCVMObject(result)) {
-        expect(result.properties.get('name')).toBe('John');
+        expect(result.properties['name']).toBe('John');
       }
     });
 
@@ -152,7 +152,7 @@ describe('VM Object Operations', () => {
       const result = state.stack[0];
       expect(isCVMString(result)).toBe(true);
       if (isCVMString(result)) {
-        const parsed = JSON.parse(result);
+        const parsed = JSON.parse(result as string);
         expect(parsed).toEqual({ name: 'John', age: 30 });
       }
     });
@@ -181,7 +181,7 @@ describe('VM Object Operations', () => {
       expect(state.stack.length).toBe(1);
       const result = state.stack[0];
       if (isCVMString(result)) {
-        const parsed = JSON.parse(result);
+        const parsed = JSON.parse(result as string);
         expect(parsed).toEqual({ 
           name: 'John', 
           address: { city: 'NYC' } 
@@ -212,7 +212,7 @@ describe('VM Object Operations', () => {
       expect(state.stack.length).toBe(1);
       const result = state.stack[0];
       if (isCVMString(result)) {
-        const parsed = JSON.parse(result);
+        const parsed = JSON.parse(result as string);
         expect(parsed).toEqual([{ id: 1 }, { id: 2 }]);
       }
     });
@@ -233,7 +233,7 @@ describe('VM Object Operations', () => {
       expect(state.stack.length).toBe(1);
       const result = state.stack[0];
       if (isCVMString(result)) {
-        const parsed = JSON.parse(result);
+        const parsed = JSON.parse(result as string);
         // undefined values are omitted in JSON
         expect(parsed).toEqual({ name: 'John' });
       }

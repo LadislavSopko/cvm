@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
-import { isCVMArray, isCVMNumber } from '@cvm/types';
+import { isCVMArray, isCVMNumber, isCVMObject } from '@cvm/types';
 
 describe('VM Array Operations', () => {
   let vm: VM;
@@ -142,31 +142,28 @@ describe('VM Array Operations', () => {
       }
     });
 
-    it('should return empty array for invalid JSON', () => {
+    it('should return null for invalid JSON', () => {
       const state = vm.execute([
         { op: OpCode.PUSH, arg: 'not json' },
         { op: OpCode.JSON_PARSE },
         { op: OpCode.HALT }
       ]);
 
-      const arr = state.stack[0];
-      expect(isCVMArray(arr)).toBe(true);
-      if (isCVMArray(arr)) {
-        expect(arr.elements.length).toBe(0);
-      }
+      expect(state.stack[0]).toBe(null);
     });
 
-    it('should return empty array for non-array JSON', () => {
+    it('should parse JSON objects', () => {
       const state = vm.execute([
-        { op: OpCode.PUSH, arg: '{"not": "array"}' },
+        { op: OpCode.PUSH, arg: '{"name": "John", "age": 30}' },
         { op: OpCode.JSON_PARSE },
         { op: OpCode.HALT }
       ]);
 
-      const arr = state.stack[0];
-      expect(isCVMArray(arr)).toBe(true);
-      if (isCVMArray(arr)) {
-        expect(arr.elements.length).toBe(0);
+      const obj = state.stack[0];
+      expect(isCVMObject(obj)).toBe(true);
+      if (isCVMObject(obj)) {
+        expect(obj.properties['name']).toBe('John');
+        expect(obj.properties['age']).toBe(30);
       }
     });
   });

@@ -150,4 +150,133 @@ describe('Parser-VM-MongoDB Integration', () => {
       expect(retrieved?.bytecode[0].arg).toBe("Hello");
     });
   });
+
+  describe('object support integration', () => {
+    it('should compile and execute object literal creation', async () => {
+      const source = `
+        function main() {
+          const person = {
+            name: "Alice",
+            age: 30,
+            city: "New York"
+          };
+          console.log(JSON.stringify(person));
+          return person;
+        }
+        main();
+      `;
+
+      const parseResult = compile(source);
+      expect(parseResult.success).toBe(true);
+      
+      const state = vm.execute(parseResult.bytecode);
+      expect(state.status).toBe('complete');
+      expect(state.output[0]).toBe('{"name":"Alice","age":30,"city":"New York"}');
+    });
+
+    it('should handle property access and assignment', async () => {
+      const source = `
+        function main() {
+          const obj = { x: 10 };
+          obj.y = 20;
+          obj["z"] = obj.x + obj.y;
+          console.log("x: " + obj.x);
+          console.log("y: " + obj.y);
+          console.log("z: " + obj.z);
+          return obj;
+        }
+        main();
+      `;
+
+      const parseResult = compile(source);
+      expect(parseResult.success).toBe(true);
+      
+      const state = vm.execute(parseResult.bytecode);
+      expect(state.status).toBe('complete');
+      expect(state.output).toEqual([
+        'x: 10',
+        'y: 20',
+        'z: 30'
+      ]);
+    });
+
+    it('should handle nested objects', async () => {
+      const source = `
+        function main() {
+          const company = {
+            name: "Tech Corp",
+            address: {
+              street: "123 Main St",
+              city: "San Francisco",
+              zip: "94105"
+            },
+            employees: 100
+          };
+          console.log(company.name);
+          console.log(company.address.city);
+          return company;
+        }
+        main();
+      `;
+
+      const parseResult = compile(source);
+      expect(parseResult.success).toBe(true);
+      
+      const state = vm.execute(parseResult.bytecode);
+      expect(state.status).toBe('complete');
+      expect(state.output).toEqual([
+        'Tech Corp',
+        'San Francisco'
+      ]);
+    });
+
+    it('should handle JSON.parse with objects', async () => {
+      const source = `
+        function main() {
+          const json = '{"name": "Bob", "scores": [95, 87, 92]}';
+          const data = JSON.parse(json);
+          console.log("Name: " + data.name);
+          console.log("First score: " + data.scores[0]);
+          return data;
+        }
+        main();
+      `;
+
+      const parseResult = compile(source);
+      expect(parseResult.success).toBe(true);
+      
+      const state = vm.execute(parseResult.bytecode);
+      expect(state.status).toBe('complete');
+      expect(state.output).toEqual([
+        'Name: Bob',
+        'First score: 95'
+      ]);
+    });
+
+    it('should handle object creation in CC tasks', async () => {
+      const source = `
+        function main() {
+          const task = CC("What is your name?");
+          const user = {
+            name: task,
+            timestamp: "2024-01-01"
+          };
+          console.log("Created user: " + JSON.stringify(user));
+          return user;
+        }
+        main();
+      `;
+
+      const parseResult = compile(source);
+      expect(parseResult.success).toBe(true);
+      
+      const state = vm.execute(parseResult.bytecode);
+      expect(state.status).toBe('waiting_cc');
+      expect(state.ccPrompt).toBe("What is your name?");
+      
+      const resumedState = vm.resume(state, "Charlie", parseResult.bytecode);
+      expect(resumedState.status).toBe('complete');
+      expect(resumedState.output[0]).toBe('Created user: {"name":"Charlie","timestamp":"2024-01-01"}');
+    });
+  });
 });

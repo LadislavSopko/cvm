@@ -76,7 +76,7 @@ class CVMMcpTestClient {
         
         const taskText = (taskResult.content as any)[0].text;
 
-        if (taskText === 'Execution completed') {
+        if (taskText === 'Execution completed' || taskText.startsWith('Execution completed with result:')) {
           console.log('✓ Execution completed successfully!\n');
           done = true;
         } else if (taskText.startsWith('Error:')) {

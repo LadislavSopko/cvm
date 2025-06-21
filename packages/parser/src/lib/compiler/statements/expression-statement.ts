@@ -75,16 +75,31 @@ export const compileExpressionStatement: StatementVisitor<ts.ExpressionStatement
       if (ts.isIdentifier(expr.left)) {
         state.emit(OpCode.STORE, expr.left.text);
       } else if (ts.isElementAccessExpression(expr.left)) {
-        // For array[index] = value
+        // For array[index] = value or obj[key] = value
         // Value is already on stack from right-hand side
-        // We need stack order: array, index, value
+        // We need stack order: array/obj, index/key, value
         // Use a temp variable to reorder
         const tempVar = `__temp_${state.getBytecode().length}`;
         state.emit(OpCode.STORE, tempVar); // Store value temporarily
-        compileExpression(expr.left.expression); // Push array
-        compileExpression(expr.left.argumentExpression); // Push index
+        compileExpression(expr.left.expression); // Push array/object
+        compileExpression(expr.left.argumentExpression); // Push index/key
         state.emit(OpCode.LOAD, tempVar); // Load value back on top
+        
+        // For now, use ARRAY_SET which we'll need to enhance to handle objects too
+        // TODO: Consider a unified SET opcode
         state.emit(OpCode.ARRAY_SET);
+        state.emit(OpCode.POP); // Discard the result (undefined)
+      } else if (ts.isPropertyAccessExpression(expr.left)) {
+        // For obj.prop = value
+        // Value is already on stack from right-hand side
+        // We need stack order: obj, key, value
+        const tempVar = `__temp_${state.getBytecode().length}`;
+        state.emit(OpCode.STORE, tempVar); // Store value temporarily
+        compileExpression(expr.left.expression); // Push object
+        state.emit(OpCode.PUSH, expr.left.name.text); // Push property name
+        state.emit(OpCode.LOAD, tempVar); // Load value back on top
+        state.emit(OpCode.PROPERTY_SET);
+        state.emit(OpCode.POP); // Discard the result (undefined)
       }
       return; // Important: return early
     }

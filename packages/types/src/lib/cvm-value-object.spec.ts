@@ -16,21 +16,21 @@ describe('CVMObject', () => {
     it('should create an empty object', () => {
       const obj = createCVMObject();
       expect(obj.type).toBe('object');
-      expect(obj.properties).toBeInstanceOf(Map);
-      expect(obj.properties.size).toBe(0);
+      expect(typeof obj.properties).toBe('object');
+      expect(Object.keys(obj.properties).length).toBe(0);
     });
 
     it('should create an object with initial properties', () => {
-      const props = new Map<string, CVMValue>([
-        ['name', 'John'],
-        ['age', 30],
-        ['active', true]
-      ]);
+      const props: Record<string, CVMValue> = {
+        name: 'John',
+        age: 30,
+        active: true
+      };
       const obj = createCVMObject(props);
-      expect(obj.properties).toBe(props);
-      expect(obj.properties.get('name')).toBe('John');
-      expect(obj.properties.get('age')).toBe(30);
-      expect(obj.properties.get('active')).toBe(true);
+      expect(obj.properties).toEqual(props);
+      expect(obj.properties['name']).toBe('John');
+      expect(obj.properties['age']).toBe(30);
+      expect(obj.properties['active']).toBe(true);
     });
   });
 
@@ -57,9 +57,9 @@ describe('CVMObject', () => {
     });
 
     it('should return [object Object] regardless of properties', () => {
-      const props = new Map<string, CVMValue>([
-        ['key', 'value']
-      ]);
+      const props: Record<string, CVMValue> = {
+        key: 'value'
+      };
       const obj = createCVMObject(props);
       expect(cvmToString(obj)).toBe('[object Object]');
     });
@@ -70,7 +70,7 @@ describe('CVMObject', () => {
       const empty = createCVMObject();
       expect(cvmToBoolean(empty)).toBe(true);
       
-      const withProps = createCVMObject(new Map([['key', 'value']]));
+      const withProps = createCVMObject({ key: 'value' });
       expect(cvmToBoolean(withProps)).toBe(true);
     });
   });
@@ -85,28 +85,28 @@ describe('CVMObject', () => {
   describe('object property operations', () => {
     it('should support setting and getting properties', () => {
       const obj = createCVMObject();
-      obj.properties.set('name', 'Alice');
-      obj.properties.set('age', 25);
+      obj.properties['name'] = 'Alice';
+      obj.properties['age'] = 25;
       
-      expect(obj.properties.get('name')).toBe('Alice');
-      expect(obj.properties.get('age')).toBe(25);
-      expect(obj.properties.get('missing')).toBeUndefined();
+      expect(obj.properties['name']).toBe('Alice');
+      expect(obj.properties['age']).toBe(25);
+      expect(obj.properties['missing']).toBeUndefined();
     });
 
     it('should support nested objects', () => {
-      const inner = createCVMObject(new Map([['value', 42]]));
-      const outer = createCVMObject(new Map([['nested', inner]]));
+      const inner = createCVMObject({ value: 42 });
+      const outer = createCVMObject({ nested: inner });
       
-      const nestedObj = outer.properties.get('nested') as CVMObject;
+      const nestedObj = outer.properties['nested'] as CVMObject;
       expect(isCVMObject(nestedObj)).toBe(true);
-      expect(nestedObj.properties.get('value')).toBe(42);
+      expect(nestedObj.properties['value']).toBe(42);
     });
 
     it('should support arrays as property values', () => {
       const arr = createCVMArray(['a', 'b', 'c']);
-      const obj = createCVMObject(new Map([['items', arr]]));
+      const obj = createCVMObject({ items: arr });
       
-      const items = obj.properties.get('items') as any;
+      const items = obj.properties['items'] as any;
       expect(items.type).toBe('array');
       expect(items.elements).toEqual(['a', 'b', 'c']);
     });

@@ -36,6 +36,18 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
     }
     state.emit(OpCode.JSON_PARSE);
   }
+  // Handle JSON.stringify()
+  else if (ts.isPropertyAccessExpression(node.expression) &&
+      ts.isIdentifier(node.expression.expression) &&
+      node.expression.expression.text === 'JSON' &&
+      node.expression.name.text === 'stringify') {
+    if (node.arguments.length > 0) {
+      compileExpression(node.arguments[0]);
+    } else {
+      state.emit(OpCode.PUSH_UNDEFINED);
+    }
+    state.emit(OpCode.JSON_STRINGIFY);
+  }
   // Handle CC() calls
   else if (ts.isIdentifier(node.expression) && node.expression.text === 'CC') {
     if (node.arguments.length > 0) {

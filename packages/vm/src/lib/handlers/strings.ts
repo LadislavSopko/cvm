@@ -1,6 +1,42 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { cvmToString, isCVMString, isCVMArray, cvmTypeof, createCVMArray } from '@cvm/types';
+import { cvmToString, isCVMString, isCVMArray, cvmTypeof, createCVMArray, createCVMObject, CVMValue } from '@cvm/types';
+
+// Helper function to convert JSON to CVM values
+function jsonToCVMValue(value: any): CVMValue {
+  if (value === null) return null;
+  if (value === undefined) return undefined as any; // CVM uses undefined internally
+  if (typeof value === 'string') return value;
+  if (typeof value === 'number') return value;
+  if (typeof value === 'boolean') return value;
+  
+  // Check if it's already a CVM array
+  if (value && typeof value === 'object' && value.type === 'array' && Array.isArray(value.elements)) {
+    return value; // Already a CVMArray
+  }
+  
+  if (Array.isArray(value)) {
+    const arr = createCVMArray();
+    arr.elements = value.map(jsonToCVMValue);
+    return arr;
+  }
+  
+  // Check if it's already a CVM object
+  if (value && typeof value === 'object' && value.type === 'object' && value.properties) {
+    return value; // Already a CVMObject
+  }
+  
+  if (typeof value === 'object') {
+    const obj = createCVMObject();
+    for (const [key, val] of Object.entries(value)) {
+      obj.properties[key] = jsonToCVMValue(val);
+    }
+    return obj;
+  }
+  
+  // Fallback for any other types
+  return null;
+}
 
 export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.CONCAT]: {
@@ -74,13 +110,10 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       
       try {
         const parsed = JSON.parse(str);
-        if (Array.isArray(parsed)) {
-          state.stack.push(createCVMArray(parsed));
-        } else {
-          state.stack.push(createCVMArray()); // Empty array for non-array JSON
-        }
+        state.stack.push(jsonToCVMValue(parsed));
       } catch {
-        state.stack.push(createCVMArray()); // Empty array for invalid JSON
+        // Return null for invalid JSON
+        state.stack.push(null);
       }
       
       return undefined;

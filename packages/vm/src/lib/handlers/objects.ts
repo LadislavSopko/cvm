@@ -10,9 +10,7 @@ import {
   isCVMArray,
   cvmToString,
   cvmTypeof,
-  CVMValue,
-  CVMObject,
-  CVMArray
+  CVMValue
 } from '@cvm/types';
 
 // Helper function to convert CVM values to plain JS for JSON.stringify
@@ -22,7 +20,7 @@ function cvmValueToJs(value: CVMValue): any {
   }
   if (isCVMObject(value)) {
     const obj: Record<string, any> = {};
-    for (const [k, v] of value.properties) {
+    for (const [k, v] of Object.entries(value.properties)) {
       obj[k] = cvmValueToJs(v);
     }
     return obj;
@@ -69,8 +67,8 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      obj.properties.set(key, value);
-      state.stack.push(obj); // Return object for chaining
+      obj.properties[key] = value;
+      state.stack.push(obj); // Push object back for chaining
       return undefined;
     }
   },
@@ -97,7 +95,7 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         return undefined;
       }
       
-      const value = obj.properties.get(cvmToString(key));
+      const value = obj.properties[cvmToString(key)];
       state.stack.push(value ?? createCVMUndefined());
       return undefined;
     }

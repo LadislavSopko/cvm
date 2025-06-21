@@ -13,9 +13,9 @@ export const compilePropertyAccessExpression: ExpressionVisitor<ts.PropertyAcces
     compileExpression(node.expression);
     state.emit(OpCode.LENGTH);
   } else {
-    // Other property accesses are not yet implemented in CVM
-    // This would require object support and a PROPERTY_GET opcode
-    // For now, silently ignore to match original compiler behavior
-    // TODO: Add proper object property support when PROPERTY_GET opcode is implemented
+    // General property access using PROPERTY_GET
+    compileExpression(node.expression); // Push object onto stack
+    state.emit(OpCode.PUSH, node.name.text); // Push property name
+    state.emit(OpCode.PROPERTY_GET);
   }
 };

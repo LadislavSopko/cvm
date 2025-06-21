@@ -32,19 +32,42 @@ console.log(myVariable);
 ```
 
 ### JSON.parse(text: string) → any
-**Status**: ✅ Implemented (Safe mode)
+**Status**: ✅ Implemented
 
-Parses a JSON string into a JavaScript value.
+Parses a JSON string into a JavaScript value, supporting objects, arrays, and primitive types.
 
 ```javascript
 let data = JSON.parse('{"name": "John", "age": 30}');
 let array = JSON.parse('["a", "b", "c"]');
+let nested = JSON.parse('{"items": [1, 2, 3], "meta": {"count": 3}}');
 ```
 
 **Special behavior**: 
-- Returns empty array `[]` for invalid JSON (doesn't throw)
-- Returns empty array `[]` for non-array JSON values
-- **Note**: This safe behavior prevents runtime errors but may need adjustment for object support
+- Returns `null` for invalid JSON (doesn't throw)
+- Fully supports objects, arrays, and nested structures
+- Works seamlessly with CC state persistence
+
+### JSON.stringify(value: any) → string
+**Status**: ✅ Implemented
+
+Converts a JavaScript value to a JSON string representation.
+
+```javascript
+let obj = { name: "John", age: 30 };
+let json = JSON.stringify(obj);  // '{"name":"John","age":30}'
+
+let arr = [1, 2, 3];
+let jsonArr = JSON.stringify(arr);  // '[1,2,3]'
+
+// Works with nested structures
+let complex = { users: [{ id: 1, name: "Alice" }] };
+let jsonComplex = JSON.stringify(complex);
+```
+
+**Features**:
+- Handles objects, arrays, and primitive types
+- Supports nested structures
+- Essential for passing objects through CC
 
 ### fs.listFiles(path: string, options?: object) → array
 **Status**: ✅ Implemented
@@ -84,7 +107,7 @@ let currentFiles = fs.listFiles();
 - Symbolic links are not followed
 - Returns empty array for unauthorized or non-existent paths
 
-**Note**: Currently returns string paths instead of file objects because CVM doesn't support object property access yet. This will be updated once objects are implemented.
+**Note**: Returns string paths for simplicity and to maintain backward compatibility.
 
 ## Type Operations
 
@@ -100,9 +123,11 @@ typeof true       // "boolean"
 typeof null       // "null"
 typeof undefined  // "undefined"
 typeof []         // "array"
+typeof {}         // "object"
+typeof {a: 1}     // "object"
 ```
 
-**Note**: typeof returns "array" for arrays (not "object")
+**Note**: typeof returns "array" for arrays (not "object") to provide more specific type information
 
 ## String Operations
 
@@ -582,6 +607,84 @@ const grade = score >= 90 ? "A" : score >= 80 ? "B" : "C";  // "B"
 const message = "Value is " + (x > 5 ? "high" : "low");
 ```
 
+## Object Operations
+
+### Object literal
+**Status**: ✅ Implemented
+
+Create objects using literal syntax with key-value pairs.
+
+```javascript
+// Basic object literal
+let person = { name: "John", age: 30 };
+
+// Nested objects
+let user = {
+  id: 1,
+  profile: {
+    firstName: "Jane",
+    lastName: "Doe"
+  }
+};
+
+// Empty object
+let empty = {};
+
+// Shorthand property syntax
+let name = "Alice";
+let age = 25;
+let user2 = { name, age };  // Same as { name: name, age: age }
+```
+
+### object.property (Property access - dot notation)
+**Status**: ✅ Implemented
+
+Access object properties using dot notation.
+
+```javascript
+let person = { name: "John", age: 30 };
+let name = person.name;     // "John"
+let age = person.age;       // 30
+
+// Nested access
+let data = { user: { email: "test@example.com" } };
+let email = data.user.email;  // "test@example.com"
+```
+
+**Returns**: Property value, or `null` if property doesn't exist.
+
+### object["property"] (Property access - bracket notation)
+**Status**: ✅ Implemented
+
+Access object properties using bracket notation with string keys.
+
+```javascript
+let person = { name: "John", age: 30 };
+let name = person["name"];   // "John"
+
+// Dynamic property access
+let key = "age";
+let value = person[key];     // 30
+```
+
+### object.property = value (Property assignment)
+**Status**: ✅ Implemented
+
+Assign values to object properties (creates property if it doesn't exist).
+
+```javascript
+let person = { name: "John" };
+person.age = 30;           // Add new property
+person.name = "Jane";      // Update existing property
+
+// Bracket notation assignment
+person["city"] = "New York";
+
+// Nested assignment
+let data = { user: {} };
+data.user.email = "test@example.com";
+```
+
 ## Type System
 
 CVM supports the following types:
@@ -591,6 +694,7 @@ CVM supports the following types:
 - **null**: The `null` value
 - **undefined**: The undefined value (uninitialized variables return undefined)
 - **array**: Ordered collections (internally objects with type "array")
+- **object**: Key-value collections created with `{}` syntax
 
 ## Implementation Status
 
@@ -623,16 +727,23 @@ CVM supports the following types:
 - Type checking (typeof)
 - CC() cognitive calls
 - console.log() output
-- JSON.parse() (safe mode)
+- JSON.parse() with object support
+- JSON.stringify() for objects and arrays
 - fs.listFiles() with sandboxing
+- **Objects** - Full support including:
+  - Object literals with `{}` syntax
+  - Property access (dot and bracket notation)
+  - Property assignment
+  - Shorthand property syntax
+  - Nested objects
+  - Object persistence through CC
 
 ### 🔧 VM Ready, Awaiting Compiler Support:
 1. **Function calls** - CALL, RETURN opcodes defined
 2. **Additional jumps** - JUMP_IF, JUMP_IF_TRUE opcodes available
 
 ### ❌ Not Implemented:
-1. **Objects** - No object literal or property access support
-2. **Function definitions** - Only main() is supported
+1. **Function definitions** - Only main() is supported
 3. **Function parameters** - No parameter passing
 4. **for loops** - No traditional for(;;) loops
 5. **Additional file operations** - Only fs.listFiles() is implemented
@@ -646,8 +757,9 @@ Currently, errors in CVM result in VM halting with an error state. There is no t
 ### JSON.parse Safety
 Unlike standard JavaScript, `JSON.parse()` in CVM:
 - Never throws exceptions
-- Returns empty array `[]` for invalid JSON
-- Returns empty array `[]` for non-array JSON values
+- Returns `null` for invalid JSON
+- Fully supports objects, arrays, and primitive types
+- Handles already-parsed CVM objects gracefully
 
 ## Examples
 
@@ -708,10 +820,74 @@ function main() {
 main();
 ```
 
+### Working with Objects and CC
+```javascript
+function main() {
+  let files = fs.listFiles("/src", { recursive: true, filter: "*.ts" });
+  let summaries = [];
+  
+  for (const file of files) {
+    let analysis = CC("Analyze this TypeScript file and provide a brief summary: " + file);
+    
+    // Store results as objects instead of concatenated strings
+    summaries.push({
+      filename: file,
+      summary: analysis
+    });
+  }
+  
+  // Pass structured data through CC
+  let report = CC("Generate a report from these file summaries: " + JSON.stringify(summaries));
+  
+  return report;
+}
+main();
+```
+
+### Object Manipulation Example
+```javascript
+function main() {
+  // Create user objects
+  let user1 = { name: "Alice", age: 30, role: "admin" };
+  let user2 = { name: "Bob", age: 25, role: "user" };
+  
+  // Build a team object
+  let team = {
+    name: "Development",
+    lead: user1,
+    members: [user1, user2],
+    metadata: {
+      created: "2025-06-21",
+      active: true
+    }
+  };
+  
+  // Access nested properties
+  console.log("Team lead: " + team.lead.name);
+  console.log("Team created: " + team.metadata.created);
+  
+  // Dynamic property access
+  let prop = "role";
+  console.log("Lead's role: " + team.lead[prop]);
+  
+  // Modify properties
+  team.metadata.active = false;
+  user2.age = 26;
+  
+  // Convert to JSON for CC
+  let teamData = JSON.stringify(team);
+  let analysis = CC("Analyze this team structure and suggest improvements: " + teamData);
+  console.log(analysis);
+  
+  return analysis;
+}
+main();
+```
+
 ## Test Coverage
 
 The implementation has comprehensive test coverage:
-- **390 total tests passing** across all packages
+- **570 total tests passing** across all packages
 - **38 iterator tests** validating ITER_START, ITER_NEXT, ITER_END
 - **23 new operator tests** for %, <=, >=, ===, !==
 - **24 logical operator tests** for VM implementation of &&, ||, !
@@ -720,9 +896,16 @@ The implementation has comprehensive test coverage:
 - **9 undefined type tests** for JavaScript undefined semantics
 - **9 ternary operator tests** (5 compiler, 4 VM)
 - **6 integration tests** for logical operators E2E
+- **Object tests** including:
+  - Object literal compilation and execution
+  - Property access (dot and bracket notation)
+  - Property assignment
+  - Nested objects
+  - JSON.stringify for objects
+  - Object persistence through CC
 - **Arithmetic E2E tests** confirming numeric operations work correctly
 - **Control flow tests** for if/else and while loops
-- **Integration tests** with MongoDB storage
+- **Integration tests** with MongoDB storage and MCP server
 
 ## Next Development Phases
 
