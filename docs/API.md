@@ -2,6 +2,8 @@
 
 > 📖 **New to CVM?** Start with the [main README](../README.md) to understand what CVM is and why you'd use it.
 
+> ⚠️ **Quick Warning**: CVM is NOT JavaScript! No template literals (`${}`), no parseInt(), no user functions, no classes. See [NOT Supported Features](#️-not-supported-features) section below.
+
 ## Overview
 
 This document provides complete technical documentation for the CVM language - a TypeScript-like DSL designed for safe AI agent execution. CVM gives you deterministic, observable, and secure programs that eliminate the risks of arbitrary code execution.
@@ -14,6 +16,107 @@ function main() {
   // Your code here
 }
 // main(); call is optional - main() executes automatically
+```
+
+## ⚠️ NOT Supported Features
+
+**IMPORTANT**: CVM is NOT JavaScript! Many common JavaScript/TypeScript features are NOT supported:
+
+### String Features NOT Supported
+```javascript
+// ❌ Template literals / String interpolation
+const msg = `Hello ${name}`;  // WILL NOT WORK!
+
+// ✅ Use string concatenation instead:
+const msg = "Hello " + name;
+```
+
+### Functions NOT Supported
+```javascript
+// ❌ parseInt, parseFloat, Number()
+const num = parseInt("42");  // WILL NOT WORK!
+
+// ✅ Use unary plus operator:
+const num = +"42";
+
+// ❌ Math functions
+Math.floor(3.7);  // WILL NOT WORK!
+Math.random();    // WILL NOT WORK!
+
+// ❌ setTimeout, setInterval, Promise, async/await
+setTimeout(() => {}, 1000);  // WILL NOT WORK!
+```
+
+### Language Features NOT Supported
+```javascript
+// ❌ User-defined functions (except main)
+function helper() {}  // WILL NOT WORK!
+
+// ❌ Arrow functions
+const fn = () => {};  // WILL NOT WORK!
+
+// ❌ Classes
+class MyClass {}  // WILL NOT WORK!
+
+// ❌ try/catch
+try { } catch (e) { }  // WILL NOT WORK!
+
+// ❌ switch statements
+switch (x) { }  // WILL NOT WORK!
+
+// ❌ Regular expressions
+/pattern/.test(str);  // WILL NOT WORK!
+
+// ❌ Destructuring
+const {a, b} = obj;  // WILL NOT WORK!
+const [x, y] = arr;  // WILL NOT WORK!
+
+// ❌ Spread operator
+...array  // WILL NOT WORK!
+
+// ❌ for-in loops
+for (let key in obj) { }  // WILL NOT WORK!
+
+// ❌ do-while loops
+do { } while (condition);  // WILL NOT WORK!
+```
+
+### Object/Array Methods NOT Supported
+```javascript
+// ❌ Most array methods
+arr.map()     // WILL NOT WORK!
+arr.filter()  // WILL NOT WORK!
+arr.reduce()  // WILL NOT WORK!
+arr.forEach() // WILL NOT WORK!
+arr.find()    // WILL NOT WORK!
+arr.sort()    // WILL NOT WORK!
+arr.slice()   // WILL NOT WORK!
+
+// ✅ Only array.push() and array.length are supported
+
+// ❌ Object methods
+Object.keys(obj)    // WILL NOT WORK!
+Object.values(obj)  // WILL NOT WORK!
+Object.entries(obj) // WILL NOT WORK!
+```
+
+### Other Missing Features
+```javascript
+// ❌ import/export
+import { x } from 'module';  // WILL NOT WORK!
+
+// ❌ require
+const fs = require('fs');  // WILL NOT WORK!
+
+// ❌ console methods (only console.log works)
+console.error()  // WILL NOT WORK!
+console.warn()   // WILL NOT WORK!
+
+// ❌ let and const block scoping
+if (true) {
+  let x = 1;  // x WILL leak out of block!
+}
+// x is still accessible here (function-scoped like var)
 ```
 
 ## Core Functions
@@ -138,6 +241,15 @@ typeof {a: 1}     // "object"
 **Note**: typeof returns "array" for arrays (not "object") to provide more specific type information
 
 ## String Operations
+
+**⚠️ Remember**: No template literals! Use `+` for concatenation:
+```javascript
+// ❌ WRONG:
+const msg = `Count: ${count}`;
+
+// ✅ CORRECT:
+const msg = "Count: " + count;
+```
 
 ### string.length → number
 **Status**: ✅ Implemented
@@ -575,11 +687,24 @@ let positive = -(-5); // 5
 
 Converts value to number (JavaScript-like type conversion).
 
+**⚠️ Use this instead of parseInt()!**
+
 ```javascript
+// ❌ WRONG:
+let num = parseInt("42");  // parseInt is NOT supported!
+
+// ✅ CORRECT:
+let num = +"42";    // 42 (number)
+
+// More examples:
 let str = "42";
 let num = +str;    // 42 (number)
 let zero = +"";    // 0 (empty string becomes 0)
 let nan = +"abc";  // NaN for invalid strings
+
+// Common pattern with CC:
+let userInput = CC("Enter a number:");
+let number = +userInput;  // Convert string to number
 ```
 
 ## Compound Assignment Operators
