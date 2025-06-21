@@ -13,7 +13,6 @@ export function parseProgram(source: string): ParseResult {
   const errors: CompileError[] = [];
   const bytecode: Instruction[] = [];
   let hasMain = false;
-  let mainCalled = false;
 
   // Create TypeScript source file
   const sourceFile = ts.createSourceFile(
@@ -41,13 +40,6 @@ export function parseProgram(source: string): ParseResult {
       }
     }
 
-    // Check for function calls at top level
-    if (ts.isExpressionStatement(node) && node.parent === sourceFile) {
-      const expr = node.expression;
-      if (ts.isCallExpression(expr) && ts.isIdentifier(expr.expression) && expr.expression.text === 'main') {
-        mainCalled = true;
-      }
-    }
 
     // Check for unsupported function calls
     if (ts.isCallExpression(node) && ts.isIdentifier(node.expression)) {
@@ -66,9 +58,6 @@ export function parseProgram(source: string): ParseResult {
   // Validate CVM requirements
   if (!hasMain) {
     errors.push('Program must have a main() function');
-  }
-  if (hasMain && !mainCalled) {
-    errors.push('main() must be called at the top level');
   }
 
   // If no errors, generate simple bytecode (placeholder for now)

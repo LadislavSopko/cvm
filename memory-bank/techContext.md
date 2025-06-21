@@ -21,7 +21,7 @@
 │   ├── mongodb/         # MongoDB adapter
 │   └── types/           # Shared types & CVMValue
 ├── apps/
-│   └── cvm-server/      # npm package (v0.4.3)
+│   └── cvm-server/      # npm package (v0.9.2)
 ├── memory-bank/         # Project documentation
 ├── docs/               # API documentation
 ├── test/               # Testing
@@ -56,6 +56,9 @@ npx nx test {project} -- {test-file}
 CVM_STORAGE_TYPE=file      # or 'mongodb'
 MONGODB_URI=mongodb://...  # if using MongoDB
 CVM_DATA_DIR=./.cvm       # for file storage
+
+# File system sandboxing (Phase 4)
+CVM_SANDBOX_PATHS=/path1:/path2  # Colon-separated allowed paths
 ```
 
 ## Key Dependencies
@@ -80,7 +83,7 @@ CVM_DATA_DIR=./.cvm       # for file storage
 - Integration tests in test/integration/ with MCP client
 - Test programs in test/programs/ for E2E validation  
 - Test examples in test/examples/ for simple scenarios
-- 400+ tests currently passing across all packages
+- 580+ tests currently passing across all packages
 - NO code without tests (STRICT TDD)
 
 ## Integration Testing

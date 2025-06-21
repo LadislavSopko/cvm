@@ -66,7 +66,7 @@ describe('parser', () => {
       expect(result.hasMain).toBe(false);
     });
 
-    it('should error if main not called', () => {
+    it('should accept program without main() call', () => {
       const source = `
         function main(): void {
           console.log("Main not called");
@@ -75,7 +75,8 @@ describe('parser', () => {
       
       const result = parseProgram(source);
       
-      expect(result.errors).toContain('main() must be called at the top level');
+      expect(result.errors).toEqual([]);
+      expect(result.hasMain).toBe(true);
     });
 
     it('should error on unsupported features', () => {

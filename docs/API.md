@@ -8,12 +8,12 @@ This document provides complete technical documentation for the CVM language - a
 
 **Key Principle**: Instead of letting AI generate dangerous Python/JavaScript, CVM provides a safe, sandboxed instruction set that can only perform operations you explicitly allow.
 
-**Program Structure**: All CVM programs must define a `main()` function and call it at the end:
+**Program Structure**: All CVM programs must define a `main()` function:
 ```javascript
 function main() {
   // Your code here
 }
-main();  // Required!
+// main(); call is optional - main() executes automatically
 ```
 
 ## Core Functions
@@ -254,6 +254,23 @@ Returns the string converted to lowercase.
 "".toLowerCase();                // ""
 ```
 
+### value.toString() → string
+**Status**: ✅ Implemented
+
+Returns a string representation of any value.
+
+```javascript
+(42).toString()           // "42"
+true.toString()          // "true"
+"hello".toString()       // "hello"
+[1, 2, 3].toString()     // "[array:3]"
+({ a: 1 }).toString()    // "[object Object]"
+null.toString()          // "null"
+undefined.toString()     // "undefined"
+```
+
+**Note**: Works on all types, providing a consistent way to convert values to strings.
+
 ## Array Operations
 
 ### Array literal
@@ -474,17 +491,13 @@ Returns a value from main() which becomes the program's result.
 function main() {
   return 42;  // Program result will be 42
 }
-main();
 
 function main() {
   return;  // Program result will be null
 }
-main();
 ```
 
 **Note**: Only works in main(). Other functions are not yet supported.
-
-**Important**: You must call `main();` at the end of your program to execute it.
 
 ## Logical Operators
 
@@ -788,7 +801,6 @@ Unlike standard JavaScript, `JSON.parse()` in CVM:
 function main() {
   console.log("Hello CVM!");
 }
-main();
 ```
 
 ### Working with CC and Arrays
@@ -802,7 +814,6 @@ function main() {
     console.log("First language: " + languages[0]);
   }
 }
-main();
 ```
 
 ### Control Flow Example
@@ -815,7 +826,6 @@ function main() {
     count = count + 1;
   }
 }
-main();
 ```
 
 ### Logical Operators Example
@@ -837,7 +847,6 @@ function main() {
     console.log("Welcome back!");
   }
 }
-main();
 ```
 
 ### Working with Objects and CC
@@ -861,7 +870,6 @@ function main() {
   
   return report;
 }
-main();
 ```
 
 ### Object Manipulation Example
@@ -901,7 +909,6 @@ function main() {
   
   return analysis;
 }
-main();
 ```
 
 ## Test Coverage

@@ -1,9 +1,46 @@
+## 0.9.2 (2025-06-21)
+
+### 🚀 Features
+
+- **Universal toString() Method** - Add toString() support for all types
+  - Works on strings, numbers, booleans, null, undefined, arrays, objects
+  - Returns consistent string representations
+  - Implemented as TO_STRING opcode
+
+- **Implicit main() Execution** - Make main() function calls optional
+  - Programs now execute automatically
+  - Backward compatible with existing code
+  - Simplifies program structure
+
+### 🩹 Fixes
+
+- Fix API.md documentation accuracy
+  - Property access returns `undefined` (not `null`)
+  - for-of loops snapshot only array length (not full array)
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.9.1 (2025-06-21)
+
+### 🚀 Features
+
+- **Universal toString() Method** - Add toString() support for all types
+  - Works on strings, numbers, booleans, null, undefined, arrays, objects
+  - Returns consistent string representations
+  - Implemented as TO_STRING opcode
+
+- **Implicit main() Execution** - Make main() function calls optional
+  - Programs now execute automatically
+  - Backward compatible with existing code
+  - Simplifies program structure
 
 ### 📝 Documentation
 
 - Sync cvm-server README with main project README
 - Update copyright year to 2025
+- Update API.md with toString() and optional main() documentation
 - Ensure npm package has accurate documentation
 
 ### ❤️ Thank You

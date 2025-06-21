@@ -146,6 +146,11 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       
       state.emit(OpCode.STRING_TOLOWERCASE);
     }
+    else if (methodName === 'toString') {
+      // toString() takes no arguments
+      compileExpression(node.expression.expression);
+      state.emit(OpCode.TO_STRING);
+    }
     else {
       throw new Error(`Method call '${methodName}' is not supported`);
     }

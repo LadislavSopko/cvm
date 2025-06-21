@@ -30,6 +30,7 @@ export enum OpCode {
   
   // Universal operations
   LENGTH = 'LENGTH',
+  TO_STRING = 'TO_STRING',
   
   // Type operations
   JSON_PARSE = 'JSON_PARSE',

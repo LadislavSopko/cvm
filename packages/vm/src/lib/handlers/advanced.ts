@@ -1,6 +1,6 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { isCVMString, isCVMArray, createCVMArray, CVMValue } from '@cvm/types';
+import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString } from '@cvm/types';
 
 export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.RETURN]: {
@@ -379,6 +379,26 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       }
       
       state.stack.push(str.toLowerCase());
+      return undefined;
+    }
+  },
+
+  [OpCode.TO_STRING]: {
+    stackIn: 1,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const value = state.stack.pop();
+      if (value === undefined) {
+        return {
+          type: 'StackUnderflow',
+          message: 'TO_STRING: Stack underflow',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      // Use the existing universal conversion function
+      const result = cvmToString(value);
+      state.stack.push(result);
       return undefined;
     }
   }

@@ -30,10 +30,12 @@
 ### Key Design Patterns
 
 #### Type System (CVMValue)
-- Union type: `string | number | boolean | CVMArray | null`
-- Type guards: `isCVMString()`, `isCVMNumber()`, etc.
-- Conversion helpers: `cvmToString()`, `cvmToBoolean()`
+- Union type: `string | number | boolean | CVMArray | CVMObject | null | undefined`
+- Type guards: `isCVMString()`, `isCVMNumber()`, `isCVMObject()`, etc.
+- Conversion helpers: `cvmToString()`, `cvmToBoolean()`, `cvmToNumber()`
 - Arrays as objects with type discriminator
+- Objects as Record<string, CVMValue> with type discriminator
+- Universal toString() support via TO_STRING opcode
 
 #### Storage Abstraction
 - Interface-based design (StorageAdapter)
@@ -48,12 +50,18 @@
 - CompilerState class manages bytecode emission
 - Iterator stack for nested for-of loops
 - Smart literal detection for CONCAT vs ADD
+- Object literal compilation with shorthand property support
+- Method call recognition (e.g., .toString()) to opcodes
+- Implicit main() execution (no explicit call required)
 
 #### VM Execution
 - Stack-based with CVMValue[] stack
 - Each opcode pops operands, executes, pushes results
 - Program counter (pc) controls flow
 - Jump instructions modify pc directly
+- Handler pattern for opcodes (modular handlers in separate files)
+- Hybrid execution: new handlers + legacy switch
+- State persistence includes objects (via JSON serialization)
 
 ## Critical Implementation Paths
 

@@ -1,11 +1,32 @@
 # Active Context - CVM Project
 
 ## Current Status
-✅ **OBJECT SUPPORT COMPLETE** - Full object implementation with CC persistence!
+✅ **v0.9.2 RELEASED** - toString() and implicit main() features shipped to npm!
 
 ## Completed Work (June 21, 2025)
 
-### 1. Object Support Implementation ✅
+### 0. Version 0.9.2 Released ✅
+- **npm package published**: cvm-server v0.9.2 available on npm
+- **toString() method**: Universal support for all types
+- **Implicit main()**: Programs execute automatically without explicit call
+- **Documentation fixes**: API.md accuracy issues resolved
+- **Full test coverage**: 580+ tests all passing
+- **E2E verification**: All features tested and working
+
+### 1. toString() Method Implementation ✅
+- **Added TO_STRING opcode**: Universal opcode that works on all types
+- **VM handler implemented**: Uses existing cvmToString() for consistent behavior
+- **Compiler support added**: Recognizes .toString() method calls
+- **Full test coverage**: VM tests, compiler tests, integration tests all passing
+- **Works on all types**: strings, numbers, booleans, null, undefined, arrays, objects
+
+### 2. Implicit main() Call ✅
+- **Removed parser requirement**: No longer requires explicit main() call
+- **Programs execute automatically**: main() function body runs at PC=0
+- **Backward compatible**: Existing programs with main() calls still work
+- **API documentation updated**: All examples now show optional main() call
+
+### 3. Object Support Implementation ✅
 - **Implemented object literals**: `{ key: value }` syntax with shorthand support
 - **Property access**: Both dot notation and bracket notation work
 - **JSON integration**: JSON.stringify and JSON.parse fully functional
@@ -47,7 +68,7 @@ CVM supports these TypeScript/JavaScript features:
 - **Expressions**: literals, arrays, objects, binary ops, unary ops, calls, property access
 - **Types**: string, number, boolean, null, undefined, array, object
 - **Built-ins**: CC(), console.log(), fs.listFiles(), JSON.parse(), JSON.stringify(), typeof
-- **String methods**: length, substring, indexOf, split, slice, charAt, toUpperCase, toLowerCase
+- **String methods**: length, substring, indexOf, split, slice, charAt, toUpperCase, toLowerCase, toString
 - **Object features**: Object literals, property access (dot/bracket), shorthand properties
 
 ## Architecture
@@ -63,9 +84,10 @@ CVM supports these TypeScript/JavaScript features:
 4. **Block scoping**: Implement let/const semantics
 
 ## Technical Context
-- Version 0.9.0 with object support (ready for npm release)
+- Version 0.9.2 released to npm (June 21, 2025)
 - Handler pattern provides foundation for future VM enhancements
 - Type-safe, modular architecture ready for new features
 - Clean separation of concerns in VM execution
 - Objects use Record<string, CVMValue> for JSON compatibility
-- All integration tests passing with object support
+- All 580+ tests passing including toString() and implicit main()
+- API.md documentation now accurate and reliable
