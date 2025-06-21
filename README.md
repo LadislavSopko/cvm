@@ -97,11 +97,14 @@ function main() {
   for (const file of files) {
     // This creates a task for Claude, doesn't "call" Claude
     const content = CC("Read and summarize this file: " + file);
-    summaries.push({ file, summary: content });
+    // Store as string pairs since CVM doesn't support objects yet
+    summaries.push(file + "|||" + content);
     console.log("Processed: " + file);
   }
   
-  const report = CC("Create a final report from these summaries: " + JSON.stringify(summaries));
+  // Join summaries into a single string for the final task
+  const allSummaries = summaries.join("\n---\n");
+  const report = CC("Create a final report from these file summaries: " + allSummaries);
   console.log("Final Report: " + report);
 }
 ```
