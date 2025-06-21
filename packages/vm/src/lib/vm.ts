@@ -12,8 +12,8 @@ import {
   cvmToNumber,
   cvmToBoolean,
   createCVMArray,
-  createCVMUndefined
 } from '@cvm/types';
+import { handlers, VMError, OpcodeHandler } from './handlers/index.js';
 
 export type VMStatus = 'running' | 'waiting_cc' | 'waiting_fs' | 'complete' | 'error';
 
@@ -41,6 +41,17 @@ export interface VMState {
 }
 
 export class VM {
+  private validateStack(handler: OpcodeHandler, instruction: Instruction, state: VMState): VMError | void {
+    if (state.stack.length < handler.stackIn) {
+      return {
+        type: 'StackUnderflow',
+        message: `${OpCode[instruction.op]}: Stack underflow`,
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+  }
+
   execute(bytecode: Instruction[], initialState?: Partial<VMState>): VMState {
     const state: VMState = {
       pc: initialState?.pc ?? 0,
@@ -55,48 +66,47 @@ export class VM {
     while (state.status === 'running' && state.pc < bytecode.length) {
       const instruction = bytecode[state.pc];
       
-      switch (instruction.op) {
-        case OpCode.HALT:
-          state.status = 'complete';
-          break;
-          
-        case OpCode.PUSH:
-          state.stack.push(instruction.arg);
-          state.pc++;
-          break;
-          
-        case OpCode.PUSH_UNDEFINED:
-          state.stack.push(createCVMUndefined());
-          state.pc++;
-          break;
-          
-        case OpCode.POP:
-          state.stack.pop();
-          state.pc++;
-          break;
-          
-        case OpCode.LOAD: {
-          const varName = instruction.arg;
-          if (!state.variables.has(varName)) {
-            // Return undefined for uninitialized variables (JavaScript behavior)
-            state.stack.push(createCVMUndefined());
-          } else {
-            state.stack.push(state.variables.get(varName)!);
-          }
-          state.pc++;
+      // Try new handler pattern first
+      const handler = handlers[instruction.op];
+      if (handler) {
+        // Validate stack requirements
+        const stackError = this.validateStack(handler, instruction, state);
+        if (stackError) {
+          state.status = 'error';
+          // For backward compatibility with tests, only use the message
+          state.error = stackError.message;
           break;
         }
-          
-        case OpCode.STORE:
-          const value = state.stack.pop();
-          if (value === undefined) {
-            state.status = 'error';
-            state.error = 'STORE: Stack underflow';
-            break;
-          }
-          state.variables.set(instruction.arg, value);
-          state.pc++;
+
+        // Special validation for JUMP operations
+        if ((instruction.op === OpCode.JUMP || instruction.op === OpCode.JUMP_IF_FALSE) && 
+            instruction.arg !== undefined && instruction.arg >= bytecode.length) {
+          state.status = 'error';
+          state.error = `Invalid jump target: ${instruction.arg}`;
           break;
+        }
+
+        // Execute the handler
+        const executionError = handler.execute(state, instruction);
+        if (executionError) {
+          state.status = 'error';
+          // For backward compatibility with tests, only use the message
+          state.error = executionError.message;
+          break;
+        }
+
+        // Advance PC if handler doesn't control it
+        if (!handler.controlsPC) {
+          state.pc++;
+        }
+        continue;
+      }
+
+      // Fallback to legacy switch for non-migrated opcodes
+      switch (instruction.op) {
+        // HALT, PUSH, PUSH_UNDEFINED, and POP are now handled by handlers
+          
+        // LOAD and STORE are now handled by handlers
           
         case OpCode.CONCAT:
           const b = state.stack.pop();
@@ -110,25 +120,7 @@ export class VM {
           state.pc++;
           break;
           
-        case OpCode.PRINT:
-          const printValue = state.stack.pop();
-          if (printValue !== undefined) {
-            state.output.push(cvmToString(printValue));
-          }
-          state.pc++;
-          break;
-          
-        case OpCode.CC: {
-          const prompt = state.stack.pop();
-          if (prompt === undefined) {
-            state.status = 'error';
-            state.error = 'CC: Stack underflow';
-            break;
-          }
-          state.ccPrompt = cvmToString(prompt);
-          state.status = 'waiting_cc';
-          break;
-        }
+        // PRINT and CC are now handled by handlers
           
         // Array operations
         case OpCode.ARRAY_NEW:
@@ -303,113 +295,7 @@ export class VM {
           break;
         }
           
-        // Arithmetic operations
-        case OpCode.ADD: {
-          const right = state.stack.pop();
-          const left = state.stack.pop();
-          if (left === undefined || right === undefined) {
-            state.status = 'error';
-            state.error = 'ADD: Stack underflow';
-            break;
-          }
-          const leftNum = cvmToNumber(left);
-          const rightNum = cvmToNumber(right);
-          state.stack.push(leftNum + rightNum);
-          state.pc++;
-          break;
-        }
-          
-        case OpCode.SUB: {
-          const right = state.stack.pop();
-          const left = state.stack.pop();
-          if (left === undefined || right === undefined) {
-            state.status = 'error';
-            state.error = 'SUB: Stack underflow';
-            break;
-          }
-          const leftNum = cvmToNumber(left);
-          const rightNum = cvmToNumber(right);
-          state.stack.push(leftNum - rightNum);
-          state.pc++;
-          break;
-        }
-          
-        case OpCode.MUL: {
-          const right = state.stack.pop();
-          const left = state.stack.pop();
-          if (left === undefined || right === undefined) {
-            state.status = 'error';
-            state.error = 'MUL: Stack underflow';
-            break;
-          }
-          const leftNum = cvmToNumber(left);
-          const rightNum = cvmToNumber(right);
-          state.stack.push(leftNum * rightNum);
-          state.pc++;
-          break;
-        }
-          
-        case OpCode.DIV: {
-          const right = state.stack.pop();
-          const left = state.stack.pop();
-          if (left === undefined || right === undefined) {
-            state.status = 'error';
-            state.error = 'DIV: Stack underflow';
-            break;
-          }
-          const leftNum = cvmToNumber(left);
-          const rightNum = cvmToNumber(right);
-          if (rightNum === 0) {
-            state.status = 'error';
-            state.error = 'Division by zero';
-            break;
-          }
-          state.stack.push(leftNum / rightNum);
-          state.pc++;
-          break;
-        }
-          
-        case OpCode.MOD: {
-          const right = state.stack.pop();
-          const left = state.stack.pop();
-          if (left === undefined || right === undefined) {
-            state.status = 'error';
-            state.error = 'MOD: Stack underflow';
-            break;
-          }
-          const leftNum = cvmToNumber(left);
-          const rightNum = cvmToNumber(right);
-          state.stack.push(leftNum % rightNum);
-          state.pc++;
-          break;
-        }
-
-        // Unary operations
-        case OpCode.UNARY_MINUS: {
-          const value = state.stack.pop();
-          if (value === undefined) {
-            state.status = 'error';
-            state.error = 'UNARY_MINUS: Stack underflow';
-            break;
-          }
-          const num = cvmToNumber(value);
-          state.stack.push(-num);
-          state.pc++;
-          break;
-        }
-
-        case OpCode.UNARY_PLUS: {
-          const value = state.stack.pop();
-          if (value === undefined) {
-            state.status = 'error';
-            state.error = 'UNARY_PLUS: Stack underflow';
-            break;
-          }
-          const num = cvmToNumber(value);
-          state.stack.push(num);
-          state.pc++;
-          break;
-        }
+        // Arithmetic operations are now handled by handlers
 
         case OpCode.INC: {
           // Increment expects: [variable_name] on stack
@@ -607,141 +493,9 @@ export class VM {
         }
 
         // Jump operations
-        case OpCode.JUMP: {
-          if (instruction.arg === undefined) {
-            state.status = 'error';
-            state.error = 'JUMP requires a target address';
-            break;
-          }
-          const target = instruction.arg;
-          if (target < 0 || target >= bytecode.length) {
-            state.status = 'error';
-            state.error = `Invalid jump target: ${target}`;
-            break;
-          }
-          state.pc = target;
-          break;
-        }
+        // JUMP and JUMP_IF_FALSE are now handled by handlers
 
-        case OpCode.JUMP_IF_FALSE: {
-          const condition = state.stack.pop();
-          if (condition === undefined) {
-            state.status = 'error';
-            state.error = 'JUMP_IF_FALSE: Stack underflow';
-            break;
-          }
-          if (instruction.arg === undefined) {
-            state.status = 'error';
-            state.error = 'JUMP_IF_FALSE requires a target address';
-            break;
-          }
-          const target = instruction.arg;
-          if (target < 0 || target >= bytecode.length) {
-            state.status = 'error';
-            state.error = `Invalid jump target: ${target}`;
-            break;
-          }
-          
-          // Jump if condition is falsy
-          if (!cvmToBoolean(condition)) {
-            state.pc = target;
-          } else {
-            state.pc++;
-          }
-          break;
-        }
-
-        case OpCode.ITER_START: {
-          if (state.stack.length === 0) {
-            state.status = 'error';
-            state.error = 'ITER_START: Stack underflow';
-            break;
-          }
-          
-          const array = state.stack.pop();
-          
-          // Check for null or undefined
-          if (array === null || array === undefined) {
-            state.status = 'error';
-            state.error = 'TypeError: Cannot iterate over null or undefined';
-            break;
-          }
-          
-          // Check if it's an array
-          if (!isCVMArray(array)) {
-            state.status = 'error';
-            state.error = 'TypeError: Cannot iterate over non-array value';
-            break;
-          }
-          
-          // Check iterator depth limit
-          if (state.iterators.length >= 10) {
-            state.status = 'error';
-            state.error = 'RuntimeError: Maximum iterator depth exceeded';
-            break;
-          }
-          
-          // Store reference to original array with its current length
-          // This avoids expensive copying while maintaining predictable behavior
-          state.iterators.push({
-            array: array,
-            index: 0,
-            length: array.elements.length
-          });
-          
-          state.pc++;
-          break;
-        }
-
-        case OpCode.ITER_NEXT: {
-          // Check if there's an active iterator
-          if (state.iterators.length === 0) {
-            state.status = 'error';
-            state.error = 'ITER_NEXT: No active iterator';
-            break;
-          }
-          
-          // Get the current (top) iterator
-          const iterator = state.iterators[state.iterators.length - 1];
-          
-          // Check if we have more elements (using stored length)
-          if (iterator.index < iterator.length) {
-            // Push current element (check bounds in case array was shortened)
-            if (iterator.index < iterator.array.elements.length) {
-              state.stack.push(iterator.array.elements[iterator.index]);
-            } else {
-              // Array was shortened during iteration, push undefined
-              state.stack.push(createCVMUndefined());
-            }
-            // Push hasMore flag (true)
-            state.stack.push(true);
-            // Advance iterator
-            iterator.index++;
-          } else {
-            // No more elements
-            state.stack.push(null);
-            // Push hasMore flag (false)
-            state.stack.push(false);
-          }
-          
-          state.pc++;
-          break;
-        }
-
-        case OpCode.ITER_END: {
-          // Check if there's an active iterator
-          if (state.iterators.length === 0) {
-            state.status = 'error';
-            state.error = 'ITER_END: No active iterator';
-            break;
-          }
-          
-          // Remove the current (top) iterator
-          state.iterators.pop();
-          
-          state.pc++;
-          break;
-        }
+        // Iterator operations are now handled by handlers
         
         // Logical operators
         case OpCode.AND: {

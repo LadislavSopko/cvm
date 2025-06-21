@@ -1,32 +1,36 @@
 # Active Context - CVM Project
 
 ## Current Status
-✅ **MAJOR OPTIMIZATION COMPLETE** - Compiler refactoring and VM optimizations finished!
+✅ **VM HANDLER PATTERN MIGRATION COMPLETE** - Major VM refactoring finished!
 
-## Completed Optimizations (June 21, 2025)
+## Completed Work (June 21, 2025)
 
-### 1. Compiler Refactoring ✅
-- **Removed 670+ lines** of duplicate fallback code from compiler.ts
-- **Bundle size reduced 40%**: 28.28 KB → 16.86 KB
-- Visitor pattern was already implemented but old code remained
-- All 170 parser tests pass
+### 1. VM Handler Pattern Implementation ✅
+- **Migrated core opcodes** from monolithic 1000+ line switch to modular handlers
+- **Handler structure created**: arithmetic.ts, stack.ts, io.ts, control.ts, variables.ts, iterators.ts
+- **Type safety enhanced**: Eliminated all `any` types, proper CVMValue interfaces
+- **Error handling improved**: Consistent error messages and stack validation
+- **Hybrid approach**: New handlers + legacy switch for non-migrated opcodes
 
-### 2. VM For-Of Optimization ✅
-- **Changed from array snapshot to reference** with stored length
-- Eliminates unnecessary array copying for better performance
-- Maintains predictable iteration behavior (uses initial length)
-- All 279 VM tests pass
+### 2. Migrated Opcodes ✅
+- **Arithmetic**: ADD, SUB, MUL, DIV, MOD, UNARY_MINUS, UNARY_PLUS
+- **Stack**: PUSH, PUSH_UNDEFINED, POP
+- **I/O**: PRINT, CC
+- **Control**: HALT, JUMP, JUMP_IF_FALSE  
+- **Variables**: LOAD, STORE
+- **Iterators**: ITER_START, ITER_NEXT, ITER_END
 
-### 3. Code Cleanup ✅
-- Fixed duplicate `hasStringOperand` function
-- Consistent error handling patterns
-- Clean separation of concerns
+### 3. Quality Assurance ✅
+- **All 524 tests passing** with zero regressions
+- **TypeScript compilation**: All packages compile cleanly
+- **E2E tests verified**: Arithmetic, iterators, CC, string operations working
+- **Production ready**: Full functionality maintained
 
 ### Results
-- **Total tests**: 524 all passing ✅
-- **Bundle sizes**: parser -40%, cvm-server -16%
-- **Integration tests**: All passing
-- **Production ready**: Yes
+- **Code maintainability**: Dramatically improved with modular handlers
+- **Type safety**: Complete elimination of `any` types in VM core
+- **Performance**: No regressions, same performance characteristics
+- **Extensibility**: New opcodes can be added as clean handlers
 
 ## Language Status
 CVM supports these TypeScript/JavaScript features:
@@ -38,17 +42,18 @@ CVM supports these TypeScript/JavaScript features:
 
 ## Architecture
 - **Compiler**: Clean visitor pattern (~/compiler/expressions/, ~/statements/)
-- **VM**: Efficient opcode execution with optimized loops
+- **VM**: Hybrid handler pattern + legacy switch (handlers for core opcodes)
 - **Storage**: File-based with MCP integration
 - **Tests**: Comprehensive coverage with unit and integration tests
 
-## Remaining Opportunities (Not Critical)
-1. VM opcode handler refactoring (reduce duplication)
-2. Error handling consolidation
-3. Additional file operations (readFile, writeFile)
-4. Phase 5: Functions (biggest remaining feature)
+## Remaining Opportunities (Optional)
+1. **Complete handler migration**: Move remaining opcodes (arrays, strings, comparisons) to handlers
+2. **Additional file operations**: readFile, writeFile
+3. **Phase 5: Functions** (biggest remaining feature)
+4. **Block scoping**: Implement let/const semantics
 
 ## Technical Context
 - Version 0.7.0 with iterator fixes
-- All optimizations maintain 100% backward compatibility
-- Clean, maintainable codebase ready for future features
+- Handler pattern provides foundation for future VM enhancements
+- Type-safe, modular architecture ready for new features
+- Clean separation of concerns in VM execution

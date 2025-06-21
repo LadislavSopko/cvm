@@ -1,5 +1,6 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { MongoDBAdapter } from './mongodb-adapter.js';
+import { OpCode } from '@cvm/parser';
 
 describe('MongoDBAdapter', () => {
   let adapter: MongoDBAdapter;
@@ -40,7 +41,7 @@ describe('MongoDBAdapter', () => {
         id: 'test-program-1',
         name: 'Test Program',
         source: 'print "Hello"',
-        bytecode: 'dummy-bytecode', // MongoDB doesn't care about bytecode format
+        bytecode: [{ op: OpCode.PUSH, arg: 'dummy' }], // Dummy bytecode for testing
         created: new Date(),
       };
 

@@ -17,38 +17,35 @@ describe('VM - fs.listFiles with CC and iterator', () => {
       { op: OpCode.PUSH, arg: '/test' },
       { op: OpCode.FS_LIST_FILES },
       { op: OpCode.STORE, arg: 'files' },     // 2
-      { op: OpCode.POP },                     // 3
       
       // Start iteration
-      { op: OpCode.LOAD, arg: 'files' },      // 4
-      { op: OpCode.ITER_START },              // 5
+      { op: OpCode.LOAD, arg: 'files' },      // 3
+      { op: OpCode.ITER_START },              // 4
       
       // Loop start
-      { op: OpCode.ITER_NEXT },               // 6
-      { op: OpCode.JUMP_IF_FALSE, arg: 19 }, // 7 - exit if no more
-      { op: OpCode.STORE, arg: 'file' },      // 8
-      { op: OpCode.POP },                     // 9
+      { op: OpCode.ITER_NEXT },               // 5
+      { op: OpCode.JUMP_IF_FALSE, arg: 16 }, // 6 - exit if no more
+      { op: OpCode.STORE, arg: 'file' },      // 7
       
       // Print current file
-      { op: OpCode.LOAD, arg: 'file' },       // 10
-      { op: OpCode.PRINT },                   // 11
+      { op: OpCode.LOAD, arg: 'file' },       // 8
+      { op: OpCode.PRINT },                   // 9
       
       // Simulate CC call
-      { op: OpCode.PUSH, arg: 'Process file?' }, // 12
-      { op: OpCode.CC },                         // 13
-      { op: OpCode.STORE, arg: 'result' },       // 14
-      { op: OpCode.POP },                        // 15
+      { op: OpCode.PUSH, arg: 'Process file?' }, // 10
+      { op: OpCode.CC },                         // 11
+      { op: OpCode.STORE, arg: 'result' },       // 12
       
       // Print CC result
-      { op: OpCode.LOAD, arg: 'result' },        // 16
-      { op: OpCode.PRINT },                      // 17
+      { op: OpCode.LOAD, arg: 'result' },        // 13
+      { op: OpCode.PRINT },                      // 14
       
       // Continue loop
-      { op: OpCode.JUMP, arg: 6 },               // 18
+      { op: OpCode.JUMP, arg: 5 },               // 15
       
       // End loop
-      { op: OpCode.ITER_END },                   // 19
-      { op: OpCode.HALT }                        // 20
+      { op: OpCode.ITER_END },                   // 16
+      { op: OpCode.HALT }                        // 17
     ];
 
     // Execute until fs.listFiles

@@ -3,6 +3,7 @@ import { FileStorageAdapter } from './file-adapter.js';
 import { promises as fs } from 'fs';
 import * as path from 'path';
 import { Program, Execution } from '@cvm/types';
+import { OpCode } from '@cvm/parser';
 
 describe('FileStorageAdapter', () => {
   let adapter: FileStorageAdapter;
@@ -51,7 +52,7 @@ describe('FileStorageAdapter', () => {
         id: 'test-prog-1',
         name: 'Test Program',
         source: 'console.log("hello")',
-        bytecode: [{ op: 'PUSH', arg: 'hello' }],
+        bytecode: [{ op: OpCode.PUSH, arg: 'hello' }],
         created: new Date(),
       };
 

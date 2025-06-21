@@ -1,0 +1,55 @@
+I need to synthesize the VM refactoring recommendations and make a final decision. Let me analyze:
+
+## Current Analysis Summary:
+
+1. **Main Issue**: 1000+ line switch statement in VM execute() method
+2. **Two Proposed Patterns**:
+   - Pattern A: Functional dispatch table (array of functions)
+   - Pattern B: Class-based handlers (Command pattern)
+
+## Performance Research Results:
+- V8 optimizes both patterns well through inline caching
+- Key is type consistency, not syntax choice
+- Function calls in V8 6.0+ have some overhead, but well-optimized for hot paths
+- TypeScript helps by enforcing consistent types
+
+## My Additional Considerations:
+
+1. **CVM's Current Architecture**:
+   - Already uses visitor pattern in compiler successfully
+   - Has clear separation of concerns
+   - Tests are comprehensive (524 passing)
+
+2. **Maintenance Patterns**:
+   - We just removed 670 lines of duplicate code
+   - Goal is long-term maintainability
+   - Need to support ~50 opcodes
+
+3. **Testing Requirements**:
+   - Need to test individual opcodes in isolation
+   - Stack effects should be verifiable
+   - Error cases need coverage
+
+## Critical Evaluation:
+
+**Pattern A (Functional) Pros**:
+- Simpler, less boilerplate
+- Direct array indexing is fastest
+- Easier to understand initially
+
+**Pattern A Cons**:
+- Metadata (stack effects) separated from logic
+- Testing requires more setup
+- All handlers in one file becomes unwieldy
+
+**Pattern B (Class-based) Pros**:
+- Excellent organization (one file per opcode)
+- Metadata colocated with logic
+- Easy to test in isolation
+- Follows SOLID principles
+
+**Pattern B Cons**:
+- More files/boilerplate
+- Slight performance overhead (negligible per research)
+
+What's your recommendation considering CVM's specific context and goals?

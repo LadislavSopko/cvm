@@ -67,14 +67,13 @@ describe('VM - ITER_END opcode', () => {
       { op: OpCode.ITER_START },          // 1
       // Loop start
       { op: OpCode.ITER_NEXT },           // 2
-      { op: OpCode.JUMP_IF_FALSE, arg: 7 }, // 3 - Jump to ITER_END
+      { op: OpCode.JUMP_IF_FALSE, arg: 6 }, // 3 - Jump to ITER_END
       { op: OpCode.STORE, arg: 'item' },  // 4
-      { op: OpCode.POP }, // Remove hasMore // 5
       // Loop body would go here
-      { op: OpCode.JUMP, arg: 2 }, // 6 - Jump back to ITER_NEXT
+      { op: OpCode.JUMP, arg: 2 }, // 5 - Jump back to ITER_NEXT
       // Loop end
-      { op: OpCode.ITER_END },            // 7
-      { op: OpCode.HALT }                 // 8
+      { op: OpCode.ITER_END },            // 6
+      { op: OpCode.HALT }                 // 7
     ];
 
     const state = vm.execute(bytecode);

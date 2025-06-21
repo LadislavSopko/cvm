@@ -16,15 +16,18 @@ describe('VM - Simple Iterator Tests', () => {
       { op: OpCode.PUSH, arg: array },      // 0
       { op: OpCode.ITER_START },            // 1
       { op: OpCode.ITER_NEXT },             // 2
-      { op: OpCode.JUMP_IF_FALSE, arg: 8 }, // 3
+      { op: OpCode.JUMP_IF_FALSE, arg: 7 }, // 3
       { op: OpCode.STORE, arg: 'x' },       // 4  
-      { op: OpCode.POP },                   // 5
-      { op: OpCode.JUMP, arg: 2 },          // 6
-      { op: OpCode.ITER_END },              // 7
-      { op: OpCode.HALT }                   // 8
+      { op: OpCode.JUMP, arg: 2 },          // 5
+      { op: OpCode.ITER_END },              // 6
+      { op: OpCode.HALT }                   // 7
     ];
 
     const state = vm.execute(bytecode);
+    
+    if (state.status === 'error') {
+      console.log('Error:', state.error);
+    }
     
     expect(state.status).toBe('complete');
     expect(state.error).toBeUndefined();

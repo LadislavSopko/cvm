@@ -17,14 +17,13 @@ describe('VM - fs.listFiles iterator compatibility', () => {
       { op: OpCode.FS_LIST_FILES },
       { op: OpCode.ITER_START },            // 2
       { op: OpCode.ITER_NEXT },             // 3
-      { op: OpCode.JUMP_IF_FALSE, arg: 10 }, // 4 - jump to ITER_END if no more items
+      { op: OpCode.JUMP_IF_FALSE, arg: 9 },  // 4 - jump to ITER_END if no more items
       { op: OpCode.STORE, arg: 'file' },     // 5 - store current file
-      { op: OpCode.POP },                    // 6 - clean up stack
-      { op: OpCode.LOAD, arg: 'file' },      // 7 - load file for printing
-      { op: OpCode.PRINT },                  // 8 - print it
-      { op: OpCode.JUMP, arg: 3 },           // 9 - back to ITER_NEXT
-      { op: OpCode.ITER_END },               // 10
-      { op: OpCode.HALT }                    // 11
+      { op: OpCode.LOAD, arg: 'file' },      // 6 - load file for printing
+      { op: OpCode.PRINT },                  // 7 - print it
+      { op: OpCode.JUMP, arg: 3 },           // 8 - back to ITER_NEXT
+      { op: OpCode.ITER_END },               // 9
+      { op: OpCode.HALT }                    // 10
     ];
 
     // Execute until waiting_fs
