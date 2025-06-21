@@ -422,7 +422,8 @@ for (const i of [1, 2]) {
 - Supports simple identifiers
 - Nested for-of loops supported
 - Works with array literals and variables
-- Safe iteration (array snapshots prevent corruption)
+- Safe iteration (array length snapshot prevents infinite loops)
+- Array modifications during iteration ARE visible for existing indices
 
 ### break/continue
 **Status**: ✅ Implemented
@@ -651,7 +652,7 @@ let data = { user: { email: "test@example.com" } };
 let email = data.user.email;  // "test@example.com"
 ```
 
-**Returns**: Property value, or `null` if property doesn't exist.
+**Returns**: Property value, or `undefined` if property doesn't exist.
 
 ### object["property"] (Property access - bracket notation)
 **Status**: ✅ Implemented
@@ -687,7 +688,14 @@ data.user.email = "test@example.com";
 
 ## Type System
 
-CVM supports the following types:
+CVM follows JavaScript's type system with some differences:
+
+### Special Behaviors
+- `undefined` is represented as a special object type internally
+- `typeof` returns 'array' for arrays (not 'object' like JavaScript)
+- Division by zero throws a DivisionByZero error (unlike JavaScript which returns Infinity)
+
+### Supported Types
 - **string**: Text values
 - **number**: Numeric values (integers and floats)
 - **boolean**: `true` or `false`
