@@ -136,7 +136,7 @@ Add to your `.mcp.json`:
   "mcpServers": {
     "cvm": {
       "command": "npx",
-      "args": ["cvm-server"],
+      "args": ["cvm-server@latest"],
       "env": {
         "CVM_STORAGE_TYPE": "file",
         "CVM_DATA_DIR": ".cvm"
