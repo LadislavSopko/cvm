@@ -11,7 +11,12 @@ export interface CVMUndefined {
   type: 'undefined';
 }
 
-export type CVMValue = string | boolean | number | CVMArray | null | CVMUndefined;
+export interface CVMObject {
+  type: 'object';
+  properties: Map<string, CVMValue>;
+}
+
+export type CVMValue = string | boolean | number | CVMArray | CVMObject | null | CVMUndefined;
 
 // Type guards for runtime type checking
 export function isCVMString(value: CVMValue): value is string {
@@ -44,6 +49,13 @@ export function isCVMUndefined(value: CVMValue): value is CVMUndefined {
          value.type === 'undefined';
 }
 
+export function isCVMObject(value: CVMValue): value is CVMObject {
+  return value !== null && 
+         typeof value === 'object' && 
+         'type' in value && 
+         value.type === 'object';
+}
+
 // Type conversion helpers
 export function cvmToString(value: CVMValue): string {
   if (isCVMString(value)) return value;
@@ -52,6 +64,7 @@ export function cvmToString(value: CVMValue): string {
   if (isCVMNull(value)) return 'null';
   if (isCVMUndefined(value)) return 'undefined';
   if (isCVMArray(value)) return `[array:${value.elements.length}]`;
+  if (isCVMObject(value)) return '[object Object]';
   return String(value);
 }
 
@@ -63,6 +76,7 @@ export function cvmToBoolean(value: CVMValue): boolean {
   if (isCVMNumber(value)) return value !== 0;
   if (isCVMString(value)) return value !== '';
   if (isCVMArray(value)) return true; // Arrays are always truthy
+  if (isCVMObject(value)) return true; // Objects are always truthy
   return Boolean(value);
 }
 
@@ -73,6 +87,7 @@ export function cvmTypeof(value: CVMValue): string {
   if (isCVMNull(value)) return 'null';
   if (isCVMUndefined(value)) return 'undefined';
   if (isCVMArray(value)) return 'array';
+  if (isCVMObject(value)) return 'object';
   return 'unknown';
 }
 
@@ -100,4 +115,9 @@ export function createCVMArray(elements: CVMValue[] = []): CVMArray {
 // Undefined creation helper
 export function createCVMUndefined(): CVMUndefined {
   return { type: 'undefined' };
+}
+
+// Object creation helper
+export function createCVMObject(properties: Map<string, CVMValue> = new Map()): CVMObject {
+  return { type: 'object', properties };
 }

@@ -12,6 +12,7 @@ import { arrayHandlers } from './arrays.js';
 import { stringHandlers } from './strings.js';
 import { incrementHandlers } from './increment.js';
 import { advancedHandlers } from './advanced.js';
+import { objectHandlers } from './objects.js';
 
 // Export the combined handlers
 export const handlers: Partial<Record<OpCode, OpcodeHandler>> = {
@@ -27,6 +28,7 @@ export const handlers: Partial<Record<OpCode, OpcodeHandler>> = {
   ...stringHandlers,
   ...incrementHandlers,
   ...advancedHandlers,
+  ...objectHandlers,
 };
 
 // Export types for use in VM

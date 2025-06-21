@@ -83,6 +83,12 @@ export enum OpCode {
   // File operations
   FS_LIST_FILES = 'FS_LIST_FILES',
   
+  // Object operations
+  OBJECT_CREATE = 'OBJECT_CREATE',
+  PROPERTY_GET = 'PROPERTY_GET',
+  PROPERTY_SET = 'PROPERTY_SET',
+  JSON_STRINGIFY = 'JSON_STRINGIFY',
+  
   // Cognitive
   CC = 'CC',
   
