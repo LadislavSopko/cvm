@@ -6,9 +6,14 @@ import { ioHandlers } from './io.js';
 import { controlHandlers } from './control.js';
 import { variableHandlers } from './variables.js';
 import { iteratorHandlers } from './iterators.js';
+import { comparisonHandlers } from './comparison.js';
+import { logicalHandlers } from './logical.js';
+import { arrayHandlers } from './arrays.js';
+import { stringHandlers } from './strings.js';
+import { incrementHandlers } from './increment.js';
+import { advancedHandlers } from './advanced.js';
 
 // Export the combined handlers
-// Using Partial during migration phase
 export const handlers: Partial<Record<OpCode, OpcodeHandler>> = {
   ...arithmeticHandlers,
   ...stackHandlers,
@@ -16,6 +21,12 @@ export const handlers: Partial<Record<OpCode, OpcodeHandler>> = {
   ...controlHandlers,
   ...variableHandlers,
   ...iteratorHandlers,
+  ...comparisonHandlers,
+  ...logicalHandlers,
+  ...arrayHandlers,
+  ...stringHandlers,
+  ...incrementHandlers,
+  ...advancedHandlers,
 };
 
 // Export types for use in VM
