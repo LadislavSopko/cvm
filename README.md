@@ -112,6 +112,7 @@ function main() {
   
   return report;
 }
+main();
 ```
 
 CVM turns this into a dynamic TODO list:
