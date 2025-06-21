@@ -1,3 +1,64 @@
+## 0.9.1 (2025-06-21)
+
+### 📝 Documentation
+
+- Sync cvm-server README with main project README
+- Update copyright year to 2025
+- Ensure npm package has accurate documentation
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
+## 0.9.0 (2025-06-21)
+
+### 🚀 Features
+
+- **Complete Object Support** - Full implementation of objects in CVM
+  - Object literals with `{}` syntax
+  - Property access (dot and bracket notation)
+  - Property assignment with dynamic property creation
+  - Nested objects support
+  - Shorthand property syntax
+  - JSON.stringify() for objects
+  - Object persistence through CC (Cognitive Call) state
+
+### 🔧 Improvements
+
+- Migrate from Map to Record for JSON compatibility
+- Complete test coverage for object operations
+- Integration tests for object persistence across CC calls
+
+### 📝 Documentation
+
+- Fix API.md accuracy issues:
+  - Property access returns `undefined` (not `null`)
+  - for-of loops snapshot only array length (not full array)
+  - Add type system special behaviors section
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
+## 0.8.0 (2025-06-20)
+
+### 🚀 Features
+
+- implement additional string methods (slice, charAt, toUpperCase, toLowerCase)
+- add STRING_SLICE, STRING_CHARAT, STRING_TOUPPERCASE, STRING_TOLOWERCASE opcodes
+- support JavaScript-compatible slice with negative indices
+- add ternary conditional operator (?:) with proper short-circuit evaluation
+- implement break and continue statements for all loop types
+
+### 🩹 Fixes
+
+- fix string method handlers to properly detect optional arguments
+- improve substring handler to match JavaScript behavior with argument validation
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.7.0 (2025-06-20)
 
 ### 🚀 Features
