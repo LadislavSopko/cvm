@@ -74,8 +74,9 @@ export class CompilerState {
    */
   findLoopContext(): JumpContext | null {
     for (let i = this.contextStack.length - 1; i >= 0; i--) {
-      if (this.contextStack[i].type === 'loop' || this.contextStack[i].type === 'foreach') {
-        return this.contextStack[i];
+      const context = this.contextStack[i];
+      if (context.type === 'loop' || context.type === 'foreach') {
+        return context;
       }
     }
     return null;

@@ -10,9 +10,16 @@ import {
 import { compileIdentifier } from './identifier.js';
 import { compileArrayLiteral } from './array-literal.js';
 import { compileParenthesizedExpression } from './parenthesized.js';
+import { compilePropertyAccessExpression } from './property-access.js';
+import { compileElementAccessExpression } from './element-access.js';
+import { compilePrefixUnaryExpression, compilePostfixUnaryExpression } from './unary-expressions.js';
+import { compileBinaryExpression } from './binary-expression.js';
+import { compileConditionalExpression } from './conditional-expression.js';
+import { compileTypeOfExpression } from './typeof-expression.js';
+import { compileCallExpression } from './call-expression.js';
 
 // Registry populated as we extract visitors
-export const expressionVisitors: Partial<Record<ts.SyntaxKind, ExpressionVisitor>> = {
+export const expressionVisitors: Partial<Record<ts.SyntaxKind, ExpressionVisitor<any>>> = {
   [ts.SyntaxKind.StringLiteral]: compileStringLiteral,
   [ts.SyntaxKind.NumericLiteral]: compileNumericLiteral,
   [ts.SyntaxKind.TrueKeyword]: compileTrue,
@@ -20,13 +27,13 @@ export const expressionVisitors: Partial<Record<ts.SyntaxKind, ExpressionVisitor
   [ts.SyntaxKind.NullKeyword]: compileNull,
   [ts.SyntaxKind.Identifier]: compileIdentifier,
   [ts.SyntaxKind.ArrayLiteralExpression]: compileArrayLiteral,
-  // [ts.SyntaxKind.BinaryExpression]: compileBinaryExpression,
-  // [ts.SyntaxKind.PrefixUnaryExpression]: compilePrefixUnaryExpression,
-  // [ts.SyntaxKind.PostfixUnaryExpression]: compilePostfixUnaryExpression,
-  // [ts.SyntaxKind.CallExpression]: compileCallExpression,
-  // [ts.SyntaxKind.PropertyAccessExpression]: compilePropertyAccessExpression,
-  // [ts.SyntaxKind.ElementAccessExpression]: compileElementAccessExpression,
-  // [ts.SyntaxKind.ConditionalExpression]: compileConditionalExpression,
-  // [ts.SyntaxKind.TypeOfExpression]: compileTypeOfExpression,
+  [ts.SyntaxKind.BinaryExpression]: compileBinaryExpression,
+  [ts.SyntaxKind.PrefixUnaryExpression]: compilePrefixUnaryExpression,
+  [ts.SyntaxKind.PostfixUnaryExpression]: compilePostfixUnaryExpression,
+  [ts.SyntaxKind.CallExpression]: compileCallExpression,
+  [ts.SyntaxKind.PropertyAccessExpression]: compilePropertyAccessExpression,
+  [ts.SyntaxKind.ElementAccessExpression]: compileElementAccessExpression,
+  [ts.SyntaxKind.ConditionalExpression]: compileConditionalExpression,
+  [ts.SyntaxKind.TypeOfExpression]: compileTypeOfExpression,
   [ts.SyntaxKind.ParenthesizedExpression]: compileParenthesizedExpression,
 };

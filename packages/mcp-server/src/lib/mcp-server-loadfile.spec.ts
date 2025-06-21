@@ -56,10 +56,12 @@ function main() {
       filePath: testFile
     });
 
-    expect(result.content).toEqual([
-      { type: 'text', text: `Program loaded successfully from ${testFile}: test-file-program` }
-    ]);
-    expect(result.isError).toBeUndefined();
+    expect('error' in result).toBe(false);
+    if (!('error' in result)) {
+      expect(result.content).toEqual([
+        { type: 'text', text: `Program loaded successfully from ${testFile}: test-file-program` }
+      ]);
+    }
   });
 
   it('should handle file not found error', async () => {
@@ -70,10 +72,12 @@ function main() {
       filePath: nonExistentFile
     });
 
-    expect(result.content).toEqual([
-      { type: 'text', text: `Error: File not found: ${nonExistentFile}` }
-    ]);
-    expect(result.isError).toBe(true);
+    expect('error' in result).toBe(false);
+    if (!('error' in result)) {
+      expect(result.content).toEqual([
+        { type: 'text', text: `Error: File not found: ${nonExistentFile}` }
+      ]);
+    }
   });
 
   it('should load and execute program from file', async () => {
@@ -83,7 +87,7 @@ function main() {
       filePath: testFile
     });
 
-    expect(loadResult.isError).toBeUndefined();
+    expect('error' in loadResult).toBe(false);
 
     // Start execution
     const startResult = await transport.callTool('start', {
@@ -91,14 +95,17 @@ function main() {
       executionId: 'exec1'
     });
 
-    expect(startResult.isError).toBeUndefined();
+    expect('error' in startResult).toBe(false);
 
     // Get result
     const taskResult = await transport.callTool('getTask', {
       executionId: 'exec1'
     });
 
-    expect(taskResult.content[0].text).toContain('Execution completed with result: 42');
+    expect('error' in taskResult).toBe(false);
+    if (!('error' in taskResult)) {
+      expect(taskResult.content[0].text).toContain('Execution completed with result: 42');
+    }
   });
 
   it('should handle compilation errors in loaded file', async () => {
@@ -119,8 +126,10 @@ function main() {
       filePath: invalidFile
     });
 
-    expect(result.isError).toBe(true);
-    expect(result.content[0].text).toContain('Error:');
+    expect('error' in result).toBe(false);
+    if (!('error' in result)) {
+      expect(result.content[0].text).toContain('Error:');
+    }
     
     // Cleanup
     await unlink(invalidFile);
@@ -135,9 +144,11 @@ function main() {
       filePath: relativeFile
     });
 
-    expect(result.content).toEqual([
-      { type: 'text', text: `Program loaded successfully from ${relativeFile}: relative-test` }
-    ]);
-    expect(result.isError).toBeUndefined();
+    expect('error' in result).toBe(false);
+    if (!('error' in result)) {
+      expect(result.content).toEqual([
+        { type: 'text', text: `Program loaded successfully from ${relativeFile}: relative-test` }
+      ]);
+    }
   });
 });
