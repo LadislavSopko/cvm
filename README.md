@@ -1,43 +1,45 @@
 # CVM - Cognitive Virtual Machine
 
-A deterministic bytecode virtual machine designed for AI-driven execution through the Model Context Protocol.
+**A deterministic execution environment that lets Claude (and other AI) run stateful, observable programs through the Model Context Protocol.**
 
-## Quick Start
+[![npm version](https://badge.fury.io/js/cvm-server.svg)](https://www.npmjs.com/package/cvm-server)
+
+## 🚀 Quick Start
 
 ```bash
 npx cvm-server@latest
 ```
 
-[![npm version](https://badge.fury.io/js/cvm-server.svg)](https://www.npmjs.com/package/cvm-server)
-
-## ⚠️ Important: Add to .gitignore
-
-When using CVM in a git repository, add the data directory to your `.gitignore`:
-
+## ⚠️ Add to .gitignore
 ```gitignore
 # CVM data directory
 .cvm/
 ```
 
-## Overview
+---
 
-CVM (Cognitive Virtual Machine) is a passive execution environment that processes programs under AI control. The AI (like Claude) drives the entire execution by pulling tasks and pushing results through MCP tools. CVM never initiates actions - it only responds to AI requests.
+## 🎯 What CVM Is
 
-### How CVM Really Works
+CVM is **NOT** another AI coding assistant or framework. It's a **deterministic virtual machine** that Claude controls through MCP tools.
 
-**CVM is NOT a traditional VM that calls out to AI. Instead:**
-- The AI (Claude) drives the entire execution
-- CVM waits passively for the AI to request tasks
-- When encountering CC() instructions, CVM presents them as tasks
-- The AI provides responses and continues execution
-- All control flow is managed by the AI through MCP tools
+Think of it as **giving Claude a calculator**: Claude can load programs, execute them step by step, and handle complex stateful logic without having to keep everything in context.
 
-### Execution Flow Diagram
+## 🤔 The Problem CVM Solves
+
+When Claude tries to do complex, stateful tasks, several problems arise:
+
+- **🧠 Context Limits**: Complex state quickly fills up Claude's context window
+- **🔁 Repetitive Logic**: Simple loops require multiple expensive LLM calls  
+- **🐛 Non-Deterministic**: Same task might produce different results
+- **👀 No Observability**: Hard to debug what actually happened
+- **💾 No Persistence**: State is lost between conversations
+
+## ✨ How CVM Works
 
 ```
 ┌─────────────┐                    ┌─────────────┐
-│     AI      │                    │     CVM     │
-│  (Claude)   │                    │   Server    │
+│   Claude    │                    │     CVM     │
+│  (via MCP)  │                    │   Server    │
 └─────────────┘                    └─────────────┘
       │                                   │
       │  1. load(program)                │
@@ -46,42 +48,89 @@ CVM (Cognitive Virtual Machine) is a passive execution environment that processe
       │  2. start(executionId)           │
       ├──────────────────────────────────>│
       │                                   │
-      ┌───────────────────────────────────┐
-      │ EXECUTION LOOP (AI-driven)        │
-      │                                   │
-      │  3. getTask()                    │
+      │  3. getTask() - loop until done  │
       ├──────────────────────────────────>│
       │                                   │
-      │  4. Returns task/prompt          │
-      │<──────────────────────────────────┤
-      │                                   │
-      │  5. AI processes task            │
-      │  (e.g., answers CC prompt)       │
-      │                                   │
-      │  6. submitTask(result)           │
+      │  4. submitTask(result)           │
       ├──────────────────────────────────>│
-      │                                   │
-      │  7. CVM executes next steps      │
-      │     until next CC() or end       │
-      │                                   │
-      └───────────────────────────────────┘
-           Repeat until program ends
 ```
 
-### Key Features
+1. **Claude loads a program** - TypeScript-like syntax with deterministic execution
+2. **CVM executes deterministically** - Variables, loops, conditionals work perfectly
+3. **When CVM hits `CC()`** - It pauses and asks Claude for cognitive input
+4. **Claude provides the answer** - CVM continues with that result
+5. **Repeat until complete** - Deterministic + cognitive reasoning combined
 
-- **AI-Driven Execution**: The AI controls program flow by pulling tasks
-- **Passive State Machine**: CVM only responds to MCP tool calls
-- **Deterministic**: Each step is predictable and debuggable
-- **State Persistence**: Execution state preserved between AI interactions
-- **MCP Protocol**: Standard interface for AI-VM communication
+## 🔥 Key Benefits
 
-## Installation
+### 🎮 **Deterministic Execution**
+- Same program always produces the same result
+- Perfect for testing and reliable automation
+- No "it worked yesterday" problems
 
-### As an MCP Server
+### 📊 **Stateful Programming**
+- Variables, arrays, and objects that persist
+- Complex logic without context window bloat
+- Real programming constructs (loops, conditionals)
+
+### 👁️ **Full Observability**
+- Complete execution trace of every step
+- Debug exactly what happened and when
+- Audit trails for critical processes
+
+### 💰 **Cost Efficient**
+- One LLM call to load the program
+- Deterministic execution runs locally
+- Only cognitive tasks require Claude
+
+### 🔄 **Cognitive + Deterministic**
+- Best of both worlds: logic + reasoning
+- Claude handles creative/analytical tasks
+- CVM handles data processing and control flow
+
+## 📝 Simple Example
+
+Instead of Claude juggling state across multiple messages:
+
+```typescript
+function main() {
+  const scores = [];
+  
+  for (let i = 0; i < 3; i++) {
+    const score = CC("Rate this article from 1-10: " + articles[i]);
+    scores.push(parseInt(score));
+  }
+  
+  const average = scores.reduce((a, b) => a + b) / scores.length;
+  console.log("Average score: " + average);
+  
+  if (average > 7) {
+    const summary = CC("Write a summary of these highly-rated articles");
+    console.log("Summary: " + summary);
+  }
+}
+```
+
+**What happens:**
+- CVM handles the loop, array, and math deterministically
+- Claude only gets called for the cognitive tasks (rating, summarizing)
+- State persists perfectly throughout execution
+- Full execution trace available for debugging
+
+## 🆚 CVM vs. Other Solutions
+
+| Approach | State Management | Determinism | Cost | Debugging |
+|----------|-----------------|-------------|------|-----------|
+| **Pure Claude** | Context window | ❌ Non-deterministic | 💸 High | 🤷 Black box |
+| **LangChain/AutoGen** | External state | ❌ Non-deterministic | 💸 High | 🔍 Limited |
+| **Code Interpreters** | Session-based | ⚠️ Environment dependent | 💰 Medium | 🔧 Complex |
+| **CVM** | Built-in VM | ✅ Fully deterministic | 💚 Low | 👁️ Complete |
+
+## 🚀 Installation & Setup
+
+### As an MCP Server (Recommended)
 
 Add to your `.mcp.json`:
-
 ```json
 {
   "mcpServers": {
@@ -98,144 +147,63 @@ Add to your `.mcp.json`:
 ```
 
 ### Global Installation
-
 ```bash
 npm install -g cvm-server
 cvm-server
 ```
 
-## Configuration
+## 📚 Language Features
 
-CVM uses environment variables for configuration:
+CVM supports a TypeScript-like language with:
+
+- **✅ Variables & Types**: `let`, `const`, strings, numbers, booleans, arrays
+- **✅ Control Flow**: `if/else`, `while`, `for-of` loops, `break`, `continue`
+- **✅ Operators**: Arithmetic, comparison, logical, string concatenation
+- **✅ String Operations**: `.length`, `.substring()`, `.split()`, etc.
+- **✅ Array Operations**: Literals, indexing, `.push()`, `.length`
+- **✅ Cognitive Calls**: `CC("prompt")` for AI reasoning
+- **✅ File System**: `fs.listFiles()` with sandboxing
+- **✅ Output**: `console.log()` for results
+
+[→ **Full API Documentation**](docs/API.md)
+
+## 🛠️ Available MCP Tools
+
+When CVM is connected, Claude gets these tools:
+
+- **`load(programId, source)`** - Load a TypeScript program
+- **`start(programId, executionId)`** - Start program execution  
+- **`getTask(executionId)`** - Get next cognitive task or completion
+- **`submitTask(executionId, result)`** - Provide cognitive response
+- **`status(executionId)`** - Check execution state
+
+## 🏗️ Configuration
 
 | Variable | Description | Default |
 |----------|-------------|---------|
 | `CVM_STORAGE_TYPE` | Storage backend: "file" or "mongodb" | "file" |
 | `CVM_DATA_DIR` | Directory for file storage | ".cvm" |
-| `CVM_LOG_LEVEL` | Logging level: "debug", "info", "warn", "error" | "info" |
-| `MONGODB_URI` | MongoDB connection string (required for mongodb storage) | - |
+| `CVM_LOG_LEVEL` | Logging level | "info" |
+| `MONGODB_URI` | MongoDB connection string | - |
 
-## Example Program
+## 🧪 Real-World Use Cases
 
-```typescript
-function main() {
-  console.log("Starting creative writing assistant...");
-  
-  const topic = CC("What's an interesting topic for a short story?");
-  console.log("Topic: " + topic);
-  
-  const outline = CC("Create a brief outline for a story about: " + topic);
-  console.log("Outline: " + outline);
-  
-  const opening = CC("Write an engaging opening paragraph for this story");
-  console.log("Opening: " + opening);
-  
-  console.log("Story started!");
-}
-```
+- **📊 Data Processing**: Complex analysis with cognitive insights
+- **🔄 Workflow Automation**: Deterministic steps with AI decision points
+- **📝 Content Generation**: Structured content with AI creativity
+- **🧮 Calculations**: Math + reasoning in one seamless flow
+- **📋 Report Generation**: Systematic data gathering + AI analysis
 
-### Execution Example
+## 🤝 Contributing
 
-Here's what actually happens when this program runs:
+We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
 
-```
-1. AI: load("function main() { ... }")
-   CVM: Program loaded as program-123
-
-2. AI: start("execution-456", "program-123")
-   CVM: Execution started
-
-3. AI: getTask("execution-456")
-   CVM: No task (executes console.log)
-
-4. AI: getTask("execution-456")
-   CVM: { prompt: "What's an interesting topic for a short story?" }
-
-5. AI: submitTask("execution-456", "A time-traveling detective")
-   CVM: Stored response, continues execution
-
-6. AI: getTask("execution-456")
-   CVM: No task (executes console.log)
-
-7. AI: getTask("execution-456")
-   CVM: { prompt: "Create a brief outline for a story about: A time-traveling detective" }
-
-8. AI: submitTask("execution-456", "1. Detective discovers time anomaly...")
-   CVM: Stored response, continues execution
-
-... (pattern continues until program completes)
-```
-
-**Remember**: CVM never initiates communication. The AI must continuously poll for tasks.
-
-## How It Works
-
-1. **AI Loads Program**: The AI calls `load()` with your TypeScript-like program
-2. **AI Starts Execution**: The AI calls `start()` to begin execution
-3. **AI Pulls Tasks**: The AI repeatedly calls `getTask()` to check for work
-4. **CVM Responds**: When reaching CC(), CVM returns the prompt as a task
-5. **AI Processes**: The AI determines the response to the prompt
-6. **AI Submits Result**: The AI calls `submitTask()` with the response
-7. **CVM Continues**: CVM processes the response and executes until next CC()
-8. **Repeat**: The AI continues pulling tasks until the program completes
-
-**Key Point**: The AI drives everything. CVM never "calls" the AI - it only responds when the AI asks for tasks.
-
-## Architecture
-
-CVM is built as a monorepo with the following packages:
-
-- `@cvm/parser` - TypeScript parser for CVM language
-- `@cvm/compiler` - Bytecode compiler
-- `@cvm/vm` - Virtual machine executor
-- `@cvm/storage` - Storage abstraction layer
-- `@cvm/mcp-server` - MCP protocol implementation
-- `@cvm/types` - Shared type definitions
-
-## Development
-
-### Prerequisites
-
-- Node.js >= 18
-- npm or yarn
-- MongoDB (optional, for mongodb storage)
-
-### Setup
-
-```bash
-git clone https://github.com/LadislavSopko/cvm
-cd cvm
-npm install
-```
-
-### Build
-
-```bash
-npx nx build cvm-server
-```
-
-### Test
-
-```bash
-npx nx test --all
-```
-
-## Contributing
-
-We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.md) for details.
-
-## License
+## 📄 License
 
 Copyright 2024 Ladislav Sopko
 
-Licensed under the Apache License, Version 2.0 (the "License");
-you may not use this file except in compliance with the License.
-You may obtain a copy of the License at
+Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
 
-    http://www.apache.org/licenses/LICENSE-2.0
+---
 
-Unless required by applicable law or agreed to in writing, software
-distributed under the License is distributed on an "AS IS" BASIS,
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-See the License for the specific language governing permissions and
-limitations under the License.
+**Ready to give Claude superpowers?** [Get started with CVM →](#-quick-start)

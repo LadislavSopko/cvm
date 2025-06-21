@@ -1,8 +1,12 @@
-# CVM Language API Documentation
+# CVM Language API Reference
+
+> 📖 **New to CVM?** Start with the [main README](../README.md) to understand what CVM is and why you'd use it.
 
 ## Overview
 
-CVM (Cognitive Virtual Machine) is a domain-specific language designed as "rails for AI agents". This document describes all currently implemented language features, built-in functions, and operators.
+This document provides complete technical documentation for the CVM language - a TypeScript-like DSL designed for safe AI agent execution. CVM gives you deterministic, observable, and secure programs that eliminate the risks of arbitrary code execution.
+
+**Key Principle**: Instead of letting AI generate dangerous Python/JavaScript, CVM provides a safe, sandboxed instruction set that can only perform operations you explicitly allow.
 
 ## Core Functions
 
