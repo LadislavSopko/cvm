@@ -201,4 +201,4 @@ CVM is a passive, stateful task engine. It turns programs into smart TODO lists 
 
 ---
 
-Copyright 2024 Ladislav Sopko. Licensed under Apache 2.0.
+Copyright 2025 Ladislav Sopko. Licensed under Apache 2.0.
