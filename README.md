@@ -1,136 +1,144 @@
-# CVM - Cognitive Virtual Machine
+# CVM: Stateful Task Engine for Claude
 
-**A deterministic execution environment that lets Claude (and other AI) run stateful, observable programs through the Model Context Protocol.**
+**Stop Claude from losing track. CVM is a passive state machine that Claude queries for tasks, maintaining perfect execution flow across complex operations.**
 
 [![npm version](https://badge.fury.io/js/cvm-server.svg)](https://www.npmjs.com/package/cvm-server)
 
-## 🚀 Quick Start
+## The Problem
 
-```bash
-npx cvm-server@latest
+"Claude, analyze these 1000 files and create a report" → Claude gets confused, loses context, forgets what it's doing.
+
+## The Solution
+
+CVM is a passive MCP server that holds program state. You write a program with loops and logic, but Claude only sees one task at a time. Claude asks "what's next?", completes the task, and asks again.
+
+The magic: CVM never pushes tasks. Claude pulls tasks when ready, maintaining perfect control while CVM quietly manages state between requests.
+
+## What CVM Really Is
+
+CVM is an **algorithmic TODO manager**. Think of it as:
+- A TODO list that can have loops ("do this 5 times")
+- A TODO list that can have conditions ("if X then do Y") 
+- A TODO list that maintains variables between tasks
+- A TODO list shaped like a program
+
+When your program hits `CC("analyze this file")`, CVM doesn't call Claude. Instead:
+1. CVM creates a TODO: "analyze this file"
+2. CVM pauses execution and waits
+3. Claude asks CVM: "What should I do next?"
+4. CVM responds: "analyze this file"
+5. Claude does the analysis and submits the result
+6. CVM updates its state and moves to the next instruction
+
+**CVM is completely passive** - it never initiates anything. Claude drives everything.
+
+## Try It Now
+
+Save this as `counter.ts`:
+```typescript
+function main() {
+  let count = 0;
+  while (count < 5) {
+    const next = CC("Current number is " + count + ". What's the next number?");
+    count = +next;
+    console.log("Count is now: " + count);
+  }
+  return count;  // Returns 5
+}
+main();
 ```
 
-## ⚠️ Add to .gitignore
-```gitignore
-# CVM data directory
-.cvm/
-```
+Then tell Claude: **"Run counter.ts with CVM"**
 
----
+What actually happens:
+- CVM loads the program and starts execution
+- When it hits `CC()`, CVM creates a task and waits
+- Claude asks CVM for tasks using `getTask()`
+- CVM gives Claude: "Current number is 0. What's the next number?"
+- Claude figures out the answer is "1" and submits it
+- CVM continues the loop with count=1
+- Process repeats until done
 
-## 🎯 What CVM Is
+## How It Works
 
-CVM is **NOT** another AI coding assistant or framework. It's a **deterministic virtual machine** that Claude controls through MCP tools.
-
-Think of it as **giving Claude a calculator**: Claude can load programs, execute them step by step, and handle complex stateful logic without having to keep everything in context.
-
-## 🤔 The Problem CVM Solves
-
-When Claude tries to do complex, stateful tasks, several problems arise:
-
-- **🧠 Context Limits**: Complex state quickly fills up Claude's context window
-- **🔁 Repetitive Logic**: Simple loops require multiple expensive LLM calls  
-- **🐛 Non-Deterministic**: Same task might produce different results
-- **👀 No Observability**: Hard to debug what actually happened
-- **💾 No Persistence**: State is lost between conversations
-
-## ✨ How CVM Works
+CVM is a passive MCP server. Claude actively drives execution:
 
 ```
-┌─────────────┐                    ┌─────────────┐
-│   Claude    │                    │     CVM     │
-│  (via MCP)  │                    │   Server    │
-└─────────────┘                    └─────────────┘
-      │                                   │
-      │  1. load(program)                │
-      ├──────────────────────────────────>│
-      │                                   │
-      │  2. start(executionId)           │
-      ├──────────────────────────────────>│
-      │                                   │
-      │  3. getTask() - loop until done  │
-      ├──────────────────────────────────>│
-      │                                   │
-      │  4. submitTask(result)           │
-      ├──────────────────────────────────>│
+Claude: load("counter", "...program code...")
+Claude: start("counter", "exec-123")
+Claude: getTask("exec-123") → CVM: "Current number is 0. What's the next number?"
+Claude: submitTask("exec-123", "1") → CVM sets count=1, continues loop
+Claude: getTask("exec-123") → CVM: "Current number is 1. What's the next number?"
+Claude: submitTask("exec-123", "2") → CVM sets count=2, continues loop
+...
+Claude: getTask("exec-123") → CVM: "Execution completed with result: 5"
 ```
 
-1. **Claude loads a program** - TypeScript-like syntax with deterministic execution
-2. **CVM executes deterministically** - Variables, loops, conditionals work perfectly
-3. **When CVM hits `CC()`** - It pauses and asks Claude for cognitive input
-4. **Claude provides the answer** - CVM continues with that result
-5. **Repeat until complete** - Deterministic + cognitive reasoning combined
+## Why This Architecture
 
-## 🔥 Key Benefits
+**Traditional approach**: Claude tries to maintain state in its context window
+- ❌ Loses track in complex flows
+- ❌ Forgets variables between steps
+- ❌ Can't handle real loops or conditions reliably
 
-### 🎮 **Deterministic Execution**
-- Same program always produces the same result
-- Perfect for testing and reliable automation
-- No "it worked yesterday" problems
+**CVM approach**: State lives in CVM, Claude just processes individual tasks
+- ✅ Perfect state management
+- ✅ Real loops and conditions that work
+- ✅ Claude's context stays clean
+- ✅ Complex workflows become simple task sequences
 
-### 📊 **Stateful Programming**
-- Variables, arrays, and objects that persist
-- Complex logic without context window bloat
-- Real programming constructs (loops, conditionals)
-
-### 👁️ **Full Observability**
-- Complete execution trace of every step
-- Debug exactly what happened and when
-- Audit trails for critical processes
-
-### 💰 **Cost Efficient**
-- One LLM call to load the program
-- Deterministic execution runs locally
-- Only cognitive tasks require Claude
-
-### 🔄 **Cognitive + Deterministic**
-- Best of both worlds: logic + reasoning
-- Claude handles creative/analytical tasks
-- CVM handles data processing and control flow
-
-## 📝 Simple Example
-
-Instead of Claude juggling state across multiple messages:
+## Real Example
 
 ```typescript
 function main() {
-  const scores = [];
+  const files = fs.listFiles("./docs", { filter: "*.txt" });
+  const summaries = [];
   
-  for (let i = 0; i < 3; i++) {
-    const score = CC("Rate this article from 1-10: " + articles[i]);
-    scores.push(parseInt(score));
+  for (const file of files) {
+    // This creates a task for Claude, doesn't "call" Claude
+    const content = CC("Read and summarize this file: " + file);
+    summaries.push({ file, summary: content });
+    console.log("Processed: " + file);
   }
   
-  const average = scores.reduce((a, b) => a + b) / scores.length;
-  console.log("Average score: " + average);
-  
-  if (average > 7) {
-    const summary = CC("Write a summary of these highly-rated articles");
-    console.log("Summary: " + summary);
-  }
+  const report = CC("Create a final report from these summaries: " + JSON.stringify(summaries));
+  console.log("Final Report: " + report);
 }
 ```
 
-**What happens:**
-- CVM handles the loop, array, and math deterministically
-- Claude only gets called for the cognitive tasks (rating, summarizing)
-- State persists perfectly throughout execution
-- Full execution trace available for debugging
+CVM turns this into a dynamic TODO list:
+1. Task: "Read and summarize this file: ./docs/file1.txt"
+2. Task: "Read and summarize this file: ./docs/file2.txt"
+3. Task: "Read and summarize this file: ./docs/file3.txt"
+4. Task: "Create a final report from these summaries: [...]"
 
-## 🆚 CVM vs. Other Solutions
+Claude works through these tasks one by one, while CVM maintains the loop state, the summaries array, and the execution position.
 
-| Approach | State Management | Determinism | Cost | Debugging |
-|----------|-----------------|-------------|------|-----------|
-| **Pure Claude** | Context window | ❌ Non-deterministic | 💸 High | 🤷 Black box |
-| **LangChain/AutoGen** | External state | ❌ Non-deterministic | 💸 High | 🔍 Limited |
-| **Code Interpreters** | Session-based | ⚠️ Environment dependent | 💰 Medium | 🔧 Complex |
-| **CVM** | Built-in VM | ✅ Fully deterministic | 💚 Low | 👁️ Complete |
+## Key Concepts
 
-## 🚀 Installation & Setup
+### CC() - Cognitive Context
+`CC(prompt)` doesn't mean "call Claude". It means:
+- Create a task with this prompt
+- Pause execution here
+- Wait for Claude to ask for the next task
+- Resume when Claude provides a result
 
-### As an MCP Server (Recommended)
+### CVM is Passive
+- CVM never sends messages to Claude
+- CVM never initiates actions
+- CVM only responds when Claude asks
+- Claude drives everything via MCP tools
 
-Add to your `.mcp.json`:
+### State Management
+While Claude processes tasks, CVM maintains:
+- All variables and their values
+- Current execution position
+- Loop counters and conditions
+- Arrays and data structures
+
+## Installation
+
+Add to Claude's `.mcp.json`:
 ```json
 {
   "mcpServers": {
@@ -146,64 +154,40 @@ Add to your `.mcp.json`:
 }
 ```
 
-### Global Installation
-```bash
-npm install -g cvm-server
-cvm-server
-```
+## MCP Tools
 
-## 📚 Language Features
+Claude uses these tools to interact with CVM:
 
-CVM supports a TypeScript-like language with:
-
-- **✅ Variables & Types**: `let`, `const`, strings, numbers, booleans, arrays
-- **✅ Control Flow**: `if/else`, `while`, `for-of` loops, `break`, `continue`
-- **✅ Operators**: Arithmetic, comparison, logical, string concatenation
-- **✅ String Operations**: `.length`, `.substring()`, `.split()`, etc.
-- **✅ Array Operations**: Literals, indexing, `.push()`, `.length`
-- **✅ Cognitive Calls**: `CC("prompt")` for AI reasoning
-- **✅ File System**: `fs.listFiles()` with sandboxing
-- **✅ Output**: `console.log()` for results
-
-[→ **Full API Documentation**](docs/API.md)
-
-## 🛠️ Available MCP Tools
-
-When CVM is connected, Claude gets these tools:
-
-- **`load(programId, source)`** - Load a TypeScript program
-- **`start(programId, executionId)`** - Start program execution  
-- **`getTask(executionId)`** - Get next cognitive task or completion
-- **`submitTask(executionId, result)`** - Provide cognitive response
+- **`load(programId, source)`** - Load a program into CVM
+- **`loadFile(programId, filePath)`** - Load from file
+- **`start(programId, executionId)`** - Start execution
+- **`getTask(executionId)`** - Get next task (CVM waits for this)
+- **`submitTask(executionId, result)`** - Submit task result
 - **`status(executionId)`** - Check execution state
 
-## 🏗️ Configuration
+## Language Features
 
-| Variable | Description | Default |
-|----------|-------------|---------|
-| `CVM_STORAGE_TYPE` | Storage backend: "file" or "mongodb" | "file" |
-| `CVM_DATA_DIR` | Directory for file storage | ".cvm" |
-| `CVM_LOG_LEVEL` | Logging level | "info" |
-| `MONGODB_URI` | MongoDB connection string | - |
+CVM executes a TypeScript-like language:
+- Variables, arrays, loops, conditions
+- String/array operations
+- `CC()` for task creation
+- `fs.listFiles()` for file operations
+- `console.log()` for output
 
-## 🧪 Real-World Use Cases
+[→ Full API Documentation](docs/API.md)
 
-- **📊 Data Processing**: Complex analysis with cognitive insights
-- **🔄 Workflow Automation**: Deterministic steps with AI decision points
-- **📝 Content Generation**: Structured content with AI creativity
-- **🧮 Calculations**: Math + reasoning in one seamless flow
-- **📋 Report Generation**: Systematic data gathering + AI analysis
+## Use Cases
 
-## 🤝 Contributing
+Perfect for any workflow where Claude needs to process many items systematically:
+- Document analysis pipelines
+- Data extraction from multiple sources
+- Report generation with multiple inputs
+- Any task requiring loops with AI processing
 
-We welcome contributions! See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+## Summary
 
-## 📄 License
-
-Copyright 2024 Ladislav Sopko
-
-Licensed under the Apache License, Version 2.0. See [LICENSE](LICENSE) for details.
+CVM is a passive, stateful task engine. It turns programs into smart TODO lists that Claude can work through systematically without losing context. The program defines the workflow, Claude provides the intelligence, and CVM quietly maintains the state between them.
 
 ---
 
-**Ready to give Claude superpowers?** [Get started with CVM →](#-quick-start)
+Copyright 2024 Ladislav Sopko. Licensed under Apache 2.0.
