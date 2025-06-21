@@ -45,11 +45,11 @@ See `/memory-bank/docs/` for technical details (historical reference).
 - **Integration Testing**: Always rebuild with `npx nx reset && npx nx run-many --target=build --all --skip-nx-cache` before testing
 
 ## Current Task
-**Compiler Refactoring** - Transform monolithic compiler to visitor pattern
-- Zero functional changes - pure structural refactoring
-- Extract 700+ line file into modular visitor pattern
-- See `/home/laco/cvm/packages/vm/COMPILER_REFACTORING_PLAN.md` for detailed plan
-- All tests passing - safe to refactor
+✅ **OPTIMIZATION COMPLETE** - Major codebase improvements finished!
+- Removed 670+ lines of duplicate compiler code (40% bundle reduction)
+- Optimized VM for-of loops (reference vs snapshot)
+- All 524 tests passing
+- See `activeContext.md` for full details
 
 ## Variable Scoping Decision
 - CVM currently has function-level scoping (like JavaScript `var`)

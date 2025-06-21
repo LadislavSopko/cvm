@@ -20,6 +20,7 @@ export type VMStatus = 'running' | 'waiting_cc' | 'waiting_fs' | 'complete' | 'e
 export interface IteratorContext {
   array: CVMArray;
   index: number;
+  length: number;  // Store initial length to prevent issues with array mutations
 }
 
 export interface VMState {
@@ -680,13 +681,12 @@ export class VM {
             break;
           }
           
-          // Create a snapshot of the array
-          const snapshot = createCVMArray([...array.elements]);
-          
-          // Push new iterator context
+          // Store reference to original array with its current length
+          // This avoids expensive copying while maintaining predictable behavior
           state.iterators.push({
-            array: snapshot,
-            index: 0
+            array: array,
+            index: 0,
+            length: array.elements.length
           });
           
           state.pc++;
@@ -704,10 +704,15 @@ export class VM {
           // Get the current (top) iterator
           const iterator = state.iterators[state.iterators.length - 1];
           
-          // Check if we have more elements
-          if (iterator.index < iterator.array.elements.length) {
-            // Push current element
-            state.stack.push(iterator.array.elements[iterator.index]);
+          // Check if we have more elements (using stored length)
+          if (iterator.index < iterator.length) {
+            // Push current element (check bounds in case array was shortened)
+            if (iterator.index < iterator.array.elements.length) {
+              state.stack.push(iterator.array.elements[iterator.index]);
+            } else {
+              // Array was shortened during iteration, push undefined
+              state.stack.push(createCVMUndefined());
+            }
             // Push hasMore flag (true)
             state.stack.push(true);
             // Advance iterator

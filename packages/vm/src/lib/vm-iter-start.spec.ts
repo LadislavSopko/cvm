@@ -139,7 +139,7 @@ describe('VM - ITER_START opcode', () => {
     expect(state.iterators.length).toBeLessThanOrEqual(10);
   });
 
-  it('should create a snapshot of the array', () => {
+  it('should store reference to the array with initial length', () => {
     const array = createCVMArray(['a', 'b', 'c']);
     const bytecode = [
       { op: OpCode.PUSH, arg: array },
@@ -149,12 +149,18 @@ describe('VM - ITER_START opcode', () => {
 
     const state = vm.execute(bytecode);
     
-    // Modify the original array after iterator creation
-    array.elements.push('d');
+    // Iterator should reference the same array
+    expect(state.iterators[0].array).toBe(array);
     
-    // Iterator should still have the original snapshot
-    expect(state.iterators[0].array.elements).toHaveLength(3);
-    expect(state.iterators[0].array.elements).toEqual(['a', 'b', 'c']);
+    // Iterator should store the initial length
+    expect(state.iterators[0].length).toBe(3);
+    
+    // Modifying the original array should be reflected in the iterator's array reference
+    array.elements.push('d');
+    expect(state.iterators[0].array.elements).toHaveLength(4);
+    
+    // But the stored length remains the same (iteration will stop at original length)
+    expect(state.iterators[0].length).toBe(3);
   });
 
   it('should handle arrays with mixed types including null and undefined', () => {
