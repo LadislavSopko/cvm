@@ -8,6 +8,14 @@ This document provides complete technical documentation for the CVM language - a
 
 **Key Principle**: Instead of letting AI generate dangerous Python/JavaScript, CVM provides a safe, sandboxed instruction set that can only perform operations you explicitly allow.
 
+**Program Structure**: All CVM programs must define a `main()` function and call it at the end:
+```javascript
+function main() {
+  // Your code here
+}
+main();  // Required!
+```
+
 ## Core Functions
 
 ### CC(prompt: string) → string
@@ -466,13 +474,17 @@ Returns a value from main() which becomes the program's result.
 function main() {
   return 42;  // Program result will be 42
 }
+main();
 
 function main() {
   return;  // Program result will be null
 }
+main();
 ```
 
 **Note**: Only works in main(). Other functions are not yet supported.
+
+**Important**: You must call `main();` at the end of your program to execute it.
 
 ## Logical Operators
 
