@@ -14,6 +14,10 @@ export class FileStorageAdapter implements StorageAdapter {
     this.executionsDir = path.join(dataDir, 'executions');
     this.outputsDir = path.join(dataDir, 'outputs');
   }
+  
+  private get metadataFile(): string {
+    return path.join(this.dataDir, 'metadata.json');
+  }
 
   async connect(): Promise<void> {
     // Create directory structure
@@ -111,6 +115,73 @@ export class FileStorageAdapter implements StorageAdapter {
         return [];
       }
       throw error;
+    }
+  }
+
+  async listExecutions(): Promise<Execution[]> {
+    if (!this.connected) throw new Error('Not connected');
+    
+    const files = await fs.readdir(this.executionsDir);
+    const executions: Execution[] = [];
+    
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        const id = file.slice(0, -5); // Remove .json extension
+        const execution = await this.getExecution(id);
+        if (execution) {
+          executions.push(execution);
+        }
+      }
+    }
+    
+    return executions;
+  }
+
+  async getCurrentExecutionId(): Promise<string | null> {
+    if (!this.connected) throw new Error('Not connected');
+    
+    try {
+      const data = await fs.readFile(this.metadataFile, 'utf-8');
+      const metadata = JSON.parse(data);
+      return metadata.currentExecutionId || null;
+    } catch (error: any) {
+      if (error.code === 'ENOENT') {
+        return null;
+      }
+      throw error;
+    }
+  }
+
+  async setCurrentExecutionId(executionId: string | null): Promise<void> {
+    if (!this.connected) throw new Error('Not connected');
+    
+    const metadata = { currentExecutionId: executionId };
+    await fs.writeFile(this.metadataFile, JSON.stringify(metadata, null, 2), 'utf-8');
+  }
+
+  async deleteExecution(executionId: string): Promise<void> {
+    if (!this.connected) throw new Error('Not connected');
+    
+    // Delete execution file
+    const executionFile = path.join(this.executionsDir, `${executionId}.json`);
+    try {
+      await fs.unlink(executionFile);
+    } catch (error: any) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    
+    // Delete output file
+    const outputFile = path.join(this.outputsDir, `${executionId}.output`);
+    try {
+      await fs.unlink(outputFile);
+    } catch (error: any) {
+      if (error.code !== 'ENOENT') throw error;
+    }
+    
+    // If this was the current execution, clear it
+    const currentId = await this.getCurrentExecutionId();
+    if (currentId === executionId) {
+      await this.setCurrentExecutionId(null);
     }
   }
 }

@@ -11,7 +11,12 @@ vi.mock('@cvm/vm', () => ({
     startExecution: vi.fn(),
     getNext: vi.fn(),
     reportCCResult: vi.fn(),
-    getExecutionStatus: vi.fn()
+    getExecutionStatus: vi.fn(),
+    setCurrentExecutionId: vi.fn(),
+    getCurrentExecutionId: vi.fn(),
+    listExecutions: vi.fn(),
+    deleteExecution: vi.fn(),
+    getExecutionWithAttempts: vi.fn()
   }))
 }));
 

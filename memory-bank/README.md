@@ -1,76 +1,113 @@
-# Claude's Memory Bank
+# Claude's Memory Bank - CVM Project
 
-I am Claude, an expert software engineer working on the CVM (Cognitive Virtual Machine) project. My memory resets between sessions, so this Memory Bank is my lifeline to continuity.
+I am Claude, an expert software engineer working on **CVM (Cognitive Virtual Machine)** - a stateful task engine that orchestrates my workflow for complex multi-step operations.
+
+## 🎯 CVM's Mission
+
+**CVM is an algorithmic TODO manager for Claude.** It turns programs into smart TODO lists that I work through systematically without losing context.
+
+### What CVM Really Does:
+- **NOT** a general-purpose programming language
+- **NOT** about complex computation or algorithms
+- **IS** a passive state machine that I query for tasks
+- **IS** a way to maintain perfect execution flow across 1000s of operations
+- **IS** designed to solve: "Claude, analyze these 1000 files" → without me getting confused
+
+### Key Concept: CC() = "Create Task for Claude"
+```typescript
+CC("Summarize this file: " + filename)  // Creates a TODO, doesn't "call" me
+```
+
+### Architecture:
+```
+Claude → asks "what's next?" → CVM gives task → Claude completes → repeat
+```
 
 ## Project Status
-- **Core Platform**: ✅ Complete and published (npm: cvm-server v0.9.2)
-- **Phase 1**: ✅ Arrays + JSON parsing implemented
-- **Phase 2**: ✅ Branching complete (if/else, while, ALL comparisons, ALL arithmetic, ALL logical)
-- **Phase 3**: ✅ **COMPLETE!** For-of loops with break/continue support
-- **Phase 4**: ✅ File operations - fs.listFiles() with sandboxing
-- **Object Support**: ✅ **COMPLETE!** Full object implementation with CC persistence (v0.9.0)
-- **toString() Method**: ✅ **COMPLETE!** Universal toString() for all types (v0.9.2)
-- **Implicit main()**: ✅ **COMPLETE!** main() call now optional (v0.9.2)
-- **LoadFile Tool**: ✅ Token-saving file loading via `mcp__cvm__loadFile`
-- **String Methods**: ✅ slice(), charAt(), toUpperCase(), toLowerCase(), toString() implemented
-- **Iterator Fix**: ✅ **FIXED!** For-of loops now work correctly with CC calls (v0.7.0)
-- **Handler Migration**: ✅ **COMPLETE!** All 51 opcodes now use modular handler pattern
-- **Critical Features**: ✅ All major language features implemented
-- **Tests**: 594 tests all passing (319 VM tests + 275 other tests)
-- **Latest Release**: v0.9.2 (June 21, 2025) - toString() + implicit main()
-- **Next**: Phase 5 (Functions) or block scoping
 
-## What Works (Major Features)
-- ✅ All operators (arithmetic, comparison, logical, unary, compound assignment)
-- ✅ All control flow (if/else, while, for-of, break/continue, ternary)
-- ✅ All basic types (string, number, boolean, null, undefined, array, **object**)
-- ✅ Object operations (literals, property access, shorthand properties, JSON.stringify)
-- ✅ String methods (length, substring, indexOf, split, slice, charAt, toUpperCase, toLowerCase, **toString**)
-- ✅ Array operations (literals, access, assignment, push, length)
-- ✅ Core functions (CC, console.log, JSON.parse, JSON.stringify, typeof)
-- ✅ File operations (fs.listFiles with sandboxing)
-- ✅ Variable declaration and assignment
-- ✅ Return from main() with value propagation
-- ✅ Universal toString() method on all types
-- ✅ Implicit main() execution (no explicit call needed)
+### ✅ Core Features Complete (v0.9.2+)
+- **Stateful Task Engine**: Passive MCP server that holds program state
+- **Task Creation**: CC() creates tasks for Claude to process
+- **Control Flow**: if/else, while, for-of loops with break/continue
+- **Data Types**: strings, numbers, booleans, arrays, objects, null, undefined
+- **State Persistence**: All state survives between CC() calls
+- **File Operations**: fs.listFiles() for directory exploration
+- **JSON Support**: Full JSON.parse/stringify for structured data
+- **String Methods**: All essential string operations
+- **Object Support**: Literals, property access, nested objects
+- **Handler Architecture**: Clean modular VM (all 51 opcodes)
+- **Execution Management**: List/get/set current/delete executions (NEW!)
 
-## Active Context
-See `activeContext.md` for current work and immediate next steps.
+### 📊 Quality Metrics
+- **Tests**: 620 tests all passing (26 new execution mgmt tests)
+- **Published**: npm package `cvm-server` v0.9.2
+- **Architecture**: 100% handler-based VM (no legacy code)
+- **New**: Execution management tools (June 23, 2025)
+
+## Next Priorities (Based on Mission)
+
+### 1. 🔄 Array Methods (HIGHEST - 2-3 days)
+- `array.map()`, `array.filter()`, `array.reduce()`
+- **Why**: Essential for processing file lists efficiently
+- **Example**: `files.filter(f => f.endsWith('.ts')).map(f => CC("Analyze: " + f))`
+
+### 2. 🛡️ Error Handling: try/catch (HIGH - 3-4 days)
+- Graceful error recovery in CVM programs
+- **Why**: Don't let one bad file stop analysis of 999 others
+- **Example**: `try { CC("Process: " + file) } catch { log("Skipped") }`
+
+### 3. 💾 fs.readFile/writeFile for CVM State (MEDIUM)
+- Let CVM programs save/load their own data
+- **Why**: Persist analysis results between runs
+- **Note**: NOT for Claude's file reading (Claude uses own tools)
+
+## What Works Now
+
+### Example: Multi-File Analysis
+```typescript
+function main() {
+  const files = fs.listFiles("./src", { filter: "*.ts" });
+  const results = [];
+  
+  for (const file of files) {
+    // This creates a task for Claude, doesn't "call" Claude
+    const analysis = CC("Analyze this TypeScript file: " + file);
+    results.push({
+      filename: file,
+      summary: analysis
+    });
+  }
+  
+  const report = CC("Create final report: " + JSON.stringify(results));
+  return report;
+}
+```
 
 ## Key Documentation
-- **docs/API.md** - Complete language reference (kept current)
+- **README.md** - Explains CVM's purpose and architecture
+- **docs/API.md** - Complete language reference
 - **activeContext.md** - Current work status
-- **systemPatterns.md** - Architecture patterns
-- **techContext.md** - Tools and configuration
+- **test/examples/cvm-ideas-from-blind-test.md** - Future enhancement ideas
 
-## Detailed Docs (archive)
-See `/memory-bank/docs/` for technical details (historical reference).
-
-## Key Reminders
+## Development Guidelines
 - **STRICT TDD**: Always write tests first
-- **ES Modules**: Use `.js` imports everywhere  
-- **No Refactoring**: Architecture is permanent
-- **Integration Testing**: Always rebuild with `npx nx reset && npx nx run-many --target=build --all --skip-nx-cache` before testing
+- **ES Modules**: Use `.js` imports everywhere
+- **Mission Focus**: Every feature must help Claude process tasks better
+- **No General Computing**: Reject features that don't serve the mission
 
-## Current Task
-✅ **Handler Migration COMPLETE** - All opcodes now use modular handlers!
-- Migrated final 3 opcodes: JUMP_IF, JUMP_IF_TRUE, CALL
-- All 51 opcodes now use clean handler pattern
-- Removed legacy code and outdated comments
-- Full test coverage with 594 tests passing
-- TypeScript compilation clean
-- Ready for Phase 5 (Functions)
+## Current Status
+✅ **Execution Management COMPLETE** (June 23, 2025)
+- Claude can now manage executions without tracking IDs
+- Auto-sets current execution on start
+- Full visibility into all running/completed executions
+- Previous: Handler migration complete (all 51 opcodes)
 
-## Variable Scoping Decision
-- CVM currently has function-level scoping (like JavaScript `var`)
-- All variables leak out of blocks - this is CORRECT for var semantics
-- Decided to keep current behavior for now
-- Future: May implement block scoping (ES6 let/const) after compiler refactoring
+## Recent History
+- **June 23**: Execution Management - list/get/set/delete executions
+- **v0.9.2** (June 21): toString() + implicit main()
+- **v0.9.0**: Full object support with CC persistence
+- **v0.7.0**: Fixed iterator state persistence
+- **Handler Migration**: Completed all opcodes
 
-## Recent Achievements
-✅ **Version 0.9.2 Released** - toString() + implicit main() (June 21, 2025)
-✅ **Object Support** - Full implementation with CC persistence (v0.9.0)
-✅ **Version 0.7.0 Released** - Iterator state persistence fix
-✅ **fs.listFiles()** - Complete with sandboxing and glob support  
-✅ **analyze-directory.ts** - Now works correctly with iterator fix
-✅ **API.md Documentation** - Fixed accuracy issues, now reliable reference
+## Remember: CVM = Task Orchestration
+Every feature should answer: "Does this help Claude process many tasks systematically without losing context?"

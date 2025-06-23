@@ -17,6 +17,9 @@
   ],
   "references": [
     {
+      "path": "../types/tsconfig.lib.json"
+    },
+    {
       "path": "../vm/tsconfig.lib.json"
     },
     {

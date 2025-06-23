@@ -21,4 +21,10 @@ export interface StorageAdapter {
   // Output (separate from execution state)
   appendOutput(executionId: string, lines: string[]): Promise<void>;
   getOutput(executionId: string): Promise<string[]>;
+  
+  // Execution management
+  listExecutions(): Promise<Execution[]>;
+  getCurrentExecutionId(): Promise<string | null>;
+  setCurrentExecutionId(executionId: string | null): Promise<void>;
+  deleteExecution(executionId: string): Promise<void>;
 }

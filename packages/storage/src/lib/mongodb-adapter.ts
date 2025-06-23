@@ -30,6 +30,9 @@ export class MongoDBAdapter implements StorageAdapter {
     if (!collectionNames.includes('outputs')) {
       await this.db.createCollection('outputs');
     }
+    if (!collectionNames.includes('metadata')) {
+      await this.db.createCollection('metadata');
+    }
   }
 
   async disconnect(): Promise<void> {
@@ -103,6 +106,42 @@ export class MongoDBAdapter implements StorageAdapter {
     const collection = this.getCollection<{ executionId: string; lines: string[] }>('outputs');
     const result = await collection.findOne({ executionId });
     return result?.lines || [];
+  }
+
+  async listExecutions(): Promise<Execution[]> {
+    const collection = this.getCollection<Execution>('executions');
+    return await collection.find({}).toArray();
+  }
+
+  async getCurrentExecutionId(): Promise<string | null> {
+    const collection = this.getCollection<{ _id: string; currentExecutionId: string | null }>('metadata');
+    const result = await collection.findOne({ _id: 'current' });
+    return result?.currentExecutionId || null;
+  }
+
+  async setCurrentExecutionId(executionId: string | null): Promise<void> {
+    const collection = this.getCollection<{ _id: string; currentExecutionId: string | null }>('metadata');
+    await collection.replaceOne(
+      { _id: 'current' },
+      { _id: 'current', currentExecutionId: executionId } as any,
+      { upsert: true }
+    );
+  }
+
+  async deleteExecution(executionId: string): Promise<void> {
+    // Delete from executions collection
+    const executionsCollection = this.getCollection<Execution>('executions');
+    await executionsCollection.deleteOne({ id: executionId });
+    
+    // Delete associated output
+    const outputsCollection = this.getCollection<{ executionId: string }>('outputs');
+    await outputsCollection.deleteOne({ executionId });
+    
+    // If this was the current execution, clear it
+    const currentId = await this.getCurrentExecutionId();
+    if (currentId === executionId) {
+      await this.setCurrentExecutionId(null);
+    }
   }
 
 }

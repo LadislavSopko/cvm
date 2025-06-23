@@ -358,4 +358,45 @@ export class VMManager {
   async getExecutionOutput(executionId: string): Promise<string[]> {
     return await this.storage.getOutput(executionId);
   }
+
+  /**
+   * List all executions
+   */
+  async listExecutions(): Promise<Execution[]> {
+    return await this.storage.listExecutions();
+  }
+
+  /**
+   * Get current execution ID
+   */
+  async getCurrentExecutionId(): Promise<string | null> {
+    return await this.storage.getCurrentExecutionId();
+  }
+
+  /**
+   * Set current execution ID
+   */
+  async setCurrentExecutionId(executionId: string | null): Promise<void> {
+    return await this.storage.setCurrentExecutionId(executionId);
+  }
+
+  /**
+   * Delete an execution
+   */
+  async deleteExecution(executionId: string): Promise<void> {
+    return await this.storage.deleteExecution(executionId);
+  }
+
+  /**
+   * Get execution with attempt tracking
+   */
+  async getExecutionWithAttempts(executionId: string): Promise<Execution & { attempts?: number; firstAttemptAt?: Date; lastAttemptAt?: Date }> {
+    const execution = await this.storage.getExecution(executionId);
+    if (!execution) {
+      throw new Error(`Execution not found: ${executionId}`);
+    }
+
+    // For now, return execution as-is. In future, we can track attempts
+    return execution;
+  }
 }
