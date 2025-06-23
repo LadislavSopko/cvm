@@ -36,13 +36,14 @@ Claude → asks "what's next?" → CVM gives task → Claude completes → repea
 - **String Methods**: All essential string operations
 - **Object Support**: Literals, property access, nested objects
 - **Handler Architecture**: Clean modular VM (all 51 opcodes)
-- **Execution Management**: List/get/set current/delete executions (NEW!)
+- **Execution Management**: List/get/set current/delete executions
+- **Program Management**: List/delete programs, restart with auto-current (NEW!)
 
 ### 📊 Quality Metrics
-- **Tests**: 620 tests all passing (26 new execution mgmt tests)
-- **Published**: npm package `cvm-server` v0.9.2
+- **Tests**: 654 tests all passing (34 new program mgmt tests)
+- **Published**: npm package `cvm-server` v0.10.0
 - **Architecture**: 100% handler-based VM (no legacy code)
-- **New**: Execution management tools (June 23, 2025)
+- **New**: Program management tools (June 23, 2025)
 
 ## Next Priorities (Based on Mission)
 
@@ -96,14 +97,16 @@ function main() {
 - **No General Computing**: Reject features that don't serve the mission
 
 ## Current Status
-✅ **Execution Management COMPLETE** (June 23, 2025)
-- Claude can now manage executions without tracking IDs
-- Auto-sets current execution on start
-- Full visibility into all running/completed executions
+✅ **Program & Execution Management COMPLETE** (June 23, 2025)
+- Full program lifecycle: list, delete, restart
+- Execution management without tracking IDs
+- Auto-sets current execution on start/restart
+- Complete visibility and control over CVM state
 - Previous: Handler migration complete (all 51 opcodes)
 
 ## Recent History
-- **June 23**: Execution Management - list/get/set/delete executions
+- **June 23**: Program & Execution Management complete
+- **v0.10.0**: Full state management tools
 - **v0.9.2** (June 21): toString() + implicit main()
 - **v0.9.0**: Full object support with CC persistence
 - **v0.7.0**: Fixed iterator state persistence

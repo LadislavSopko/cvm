@@ -18,6 +18,8 @@ describe('StorageAdapter interface', () => {
       getCurrentExecutionId: async () => null,
       setCurrentExecutionId: async () => {},
       deleteExecution: async () => {},
+      listPrograms: async () => [],
+      deleteProgram: async () => {},
     };
     
     expect(mockAdapter).toBeDefined();

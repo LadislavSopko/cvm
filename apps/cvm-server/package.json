@@ -1,6 +1,6 @@
 {
   "name": "cvm-server",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Cognitive Virtual Machine (CVM) - A deterministic bytecode VM with AI cognitive operations",
   "keywords": [
     "mcp",

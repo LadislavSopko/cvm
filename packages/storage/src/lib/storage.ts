@@ -13,6 +13,8 @@ export interface StorageAdapter {
   // Programs
   saveProgram(program: Program): Promise<void>;
   getProgram(id: string): Promise<Program | null>;
+  listPrograms(): Promise<Program[]>;
+  deleteProgram(id: string): Promise<void>;
   
   // Executions
   saveExecution(execution: Execution): Promise<void>;

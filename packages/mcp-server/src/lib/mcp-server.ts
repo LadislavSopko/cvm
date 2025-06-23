@@ -406,6 +406,107 @@ export class CVMMcpServer {
         }
       }
     );
+
+    // List all programs
+    this.server.tool(
+      'list_programs',
+      {},
+      async () => {
+        try {
+          const programs = await this.vmManager.listPrograms();
+          
+          if (programs.length === 0) {
+            return {
+              content: [{ type: 'text', text: 'No programs loaded' }]
+            };
+          }
+          
+          // Format program list
+          const programList = programs.map(p => ({
+            programId: p.id,
+            name: p.name,
+            created: p.created
+          }));
+          
+          return {
+            content: [{ type: 'text', text: JSON.stringify(programList, null, 2) }]
+          };
+        } catch (error) {
+          return {
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+            isError: true
+          };
+        }
+      }
+    );
+
+    // Delete program (with confirmation)
+    this.server.tool(
+      'delete_program',
+      {
+        programId: z.string(),
+        confirmToken: z.string().optional()
+      },
+      async ({ programId, confirmToken }) => {
+        try {
+          // Generate confirmation token
+          const expectedToken = `delete-${programId}-${Date.now()}`;
+          
+          if (!confirmToken) {
+            return {
+              content: [{ 
+                type: 'text', 
+                text: JSON.stringify({
+                  confirmationRequired: true,
+                  message: `To delete program '${programId}', call this tool again with the confirmation token`,
+                  token: expectedToken
+                }, null, 2)
+              }]
+            };
+          }
+          
+          // Validate the token - it should start with "delete-{programId}-"
+          if (confirmToken && confirmToken.startsWith(`delete-${programId}-`)) {
+            await this.vmManager.deleteProgram(programId);
+            return {
+              content: [{ type: 'text', text: `Program deleted: ${programId}` }]
+            };
+          }
+          
+          return {
+            content: [{ type: 'text', text: 'Invalid confirmation token' }],
+            isError: true
+          };
+        } catch (error) {
+          return {
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+            isError: true
+          };
+        }
+      }
+    );
+
+    // Restart program (create new execution and set as current)
+    this.server.tool(
+      'restart',
+      {
+        programId: z.string(),
+        executionId: z.string().optional()
+      },
+      async ({ programId, executionId }) => {
+        try {
+          const execId = await this.vmManager.restartExecution(programId, executionId);
+          return {
+            content: [{ type: 'text', text: `Execution started: ${execId} (set as current)` }]
+          };
+        } catch (error) {
+          return {
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+            isError: true
+          };
+        }
+      }
+    );
   }
 
   async start(transport?: Transport): Promise<void> {

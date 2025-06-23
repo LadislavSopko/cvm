@@ -144,4 +144,14 @@ export class MongoDBAdapter implements StorageAdapter {
     }
   }
 
+  async listPrograms(): Promise<Program[]> {
+    const collection = this.getCollection<Program>('programs');
+    return await collection.find({}).toArray();
+  }
+
+  async deleteProgram(id: string): Promise<void> {
+    const collection = this.getCollection<Program>('programs');
+    await collection.deleteOne({ id });
+  }
+
 }

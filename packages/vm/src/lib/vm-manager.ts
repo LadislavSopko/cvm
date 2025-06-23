@@ -399,4 +399,34 @@ export class VMManager {
     // For now, return execution as-is. In future, we can track attempts
     return execution;
   }
+
+  /**
+   * List all programs
+   */
+  async listPrograms(): Promise<Program[]> {
+    return await this.storage.listPrograms();
+  }
+
+  /**
+   * Delete a program
+   */
+  async deleteProgram(programId: string): Promise<void> {
+    return await this.storage.deleteProgram(programId);
+  }
+
+  /**
+   * Restart a program (create new execution and set as current)
+   */
+  async restartExecution(programId: string, executionId?: string): Promise<string> {
+    // Generate execution ID if not provided
+    const execId = executionId || `${programId}-${Date.now()}`;
+    
+    // Start the execution
+    await this.startExecution(programId, execId);
+    
+    // Set as current execution
+    await this.setCurrentExecutionId(execId);
+    
+    return execId;
+  }
 }

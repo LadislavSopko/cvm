@@ -3,7 +3,7 @@ function main() {
   while (current <= 5) {
     const next = CC("Give next number:");
     console.log("You answered: " + next);
-    current = current + 1;
+    current = +next;
   }
   console.log("Done!");
 }

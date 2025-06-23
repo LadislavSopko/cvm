@@ -96,4 +96,77 @@ describe('MongoDBAdapter', () => {
     });
   });
 
+  describe('program management', () => {
+    beforeEach(async () => {
+      // Clean up programs collection before each test
+      const db = (adapter as any).db;
+      if (db) {
+        await db.collection('programs').deleteMany({});
+      }
+    });
+
+    it('should list all programs', async () => {
+      // Save multiple programs
+      const program1 = {
+        id: 'prog-1',
+        name: 'Program 1',
+        source: 'function main() { return 1; }',
+        bytecode: [{ op: OpCode.PUSH, arg: 1 }],
+        created: new Date('2025-01-01'),
+      };
+
+      const program2 = {
+        id: 'prog-2',
+        name: 'Program 2',
+        source: 'function main() { return 2; }',
+        bytecode: [{ op: OpCode.PUSH, arg: 2 }],
+        created: new Date('2025-01-02'),
+      };
+
+      await adapter.saveProgram(program1);
+      await adapter.saveProgram(program2);
+
+      const programs = await adapter.listPrograms();
+      
+      expect(programs).toHaveLength(2);
+      expect(programs[0].id).toBe('prog-1');
+      expect(programs[1].id).toBe('prog-2');
+      expect(programs[0].name).toBe('Program 1');
+      expect(programs[1].name).toBe('Program 2');
+    });
+
+    it('should return empty array when no programs exist', async () => {
+      const programs = await adapter.listPrograms();
+      expect(programs).toEqual([]);
+    });
+
+    it('should delete a program', async () => {
+      const program = {
+        id: 'prog-to-delete',
+        name: 'Delete Me',
+        source: 'function main() { }',
+        bytecode: [],
+        created: new Date(),
+      };
+
+      await adapter.saveProgram(program);
+      
+      // Verify it exists
+      const exists = await adapter.getProgram('prog-to-delete');
+      expect(exists).toBeDefined();
+
+      // Delete it
+      await adapter.deleteProgram('prog-to-delete');
+
+      // Verify it's gone
+      const deleted = await adapter.getProgram('prog-to-delete');
+      expect(deleted).toBeNull();
+    });
+
+    it('should not throw when deleting non-existent program', async () => {
+      // Should not throw
+      await expect(adapter.deleteProgram('non-existent')).resolves.not.toThrow();
+    });
+  });
+
 });

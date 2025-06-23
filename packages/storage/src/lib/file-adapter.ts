@@ -184,4 +184,35 @@ export class FileStorageAdapter implements StorageAdapter {
       await this.setCurrentExecutionId(null);
     }
   }
+
+  async listPrograms(): Promise<Program[]> {
+    if (!this.connected) throw new Error('Not connected');
+    
+    const files = await fs.readdir(this.programsDir);
+    const programs: Program[] = [];
+    
+    for (const file of files) {
+      if (file.endsWith('.json')) {
+        const id = file.slice(0, -5); // Remove .json extension
+        const program = await this.getProgram(id);
+        if (program) {
+          programs.push(program);
+        }
+      }
+    }
+    
+    return programs;
+  }
+
+  async deleteProgram(id: string): Promise<void> {
+    if (!this.connected) throw new Error('Not connected');
+    
+    const filePath = path.join(this.programsDir, `${id}.json`);
+    try {
+      await fs.unlink(filePath);
+    } catch (error: any) {
+      if (error.code !== 'ENOENT') throw error;
+      // Ignore ENOENT (file not found) errors
+    }
+  }
 }
