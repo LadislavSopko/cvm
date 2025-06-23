@@ -1,26 +1,26 @@
 # Active Context - CVM Project
 
 ## Current Status
-✅ **Ready for Mission-Critical Features** - Architecture complete, focus on Claude's needs!
+✅ **State Management Complete** - Full control over programs and executions!
 
-## Key Realizations (June 23, 2025)
-1. **fs.readFile() is NOT needed!** Claude has direct file access via Read tool
-2. **State persistence already solid** - CVM waits indefinitely for CC responses
-3. **Focus on smarter CC/CVM interaction**, not crash recovery
+## Just Completed ✅ (June 23, 2025)
 
-## Just Completed ✅
+### 🔍 Execution Management Tools
+- `list_executions()` - Lists all executions with current marked
+- `get_execution(id?)` - Detailed info (uses current if no ID)
+- `set_current(id)` - Sets default execution
+- `delete_execution(id)` - Requires confirmation token
 
-### 🔍 Execution Management Tools (DONE - June 23, 2025)
-**Implemented all planned features**:
-- `cvm_list_executions()` - Lists all executions with current marked
-- `cvm_get_execution(id?)` - Detailed info (uses current if no ID)
-- `cvm_set_current(id)` - Sets default execution
-- `cvm_delete_execution(id)` - Requires confirmation token
+### 📦 Program Management Tools (NEW!)
+- `list_programs()` - Lists all loaded programs
+- `delete_program(id)` - Deletes program with confirmation
+- `restart(programId, executionId?)` - Creates new execution & sets as current
 
-**Enhancements**:
-- `cvm_start()` auto-sets new execution as current (unless setCurrent: false)
-- `cvm_getTask()`, `cvm_submitTask()`, `cvm_status()` - All work without executionId
-- Full test coverage (26 tests passing)
+**Key Features**:
+- Auto-current: start/restart automatically sets execution as current
+- All tools work without executionId when current is set
+- Full test coverage (630+ tests passing)
+- Published as v0.11.0
 
 ## What to Build Next (Updated Priority Order)
 

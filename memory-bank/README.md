@@ -40,10 +40,10 @@ Claude → asks "what's next?" → CVM gives task → Claude completes → repea
 - **Program Management**: List/delete programs, restart with auto-current (NEW!)
 
 ### 📊 Quality Metrics
-- **Tests**: 654 tests all passing (34 new program mgmt tests)
-- **Published**: npm package `cvm-server` v0.10.0
+- **Tests**: 630+ tests all passing
+- **Published**: npm package `cvm-server` v0.11.0
 - **Architecture**: 100% handler-based VM (no legacy code)
-- **New**: Program management tools (June 23, 2025)
+- **Latest**: Full state management tools (June 23, 2025)
 
 ## Next Priorities (Based on Mission)
 
@@ -106,7 +106,8 @@ function main() {
 
 ## Recent History
 - **June 23**: Program & Execution Management complete
-- **v0.10.0**: Full state management tools
+- **v0.11.0**: Full state management tools (list/delete/restart programs)
+- **v0.10.0**: Execution management (list/get/set/delete executions)
 - **v0.9.2** (June 21): toString() + implicit main()
 - **v0.9.0**: Full object support with CC persistence
 - **v0.7.0**: Fixed iterator state persistence
