@@ -1,9 +1,19 @@
 # Active Context - CVM Project
 
 ## Current Status
-✅ **v0.9.2 RELEASED** - toString() and implicit main() features shipped to npm!
+✅ **Handler Migration COMPLETE** - All 51 opcodes now use modular handler pattern!
 
-## Completed Work (June 21, 2025)
+## Completed Work (June 23, 2025)
+
+### 1. Handler Migration Completion ✅
+- **Migrated final opcodes**: JUMP_IF, JUMP_IF_TRUE, CALL
+- **100% handler coverage**: All 51 opcodes now use modular handler pattern
+- **Clean architecture**: No legacy switch statement code remains
+- **Updated validation**: Added JUMP_IF and JUMP_IF_TRUE to jump validation
+- **Full test coverage**: Added comprehensive tests for new handlers
+- **Quality verified**: TypeScript clean, 594 tests passing, builds successful
+
+### Previous Work (June 21, 2025)
 
 ### 0. Version 0.9.2 Released ✅
 - **npm package published**: cvm-server v0.9.2 available on npm
@@ -73,21 +83,22 @@ CVM supports these TypeScript/JavaScript features:
 
 ## Architecture
 - **Compiler**: Clean visitor pattern with object literal support
-- **VM**: Hybrid handler pattern + legacy switch (includes object handlers)
+- **VM**: Full modular handler pattern (no legacy code)
 - **Storage**: File-based with MCP integration, JSON serialization for objects
-- **Tests**: Comprehensive coverage with unit and integration tests (570 tests)
+- **Tests**: Comprehensive coverage with unit and integration tests (594 tests)
 
 ## Remaining Opportunities (Optional)
-1. **Complete handler migration**: Move remaining opcodes (arrays, strings, comparisons) to handlers
-2. **Additional file operations**: readFile, writeFile
-3. **Phase 5: Functions** (biggest remaining feature)
-4. **Block scoping**: Implement let/const semantics
+1. **Phase 5: Functions** (biggest remaining feature)
+2. **Block scoping**: Implement let/const semantics
+3. **Additional file operations**: readFile, writeFile
+4. **Performance optimizations**: Now possible with clean handler architecture
 
 ## Technical Context
 - Version 0.9.2 released to npm (June 21, 2025)
-- Handler pattern provides foundation for future VM enhancements
+- Handler migration complete (June 23, 2025)
 - Type-safe, modular architecture ready for new features
 - Clean separation of concerns in VM execution
 - Objects use Record<string, CVMValue> for JSON compatibility
-- All 580+ tests passing including toString() and implicit main()
-- API.md documentation now accurate and reliable
+- All 594 tests passing (319 VM + 275 other)
+- API.md documentation accurate and reliable
+- 100% opcode coverage with modular handlers

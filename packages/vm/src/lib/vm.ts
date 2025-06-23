@@ -53,7 +53,6 @@ export class VM {
     while (state.status === 'running' && state.pc < bytecode.length) {
       const instruction = bytecode[state.pc];
       
-      // Try new handler pattern first
       const handler = handlers[instruction.op];
       if (handler) {
         // Validate stack requirements
@@ -65,13 +64,16 @@ export class VM {
           break;
         }
 
-        // Special validation for JUMP, BREAK, and CONTINUE operations
+        // Special validation for jump operations
         if ((instruction.op === OpCode.JUMP || instruction.op === OpCode.JUMP_IF_FALSE || 
+             instruction.op === OpCode.JUMP_IF || instruction.op === OpCode.JUMP_IF_TRUE ||
              instruction.op === OpCode.BREAK || instruction.op === OpCode.CONTINUE) && 
             instruction.arg !== undefined && instruction.arg >= bytecode.length) {
           state.status = 'error';
           const opName = instruction.op === OpCode.JUMP ? 'jump' : 
                         instruction.op === OpCode.JUMP_IF_FALSE ? 'jump' :
+                        instruction.op === OpCode.JUMP_IF ? 'jump' :
+                        instruction.op === OpCode.JUMP_IF_TRUE ? 'jump' :
                         instruction.op === OpCode.BREAK ? 'break' : 'continue';
           state.error = `Invalid ${opName} target: ${instruction.arg}`;
           break;
@@ -93,7 +95,7 @@ export class VM {
         continue;
       }
 
-      // Unknown opcode - all opcodes should now be handled by the handler pattern
+      // This should never happen as all opcodes are implemented
       state.status = 'error';
       state.error = `Unknown opcode: ${OpCode[instruction.op]}`;
       break;

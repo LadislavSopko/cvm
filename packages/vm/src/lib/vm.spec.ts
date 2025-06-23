@@ -215,6 +215,198 @@ describe('VM', () => {
       expect(state.status).toBe('error');
       expect(state.error).toContain('JUMP requires a target address');
     });
+
+    it('should execute JUMP_IF when condition is true', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.PUSH, arg: true },
+        { op: OpCode.JUMP_IF, arg: 3 }, // Should jump
+        { op: OpCode.PUSH, arg: 'skipped' },
+        { op: OpCode.PUSH, arg: 'jumped' },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('complete');
+      expect(state.stack).toEqual(['jumped']);
+    });
+
+    it('should not jump on JUMP_IF when condition is false', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.PUSH, arg: false },
+        { op: OpCode.JUMP_IF, arg: 3 }, // Should not jump
+        { op: OpCode.PUSH, arg: 'executed' },
+        { op: OpCode.PUSH, arg: 'also executed' },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('complete');
+      expect(state.stack).toEqual(['executed', 'also executed']);
+    });
+
+    it('should handle JUMP_IF with truthy values', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.PUSH, arg: 'hello' }, // Truthy string
+        { op: OpCode.JUMP_IF, arg: 3 }, // Should jump
+        { op: OpCode.PUSH, arg: 'skipped' },
+        { op: OpCode.PUSH, arg: 'jumped' },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('complete');
+      expect(state.stack).toEqual(['jumped']);
+    });
+
+    it('should handle JUMP_IF with falsy values', () => {
+      const vm = new VM();
+      
+      // Test with 0
+      let state = vm.execute([
+        { op: OpCode.PUSH, arg: 0 },
+        { op: OpCode.JUMP_IF, arg: 3 }, // Should not jump
+        { op: OpCode.PUSH, arg: 'not skipped' },
+        { op: OpCode.HALT }
+      ]);
+      expect(state.stack).toEqual(['not skipped']);
+      
+      // Test with empty string
+      state = vm.execute([
+        { op: OpCode.PUSH, arg: '' },
+        { op: OpCode.JUMP_IF, arg: 3 }, // Should not jump
+        { op: OpCode.PUSH, arg: 'not skipped' },
+        { op: OpCode.HALT }
+      ]);
+      expect(state.stack).toEqual(['not skipped']);
+      
+      // Test with null
+      state = vm.execute([
+        { op: OpCode.PUSH, arg: null },
+        { op: OpCode.JUMP_IF, arg: 3 }, // Should not jump
+        { op: OpCode.PUSH, arg: 'not skipped' },
+        { op: OpCode.HALT }
+      ]);
+      expect(state.stack).toEqual(['not skipped']);
+    });
+
+    it('should error on stack underflow for JUMP_IF', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.JUMP_IF, arg: 2 },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('error');
+      expect(state.error).toContain('Stack underflow');
+    });
+
+    it('should error on missing jump target for JUMP_IF', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.PUSH, arg: true },
+        { op: OpCode.JUMP_IF }, // No arg
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('error');
+      expect(state.error).toContain('JUMP_IF requires a target address');
+    });
+
+    it('should execute JUMP_IF_TRUE when condition is true', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.PUSH, arg: true },
+        { op: OpCode.JUMP_IF_TRUE, arg: 3 }, // Should jump
+        { op: OpCode.PUSH, arg: 'skipped' },
+        { op: OpCode.PUSH, arg: 'jumped' },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('complete');
+      expect(state.stack).toEqual(['jumped']);
+    });
+
+    it('should not jump on JUMP_IF_TRUE when condition is false', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.PUSH, arg: false },
+        { op: OpCode.JUMP_IF_TRUE, arg: 3 }, // Should not jump
+        { op: OpCode.PUSH, arg: 'executed' },
+        { op: OpCode.PUSH, arg: 'also executed' },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('complete');
+      expect(state.stack).toEqual(['executed', 'also executed']);
+    });
+
+    it('should handle JUMP_IF_TRUE with truthy values', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.PUSH, arg: 'hello' }, // Truthy string
+        { op: OpCode.JUMP_IF_TRUE, arg: 3 }, // Should jump
+        { op: OpCode.PUSH, arg: 'skipped' },
+        { op: OpCode.PUSH, arg: 'jumped' },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('complete');
+      expect(state.stack).toEqual(['jumped']);
+    });
+
+    it('should handle JUMP_IF_TRUE with falsy values', () => {
+      const vm = new VM();
+      
+      // Test with 0
+      let state = vm.execute([
+        { op: OpCode.PUSH, arg: 0 },
+        { op: OpCode.JUMP_IF_TRUE, arg: 3 }, // Should not jump
+        { op: OpCode.PUSH, arg: 'not skipped' },
+        { op: OpCode.HALT }
+      ]);
+      expect(state.stack).toEqual(['not skipped']);
+      
+      // Test with empty string
+      state = vm.execute([
+        { op: OpCode.PUSH, arg: '' },
+        { op: OpCode.JUMP_IF_TRUE, arg: 3 }, // Should not jump
+        { op: OpCode.PUSH, arg: 'not skipped' },
+        { op: OpCode.HALT }
+      ]);
+      expect(state.stack).toEqual(['not skipped']);
+      
+      // Test with null
+      state = vm.execute([
+        { op: OpCode.PUSH, arg: null },
+        { op: OpCode.JUMP_IF_TRUE, arg: 3 }, // Should not jump
+        { op: OpCode.PUSH, arg: 'not skipped' },
+        { op: OpCode.HALT }
+      ]);
+      expect(state.stack).toEqual(['not skipped']);
+    });
+
+    it('should error on stack underflow for JUMP_IF_TRUE', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.JUMP_IF_TRUE, arg: 2 },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('error');
+      expect(state.error).toContain('Stack underflow');
+    });
+
+    it('should error on missing jump target for JUMP_IF_TRUE', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.PUSH, arg: true },
+        { op: OpCode.JUMP_IF_TRUE }, // No arg
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('error');
+      expect(state.error).toContain('JUMP_IF_TRUE requires a target address');
+    });
   });
 
   describe('Comparison Operations', () => {
@@ -358,6 +550,31 @@ describe('VM', () => {
       
       expect(state.status).toBe('complete');
       expect(state.stack).toEqual([false]); // NaN < 5 is false
+    });
+  });
+
+  describe('CALL Operation', () => {
+    it('should error on CALL opcode (not implemented)', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.PUSH, arg: 'main' },
+        { op: OpCode.CALL },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('error');
+      expect(state.error).toContain('Functions not implemented');
+    });
+
+    it('should error on stack underflow for CALL', () => {
+      const vm = new VM();
+      const state = vm.execute([
+        { op: OpCode.CALL },
+        { op: OpCode.HALT }
+      ]);
+      
+      expect(state.status).toBe('error');
+      expect(state.error).toContain('Stack underflow');
     });
   });
 });
