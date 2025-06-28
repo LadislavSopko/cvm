@@ -138,7 +138,7 @@ function main() {
         
         {
             name: "Equality Operator Implementation",
-            implement: "Update comparison operators following plan lines 282-287 (Phase 6.2). Handle reference equality and typeof for refs.",
+            implement: "Update comparison operators following plan lines 282-287 (Phase 6.2). Handle reference equality and typeof for refs. Also ensure instanceof works correctly (array refs are instanceof Array).",
             test: "Run all operator tests.",
             project: "vm"
         },
@@ -187,6 +187,10 @@ function main() {
             test: "",
             project: ""
         }
+        
+        // Future tasks (commented out for now):
+        // - Reference Counting GC when we add functions/blocks
+        // - Circular reference handling (not needed for current use cases)
     ];
     
     // Process all tasks
