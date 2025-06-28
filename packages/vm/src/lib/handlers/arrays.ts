@@ -1,13 +1,25 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { createCVMArray, isCVMArray, isCVMNumber, isCVMObject, isCVMString } from '@cvm/types';
+import { 
+  createCVMArray, 
+  isCVMArray, 
+  isCVMNumber, 
+  isCVMObject, 
+  isCVMString,
+  isCVMArrayRef,
+  isCVMObjectRef,
+  CVMArray,
+  CVMObject
+} from '@cvm/types';
 
 export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.ARRAY_NEW]: {
     stackIn: 0,
     stackOut: 1,
     execute: (state, instruction) => {
-      state.stack.push(createCVMArray());
+      const array = createCVMArray();
+      const ref = state.heap.allocate('array', array);
+      state.stack.push(ref);
       return undefined;
     }
   },
@@ -17,9 +29,24 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackOut: 1,
     execute: (state, instruction) => {
       const value = state.stack.pop()!;
-      const array = state.stack.pop()!;
+      const arrayOrRef = state.stack.pop()!;
       
-      if (!isCVMArray(array)) {
+      let array: CVMArray;
+      
+      if (isCVMArrayRef(arrayOrRef)) {
+        const heapObj = state.heap.get(arrayOrRef.id);
+        if (!heapObj || heapObj.type !== 'array') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid array reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        array = heapObj.data as CVMArray;
+      } else if (isCVMArray(arrayOrRef)) {
+        array = arrayOrRef;
+      } else {
         return {
           type: 'RuntimeError',
           message: 'ARRAY_PUSH requires an array',
@@ -29,7 +56,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       }
       
       array.elements.push(value);
-      state.stack.push(array);
+      state.stack.push(arrayOrRef); // Push back the original reference or array
       return undefined;
     }
   },
@@ -39,7 +66,43 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackOut: 1,
     execute: (state, instruction) => {
       const indexOrKey = state.stack.pop()!;
-      const arrayOrObject = state.stack.pop()!;
+      const arrayOrObjectOrRef = state.stack.pop()!;
+      
+      let arrayOrObject: CVMArray | CVMObject;
+      
+      // Dereference if needed
+      if (isCVMArrayRef(arrayOrObjectOrRef)) {
+        const heapObj = state.heap.get(arrayOrObjectOrRef.id);
+        if (!heapObj || heapObj.type !== 'array') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid array reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        arrayOrObject = heapObj.data as CVMArray;
+      } else if (isCVMObjectRef(arrayOrObjectOrRef)) {
+        const heapObj = state.heap.get(arrayOrObjectOrRef.id);
+        if (!heapObj || heapObj.type !== 'object') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid object reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        arrayOrObject = heapObj.data as CVMObject;
+      } else if (isCVMArray(arrayOrObjectOrRef) || isCVMObject(arrayOrObjectOrRef)) {
+        arrayOrObject = arrayOrObjectOrRef;
+      } else {
+        return {
+          type: 'RuntimeError',
+          message: 'ARRAY_GET requires an array or object',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
       
       // Handle arrays
       if (isCVMArray(arrayOrObject)) {
@@ -88,7 +151,43 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       const value = state.stack.pop()!;
       const indexOrKey = state.stack.pop()!;
-      const arrayOrObject = state.stack.pop()!;
+      const arrayOrObjectOrRef = state.stack.pop()!;
+      
+      let arrayOrObject: CVMArray | CVMObject;
+      
+      // Dereference if needed
+      if (isCVMArrayRef(arrayOrObjectOrRef)) {
+        const heapObj = state.heap.get(arrayOrObjectOrRef.id);
+        if (!heapObj || heapObj.type !== 'array') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid array reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        arrayOrObject = heapObj.data as CVMArray;
+      } else if (isCVMObjectRef(arrayOrObjectOrRef)) {
+        const heapObj = state.heap.get(arrayOrObjectOrRef.id);
+        if (!heapObj || heapObj.type !== 'object') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid object reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        arrayOrObject = heapObj.data as CVMObject;
+      } else if (isCVMArray(arrayOrObjectOrRef) || isCVMObject(arrayOrObjectOrRef)) {
+        arrayOrObject = arrayOrObjectOrRef;
+      } else {
+        return {
+          type: 'RuntimeError',
+          message: 'ARRAY_SET requires an array or object',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
       
       // Handle arrays
       if (isCVMArray(arrayOrObject)) {
@@ -112,7 +211,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         }
         
         arrayOrObject.elements[idx] = value;
-        state.stack.push(arrayOrObject); // Push array back
+        state.stack.push(arrayOrObjectOrRef); // Push back the original reference or array
         return undefined;
       }
       
@@ -128,7 +227,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         }
         
         arrayOrObject.properties[indexOrKey] = value;
-        state.stack.push(arrayOrObject); // Push object back
+        state.stack.push(arrayOrObjectOrRef); // Push back the original reference or object
         return undefined;
       }
       
@@ -145,9 +244,24 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 1,
     execute: (state, instruction) => {
-      const array = state.stack.pop()!;
+      const arrayOrRef = state.stack.pop()!;
       
-      if (!isCVMArray(array)) {
+      let array: CVMArray;
+      
+      if (isCVMArrayRef(arrayOrRef)) {
+        const heapObj = state.heap.get(arrayOrRef.id);
+        if (!heapObj || heapObj.type !== 'array') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid array reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        array = heapObj.data as CVMArray;
+      } else if (isCVMArray(arrayOrRef)) {
+        array = arrayOrRef;
+      } else {
         return {
           type: 'RuntimeError',
           message: 'ARRAY_LEN requires an array',
