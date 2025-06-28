@@ -24,6 +24,7 @@ export interface VMState {
   returnValue?: CVMValue;
   fileSystem?: FileSystemService;
   heap: VMHeap;
+  useHeapReferences?: boolean; // Flag to enable heap references
 }
 
 export class VM {

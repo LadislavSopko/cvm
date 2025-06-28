@@ -7,6 +7,7 @@ describe('Array Reference Operations', () => {
   it('should create array reference on ARRAY_NEW', () => {
     const vm = new VM();
     const state = vm.createInitialState();
+    state.useHeapReferences = true; // Enable heap references
     
     vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
     
@@ -18,6 +19,7 @@ describe('Array Reference Operations', () => {
   it('should handle ARRAY_PUSH with references', () => {
     const vm = new VM();
     const state = vm.createInitialState();
+    state.useHeapReferences = true; // Enable heap references
     
     // Create array
     vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
@@ -36,6 +38,7 @@ describe('Array Reference Operations', () => {
   it('should handle ARRAY_GET with references', () => {
     const vm = new VM();
     const state = vm.createInitialState();
+    state.useHeapReferences = true; // Enable heap references
     
     // Create array with some values
     vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
@@ -62,6 +65,7 @@ describe('Array Reference Operations', () => {
   it('should handle ARRAY_SET with references', () => {
     const vm = new VM();
     const state = vm.createInitialState();
+    state.useHeapReferences = true; // Enable heap references
     
     // Create array with initial value
     vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
@@ -85,6 +89,7 @@ describe('Array Reference Operations', () => {
   it('should handle ARRAY_LEN with references', () => {
     const vm = new VM();
     const state = vm.createInitialState();
+    state.useHeapReferences = true; // Enable heap references
     
     // Create array with some values
     vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
