@@ -33,6 +33,10 @@ export interface Execution {
   stack: CVMValue[];
   variables: Record<string, CVMValue>;
   iterators?: IteratorState[]; // Store iterator state for for-of loops
+  heap?: {
+    objects: Record<number, { type: 'array' | 'object'; data: CVMValue }>;
+    nextId: number;
+  };
   error?: string;
   ccPrompt?: string; // Store CC prompt for stateless operation
   returnValue?: CVMValue; // Store return value from main()

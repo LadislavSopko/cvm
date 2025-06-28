@@ -1,8 +1,9 @@
 import { VM, VMState } from './vm.js';
 import { compile } from '@cvm/parser';
 import { StorageAdapter, StorageFactory } from '@cvm/storage';
-import { Program, Execution, CVMValue } from '@cvm/types';
+import { Program, Execution, CVMValue, CVMArray, CVMObject } from '@cvm/types';
 import { FileSystemService, SandboxedFileSystem } from './file-system.js';
+import { VMHeap, createVMHeap, HeapObject } from './vm-heap.js';
 
 export interface ExecutionResult {
   type: 'completed' | 'waiting' | 'error';
@@ -135,7 +136,8 @@ export class VMManager {
         stack: execution.stack,
         variables: new Map(Object.entries(execution.variables)),
         output: [],
-        iterators: execution.iterators || []
+        iterators: execution.iterators || [],
+        heap: execution.heap ? this.deserializeHeap(execution.heap) : undefined
       };
 
       const state = vm.execute(program.bytecode, initialState, this.fileSystem);
@@ -150,6 +152,21 @@ export class VMManager {
       execution.stack = state.stack;
       execution.variables = Object.fromEntries(state.variables);
       execution.iterators = state.iterators;
+
+      // Serialize heap
+      if (state.heap) {
+        const heapObjects: Record<number, { type: 'array' | 'object'; data: CVMValue }> = {};
+        state.heap.objects.forEach((heapObj, id) => {
+          heapObjects[id] = {
+            type: heapObj.type,
+            data: heapObj.data as CVMValue
+          };
+        });
+        execution.heap = {
+          objects: heapObjects,
+          nextId: state.heap.nextId
+        };
+      }
 
       if (state.status === 'complete') {
         execution.state = 'COMPLETED';
@@ -238,7 +255,8 @@ export class VMManager {
       status: 'waiting_cc' as const,
       output: [], // Start with empty output for resumed execution
       ccPrompt: undefined,
-      iterators: execution.iterators || []
+      iterators: execution.iterators || [],
+      heap: execution.heap ? this.deserializeHeap(execution.heap) : createVMHeap()
     };
 
     // Resume execution - this pushes result to stack and continues
@@ -254,6 +272,21 @@ export class VMManager {
     execution.stack = newState.stack;
     execution.variables = Object.fromEntries(newState.variables);
     execution.iterators = newState.iterators;
+    
+    // Serialize heap
+    if (newState.heap) {
+      const heapObjects: Record<number, { type: 'array' | 'object'; data: CVMValue }> = {};
+      newState.heap.objects.forEach((heapObj, id) => {
+        heapObjects[id] = {
+          type: heapObj.type,
+          data: heapObj.data as CVMValue
+        };
+      });
+      execution.heap = {
+        objects: heapObjects,
+        nextId: newState.heap.nextId
+      };
+    }
     
     if (newState.status === 'complete') {
       execution.state = 'COMPLETED';
@@ -375,5 +408,28 @@ export class VMManager {
     await this.setCurrentExecutionId(execId);
     
     return execId;
+  }
+
+  /**
+   * Deserialize heap from storage format
+   */
+  private deserializeHeap(heapData: { objects: Record<number, { type: 'array' | 'object'; data: CVMValue }>; nextId: number }): VMHeap {
+    const heap = createVMHeap();
+    
+    // Restore objects
+    Object.entries(heapData.objects).forEach(([idStr, obj]) => {
+      const id = parseInt(idStr);
+      const heapObject: HeapObject = {
+        id,
+        type: obj.type,
+        data: obj.data as (CVMArray | CVMObject)
+      };
+      heap.objects.set(id, heapObject);
+    });
+    
+    // Restore nextId
+    heap.nextId = heapData.nextId;
+    
+    return heap;
   }
 }
