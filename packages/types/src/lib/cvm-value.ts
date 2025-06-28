@@ -16,7 +16,17 @@ export interface CVMObject {
   properties: Record<string, CVMValue>;
 }
 
-export type CVMValue = string | boolean | number | CVMArray | CVMObject | null | CVMUndefined;
+export interface CVMArrayRef {
+  type: 'array-ref';
+  id: number;
+}
+
+export interface CVMObjectRef {
+  type: 'object-ref';
+  id: number;
+}
+
+export type CVMValue = string | boolean | number | CVMArray | CVMObject | CVMArrayRef | CVMObjectRef | null | CVMUndefined;
 
 // Type guards for runtime type checking
 export function isCVMString(value: CVMValue): value is string {
@@ -54,6 +64,20 @@ export function isCVMObject(value: CVMValue): value is CVMObject {
          typeof value === 'object' && 
          'type' in value && 
          value.type === 'object';
+}
+
+export function isCVMArrayRef(value: CVMValue): value is CVMArrayRef {
+  return value !== null && 
+         typeof value === 'object' && 
+         'type' in value && 
+         value.type === 'array-ref';
+}
+
+export function isCVMObjectRef(value: CVMValue): value is CVMObjectRef {
+  return value !== null && 
+         typeof value === 'object' && 
+         'type' in value && 
+         value.type === 'object-ref';
 }
 
 // Type conversion helpers
