@@ -220,6 +220,79 @@ let currentFiles = fs.listFiles();
 
 **Note**: Returns string paths for simplicity and to maintain backward compatibility.
 
+### fs.readFile(path: string) → string | null
+**Status**: ✅ Implemented
+
+Reads the contents of a file as a UTF-8 string.
+
+```javascript
+// Read a file
+let content = fs.readFile("./data.json");
+if (content !== null) {
+  let data = JSON.parse(content);
+  console.log("Loaded data: " + data.count);
+}
+
+// Handle missing file
+let missing = fs.readFile("./not-found.txt");
+if (missing === null) {
+  console.log("File not found");
+}
+```
+
+**Returns**: 
+- File contents as string if successful
+- `null` if file not found, not accessible, or outside sandbox
+
+**Security**:
+- Sandboxed to paths defined in `CVM_SANDBOX_PATHS`
+- Symbolic links are not followed
+- Only regular files can be read (not directories)
+- Returns `null` for any security violation
+
+**Use Cases**:
+- Loading saved state between CVM executions
+- Reading configuration files
+- Restoring progress from previous runs
+
+### fs.writeFile(path: string, content: string) → boolean
+**Status**: ✅ Implemented
+
+Writes content to a file, creating it if it doesn't exist or overwriting if it does.
+
+```javascript
+// Save state
+let state = {
+  processed: 42,
+  timestamp: Date.now()
+};
+let saved = fs.writeFile("./state.json", JSON.stringify(state));
+console.log("Save successful: " + saved);
+
+// Write text file
+fs.writeFile("./output.txt", "Analysis results:\n" + results);
+
+// Create file in subdirectory (directory created automatically)
+fs.writeFile("./reports/daily.txt", reportContent);
+```
+
+**Returns**: 
+- `true` if write was successful
+- `false` if write failed or path is outside sandbox
+
+**Security**:
+- Sandboxed to paths defined in `CVM_SANDBOX_PATHS`
+- Parent directories created automatically if needed
+- Cannot overwrite symbolic links
+- Both file and parent directory must be within sandbox
+
+**Use Cases**:
+- Persisting state between CC() calls
+- Saving intermediate results
+- Creating output files for processed data
+
+**Note**: CVM's fs operations are for CVM's own state management. Claude uses its own file tools for general file access.
+
 ## Type Operations
 
 ### typeof value → string

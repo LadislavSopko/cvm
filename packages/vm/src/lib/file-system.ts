@@ -16,6 +16,8 @@ export interface ListFilesOptions {
 
 export interface FileSystemService {
   listFiles(filePath: string, options?: ListFilesOptions): CVMValue;
+  readFile(filePath: string): string | null;
+  writeFile(filePath: string, content: string): boolean;
 }
 
 export class SandboxedFileSystem implements FileSystemService {
@@ -130,6 +132,73 @@ export class SandboxedFileSystem implements FileSystemService {
       }
     } catch (error) {
       // Silently skip directories we can't read
+    }
+  }
+
+  readFile(filePath: string): string | null {
+    if (!this.isPathAllowed(filePath)) {
+      // Security: don't leak information about file existence
+      return null;
+    }
+
+    try {
+      const normalizedPath = path.resolve(filePath);
+      
+      // Security check: prevent reading through symlinks that might point outside sandbox
+      const stats = fs.lstatSync(normalizedPath);
+      if (stats.isSymbolicLink()) {
+        return null;
+      }
+      
+      // Only allow reading files, not directories
+      if (!stats.isFile()) {
+        return null;
+      }
+      
+      return fs.readFileSync(normalizedPath, 'utf-8');
+    } catch (error: any) {
+      // Return null for any error (file not found, permission denied, etc.)
+      // This prevents leaking information about file system structure
+      return null;
+    }
+  }
+
+  writeFile(filePath: string, content: string): boolean {
+    if (!this.isPathAllowed(filePath)) {
+      return false;
+    }
+
+    try {
+      const normalizedPath = path.resolve(filePath);
+      const dir = path.dirname(normalizedPath);
+      
+      // Security: ensure the parent directory is also within sandbox
+      if (!this.isPathAllowed(dir)) {
+        return false;
+      }
+      
+      // Security check: prevent overwriting symlinks
+      try {
+        const stats = fs.lstatSync(normalizedPath);
+        if (stats.isSymbolicLink()) {
+          return false;
+        }
+      } catch (error: any) {
+        // ENOENT is fine - means we're creating a new file
+        if (error.code !== 'ENOENT') {
+          return false;
+        }
+      }
+      
+      // Create directory if it doesn't exist
+      fs.mkdirSync(dir, { recursive: true });
+      
+      // Write the file
+      fs.writeFileSync(normalizedPath, content, 'utf-8');
+      return true;
+    } catch (error) {
+      // Return false for any error
+      return false;
     }
   }
 }

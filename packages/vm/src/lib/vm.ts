@@ -1,8 +1,9 @@
 import { Instruction, OpCode } from '@cvm/parser';
 import { CVMValue, CVMArray } from '@cvm/types';
 import { handlers, VMError, OpcodeHandler } from './handlers/index.js';
+import { FileSystemService } from './file-system.js';
 
-export type VMStatus = 'running' | 'waiting_cc' | 'waiting_fs' | 'complete' | 'error';
+export type VMStatus = 'running' | 'waiting_cc' | 'complete' | 'error';
 
 export interface IteratorContext {
   array: CVMArray;
@@ -17,14 +18,10 @@ export interface VMState {
   status: VMStatus;
   output: string[];
   ccPrompt?: string;
-  fsOperation?: {
-    type: 'listFiles';
-    path: string;
-    options?: any;
-  };
   error?: string;
   iterators: IteratorContext[];
   returnValue?: CVMValue;
+  fileSystem?: FileSystemService;
 }
 
 export class VM {
@@ -39,7 +36,7 @@ export class VM {
     }
   }
 
-  execute(bytecode: Instruction[], initialState?: Partial<VMState>): VMState {
+  execute(bytecode: Instruction[], initialState?: Partial<VMState>, fileSystem?: FileSystemService): VMState {
     const state: VMState = {
       pc: initialState?.pc ?? 0,
       stack: initialState?.stack ?? [],
@@ -47,6 +44,7 @@ export class VM {
       status: 'running',
       output: initialState?.output ?? [],
       iterators: initialState?.iterators ?? [],
+      fileSystem: fileSystem,
       ...initialState
     };
 
@@ -104,7 +102,7 @@ export class VM {
     return state;
   }
 
-  resume(state: VMState, ccResult: string, bytecode: Instruction[]): VMState {
+  resume(state: VMState, ccResult: string, bytecode: Instruction[], fileSystem?: FileSystemService): VMState {
     if (state.status !== 'waiting_cc') {
       throw new Error('Cannot resume: VM not waiting for CC');
     }
@@ -119,24 +117,7 @@ export class VM {
     };
 
     // Continue execution from where we left off
-    return this.execute(bytecode, newState);
+    return this.execute(bytecode, newState, fileSystem || state.fileSystem);
   }
 
-  resumeWithFsResult(state: VMState, result: CVMValue, bytecode: Instruction[]): VMState {
-    if (state.status !== 'waiting_fs') {
-      throw new Error('Cannot resume: VM not waiting for FS operation');
-    }
-
-    // Push FS result and continue
-    const newState = {
-      ...state,
-      stack: [...state.stack, result],
-      status: 'running' as VMStatus,
-      fsOperation: undefined,
-      pc: state.pc + 1
-    };
-
-    // Continue execution from where we left off
-    return this.execute(bytecode, newState);
-  }
 }

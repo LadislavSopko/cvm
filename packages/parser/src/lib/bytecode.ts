@@ -83,6 +83,8 @@ export enum OpCode {
   
   // File operations
   FS_LIST_FILES = 'FS_LIST_FILES',
+  FS_READ_FILE = 'FS_READ_FILE',
+  FS_WRITE_FILE = 'FS_WRITE_FILE',
   
   // Object operations
   OBJECT_CREATE = 'OBJECT_CREATE',

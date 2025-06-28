@@ -145,4 +145,10 @@ export const compileExpressionStatement: StatementVisitor<ts.ExpressionStatement
     // Pop the result since it's not being used
     state.emit(OpCode.POP);
   }
+  // Handle any other expression (including fs method calls)
+  else {
+    compileExpression(expr);
+    // Pop the result since it's not being used in this statement
+    state.emit(OpCode.POP);
+  }
 };

@@ -74,8 +74,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
 
   [OpCode.FS_LIST_FILES]: {
     stackIn: 1, // Minimum 1 argument (path), optionally 2 (path + options)
-    stackOut: 0,
-    controlsPC: true,
+    stackOut: 1,
     execute: (state, instruction) => {
       // Pop options (if present) and path from stack
       // We need to check if we have 1 or 2 arguments
@@ -111,13 +110,93 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
 
-      // Set up file system operation and pause execution
-      state.fsOperation = {
-        type: 'listFiles',
-        path: path,
-        options: options
-      };
-      state.status = 'waiting_fs';
+      if (!state.fileSystem) {
+        return {
+          type: 'RuntimeError',
+          message: 'FileSystem not available',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+
+      // Execute file system operation synchronously
+      const result = state.fileSystem.listFiles(path, options);
+      state.stack.push(result);
+      return undefined;
+    }
+  },
+
+  [OpCode.FS_READ_FILE]: {
+    stackIn: 1, // path
+    stackOut: 1, // Returns string or null
+    execute: (state, instruction) => {
+      const path = state.stack.pop();
+      
+      if (!path || !isCVMString(path)) {
+        return {
+          type: 'RuntimeError',
+          message: 'FS_READ_FILE requires a string path',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      if (!state.fileSystem) {
+        return {
+          type: 'RuntimeError',
+          message: 'FileSystem not available',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      // Execute file system operation synchronously
+      const result = state.fileSystem.readFile(path);
+      state.stack.push(result);
+      return undefined;
+    }
+  },
+
+  [OpCode.FS_WRITE_FILE]: {
+    stackIn: 2, // path, content
+    stackOut: 1, // Returns boolean
+    execute: (state, instruction) => {
+      const content = state.stack.pop();
+      const path = state.stack.pop();
+      
+      if (!path || !isCVMString(path)) {
+        return {
+          type: 'RuntimeError',
+          message: 'FS_WRITE_FILE requires a string path',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      if (content === undefined) {
+        return {
+          type: 'RuntimeError',
+          message: 'FS_WRITE_FILE requires content argument',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      if (!state.fileSystem) {
+        return {
+          type: 'RuntimeError',
+          message: 'FileSystem not available',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      // Convert content to string
+      const contentStr = cvmToString(content);
+      
+      // Execute file system operation synchronously
+      const result = state.fileSystem.writeFile(path, contentStr);
+      state.stack.push(result);
       return undefined;
     }
   },

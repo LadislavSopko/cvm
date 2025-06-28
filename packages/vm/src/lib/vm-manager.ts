@@ -111,8 +111,8 @@ export class VMManager {
     }
 
     // Check if we need to initialize execution
-    if (execution.state === 'READY') {
-      // First time - need to start execution
+    if (execution.state === 'READY' || execution.state === 'RUNNING') {
+      // Either first time or continuing after CC
       const program = await this.storage.getProgram(execution.programId);
       if (!program) {
         throw new Error(`Program not found: ${execution.programId}`);
@@ -124,15 +124,21 @@ export class VMManager {
         this.vms.set(executionId, vm);
       }
 
-      // Start execution
-      const initialState: Partial<VMState> = {
+      // Prepare state - either initial or restored from execution
+      const initialState: Partial<VMState> = execution.state === 'READY' ? {
         pc: 0,
         stack: [],
         variables: new Map(),
         output: []
+      } : {
+        pc: execution.pc,
+        stack: execution.stack,
+        variables: new Map(Object.entries(execution.variables)),
+        output: [],
+        iterators: execution.iterators || []
       };
 
-      const state = vm.execute(program.bytecode, initialState);
+      const state = vm.execute(program.bytecode, initialState, this.fileSystem);
 
       // Extract and save output separately
       if (state.output.length > 0) {
@@ -170,67 +176,6 @@ export class VMManager {
           type: 'waiting',
           message: state.ccPrompt || 'Waiting for input'
         };
-      } else if (state.status === 'waiting_fs') {
-        // Handle file system operation synchronously
-        if (state.fsOperation) {
-          const fsResult = this.fileSystem.listFiles(state.fsOperation.path, state.fsOperation.options);
-          
-          // Resume VM with the result
-          const resumedState = vm.resumeWithFsResult(state, fsResult, program.bytecode);
-          
-          // Extract and save output
-          if (resumedState.output.length > 0) {
-            await this.storage.appendOutput(executionId, resumedState.output);
-          }
-          
-          // Update execution state
-          execution.pc = resumedState.pc;
-          execution.stack = resumedState.stack;
-          execution.variables = Object.fromEntries(resumedState.variables);
-          execution.iterators = resumedState.iterators;
-          
-          // Check final status after resume
-          if (resumedState.status === 'complete') {
-            execution.state = 'COMPLETED';
-            if (resumedState.returnValue !== undefined) {
-              execution.returnValue = resumedState.returnValue;
-            }
-            await this.storage.saveExecution(execution);
-            this.vms.delete(executionId);
-            
-            return {
-              type: 'completed',
-              message: 'Execution completed',
-              result: resumedState.returnValue
-            };
-          } else if (resumedState.status === 'error') {
-            execution.state = 'ERROR';
-            execution.error = resumedState.error;
-            await this.storage.saveExecution(execution);
-            this.vms.delete(executionId);
-            
-            return {
-              type: 'error',
-              error: resumedState.error
-            };
-          } else if (resumedState.status === 'waiting_cc') {
-            execution.state = 'AWAITING_COGNITIVE_RESULT';
-            execution.ccPrompt = resumedState.ccPrompt;
-            await this.storage.saveExecution(execution);
-            
-            return {
-              type: 'waiting',
-              message: resumedState.ccPrompt || 'Waiting for input'
-            };
-          }
-          // If still running or waiting_fs again, we need to handle it
-          // For now, save state and return to process next iteration
-          execution.state = 'RUNNING';
-          await this.storage.saveExecution(execution);
-          
-          // Recursively call getNext to continue processing
-          return this.getNext(executionId);
-        }
       } else if (state.status === 'error') {
         execution.state = 'ERROR';
         execution.error = state.error;
@@ -297,7 +242,7 @@ export class VMManager {
     };
 
     // Resume execution - this pushes result to stack and continues
-    const newState = vm.resume(currentState, result, program.bytecode);
+    const newState = vm.resume(currentState, result, program.bytecode, this.fileSystem);
     
     // Extract and save any new output
     if (newState.output.length > 0) {
@@ -328,6 +273,8 @@ export class VMManager {
       execution.state = 'AWAITING_COGNITIVE_RESULT';
       execution.ccPrompt = newState.ccPrompt;
     } else {
+      // For any other state, keep as RUNNING
+      // getNext will handle it when called
       execution.state = 'RUNNING';
     }
     
