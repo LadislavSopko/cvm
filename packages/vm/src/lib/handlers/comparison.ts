@@ -1,6 +1,6 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { cvmToNumber, cvmToString, isCVMNull, isCVMUndefined } from '@cvm/types';
+import { cvmToNumber, cvmToString, isCVMNull, isCVMUndefined, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
 
 // Helper for binary comparison operations
 function executeBinaryComparison(state: any, instruction: any, compareFn: (left: any, right: any) => boolean) {
@@ -24,6 +24,15 @@ export const comparisonHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
           return true;
         } else if (isCVMUndefined(left) && isCVMUndefined(right)) {
           return true;
+        }
+        // Handle references - compare by reference, not value
+        else if (isCVMArrayRef(left) || isCVMObjectRef(left)) {
+          if (isCVMArrayRef(left) && isCVMArrayRef(right)) {
+            return left.id === right.id;
+          } else if (isCVMObjectRef(left) && isCVMObjectRef(right)) {
+            return left.id === right.id;
+          }
+          return false;
         } else {
           const leftNum = cvmToNumber(left);
           const rightNum = cvmToNumber(right);
@@ -50,6 +59,15 @@ export const comparisonHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
           return false;
         } else if (isCVMUndefined(left) && isCVMUndefined(right)) {
           return false;
+        }
+        // Handle references - compare by reference, not value
+        else if (isCVMArrayRef(left) || isCVMObjectRef(left)) {
+          if (isCVMArrayRef(left) && isCVMArrayRef(right)) {
+            return left.id !== right.id;
+          } else if (isCVMObjectRef(left) && isCVMObjectRef(right)) {
+            return left.id !== right.id;
+          }
+          return true;
         } else {
           const leftNum = cvmToNumber(left);
           const rightNum = cvmToNumber(right);
@@ -124,6 +142,12 @@ export const comparisonHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       return executeBinaryComparison(state, instruction, (left, right) => {
         // Strict equality - no type coercion
+        // For references, compare by ID
+        if (isCVMArrayRef(left) && isCVMArrayRef(right)) {
+          return left.id === right.id;
+        } else if (isCVMObjectRef(left) && isCVMObjectRef(right)) {
+          return left.id === right.id;
+        }
         return left === right;
       });
     }
@@ -135,6 +159,12 @@ export const comparisonHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       return executeBinaryComparison(state, instruction, (left, right) => {
         // Strict inequality - no type coercion
+        // For references, compare by ID
+        if (isCVMArrayRef(left) && isCVMArrayRef(right)) {
+          return left.id !== right.id;
+        } else if (isCVMObjectRef(left) && isCVMObjectRef(right)) {
+          return left.id !== right.id;
+        }
         return left !== right;
       });
     }
