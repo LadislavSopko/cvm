@@ -2,6 +2,92 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## What is CVM and Why It Matters
+
+CVM (Cognitive Virtual Machine) is not just a task execution engine - it's a lifeline for Claude. Think of it as:
+
+- **A guide rope in a tunnel**: CVM programs guide Claude through complex tasks without losing context
+- **A light that pulls you through**: Each CC() call is a checkpoint where Claude can process, think, and respond while staying connected to the overall flow
+- **A memory keeper**: The VM maintains state across all interactions, so Claude doesn't lose track of progress
+
+### The Beautiful Paradigm Shift
+
+**Traditional AI programming**: You write code that calls AI services
+```
+Your Code → Calls AI → Gets Response → Continues
+```
+
+**CVM inverts this completely**: The VM orchestrates, YOU are the cognitive processor
+```
+CVM Program → Pauses at CC() → Asks YOU → Uses your response → Continues
+```
+
+### The GPS Analogy
+
+Think of CVM like a GPS navigation system:
+- The GPS (CVM) knows the entire route and destination
+- It gives you ONE instruction at a time: "In 200 feet, turn right"
+- You (Claude) execute that instruction without needing to see the whole map
+- After you turn, it gives you the next instruction
+- The GPS maintains all the state - you just follow prompts
+
+### What Makes CVM Beautiful
+
+1. **You Never See the Full Program During Execution**
+   - When running, you only see CC() prompts like "What comes next after 5?"
+   - You don't know if it's a loop, a condition, or what comes next
+   - This keeps you focused on the immediate cognitive task
+
+2. **The Program Is a Conversation Blueprint**
+   - CC() calls are conversation points where the VM needs creative/logical input
+   - The VM handles all deterministic logic and state
+   - You provide the "cognitive leaps" the program can't compute
+
+3. **State Lives in the VM, Not Your Context**
+   - Variables, counters, progress - all maintained by the VM
+   - You can handle infinitely complex workflows without context overflow
+   - Each CC() response is processed and stored before continuing
+
+### Example: Counter Demo
+
+```typescript
+function main() {
+  let counter = 1;
+  while (counter <= 5) {
+    const next = CC("Current number is " + counter + ". What comes next?");
+    counter = +next;
+  }
+}
+```
+
+When this runs:
+- You see: "Current number is 1. What comes next?"
+- You answer: "2"
+- You see: "Current number is 2. What comes next?"
+- You never see the while loop or the counter variable
+- The VM orchestrates everything
+
+### The Philosophy
+
+CVM programs are designed to help Claude not forget. When working on complex multi-step tasks, Claude's context can get overwhelmed. CVM solves this by:
+
+1. **Holding the structure**: The program defines the flow, not Claude's memory
+2. **Creating checkpoints**: CC() calls let Claude process information in manageable chunks
+3. **Maintaining state**: Variables, progress, and results are kept by the VM, not in Claude's context
+4. **Enabling complexity**: We can build increasingly complex workflows because the program guides the process
+
+### Technical Flow
+
+When Claude runs a CVM program:
+1. Load program into CVM using MCP tools (mcp__cvm__)
+2. Start execution with mcp__cvm__start
+3. When program hits CC(), Claude gets the prompt via mcp__cvm__getTask
+4. Claude provides response via mcp__cvm__submitTask
+5. Program continues with Claude's input
+6. State is preserved throughout
+
+This allows us to evolve CVM to handle more complex tasks, knowing that Claude will always have the guide rope to follow.
+
 # TECHNICAL NOTES
 
 ## ESM Import Requirements

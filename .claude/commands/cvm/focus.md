@@ -8,7 +8,7 @@ if not loaded :
 
 Use `/mcp__cvm__loadFile` to load the focus program:
 - programId: "focus"
-- filePath: "test/programs/focus.ts"
+- filePath: ".claude/commands/cvm/focus.md"
 
 Then use `/mcp__cvm__start` to run it:
 - programId: "focus"
