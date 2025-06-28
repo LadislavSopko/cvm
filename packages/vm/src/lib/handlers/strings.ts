@@ -1,9 +1,10 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { cvmToString, isCVMString, isCVMArray, cvmTypeof, createCVMArray, createCVMObject, CVMValue } from '@cvm/types';
+import { cvmToString, isCVMString, isCVMArray, cvmTypeof, createCVMArray, createCVMObject, CVMValue, isCVMArrayRef, CVMArray } from '@cvm/types';
+import { VMHeap } from '../vm-heap.js';
 
 // Helper function to convert JSON to CVM values
-function jsonToCVMValue(value: any): CVMValue {
+function jsonToCVMValue(value: any, heap: VMHeap): CVMValue {
   if (value === null) return null;
   if (value === undefined) return undefined as any; // CVM uses undefined internally
   if (typeof value === 'string') return value;
@@ -17,8 +18,9 @@ function jsonToCVMValue(value: any): CVMValue {
   
   if (Array.isArray(value)) {
     const arr = createCVMArray();
-    arr.elements = value.map(jsonToCVMValue);
-    return arr;
+    arr.elements = value.map(v => jsonToCVMValue(v, heap));
+    // Allocate the array on the heap
+    return heap.allocate('array', arr);
   }
   
   // Check if it's already a CVM object
@@ -29,9 +31,10 @@ function jsonToCVMValue(value: any): CVMValue {
   if (typeof value === 'object') {
     const obj = createCVMObject();
     for (const [key, val] of Object.entries(value)) {
-      obj.properties[key] = jsonToCVMValue(val);
+      obj.properties[key] = jsonToCVMValue(val, heap);
     }
-    return obj;
+    // Allocate the object on the heap
+    return heap.allocate('object', obj);
   }
   
   // Fallback for any other types
@@ -80,6 +83,19 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         state.stack.push(value.length);
       } else if (isCVMArray(value)) {
         state.stack.push(value.elements.length);
+      } else if (isCVMArrayRef(value)) {
+        // Dereference array reference
+        const heapObj = state.heap.get(value.id);
+        if (!heapObj || heapObj.type !== 'array') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid array reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        const array = heapObj.data as CVMArray;
+        state.stack.push(array.elements.length);
       } else {
         return {
           type: 'RuntimeError',
@@ -110,7 +126,7 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       
       try {
         const parsed = JSON.parse(str);
-        state.stack.push(jsonToCVMValue(parsed));
+        state.stack.push(jsonToCVMValue(parsed, state.heap));
       } catch {
         // Return null for invalid JSON
         state.stack.push(null);

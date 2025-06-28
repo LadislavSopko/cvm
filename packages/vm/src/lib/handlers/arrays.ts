@@ -18,16 +18,8 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackOut: 1,
     execute: (state, instruction) => {
       const array = createCVMArray();
-      
-      // Use heap references if explicitly enabled
-      if (state.useHeapReferences) {
-        const ref = state.heap.allocate('array', array);
-        state.stack.push(ref);
-      } else {
-        // Default: inline arrays for backward compatibility
-        state.stack.push(array);
-      }
-      
+      const ref = state.heap.allocate('array', array);
+      state.stack.push(ref);
       return undefined;
     }
   },

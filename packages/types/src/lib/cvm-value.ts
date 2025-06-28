@@ -111,7 +111,9 @@ export function cvmTypeof(value: CVMValue): string {
   if (isCVMNull(value)) return 'null';
   if (isCVMUndefined(value)) return 'undefined';
   if (isCVMArray(value)) return 'array';
+  if (isCVMArrayRef(value)) return 'array'; // Array references report as 'array'
   if (isCVMObject(value)) return 'object';
+  if (isCVMObjectRef(value)) return 'object'; // Object references report as 'object'
   return 'unknown';
 }
 

@@ -10,18 +10,46 @@ import {
   isCVMArray,
   cvmToString,
   cvmTypeof,
-  CVMValue
+  CVMValue,
+  isCVMObjectRef,
+  isCVMArrayRef,
+  CVMObject,
+  CVMArray
 } from '@cvm/types';
 
 // Helper function to convert CVM values to plain JS for JSON.stringify
-function cvmValueToJs(value: CVMValue): any {
+function cvmValueToJs(value: CVMValue, heap: any): any {
+  // Handle array references
+  if (isCVMArrayRef(value)) {
+    const heapObj = heap.get(value.id);
+    if (heapObj && heapObj.type === 'array') {
+      const array = heapObj.data as CVMArray;
+      return array.elements.map(v => cvmValueToJs(v, heap));
+    }
+    return null;
+  }
+  
+  // Handle object references
+  if (isCVMObjectRef(value)) {
+    const heapObj = heap.get(value.id);
+    if (heapObj && heapObj.type === 'object') {
+      const cvmObj = heapObj.data as CVMObject;
+      const obj: Record<string, any> = {};
+      for (const [k, v] of Object.entries(cvmObj.properties)) {
+        obj[k] = cvmValueToJs(v, heap);
+      }
+      return obj;
+    }
+    return null;
+  }
+  
   if (isCVMArray(value)) {
-    return value.elements.map(cvmValueToJs);
+    return value.elements.map(v => cvmValueToJs(v, heap));
   }
   if (isCVMObject(value)) {
     const obj: Record<string, any> = {};
     for (const [k, v] of Object.entries(value.properties)) {
-      obj[k] = cvmValueToJs(v);
+      obj[k] = cvmValueToJs(v, heap);
     }
     return obj;
   }
@@ -36,7 +64,9 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 0,
     stackOut: 1,
     execute: (state) => {
-      state.stack.push(createCVMObject());
+      const obj = createCVMObject();
+      const ref = state.heap.allocate('object', obj);
+      state.stack.push(ref);
       return undefined;
     }
   },
@@ -47,12 +77,27 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       const value = state.stack.pop()!;
       const key = state.stack.pop()!;
-      const obj = state.stack.pop()!;
+      const objOrRef = state.stack.pop()!;
       
-      if (!isCVMObject(obj)) {
+      let obj: CVMObject;
+      
+      if (isCVMObjectRef(objOrRef)) {
+        const heapObj = state.heap.get(objOrRef.id);
+        if (!heapObj || heapObj.type !== 'object') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid object reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        obj = heapObj.data as CVMObject;
+      } else if (isCVMObject(objOrRef)) {
+        obj = objOrRef;
+      } else {
         return {
           type: 'RuntimeError',
-          message: `Cannot set property '${key}' on ${cvmTypeof(obj)}`,
+          message: `Cannot set property '${key}' on ${cvmTypeof(objOrRef)}`,
           pc: state.pc,
           opcode: instruction.op
         };
@@ -68,7 +113,7 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       }
       
       obj.properties[key] = value;
-      state.stack.push(obj); // Push object back for chaining
+      state.stack.push(objOrRef); // Push back the original reference or object
       return undefined;
     }
   },
@@ -78,18 +123,33 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackOut: 1,
     execute: (state, instruction) => {
       const key = state.stack.pop()!;
-      const obj = state.stack.pop()!;
+      const objOrRef = state.stack.pop()!;
       
-      if (isCVMNull(obj) || isCVMUndefined(obj)) {
+      if (isCVMNull(objOrRef) || isCVMUndefined(objOrRef)) {
         return {
           type: 'RuntimeError',
-          message: `Cannot read property '${key}' of ${cvmTypeof(obj)}`,
+          message: `Cannot read property '${key}' of ${cvmTypeof(objOrRef)}`,
           pc: state.pc,
           opcode: instruction.op
         };
       }
       
-      if (!isCVMObject(obj)) {
+      let obj: CVMObject | null = null;
+      
+      if (isCVMObjectRef(objOrRef)) {
+        const heapObj = state.heap.get(objOrRef.id);
+        if (!heapObj || heapObj.type !== 'object') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid object reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        obj = heapObj.data as CVMObject;
+      } else if (isCVMObject(objOrRef)) {
+        obj = objOrRef;
+      } else {
         // Non-objects return undefined for any property
         state.stack.push(createCVMUndefined());
         return undefined;
@@ -106,7 +166,7 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackOut: 1,
     execute: (state) => {
       const value = state.stack.pop()!;
-      const jsValue = cvmValueToJs(value);
+      const jsValue = cvmValueToJs(value, state.heap);
       state.stack.push(JSON.stringify(jsValue));
       return undefined;
     }

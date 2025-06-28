@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
+import { isCVMArrayRef, CVMArrayRef, CVMArray } from '@cvm/types';
 
 describe('VM - RETURN opcode', () => {
   it('should return value from stack', () => {
@@ -56,10 +57,14 @@ describe('VM - RETURN opcode', () => {
     const state = vm.execute(bytecode);
     
     expect(state.status).toBe('complete');
-    expect(state.returnValue).toEqual({
-      type: 'array',
-      elements: ['a', 'b']
-    });
+    expect(isCVMArrayRef(state.returnValue)).toBe(true);
+    if (isCVMArrayRef(state.returnValue)) {
+      const heapObj = state.heap.get((state.returnValue as CVMArrayRef).id);
+      expect(heapObj).toBeDefined();
+      expect(heapObj!.type).toBe('array');
+      const arr = heapObj!.data as CVMArray;
+      expect(arr.elements).toEqual(['a', 'b']);
+    }
   });
   
   it('should stop execution after return', () => {

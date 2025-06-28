@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
-import { isCVMObject, isCVMString } from '@cvm/types';
+import { isCVMObject, isCVMString, isCVMObjectRef, CVMObjectRef, CVMObject } from '@cvm/types';
 
 describe('VM Object Operations', () => {
   let vm: VM;
@@ -18,9 +18,13 @@ describe('VM Object Operations', () => {
       ]);
       
       expect(state.stack.length).toBe(1);
-      const obj = state.stack[0];
-      expect(isCVMObject(obj)).toBe(true);
-      if (isCVMObject(obj)) {
+      const ref = state.stack[0];
+      expect(isCVMObjectRef(ref)).toBe(true);
+      if (isCVMObjectRef(ref)) {
+        const heapObj = state.heap.get(ref.id);
+        expect(heapObj).toBeDefined();
+        expect(heapObj!.type).toBe('object');
+        const obj = heapObj!.data as CVMObject;
         expect(Object.keys(obj.properties).length).toBe(0);
       }
     });
@@ -37,10 +41,14 @@ describe('VM Object Operations', () => {
       ]);
       
       expect(state.stack.length).toBe(1);
-      const result = state.stack[0];
-      expect(isCVMObject(result)).toBe(true);
-      if (isCVMObject(result)) {
-        expect(result.properties['name']).toBe('John');
+      const ref = state.stack[0];
+      expect(isCVMObjectRef(ref)).toBe(true);
+      if (isCVMObjectRef(ref)) {
+        const heapObj = state.heap.get(ref.id);
+        expect(heapObj).toBeDefined();
+        expect(heapObj!.type).toBe('object');
+        const obj = heapObj!.data as CVMObject;
+        expect(obj.properties['name']).toBe('John');
       }
     });
 

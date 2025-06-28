@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
-import { isCVMArray, isCVMNumber, isCVMObject } from '@cvm/types';
+import { isCVMArray, isCVMNumber, isCVMObject, isCVMArrayRef, isCVMObjectRef, CVMArrayRef, CVMObjectRef, CVMArray, CVMObject } from '@cvm/types';
 
 describe('VM Array Operations', () => {
   let vm: VM;
@@ -18,9 +18,13 @@ describe('VM Array Operations', () => {
       ]);
 
       expect(state.stack.length).toBe(1);
-      const arr = state.stack[0];
-      expect(isCVMArray(arr)).toBe(true);
-      if (isCVMArray(arr)) {
+      const ref = state.stack[0];
+      expect(isCVMArrayRef(ref)).toBe(true);
+      if (isCVMArrayRef(ref)) {
+        const heapObj = state.heap.get(ref.id);
+        expect(heapObj).toBeDefined();
+        expect(heapObj!.type).toBe('array');
+        const arr = heapObj!.data as CVMArray;
         expect(arr.elements.length).toBe(0);
       }
     });
@@ -38,9 +42,13 @@ describe('VM Array Operations', () => {
       ]);
 
       expect(state.stack.length).toBe(1);
-      const arr = state.stack[0];
-      expect(isCVMArray(arr)).toBe(true);
-      if (isCVMArray(arr)) {
+      const ref = state.stack[0];
+      expect(isCVMArrayRef(ref)).toBe(true);
+      if (isCVMArrayRef(ref)) {
+        const heapObj = state.heap.get(ref.id);
+        expect(heapObj).toBeDefined();
+        expect(heapObj!.type).toBe('array');
+        const arr = heapObj!.data as CVMArray;
         expect(arr.elements.length).toBe(2);
         expect(arr.elements[0]).toBe('hello');
         expect(arr.elements[1]).toBe(123);
@@ -121,9 +129,13 @@ describe('VM Array Operations', () => {
       ]);
 
       expect(state.stack.length).toBe(1);
-      const arr = state.stack[0];
-      expect(isCVMArray(arr)).toBe(true);
-      if (isCVMArray(arr)) {
+      const ref = state.stack[0];
+      expect(isCVMArrayRef(ref)).toBe(true);
+      if (isCVMArrayRef(ref)) {
+        const heapObj = state.heap.get(ref.id);
+        expect(heapObj).toBeDefined();
+        expect(heapObj!.type).toBe('array');
+        const arr = heapObj!.data as CVMArray;
         expect(arr.elements).toEqual(['a', 'b', 'c']);
       }
     });
@@ -135,9 +147,13 @@ describe('VM Array Operations', () => {
         { op: OpCode.HALT }
       ]);
 
-      const arr = state.stack[0];
-      expect(isCVMArray(arr)).toBe(true);
-      if (isCVMArray(arr)) {
+      const ref = state.stack[0];
+      expect(isCVMArrayRef(ref)).toBe(true);
+      if (isCVMArrayRef(ref)) {
+        const heapObj = state.heap.get(ref.id);
+        expect(heapObj).toBeDefined();
+        expect(heapObj!.type).toBe('array');
+        const arr = heapObj!.data as CVMArray;
         expect(arr.elements).toEqual([1, true, 'text', null]);
       }
     });
@@ -159,9 +175,13 @@ describe('VM Array Operations', () => {
         { op: OpCode.HALT }
       ]);
 
-      const obj = state.stack[0];
-      expect(isCVMObject(obj)).toBe(true);
-      if (isCVMObject(obj)) {
+      const ref = state.stack[0];
+      expect(isCVMObjectRef(ref)).toBe(true);
+      if (isCVMObjectRef(ref)) {
+        const heapObj = state.heap.get(ref.id);
+        expect(heapObj).toBeDefined();
+        expect(heapObj!.type).toBe('object');
+        const obj = heapObj!.data as CVMObject;
         expect(obj.properties['name']).toBe('John');
         expect(obj.properties['age']).toBe(30);
       }
