@@ -2,6 +2,7 @@ import { Instruction, OpCode } from '@cvm/parser';
 import { CVMValue, CVMArray } from '@cvm/types';
 import { handlers, VMError, OpcodeHandler } from './handlers/index.js';
 import { FileSystemService } from './file-system.js';
+import { VMHeap, createVMHeap } from './vm-heap.js';
 
 export type VMStatus = 'running' | 'waiting_cc' | 'complete' | 'error';
 
@@ -22,9 +23,39 @@ export interface VMState {
   iterators: IteratorContext[];
   returnValue?: CVMValue;
   fileSystem?: FileSystemService;
+  heap: VMHeap;
 }
 
 export class VM {
+  createInitialState(): VMState {
+    return {
+      pc: 0,
+      stack: [],
+      variables: new Map(),
+      status: 'running',
+      output: [],
+      iterators: [],
+      heap: createVMHeap()
+    };
+  }
+
+  executeInstruction(state: VMState, instruction: Instruction): void {
+    const handler = handlers[instruction.op];
+    if (!handler) {
+      throw new Error(`Unknown opcode: ${instruction.op}`);
+    }
+
+    const error = this.validateStack(handler, instruction, state);
+    if (error) {
+      state.status = 'error';
+      state.error = error.message;
+      return;
+    }
+
+    handler.execute(state, instruction);
+    state.pc++;
+  }
+
   private validateStack(handler: OpcodeHandler, instruction: Instruction, state: VMState): VMError | void {
     if (state.stack.length < handler.stackIn) {
       return {
@@ -45,6 +76,7 @@ export class VM {
       output: initialState?.output ?? [],
       iterators: initialState?.iterators ?? [],
       fileSystem: fileSystem,
+      heap: initialState?.heap ?? createVMHeap(),
       ...initialState
     };
 

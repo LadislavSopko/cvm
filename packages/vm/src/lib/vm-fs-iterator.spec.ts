@@ -2,16 +2,40 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
 import { createCVMArray } from '@cvm/types';
+import { FileSystemService } from './file-system.js';
+
+// Mock FileSystemService
+class MockFileSystemService implements FileSystemService {
+  listFiles(filePath: string, options?: any) {
+    if (filePath === '/test') {
+      return createCVMArray([
+        '/test/file1.txt',
+        '/test/file2.txt',
+        '/test/file3.txt'
+      ]);
+    }
+    return createCVMArray([]);
+  }
+
+  readFile(filePath: string): string | null {
+    return `Content of ${filePath}`;
+  }
+
+  writeFile(filePath: string, content: string): boolean {
+    return true;
+  }
+}
 
 describe('VM - fs.listFiles iterator compatibility', () => {
   let vm: VM;
+  let fileSystem: FileSystemService;
 
   beforeEach(() => {
     vm = new VM();
+    fileSystem = new MockFileSystemService();
   });
 
-  it('should iterate over array returned by resumeWithFsResult', () => {
-    // First, simulate fs.listFiles call
+  it('should iterate over array returned by fs.listFiles', () => {
     const bytecode = [
       { op: OpCode.PUSH, arg: '/test' },
       { op: OpCode.FS_LIST_FILES },
@@ -26,25 +50,14 @@ describe('VM - fs.listFiles iterator compatibility', () => {
       { op: OpCode.HALT }                    // 10
     ];
 
-    // Execute until waiting_fs
-    const state1 = vm.execute(bytecode);
-    expect(state1.status).toBe('waiting_fs');
-
-    // Simulate file system result - this is what fileSystem.listFiles returns
-    const fsResult = createCVMArray([
-      '/test/file1.txt',
-      '/test/file2.txt',
-      '/test/file3.txt'
-    ]);
-
-    // Resume with the result
-    const state2 = vm.resumeWithFsResult(state1, fsResult, bytecode);
+    // Execute with fileSystem
+    const state = vm.execute(bytecode, {}, fileSystem);
     
-    expect(state2.status).toBe('complete');
-    expect(state2.error).toBeUndefined();
-    expect(state2.output).toContain('/test/file1.txt');
-    expect(state2.output).toContain('/test/file2.txt');
-    expect(state2.output).toContain('/test/file3.txt');
+    expect(state.status).toBe('complete');
+    expect(state.error).toBeUndefined();
+    expect(state.output).toContain('/test/file1.txt');
+    expect(state.output).toContain('/test/file2.txt');
+    expect(state.output).toContain('/test/file3.txt');
   });
 
   it('should handle empty array from fs.listFiles', () => {
@@ -63,16 +76,10 @@ describe('VM - fs.listFiles iterator compatibility', () => {
       { op: OpCode.HALT }
     ];
 
-    const state1 = vm.execute(bytecode);
-    expect(state1.status).toBe('waiting_fs');
-
-    // Empty array result
-    const fsResult = createCVMArray([]);
-
-    const state2 = vm.resumeWithFsResult(state1, fsResult, bytecode);
+    const state = vm.execute(bytecode, {}, fileSystem);
     
-    expect(state2.status).toBe('complete');
-    expect(state2.output).toContain('No files found');
-    expect(state2.output).not.toContain('Should not reach here');
+    expect(state.status).toBe('complete');
+    expect(state.output).toContain('No files found');
+    expect(state.output).not.toContain('Should not reach here');
   });
 });

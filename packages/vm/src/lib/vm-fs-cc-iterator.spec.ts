@@ -2,12 +2,36 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
 import { createCVMArray } from '@cvm/types';
+import { FileSystemService } from './file-system.js';
+
+// Mock FileSystemService
+class MockFileSystemService implements FileSystemService {
+  listFiles(filePath: string, options?: any) {
+    if (filePath === '/test') {
+      return createCVMArray([
+        '/test/file1.txt',
+        '/test/file2.txt'
+      ]);
+    }
+    return createCVMArray([]);
+  }
+
+  readFile(filePath: string): string | null {
+    return `Content of ${filePath}`;
+  }
+
+  writeFile(filePath: string, content: string): boolean {
+    return true;
+  }
+}
 
 describe('VM - fs.listFiles with CC and iterator', () => {
   let vm: VM;
+  let fileSystem: FileSystemService;
 
   beforeEach(() => {
     vm = new VM();
+    fileSystem = new MockFileSystemService();
   });
 
   it('should maintain iterator state across CC calls', () => {
@@ -48,35 +72,27 @@ describe('VM - fs.listFiles with CC and iterator', () => {
       { op: OpCode.HALT }                        // 17
     ];
 
-    // Execute until fs.listFiles
-    const state1 = vm.execute(bytecode);
-    expect(state1.status).toBe('waiting_fs');
-
-    // Resume with files
-    const fsResult = createCVMArray([
-      '/test/file1.txt',
-      '/test/file2.txt'
-    ]);
-    const state2 = vm.resumeWithFsResult(state1, fsResult, bytecode);
+    // Execute with fileSystem until first CC
+    const state1 = vm.execute(bytecode, {}, fileSystem);
     
     // Should now be waiting for first CC
-    expect(state2.status).toBe('waiting_cc');
-    expect(state2.output).toContain('/test/file1.txt');
+    expect(state1.status).toBe('waiting_cc');
+    expect(state1.output).toContain('/test/file1.txt');
     
     // Resume after first CC
-    const state3 = vm.resume(state2, 'Processing file 1', bytecode);
+    const state2 = vm.resume(state1, 'Processing file 1', bytecode, fileSystem);
     
     // Should be waiting for second CC
-    expect(state3.status).toBe('waiting_cc');
-    expect(state3.output).toContain('Processing file 1');
-    expect(state3.output).toContain('/test/file2.txt');
+    expect(state2.status).toBe('waiting_cc');
+    expect(state2.output).toContain('Processing file 1');
+    expect(state2.output).toContain('/test/file2.txt');
     
     // Resume after second CC
-    const state4 = vm.resume(state3, 'Processing file 2', bytecode);
+    const state3 = vm.resume(state2, 'Processing file 2', bytecode, fileSystem);
     
     // Should be complete
-    expect(state4.status).toBe('complete');
-    expect(state4.output).toContain('Processing file 2');
-    expect(state4.error).toBeUndefined();
+    expect(state3.status).toBe('complete');
+    expect(state3.output).toContain('Processing file 2');
+    expect(state3.error).toBeUndefined();
   });
 });
