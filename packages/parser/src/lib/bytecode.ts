@@ -4,6 +4,7 @@ export enum OpCode {
   PUSH_UNDEFINED = 'PUSH_UNDEFINED',
   POP = 'POP',
   DUP = 'DUP',
+  DUP2 = 'DUP2',
   SWAP = 'SWAP',
   
   // Variables

@@ -64,16 +64,18 @@ describe('VM Object Operations', () => {
       expect(state.error).toMatch(/Cannot set property/);
     });
 
-    it('should error when property key is not a string', () => {
+    it('should convert numeric keys to strings', () => {
       const state = vm.execute([
         { op: OpCode.OBJECT_CREATE },
         { op: OpCode.PUSH, arg: 42 }, // number as key
         { op: OpCode.PUSH, arg: 'value' },
         { op: OpCode.PROPERTY_SET },
+        { op: OpCode.PUSH, arg: "42" }, // string key
+        { op: OpCode.PROPERTY_GET },
         { op: OpCode.HALT }
       ]);
       
-      expect(state.error).toMatch(/Property key must be a string/);
+      expect(state.stack[0]).toBe('value');
     });
   });
 
