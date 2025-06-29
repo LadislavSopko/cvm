@@ -83,9 +83,9 @@ Save this as `counter.ts`:
 
 ```typescript
 function main() {
-  let count = 0;
+  var count = 0;
   while (count < 5) {
-    const next = CC("Current number is " + count + ". What's the next number?");
+    var next = CC("Current number is " + count + ". What's the next number?");
     count = +next;
   }
   return count;
@@ -151,18 +151,19 @@ It's like `yield` in Python or `await` in JavaScript, but for cognitive tasks.
 
 ```typescript
 function main() {
-  const files = fs.listFiles("./docs");
-  const summaries = []; // State lives safely in CVM
+  var files = fs.listFiles("./docs");
+  var summaries = []; // State lives safely in CVM
   
-  for (const file of files) {
+  for (var i = 0; i < files.length; i++) {
+    var file = files[i];
     // PAUSE: Ask Claude to summarize this file
-    const content = CC("Read and summarize: " + file);
+    var content = CC("Read and summarize: " + file);
     summaries.push({ filename: file, summary: content });
     // CVM automatically resumes here with content
   }
   
   // PAUSE: Ask Claude to create final report
-  const report = CC("Create report from: " + JSON.stringify(summaries));
+  var report = CC("Create report from: " + JSON.stringify(summaries));
   return report;
 }
 ```
@@ -263,27 +264,140 @@ sequenceDiagram
 
 **CVM is completely passive** - it never initiates anything. Claude drives everything.
 
-## Core Concepts
+### Built on MCP (Model Context Protocol)
 
-**Language**: TypeScript-like with:
-- Variables, loops, conditionals
-- Arrays, objects, JSON operations
-- `CC()` for cognitive tasks
-- `fs.listFiles()` for file operations
-- `console.log()` for output
+The `getTask`/`submitTask` interaction shown above follows Claude's **Model Context Protocol (MCP)**. MCP is a specification for building stateful, resilient tools that Claude can operate. CVM acts as an MCP server, which is what allows Claude to actively drive the execution. You don't need to understand MCP to use CVM, but knowing it's built on this standard helps explain its unique, passive architecture.
 
-**How Claude Interacts**:
+## How CVM Works: The Interpreter
+
+You might wonder: "How can a TypeScript `while` loop be paused mid-execution?" The answer is that CVM isn't running your code with Node.js or ts-node. Instead, CVM uses a custom interpreter that:
+
+1. **Parses** your TypeScript-like code into an Abstract Syntax Tree (AST)
+2. **Walks** this tree step-by-step, executing each instruction
+3. **Pauses** when it encounters `CC()`, saving the complete execution state
+4. **Resumes** from the exact same position when Claude submits a result
+
+This is why CVM can pause anywhere - it's not running native JavaScript, but carefully interpreting your code instruction by instruction.
+
+## Language Features & Limitations
+
+Since CVM uses a custom interpreter, it supports a TypeScript-like subset designed for reliability and safety.
+
+### ✅ Supported Features
+
+| Feature | Example |
+| :--- | :--- |
+| Variables | `var name = "CVM"; var version = 1;` |
+| Basic Types | Strings, Numbers, Booleans, `null`, `undefined` |
+| Arrays | `[1, 2, 3]`, `items.push(4)`, `items[0]` |
+| Objects | `{name: "Claude", age: 2}`, `obj.name` |
+| Loops | `for (var i = 0; i < items.length; i++)`, `while (i < 5)` |
+| Conditionals | `if (x > 10) { ... } else { ... }` |
+| Functions | `function helper(x) { return x * 2; }` |
+| Operators | `+`, `-`, `*`, `/`, `===`, `!==`, `&&`, `||` |
+
+### ❌ Not Supported
+
+- `import` / `require` statements
+- `async` / `await` (use `CC()` instead)
+- Classes and `new` keyword
+- `try...catch` blocks (see error handling below)
+- Arrow functions `() => {}`
+- Spread operator `...`
+- Destructuring `const {a, b} = obj`
+- Template literals `` `Hello ${name}` ``
+
+### 📦 Built-in Functions
+
+| Function | Description |
+| :--- | :--- |
+| `CC(prompt: string): string` | Pauses execution for Claude to process a task |
+| `console.log(...args)` | Outputs to CVM console |
+| `fs.listFiles(path, options?)` | Lists files in directory (sandboxed) |
+| `JSON.stringify(obj)` | Converts object to JSON string |
+| `JSON.parse(str)` | Parses JSON string to object |
+
+## Security & Sandboxing
+
+CVM runs your code in a secure, isolated environment:
+
+- **No Network Access**: Scripts cannot make HTTP requests or access the internet
+- **Filesystem Restrictions**: `fs.listFiles()` is limited to the CVM working directory
+- **No System Access**: Cannot execute shell commands or access environment variables
+- **Memory Limits**: Scripts are bounded by reasonable memory constraints
+- **Execution Timeouts**: Long-running operations are automatically terminated
+
+For additional security, we recommend running CVM in a Docker container when processing sensitive data.
+
+## Practical Usage
+
+### Error Handling Without try...catch
+
+Since CVM doesn't support `try...catch`, you must validate Claude's responses defensively:
+
+```typescript
+// ❌ Fragile - assumes Claude returns a number
+function fragileCounter() {
+  var count = 0;
+  while (count < 5) {
+    var next = CC("Current number is " + count + ". What's next?");
+    count = +next;  // Fails if Claude returns "four" instead of "4"
+  }
+}
+
+// ✅ Robust - validates the response
+function robustCounter() {
+  var count = 0;
+  while (count < 5) {
+    var result = CC("Current number is " + count + ". What's next?");
+    var nextNum = parseInt(result, 10);
+    
+    if (isNaN(nextNum)) {
+      console.log("Invalid response: '" + result + "'. Retrying...");
+      // Loop continues without incrementing, effectively retrying
+    } else {
+      count = nextNum;
+    }
+  }
+  return count;
+}
+```
+
+### Checking Execution Status
+
+You can inspect any running execution using the `status` tool:
+
+```typescript
+// Claude can check status at any time:
+const status = await cvm.status("exec-123");
+console.log(status);
+// {
+//   "executionId": "exec-123",
+//   "status": "PAUSED",
+//   "currentTask": "Analyzing file 247 of 1000",
+//   "state": {
+//     "filesProcessed": 246,
+//     "summaries": [...]
+//   }
+// }
+```
+
+This allows you to monitor long-running tasks and verify progress without interrupting execution.
+
+## Quick Reference
+
+**MCP Tools Claude Uses**:
 - `load(programId, source)` - Load a program
 - `start(programId, executionId)` - Start execution
 - `getTask(executionId)` - Pull next task
 - `submitTask(executionId, result)` - Submit result
 - `status(executionId)` - Check state anytime
 
-**State Management**: While Claude processes tasks, CVM maintains:
+**What CVM Maintains**:
 - All variables and their values
 - Current execution position
 - Loop counters and conditions
-- Arrays, objects, and complex data structures
+- Complete program state between pauses
 
 ## Installation
 
