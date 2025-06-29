@@ -1,6 +1,6 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { cvmToNumber } from '@cvm/types';
+import { cvmToNumber, cvmToString, isCVMString } from '@cvm/types';
 import { safePop, isVMError } from '../stack-utils.js';
 
 export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
@@ -13,9 +13,14 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const left = safePop(state, instruction.op);
       if (isVMError(left)) return left;
       
-      const leftNum = cvmToNumber(left);
-      const rightNum = cvmToNumber(right);
-      state.stack.push(leftNum + rightNum);
+      // JavaScript + semantics: concatenate if either operand is string
+      if (isCVMString(left) || isCVMString(right)) {
+        state.stack.push(cvmToString(left) + cvmToString(right));
+      } else {
+        const leftNum = cvmToNumber(left);
+        const rightNum = cvmToNumber(right);
+        state.stack.push(leftNum + rightNum);
+      }
       return undefined;
     }
   },
