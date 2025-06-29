@@ -83,6 +83,18 @@ describe('CVMValue Type System', () => {
     });
   });
 
+  describe('CVMArray with properties', () => {
+    it('should support both elements and properties', () => {
+      const array: CVMArray = {
+        type: 'array',
+        elements: [1, 2, 3],
+        properties: { foo: 'bar' }
+      };
+      expect(array.elements[0]).toBe(1);
+      expect(array.properties!.foo).toBe('bar');
+    });
+  });
+
   describe('Type Conversion Helpers', () => {
     describe('cvmToString', () => {
       it('should convert all value types to strings', () => {

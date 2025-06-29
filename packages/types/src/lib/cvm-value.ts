@@ -5,6 +5,7 @@
 export interface CVMArray {
   type: 'array';
   elements: CVMValue[];
+  properties?: Record<string, CVMValue>; // ADD THIS
 }
 
 export interface CVMUndefined {
@@ -134,8 +135,8 @@ export function cvmToNumber(value: CVMValue): number {
 }
 
 // Array creation helper
-export function createCVMArray(elements: CVMValue[] = []): CVMArray {
-  return { type: 'array', elements };
+export function createCVMArray(elements: CVMValue[] = [], properties?: Record<string, CVMValue>): CVMArray {
+  return properties ? { type: 'array', elements, properties } : { type: 'array', elements };
 }
 
 // Undefined creation helper
