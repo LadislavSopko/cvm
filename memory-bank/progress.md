@@ -35,11 +35,16 @@
 **Next Priority**: Additional string methods
 
 ### Recent Heap Reference Fixes (2025-06-29)
-- ✅ **Fixed VM crash on invalid heap access**: heap.get() now returns undefined instead of throwing
-- ✅ **Verified stack overflow protection**: Heap already uses flat Map structure preventing circular reference issues
-- ✅ **Added deep nesting test**: Confirms 1000+ level nested objects serialize without stack overflow
-- ✅ **Cleaned up test suite**: Removed obsolete error-throwing test
-- **Key insight**: The heap implementation was already more complete than initially documented - flat Map structure inherently prevents serialization issues
+- ✅ **Safe heap serialization**: Implemented JSON replacer to convert heap refs to {$ref: id} format
+- ✅ **Safe deserialization**: Added restoreReferences to rebuild heap refs from {$ref: id} stubs
+- ✅ **Consistent undefined handling**: Array access returns undefined for missing elements
+- ✅ **Heap behavior tests**: Verified array/object literals create heap references
+- ✅ **Integration tests**: Tested 10k element arrays and deep nesting without issues
+- ✅ **Reverted ARRAY_GET/SET changes**: Kept object support for bracket notation compatibility
+- **TODO**: Future refactoring to introduce ELEMENT_GET/SET opcodes for cleaner separation
+- **Known Issues**: 
+  - Object property access has bug with key handling (documented in code-review-findings.md)
+  - restoreReferences is recursive (should be iterative for safety)
 
 ## Key Technical Achievements
 - **Iterator Stack**: Enables nested for-of loops
