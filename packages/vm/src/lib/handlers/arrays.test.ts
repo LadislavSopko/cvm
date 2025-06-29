@@ -61,6 +61,34 @@ describe('Object property access with numeric keys', () => {
     expect(state.stack.length).toBe(1);
     expect(state.stack[0]).toEqual('answer');
   });
+
+  it('should handle numeric index on object property SET', () => {
+    const vm = new VM();
+    const state = vm.createInitialState();
+
+    // Create object
+    vm.executeInstruction(state, { op: OpCode.OBJECT_CREATE });
+    const objRef = state.stack.pop()!;
+
+    // Clear stack before testing
+    state.stack.length = 0;
+
+    // Set property using numeric index
+    state.stack.push(objRef);
+    state.stack.push(0); // Numeric index
+    state.stack.push('first');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_SET });
+
+    // Clear stack and verify with string access
+    state.stack.length = 0;
+    state.stack.push(objRef);
+    state.stack.push('0'); // String index
+    vm.executeInstruction(state, { op: OpCode.ARRAY_GET });
+
+    // Should have stored under string key '0'
+    expect(state.stack.length).toBe(1);
+    expect(state.stack[0]).toEqual('first');
+  });
 });
 
 describe('Array access with string indices', () => {

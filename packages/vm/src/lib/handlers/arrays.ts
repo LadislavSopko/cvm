@@ -192,15 +192,8 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         }
         // Handle object property assignment
         const obj = heapObj.data as CVMObject;
-        if (!isCVMString(index)) {
-          return {
-            type: 'RuntimeError',
-            message: 'Object property access requires string key',
-            pc: state.pc,
-            opcode: instruction.op
-          };
-        }
-        obj.properties[index] = value;
+        const key = cvmToString(index);
+        obj.properties[key] = value;
         state.stack.push(arrayOrRef); // Push back the original reference
         return undefined;
       } else if (isCVMArray(arrayOrRef)) {
