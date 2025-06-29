@@ -129,18 +129,50 @@ export class MongoDBAdapter implements StorageAdapter {
   }
 
   async deleteExecution(executionId: string): Promise<void> {
-    // Delete from executions collection
-    const executionsCollection = this.getCollection<Execution>('executions');
-    await executionsCollection.deleteOne({ id: executionId });
+    // Try to use transaction for atomic operation
+    let useTransaction = true;
+    const session = this.client.startSession();
     
-    // Delete associated output
-    const outputsCollection = this.getCollection<{ executionId: string }>('outputs');
-    await outputsCollection.deleteOne({ executionId });
+    try {
+      await session.withTransaction(async () => {
+        const executionsCollection = this.getCollection<Execution>('executions');
+        await executionsCollection.deleteOne({ id: executionId }, { session });
+        
+        const outputsCollection = this.getCollection<{ executionId: string }>('outputs');
+        await outputsCollection.deleteMany({ executionId }, { session });
+        
+        const current = await this.getCurrentExecutionId();
+        if (current === executionId) {
+          await this.db!.collection('system').updateOne(
+            { _id: 'current' as any },
+            { $set: { executionId: null } },
+            { session }
+          );
+        }
+      });
+    } catch (error: any) {
+      // If transactions not supported, fall back to non-transactional
+      if (error?.message?.includes('Transaction numbers are only allowed')) {
+        useTransaction = false;
+      } else {
+        throw error;
+      }
+    } finally {
+      await session.endSession();
+    }
     
-    // If this was the current execution, clear it
-    const currentId = await this.getCurrentExecutionId();
-    if (currentId === executionId) {
-      await this.setCurrentExecutionId(null);
+    // Fallback for non-replica set environments
+    if (!useTransaction) {
+      const executionsCollection = this.getCollection<Execution>('executions');
+      await executionsCollection.deleteOne({ id: executionId });
+      
+      const outputsCollection = this.getCollection<{ executionId: string }>('outputs');
+      await outputsCollection.deleteMany({ executionId });
+      
+      const current = await this.getCurrentExecutionId();
+      if (current === executionId) {
+        await this.setCurrentExecutionId(null);
+      }
     }
   }
 
