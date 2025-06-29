@@ -1,7 +1,7 @@
 import { VM, VMState } from './vm.js';
 import { compile } from '@cvm/parser';
 import { StorageAdapter, StorageFactory } from '@cvm/storage';
-import { Program, Execution, CVMValue, CVMArray, CVMObject, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
+import { Program, Execution, CVMValue, CVMArray, CVMObject, CVMArrayRef, CVMObjectRef, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
 import { FileSystemService, SandboxedFileSystem } from './file-system.js';
 import { VMHeap, createVMHeap, HeapObject } from './vm-heap.js';
 
@@ -422,21 +422,52 @@ export class VMManager {
    */
   private deserializeHeap(heapData: { objects: Record<number, { type: 'array' | 'object'; data: CVMValue }>; nextId: number }): VMHeap {
     const heap = createVMHeap();
-    
-    // Restore objects
-    Object.entries(heapData.objects).forEach(([idStr, obj]) => {
-      const id = parseInt(idStr);
-      const heapObject: HeapObject = {
-        id,
-        type: obj.type,
-        data: obj.data as (CVMArray | CVMObject)
-      };
-      heap.objects.set(id, heapObject);
-    });
-    
-    // Restore nextId
     heap.nextId = heapData.nextId;
     
+    // First pass: restore all heap objects without fixing references
+    for (const idStr in heapData.objects) {
+      const id = parseInt(idStr, 10);
+      const serializedObj = heapData.objects[id];
+      heap.objects.set(id, {
+        id,
+        type: serializedObj.type,
+        data: serializedObj.data as (CVMArray | CVMObject) // Still contains $ref stubs
+      });
+    }
+    
+    // Second pass: fix all $ref stubs to actual CVM references
+    heap.objects.forEach((heapObj) => {
+      heapObj.data = this.restoreReferences(heapObj.data, heap) as (CVMArray | CVMObject);
+    });
+    
     return heap;
+  }
+
+  private restoreReferences(value: any, heap: VMHeap): any {
+    if (value && typeof value === 'object' && value.$ref !== undefined) {
+      // Convert $ref stub back to proper CVM reference
+      const targetObj = heap.objects.get(value.$ref);
+      if (targetObj?.type === 'array') {
+        return { type: 'array-ref', id: value.$ref } as CVMArrayRef;
+      } else if (targetObj?.type === 'object') {
+        return { type: 'object-ref', id: value.$ref } as CVMObjectRef;
+      }
+      return value; // Invalid reference, keep as-is
+    }
+    
+    // Recursively process arrays and objects
+    if (Array.isArray(value)) {
+      return value.map(item => this.restoreReferences(item, heap));
+    }
+    
+    if (value && typeof value === 'object') {
+      const result: any = {};
+      for (const key in value) {
+        result[key] = this.restoreReferences(value[key], heap);
+      }
+      return result;
+    }
+    
+    return value;
   }
 }
