@@ -155,17 +155,7 @@ export class VMManager {
 
       // Serialize heap
       if (state.heap) {
-        const heapObjects: Record<number, { type: 'array' | 'object'; data: CVMValue }> = {};
-        state.heap.objects.forEach((heapObj, id) => {
-          heapObjects[id] = {
-            type: heapObj.type,
-            data: heapObj.data as CVMValue
-          };
-        });
-        execution.heap = {
-          objects: heapObjects,
-          nextId: state.heap.nextId
-        };
+        execution.heap = this.serializeHeap(state.heap);
       }
 
       if (state.status === 'complete') {
@@ -275,17 +265,7 @@ export class VMManager {
     
     // Serialize heap
     if (newState.heap) {
-      const heapObjects: Record<number, { type: 'array' | 'object'; data: CVMValue }> = {};
-      newState.heap.objects.forEach((heapObj, id) => {
-        heapObjects[id] = {
-          type: heapObj.type,
-          data: heapObj.data as CVMValue
-        };
-      });
-      execution.heap = {
-        objects: heapObjects,
-        nextId: newState.heap.nextId
-      };
+      execution.heap = this.serializeHeap(newState.heap);
     }
     
     if (newState.status === 'complete') {
@@ -408,6 +388,23 @@ export class VMManager {
     await this.setCurrentExecutionId(execId);
     
     return execId;
+  }
+
+  /**
+   * Serialize heap to storage format
+   */
+  private serializeHeap(heap: VMHeap): { objects: Record<number, { type: 'array' | 'object'; data: CVMValue }>; nextId: number } {
+    const heapObjects: Record<number, { type: 'array' | 'object'; data: CVMValue }> = {};
+    heap.objects.forEach((heapObj, id) => {
+      heapObjects[id] = {
+        type: heapObj.type,
+        data: heapObj.data as CVMValue
+      };
+    });
+    return {
+      objects: heapObjects,
+      nextId: heap.nextId
+    };
   }
 
   /**
