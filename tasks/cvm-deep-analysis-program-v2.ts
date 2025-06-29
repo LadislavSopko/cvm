@@ -33,7 +33,7 @@ function main() {
             name: "Multi-Package Architecture Mapping",
             task: "Map the complete data flow: TypeScript source → PARSER compilation → TYPES system → VM execution → MCP-SERVER integration → STORAGE persistence. Identify all packages involved in [] accessor operations and their responsibilities.",
             phase: "1: Architecture Discovery",
-            packages: ["parser", "types", "vm", "mcp-server", "storage"],
+            packages: "parser, types, vm, mcp-server, storage",
             zenRequired: true
         },
         
@@ -41,7 +41,7 @@ function main() {
             name: "Parser Layer Analysis", 
             task: "Examine packages/parser/src/lib/compiler/expressions/element-access.ts and property-access.ts. How does TypeScript obj[key] become bytecode? What type information is lost? How does compilation strategy affect runtime behavior?",
             phase: "1: Architecture Discovery",
-            packages: ["parser"],
+            packages: "parser",
             zenRequired: true
         },
         
@@ -49,7 +49,7 @@ function main() {
             name: "Types Layer Integration Analysis",
             task: "Examine packages/types/src/lib/cvm-value.ts CVMValue system. What conversion tools exist? How should primitive extraction work? Why aren't VM handlers using these tools?",
             phase: "1: Architecture Discovery", 
-            packages: ["types"],
+            packages: "types",
             zenRequired: true
         },
         
@@ -58,7 +58,7 @@ function main() {
             name: "VM Handler Implementation Analysis",
             task: "Deep dive into packages/vm/src/lib/handlers/arrays.ts. Focus on lines 114, 139, 187, 211 primitive extraction failures. How do these bugs affect the entire stack? What's the real impact on data integrity?",
             phase: "2: Integration Problems",
-            packages: ["vm"],
+            packages: "vm",
             zenRequired: true
         },
         
@@ -66,7 +66,7 @@ function main() {
             name: "MCP Server Integration Impact",
             task: "Analyze packages/mcp-server/src/lib/mcp-server.ts integration with VM. How do broken accessors affect real CVM programs? What's the impact on Claude Code task execution? Examine actual program failures.",
             phase: "2: Integration Problems",
-            packages: ["mcp-server"],
+            packages: "mcp-server",
             zenRequired: true
         },
         
@@ -74,7 +74,7 @@ function main() {
             name: "Storage Layer Data Corruption",
             task: "Examine packages/storage/src/lib/file-adapter.ts and mongodb-adapter.ts. How do broken accessor operations corrupt persisted data? What corrupted data patterns get saved? Impact on data integrity?",
             phase: "2: Integration Problems", 
-            packages: ["storage"],
+            packages: "storage",
             zenRequired: true
         },
         
@@ -83,7 +83,7 @@ function main() {
             name: "Compilation to Execution Pipeline",
             task: "Trace complete pipeline: TypeScript obj['key'] → Parser bytecode → VM execution → Result. Where exactly does the pipeline break? How do compilation decisions affect runtime failures?",
             phase: "3: Pipeline Analysis",
-            packages: ["parser", "vm"],
+            packages: "parser, vm",
             zenRequired: true
         },
         
@@ -91,7 +91,7 @@ function main() {
             name: "Type Safety Across Package Boundaries",
             task: "Analyze type safety guarantees (or lack thereof) between packages. How does CVMValue system integration fail? What contracts are missing between package boundaries?",
             phase: "3: Pipeline Analysis",
-            packages: ["types", "vm", "mcp-server"],
+            packages: "types, vm, mcp-server",
             zenRequired: true
         },
         
@@ -99,7 +99,7 @@ function main() {
             name: "Real Program Execution Analysis",
             task: "Examine actual CVM programs (like this analysis program itself) for accessor usage. How do broken accessors affect task tracking, data storage, progress monitoring? Real-world failure modes. Include comprehensive test coverage analysis findings showing why 729 tests fail to catch these bugs.",
             phase: "3: Pipeline Analysis",
-            packages: ["mcp-server", "storage"],
+            packages: "mcp-server, storage",
             zenRequired: true
         },
         
@@ -108,7 +108,7 @@ function main() {
             name: "Architectural Debt Assessment",
             task: "Synthesize findings across all packages. What's the total technical debt? Which problems are isolated vs systemic? How do package-level issues compound into architectural failures?",
             phase: "4: Synthesis",
-            packages: ["all"],
+            packages: "all",
             zenRequired: true
         },
         
@@ -116,7 +116,7 @@ function main() {
             name: "Multi-Package Remediation Strategy",
             task: "Design coordinated fixes across all affected packages. What needs to change in Parser, Types, VM, MCP-Server, Storage? How to sequence fixes to avoid breaking integration?",
             phase: "4: Synthesis", 
-            packages: ["all"],
+            packages: "all",
             zenRequired: true
         },
         
@@ -124,7 +124,7 @@ function main() {
             name: "Global Test Coverage Crisis Analysis",
             task: "Analyze comprehensive test coverage findings: 729 tests across 13,590 lines validating wrong behaviors, 0% cross-package integration testing, Storage package crisis (63.86% coverage), Interface Testing Illusion masking critical bugs. Execute actual 'npx nx test --coverage' commands to validate findings. How does testing philosophy failure enable architectural system collapse?",
             phase: "4: Synthesis",
-            packages: ["all"],
+            packages: "all",
             zenRequired: true
         },
         
@@ -132,7 +132,7 @@ function main() {
             name: "Full-Stack Testing Strategy",
             task: "Design comprehensive testing strategy that validates end-to-end functionality across all packages. Integration tests, cross-package validation, real program testing requirements. Address the need for 525+ new tests to achieve functional correctness.",
             phase: "4: Synthesis",
-            packages: ["all"],
+            packages: "all",
             zenRequired: true
         }
     ];
@@ -152,13 +152,13 @@ function main() {
         
         console.log("Phase: " + phase);
         console.log("Analyzing: " + taskName);
-        console.log("Packages: " + packages.join(", "));
+        console.log("Packages: " + packages);
         
         // Build cross-package analysis prompt with test coverage focus
         var analysisPrompt = "" + analysisBase + crossPackage + realWorld + testCoverage + reviewFile;
         analysisPrompt = analysisPrompt + "PHASE: " + phase + " ";
         analysisPrompt = analysisPrompt + "TASK: " + taskAnalysis + " ";
-        analysisPrompt = analysisPrompt + "PACKAGES TO EXAMINE: " + packages.join(", ") + " ";
+        analysisPrompt = analysisPrompt + "PACKAGES TO EXAMINE: " + packages + " ";
         analysisPrompt = analysisPrompt + "TEST COVERAGE CONTEXT: Consider how testing gaps in this area contribute to the overall architectural failure. ";
         
         if (zenRequired) {
