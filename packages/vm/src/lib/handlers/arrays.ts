@@ -16,6 +16,11 @@ import {
 /**
  * Opcode handlers for array operations
  * All array operations work with heap references to maintain JavaScript semantics
+ * 
+ * TODO: ARRAY_GET and ARRAY_SET are misnamed - they handle both arrays and objects
+ * because JavaScript uses the same bracket notation syntax for both.
+ * Future refactoring should introduce ELEMENT_GET/ELEMENT_SET opcodes for all
+ * bracket notation access, keeping ARRAY_* only for array-specific operations.
  */
 export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   /**
@@ -96,12 +101,21 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         }
         array = heapObj.data as CVMArray;
       } else if (isCVMObjectRef(arrayOrRef)) {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_GET requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        const heapObj = state.heap.get(arrayOrRef.id);
+        if (!heapObj || heapObj.type !== 'object') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid object reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        // Handle object property access
+        const obj = heapObj.data as CVMObject;
+        const key = index as string;
+        const value = obj.properties[key] ?? createCVMUndefined();
+        state.stack.push(value);
+        return undefined;
       } else if (isCVMArray(arrayOrRef)) {
         array = arrayOrRef;
       } else {
@@ -152,12 +166,28 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         }
         array = heapObj.data as CVMArray;
       } else if (isCVMObjectRef(arrayOrRef)) {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_SET requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        const heapObj = state.heap.get(arrayOrRef.id);
+        if (!heapObj || heapObj.type !== 'object') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid object reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        // Handle object property assignment
+        const obj = heapObj.data as CVMObject;
+        if (!isCVMString(index)) {
+          return {
+            type: 'RuntimeError',
+            message: 'Object property access requires string key',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        obj.properties[index] = value;
+        state.stack.push(arrayOrRef); // Push back the original reference
+        return undefined;
       } else if (isCVMArray(arrayOrRef)) {
         array = arrayOrRef;
       } else {

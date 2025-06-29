@@ -192,6 +192,9 @@ describe('Parser-VM-MongoDB Integration', () => {
       expect(parseResult.success).toBe(true);
       
       const state = vm.execute(parseResult.bytecode);
+      if (state.status === 'error') {
+        console.log('Error:', state.error);
+      }
       expect(state.status).toBe('complete');
       expect(state.output).toEqual([
         'x: 10',

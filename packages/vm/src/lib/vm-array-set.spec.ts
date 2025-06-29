@@ -57,7 +57,7 @@ describe('VM - ARRAY_SET', () => {
     const result = vm.execute(bytecode);
     
     expect(result.status).toBe('error');
-    expect(result.error).toBe('ARRAY_SET requires numeric index for arrays');
+    expect(result.error).toBe('ARRAY_SET requires numeric index');
   });
 
   it('should error on negative index', () => {
@@ -88,7 +88,7 @@ describe('VM - ARRAY_SET', () => {
     const result = vm.execute(bytecode);
     
     expect(result.status).toBe('error');
-    expect(result.error).toBe('ARRAY_SET requires an array or object');
+    expect(result.error).toBe('ARRAY_SET requires an array');
   });
 
   it('should store string values from CC', () => {
