@@ -1,11 +1,15 @@
 import { OpCode } from '@cvm/parser';
-import { OpcodeHandler } from './types.js';
+import { OpcodeHandler, VMError } from './types.js';
 import { cvmToNumber, cvmToString, isCVMNull, isCVMUndefined, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
+import { safePop, isVMError } from '../stack-utils.js';
 
 // Helper for binary comparison operations
-function executeBinaryComparison(state: any, instruction: any, compareFn: (left: any, right: any) => boolean) {
-  const right = state.stack.pop()!;
-  const left = state.stack.pop()!;
+function executeBinaryComparison(state: any, instruction: any, compareFn: (left: any, right: any) => boolean): VMError | undefined {
+  const right = safePop(state, instruction.op);
+  if (isVMError(right)) return right;
+  const left = safePop(state, instruction.op);
+  if (isVMError(left)) return left;
+  
   const result = compareFn(left, right);
   state.stack.push(result);
   return undefined;
