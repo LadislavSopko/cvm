@@ -18,4 +18,19 @@ describe('Array Handlers', () => {
       expect(result?.message).toContain('ARRAY_GET requires an array');
     });
   });
+
+  describe('ARRAY_SET', () => {
+    it('should return error when ARRAY_SET used on object', () => {
+      const vm = new VM();
+      const state = vm.createInitialState();
+      const objRef = state.heap.allocate('object', createCVMObject());
+      state.stack.push(objRef);
+      state.stack.push('key');
+      state.stack.push('value');
+      
+      const result = arrayHandlers[OpCode.ARRAY_SET]!.execute(state, { op: OpCode.ARRAY_SET });
+      expect(result?.type).toBe('RuntimeError');
+      expect(result?.message).toContain('ARRAY_SET requires an array');
+    });
+  });
 });

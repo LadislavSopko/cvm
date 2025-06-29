@@ -133,14 +133,14 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackOut: 1,
     execute: (state, instruction) => {
       const value = state.stack.pop()!;
-      const indexOrKey = state.stack.pop()!;
-      const arrayOrObjectOrRef = state.stack.pop()!;
+      const index = state.stack.pop()!;
+      const arrayOrRef = state.stack.pop()!;
       
-      let arrayOrObject: CVMArray | CVMObject;
+      let array: CVMArray;
       
       // Dereference if needed
-      if (isCVMArrayRef(arrayOrObjectOrRef)) {
-        const heapObj = state.heap.get(arrayOrObjectOrRef.id);
+      if (isCVMArrayRef(arrayOrRef)) {
+        const heapObj = state.heap.get(arrayOrRef.id);
         if (!heapObj || heapObj.type !== 'array') {
           return {
             type: 'RuntimeError',
@@ -149,77 +149,48 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
             opcode: instruction.op
           };
         }
-        arrayOrObject = heapObj.data as CVMArray;
-      } else if (isCVMObjectRef(arrayOrObjectOrRef)) {
-        const heapObj = state.heap.get(arrayOrObjectOrRef.id);
-        if (!heapObj || heapObj.type !== 'object') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid object reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
-        }
-        arrayOrObject = heapObj.data as CVMObject;
-      } else if (isCVMArray(arrayOrObjectOrRef) || isCVMObject(arrayOrObjectOrRef)) {
-        arrayOrObject = arrayOrObjectOrRef;
+        array = heapObj.data as CVMArray;
+      } else if (isCVMObjectRef(arrayOrRef)) {
+        return {
+          type: 'RuntimeError',
+          message: 'ARRAY_SET requires an array',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      } else if (isCVMArray(arrayOrRef)) {
+        array = arrayOrRef;
       } else {
         return {
           type: 'RuntimeError',
-          message: 'ARRAY_SET requires an array or object',
+          message: 'ARRAY_SET requires an array',
           pc: state.pc,
           opcode: instruction.op
         };
       }
       
-      // Handle arrays
-      if (isCVMArray(arrayOrObject)) {
-        if (!isCVMNumber(indexOrKey)) {
-          return {
-            type: 'RuntimeError',
-            message: 'ARRAY_SET requires numeric index for arrays',
-            pc: state.pc,
-            opcode: instruction.op
-          };
-        }
-        
-        const idx = Math.floor(indexOrKey);
-        if (idx < 0) {
-          return {
-            type: 'RuntimeError',
-            message: 'ARRAY_SET: Negative index not allowed',
-            pc: state.pc,
-            opcode: instruction.op
-          };
-        }
-        
-        arrayOrObject.elements[idx] = value;
-        state.stack.push(arrayOrObjectOrRef); // Push back the original reference or array
-        return undefined;
+      // Handle array access
+      if (!isCVMNumber(index)) {
+        return {
+          type: 'RuntimeError',
+          message: 'ARRAY_SET requires numeric index',
+          pc: state.pc,
+          opcode: instruction.op
+        };
       }
       
-      // Handle objects with string keys
-      if (isCVMObject(arrayOrObject)) {
-        if (!isCVMString(indexOrKey)) {
-          return {
-            type: 'RuntimeError',
-            message: 'ARRAY_SET requires string key for objects',
-            pc: state.pc,
-            opcode: instruction.op
-          };
-        }
-        
-        arrayOrObject.properties[indexOrKey] = value;
-        state.stack.push(arrayOrObjectOrRef); // Push back the original reference or object
-        return undefined;
+      const idx = Math.floor(index);
+      if (idx < 0) {
+        return {
+          type: 'RuntimeError',
+          message: 'ARRAY_SET: Negative index not allowed',
+          pc: state.pc,
+          opcode: instruction.op
+        };
       }
       
-      return {
-        type: 'RuntimeError',
-        message: 'ARRAY_SET requires an array or object',
-        pc: state.pc,
-        opcode: instruction.op
-      };
+      array.elements[idx] = value;
+      state.stack.push(arrayOrRef); // Push back the original reference or array
+      return undefined;
     }
   },
 
