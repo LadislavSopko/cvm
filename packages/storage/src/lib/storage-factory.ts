@@ -13,19 +13,19 @@ export interface StorageConfig {
 export class StorageFactory {
   static create(config?: StorageConfig): StorageAdapter {
     // Default to file storage for zero-setup experience
-    const type = config?.type || process.env.CVM_STORAGE_TYPE || 'file';
+    const type = config?.type || process.env['CVM_STORAGE_TYPE'] || 'file';
     
     switch (type) {
       case 'file': {
         const dataDir = config?.dataDir || 
-                       process.env.CVM_DATA_DIR || 
+                       process.env['CVM_DATA_DIR'] || 
                        '.cvm';
         return new FileStorageAdapter(dataDir);
       }
       
       case 'mongodb': {
         const mongoUri = config?.mongoUri || 
-                        process.env.MONGODB_URI || 
+                        process.env['MONGODB_URI'] || 
                         'mongodb://localhost:27017/cvm';
         return new MongoDBAdapter(mongoUri);
       }

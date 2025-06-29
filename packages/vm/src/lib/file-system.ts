@@ -25,8 +25,8 @@ export class SandboxedFileSystem implements FileSystemService {
 
   constructor() {
     // Initialize from environment variables
-    const paths = process.env.CVM_SANDBOX_PATHS;
-    const root = process.env.CVM_SANDBOX_ROOT;
+    const paths = process.env['CVM_SANDBOX_PATHS'];
+    const root = process.env['CVM_SANDBOX_ROOT'];
     
     if (paths) {
       this.sandboxPaths = paths.split(',').map(p => path.resolve(p.trim()));

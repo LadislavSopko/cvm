@@ -1,0 +1,11 @@
+{
+  "name": "@cvm/integration",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "@cvm/vm": "*",
+    "@cvm/parser": "*",
+    "@cvm/types": "*"
+  }
+}
