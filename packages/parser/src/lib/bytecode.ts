@@ -20,6 +20,8 @@ export enum OpCode {
   ARRAY_GET = 'ARRAY_GET',
   ARRAY_SET = 'ARRAY_SET',
   ARRAY_LEN = 'ARRAY_LEN',
+  ARRAY_MAP_PROP = 'ARRAY_MAP_PROP',
+  ARRAY_FILTER_PROP = 'ARRAY_FILTER_PROP',
   
   // String operations
   STRING_LEN = 'STRING_LEN',

@@ -303,5 +303,104 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       state.stack.push(array.elements.length);
       return undefined;
     }
+  },
+
+  [OpCode.ARRAY_MAP_PROP]: {
+    stackIn: 2,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const propName = state.stack.pop()!;
+      const arrayRef = state.stack.pop()!;
+      
+      if (!isCVMArrayRef(arrayRef)) {
+        return {
+          type: 'RuntimeError',
+          message: 'map() requires an array',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const heapObj = state.heap.get(arrayRef.id);
+      if (!heapObj || heapObj.type !== 'array') {
+        return {
+          type: 'RuntimeError',
+          message: 'Invalid array reference',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const array = heapObj.data as CVMArray;
+      const result = createCVMArray();
+      
+      for (const item of array.elements) {
+        if (isCVMObjectRef(item)) {
+          const itemHeapObj = state.heap.get(item.id);
+          if (itemHeapObj && itemHeapObj.type === 'object') {
+            const obj = itemHeapObj.data as CVMObject;
+            const key = cvmToString(propName);
+            result.elements.push(obj.properties[key] || null);
+          } else {
+            result.elements.push(null);
+          }
+        } else {
+          result.elements.push(null);
+        }
+      }
+      
+      const resultRef = state.heap.allocate('array', result);
+      state.stack.push(resultRef);
+      return undefined;
+    }
+  },
+
+  [OpCode.ARRAY_FILTER_PROP]: {
+    stackIn: 2,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const propName = state.stack.pop()!;
+      const arrayRef = state.stack.pop()!;
+      
+      if (!isCVMArrayRef(arrayRef)) {
+        return {
+          type: 'RuntimeError',
+          message: 'filter() requires an array',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const heapObj = state.heap.get(arrayRef.id);
+      if (!heapObj || heapObj.type !== 'array') {
+        return {
+          type: 'RuntimeError',
+          message: 'Invalid array reference',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const array = heapObj.data as CVMArray;
+      const result = createCVMArray();
+      
+      for (const item of array.elements) {
+        if (isCVMObjectRef(item)) {
+          const itemHeapObj = state.heap.get(item.id);
+          if (itemHeapObj && itemHeapObj.type === 'object') {
+            const obj = itemHeapObj.data as CVMObject;
+            const key = cvmToString(propName);
+            // Include item if property exists and is truthy
+            if (key in obj.properties && obj.properties[key]) {
+              result.elements.push(item);
+            }
+          }
+        }
+      }
+      
+      const resultRef = state.heap.allocate('array', result);
+      state.stack.push(resultRef);
+      return undefined;
+    }
   }
 };
