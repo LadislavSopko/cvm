@@ -28,11 +28,18 @@
 - Traditional for(;;) loops
 
 ## Current Status
-**Phase**: Phase 3 ✅ COMPLETE + LoadFile Tool ✅ COMPLETE
+**Phase**: Phase 3 ✅ COMPLETE + LoadFile Tool ✅ COMPLETE + Heap Fixes ✅ COMPLETE
 **Architecture**: Stable and locked
-**Testing**: 453+ tests passing (18 new MCP server tests)
+**Testing**: 397 VM tests passing (all green)
 **Version**: v0.5.0 published to npm
 **Next Priority**: Additional string methods
+
+### Recent Heap Reference Fixes (2025-06-29)
+- ✅ **Fixed VM crash on invalid heap access**: heap.get() now returns undefined instead of throwing
+- ✅ **Verified stack overflow protection**: Heap already uses flat Map structure preventing circular reference issues
+- ✅ **Added deep nesting test**: Confirms 1000+ level nested objects serialize without stack overflow
+- ✅ **Cleaned up test suite**: Removed obsolete error-throwing test
+- **Key insight**: The heap implementation was already more complete than initially documented - flat Map structure inherently prevents serialization issues
 
 ## Key Technical Achievements
 - **Iterator Stack**: Enables nested for-of loops

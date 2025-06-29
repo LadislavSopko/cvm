@@ -40,30 +40,30 @@ function main() {
     // Define all fix tasks as array with line references to plan
     var tasks = [
         // Issue 1: VM Crash on Invalid Heap Access
-        {
-            name: "Write Test: Invalid Heap Access",
-            implement: "Create test for invalid heap access following plan lines 34-44 (section 1.2). Write test that expects undefined instead of thrown error.",
-            expectFailure: true,
-            test: "Run the newly created heap test to verify it fails (TDD).",
-            project: "vm"
-        },
+        // {
+        //     name: "Write Test: Invalid Heap Access",
+        //     implement: "Create test for invalid heap access following plan lines 34-44 (section 1.2). Write test that expects undefined instead of thrown error.",
+        //     expectFailure: true,
+        //     test: "Run the newly created heap test to verify it fails (TDD).",
+        //     project: "vm"
+        // },
         
-        {
-            name: "Fix: Heap Get Method",
-            implement: "Fix heap.get() method following plan lines 46-50 (section 1.3). Change line 60 from throwing error to returning undefined.",
-            expectFailure: false,
-            test: "Run heap tests to ensure they now pass.",
-            project: "vm"
-        },
+        // {
+        //     name: "Fix: Heap Get Method",
+        //     implement: "Fix heap.get() method following plan lines 46-50 (section 1.3). Change line 60 from throwing error to returning undefined.",
+        //     expectFailure: false,
+        //     test: "Run heap tests to ensure they now pass.",
+        //     project: "vm"
+        // },
         
         // Issue 2: Stack Overflow in Serialization
-        {
-            name: "Write Test: Deep Nesting",
-            implement: "Create deep nesting test following plan lines 65-89 (section 2.3). Test should create 1000-level deep nested object.",
-            expectFailure: true,
-            test: "Run the new serialization test (should fail with stack overflow).",
-            project: "vm"
-        },
+        // {
+        //     name: "Write Test: Deep Nesting",
+        //     implement: "Create deep nesting test following plan lines 65-89 (section 2.3). Test should create 1000-level deep nested object.",
+        //     expectFailure: true,
+        //     test: "Run the new serialization test (should fail with stack overflow).",
+        //     project: "vm"
+        // },
         
         {
             name: "Fix: Extract Serialization Function",
@@ -217,6 +217,9 @@ function main() {
         var implementPrompt = "" + fileOpsBase + taskImplement + submitDone;
         CC(implementPrompt);
         
+        // maybe feature is already implemented, but it will be found when we try write failing test and test is requested, set it true as default
+        var continueOnFeature = true;
+
         // Test phase if task has tests
         if (taskTest != "") {
             console.log("Running tests for: " + taskName);
@@ -230,9 +233,9 @@ function main() {
             } else if (expectFailure && testResult == "passed") {
                 // Test was expected to fail but passed - this indicates a problem with the test
                 console.log("TDD ERROR: Test was expected to fail but passed. The test may not be correctly capturing the bug.");
-                CC("TDD ERROR: The test for '" + taskName + "' was expected to fail but it passed. Please review the test implementation in the plan and the code it's testing to ensure it correctly captures the failure condition. Fix the test and re-run. Submit 'fixed' when done.");
-                // Halt processing by exiting the loop
-                i = tasks.length;
+                var featureImplemented = CC("TDD ERROR: The test for '" + taskName + "' was expected to fail but it passed. Please review the test implementation in the plan and the code it's testing to ensure it correctly captures the failure condition. Fix the test and re-run. Submit 'fixed' when done. but feature can be already implemented submit 'implemented'");
+                // feature mey be done
+                continueOnFeature = featureImplemented != 'implemented';
             } else if (!expectFailure && testResult == "failed") {
                 // Test should pass but failed - need to fix
                 while (testResult != "passed") {
@@ -243,9 +246,11 @@ function main() {
             }
         }
         
-        // Commit after each major fix
-        if (taskName.indexOf("Test") == -1 && taskName.indexOf("Verification") == -1) {
-            CC("" + fileOpsBase + "Git add and commit changes with message: 'fix(heap): " + taskName + "' - Include what was fixed." + submitDone);
+        if(continueOnFeature) {
+            // Commit after each major fix
+            if (taskName.indexOf("Test") == -1 && taskName.indexOf("Verification") == -1) {
+                CC("" + fileOpsBase + "Git add and commit changes with message: 'fix(heap): " + taskName + "' - Include what was fixed." + submitDone);
+            }
         }
         
         completedTasks.push(taskName);

@@ -118,4 +118,29 @@ describe('VMManager Integration Tests', () => {
         .rejects.toThrow('Execution not found');
     });
   });
+
+  describe('deep nesting handling', () => {
+    it('should handle deeply nested structures without stack overflow', async () => {
+      const deeplyNested = `
+        function main() {
+          var obj = {};
+          var current = obj;
+          for (var i = 0; i < 1000; i++) {
+            current.child = {};
+            current = current.child;
+          }
+          CC("Ready");
+        }
+        main();
+      `;
+      await vmManager.loadProgram('deep', deeplyNested);
+      await vmManager.startExecution('deep', 'exec1');
+      
+      // Should not throw stack overflow - heap is already serialized as flat structure
+      const task = await vmManager.getNext('exec1');
+      expect(task).toBeDefined();
+      expect(task.type).toBe('waiting');
+      expect(task.message).toBe('Ready');
+    });
+  });
 });
