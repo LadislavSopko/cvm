@@ -16,6 +16,7 @@ import {
   CVMObject,
   CVMArray
 } from '@cvm/types';
+import { safePop, isVMError } from '../stack-utils.js';
 
 /**
  * Helper function to convert CVM values to plain JavaScript for JSON.stringify
@@ -81,9 +82,12 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 3,
     stackOut: 1,
     execute: (state, instruction) => {
-      const value = state.stack.pop()!;
-      const key = state.stack.pop()!;
-      const objOrRef = state.stack.pop()!;
+      const value = safePop(state, instruction.op);
+      if (isVMError(value)) return value;
+      const key = safePop(state, instruction.op);
+      if (isVMError(key)) return key;
+      const objOrRef = safePop(state, instruction.op);
+      if (isVMError(objOrRef)) return objOrRef;
       
       let obj: CVMObject;
       
@@ -128,8 +132,10 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const key = state.stack.pop()!;
-      const objOrRef = state.stack.pop()!;
+      const key = safePop(state, instruction.op);
+      if (isVMError(key)) return key;
+      const objOrRef = safePop(state, instruction.op);
+      if (isVMError(objOrRef)) return objOrRef;
       
       if (isCVMNull(objOrRef) || isCVMUndefined(objOrRef)) {
         return {
@@ -170,8 +176,10 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.JSON_STRINGIFY]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state) => {
-      const value = state.stack.pop()!;
+    execute: (state, instruction) => {
+      const value = safePop(state, instruction.op);
+      if (isVMError(value)) return value;
+      
       const jsValue = cvmValueToJs(value, state.heap);
       state.stack.push(JSON.stringify(jsValue));
       return undefined;
