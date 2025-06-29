@@ -43,5 +43,5 @@ export interface OpcodeHandler {
  * Type guard to check if a value is a VMError
  */
 export function isVMError(value: any): value is VMError {
-  return value && typeof value === 'object' && 'type' in value && 'message' in value;
+  return !!(value && typeof value === 'object' && 'type' in value && 'message' in value);
 }
