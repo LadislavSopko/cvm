@@ -41,7 +41,7 @@
 - ✅ **Heap behavior tests**: Verified array/object literals create heap references
 - ✅ **Integration tests**: Tested 10k element arrays and deep nesting without issues
 - ✅ **Reverted ARRAY_GET/SET changes**: Kept object support for bracket notation compatibility
-- **TODO**: Future refactoring to introduce ELEMENT_GET/SET opcodes for cleaner separation
+- ✅ **Unified GET/SET opcodes**: Implemented cleaner element access semantics
 - **Known Issues**: 
   - Object property access has bug with key handling (documented in code-review-findings.md)
   - restoreReferences is recursive (should be iterative for safety)
@@ -52,4 +52,10 @@
 - **Context Stack**: Manages break/continue in nested contexts
 - **Smart Type Detection**: CONCAT vs ADD based on literal analysis
 - **Universal Opcodes**: LENGTH works for strings and arrays
-- **JavaScript Semantics**: Proper undefined, type coercion, operator behavior
+
+## JavaScript Compliance
+- **Object property access**: Numeric keys are converted to strings (JS-compliant)
+- **Bracket notation**: Works consistently across arrays, objects, and strings
+- **Type coercion**: Proper string conversion in property access contexts
+- **Undefined handling**: Missing properties/elements return undefined
+- **Reference semantics**: Objects and arrays are heap-allocated references

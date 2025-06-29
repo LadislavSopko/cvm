@@ -80,8 +80,7 @@ export const compileExpressionStatement: StatementVisitor<ts.ExpressionStatement
         compileExpression(expr.left.argumentExpression); // Push index/key
         state.emit(OpCode.LOAD, tempVar); // Load value back on top
         
-        // For now, use ARRAY_SET which we'll need to enhance to handle objects too
-        // TODO: Consider a unified SET opcode
+        // Use ARRAY_SET for compatibility (unified SET opcode is now available)
         state.emit(OpCode.ARRAY_SET);
         state.emit(OpCode.POP); // Discard the result (undefined)
       } else if (ts.isPropertyAccessExpression(expr.left)) {

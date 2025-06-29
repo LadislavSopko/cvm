@@ -36,8 +36,10 @@ Claude → asks "what's next?" → CVM gives task → Claude completes → repea
 - **String Methods**: All essential string operations
 - **Object Support**: Literals, property access, nested objects
 - **Handler Architecture**: Clean modular VM (all 51 opcodes)
+- **Unified Opcodes**: GET/SET opcodes for cleaner element access (NEW!)
+- **Integration Tests**: End-to-end TypeScript→bytecode→VM pipeline testing (NEW!)
 - **Execution Management**: List/get/set current/delete executions
-- **Program Management**: List/delete programs, restart with auto-current (NEW!)
+- **Program Management**: List/delete programs, restart with auto-current
 
 ### 📊 Quality Metrics
 - **Tests**: 630+ tests all passing

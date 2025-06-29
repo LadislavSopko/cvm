@@ -22,6 +22,5 @@ export const compileElementAccessExpression: ExpressionVisitor<ts.ElementAccessE
   // that works for both arrays and objects
   state.emit(OpCode.ARRAY_GET);
   
-  // TODO: Consider adding a unified GET opcode that handles both arrays and objects
-  // Or enhance ARRAY_GET to also handle object property access when the key is a string
+  // Note: Unified GET opcode is now available for cleaner element access semantics
 };

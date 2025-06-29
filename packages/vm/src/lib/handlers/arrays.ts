@@ -17,10 +17,8 @@ import {
  * Opcode handlers for array operations
  * All array operations work with heap references to maintain JavaScript semantics
  * 
- * TODO: ARRAY_GET and ARRAY_SET are misnamed - they handle both arrays and objects
- * because JavaScript uses the same bracket notation syntax for both.
- * Future refactoring should introduce ELEMENT_GET/ELEMENT_SET opcodes for all
- * bracket notation access, keeping ARRAY_* only for array-specific operations.
+ * ARRAY_GET and ARRAY_SET handle arrays, objects, and strings for bracket notation access.
+ * Note: For new code, prefer the unified GET/SET opcodes which provide cleaner semantics.
  */
 export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   /**
