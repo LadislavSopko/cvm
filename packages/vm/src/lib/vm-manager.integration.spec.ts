@@ -125,9 +125,11 @@ describe('VMManager Integration Tests', () => {
         function main() {
           var obj = {};
           var current = obj;
-          for (var i = 0; i < 1000; i++) {
+          var i = 0;
+          while (i < 1000) {
             current.child = {};
             current = current.child;
+            i = i + 1;
           }
           CC("Ready");
         }

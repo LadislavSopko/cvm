@@ -131,14 +131,7 @@ export class VMManager {
         stack: [],
         variables: new Map(),
         output: []
-      } : {
-        pc: execution.pc,
-        stack: execution.stack,
-        variables: new Map(Object.entries(execution.variables)),
-        output: [],
-        iterators: execution.iterators || [],
-        heap: execution.heap ? this.deserializeHeap(execution.heap) : undefined
-      };
+      } : this.deserializeVMState(execution);
 
       const state = vm.execute(program.bytecode, initialState, this.fileSystem);
 
@@ -148,15 +141,8 @@ export class VMManager {
       }
 
       // Save state (without output)
-      execution.pc = state.pc;
-      execution.stack = state.stack;
-      execution.variables = Object.fromEntries(state.variables);
-      execution.iterators = state.iterators;
-
-      // Serialize heap
-      if (state.heap) {
-        execution.heap = this.serializeHeap(state.heap);
-      }
+      const serializedState = this.serializeVMState(state);
+      Object.assign(execution, serializedState);
 
       if (state.status === 'complete') {
         execution.state = 'COMPLETED';
@@ -239,14 +225,10 @@ export class VMManager {
 
     // Create current state from saved execution
     const currentState: VMState = {
-      pc: execution.pc,
-      stack: execution.stack,
-      variables: new Map(Object.entries(execution.variables)),
+      ...this.deserializeVMState(execution),
       status: 'waiting_cc' as const,
       output: [], // Start with empty output for resumed execution
-      ccPrompt: undefined,
-      iterators: execution.iterators || [],
-      heap: execution.heap ? this.deserializeHeap(execution.heap) : createVMHeap()
+      ccPrompt: undefined
     };
 
     // Resume execution - this pushes result to stack and continues
@@ -258,15 +240,8 @@ export class VMManager {
     }
     
     // Update execution state (without output)
-    execution.pc = newState.pc;
-    execution.stack = newState.stack;
-    execution.variables = Object.fromEntries(newState.variables);
-    execution.iterators = newState.iterators;
-    
-    // Serialize heap
-    if (newState.heap) {
-      execution.heap = this.serializeHeap(newState.heap);
-    }
+    const serializedState = this.serializeVMState(newState);
+    Object.assign(execution, serializedState);
     
     if (newState.status === 'complete') {
       execution.state = 'COMPLETED';
@@ -442,6 +417,42 @@ export class VMManager {
     });
     
     return heap;
+  }
+
+  /**
+   * Serialize VM state for storage
+   */
+  private serializeVMState(state: VMState): any {
+    return {
+      pc: state.pc,
+      stack: state.stack,
+      variables: Object.fromEntries(state.variables),
+      heap: state.heap ? this.serializeHeap(state.heap) : undefined,
+      iterators: state.iterators,
+      status: state.status,
+      error: state.error,
+      ccPrompt: state.ccPrompt,
+      output: state.output,
+      returnValue: state.returnValue
+    };
+  }
+
+  /**
+   * Deserialize VM state from storage
+   */
+  private deserializeVMState(data: any): VMState {
+    return {
+      pc: data.pc || 0,
+      stack: data.stack || [],
+      variables: new Map(Object.entries(data.variables || {})),
+      heap: data.heap ? this.deserializeHeap(data.heap) : createVMHeap(),
+      iterators: data.iterators || [],
+      status: data.status || 'running',
+      error: data.error || null,
+      ccPrompt: data.ccPrompt || null,
+      output: data.output || [],
+      returnValue: data.returnValue
+    };
   }
 
   private restoreReferences(value: any, heap: VMHeap): any {

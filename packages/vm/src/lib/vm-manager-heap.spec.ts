@@ -168,8 +168,10 @@ describe('VM Manager Heap Serialization', () => {
     const source = `
       function main(): void {
         let files = [];
-        for (let i = 0; i < 10000; i++) {
+        let i = 0;
+        while (i < 10000) {
           files.push('/path/to/file' + i);
+          i = i + 1;
         }
         CC('Ready to process files');
         console.log(files.length);
