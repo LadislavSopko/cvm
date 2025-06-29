@@ -3,7 +3,7 @@ import { compile } from '@cvm/parser';
 import { StorageAdapter, StorageFactory } from '@cvm/storage';
 import { Program, Execution, CVMValue, CVMArray, CVMObject, CVMArrayRef, CVMObjectRef, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
 import { FileSystemService, SandboxedFileSystem } from './file-system.js';
-import { VMHeap, createVMHeap, HeapObject } from './vm-heap.js';
+import { VMHeap, createVMHeap } from './vm-heap.js';
 
 export interface ExecutionResult {
   type: 'completed' | 'waiting' | 'error';

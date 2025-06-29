@@ -10,8 +10,10 @@ describe('Heap Reference Behavior', () => {
     expect(compileResult.success).toBe(true);
     
     const state = vm.execute(compileResult.bytecode);
-    const result = state.returnValue;
+    expect(state.status).toBe('complete');
+    expect(state.returnValue).toBeDefined();
     
+    const result = state.returnValue!;
     expect(isCVMArrayRef(result)).toBe(true);
   });
   
@@ -21,8 +23,10 @@ describe('Heap Reference Behavior', () => {
     expect(compileResult.success).toBe(true);
     
     const state = vm.execute(compileResult.bytecode);
-    const result = state.returnValue;
+    expect(state.status).toBe('complete');
+    expect(state.returnValue).toBeDefined();
     
+    const result = state.returnValue!;
     expect(isCVMObjectRef(result)).toBe(true);
   });
   

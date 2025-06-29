@@ -4,7 +4,6 @@ import {
   createCVMArray, 
   isCVMArray, 
   isCVMNumber, 
-  isCVMObject, 
   isCVMString,
   isCVMArrayRef,
   isCVMObjectRef,
@@ -112,15 +111,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         }
         // Handle object property access
         const obj = heapObj.data as CVMObject;
-        if (!isCVMString(index)) {
-          return {
-            type: 'RuntimeError',
-            message: 'Object property access requires string key',
-            pc: state.pc,
-            opcode: instruction.op
-          };
-        }
-        const key = index.value;
+        const key = index as string;
         const value = obj.properties[key] ?? createCVMUndefined();
         state.stack.push(value);
         return undefined;
