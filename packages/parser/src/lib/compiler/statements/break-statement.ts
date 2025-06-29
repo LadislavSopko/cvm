@@ -20,6 +20,6 @@ export const compileBreakStatement: StatementVisitor<ts.BreakStatement> = (
     loopContext.breakTargets = loopContext.breakTargets || [];
     loopContext.breakTargets.push(breakIndex);
   } else {
-    throw new Error('break statement not in loop');
+    context.reportError(node, 'break statement not in loop');
   }
 };

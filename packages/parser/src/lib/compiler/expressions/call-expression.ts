@@ -5,7 +5,7 @@ import { ExpressionVisitor } from '../visitor-types.js';
 export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
   node,
   state,
-  { compileExpression }
+  { compileExpression, reportError }
 ) => {
   // Handle fs operations
   if (ts.isPropertyAccessExpression(node.expression) &&
@@ -32,22 +32,23 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       // fs.readFile(path) - expects 1 argument
       if (node.arguments.length > 0) {
         compileExpression(node.arguments[0]);
+        state.emit(OpCode.FS_READ_FILE);
       } else {
-        throw new Error('fs.readFile() requires a path argument');
+        reportError(node, 'fs.readFile() requires a path argument');
       }
-      state.emit(OpCode.FS_READ_FILE);
     }
     else if (methodName === 'writeFile') {
       // fs.writeFile(path, content) - expects 2 arguments
       if (node.arguments.length < 2) {
-        throw new Error('fs.writeFile() requires path and content arguments');
+        reportError(node, 'fs.writeFile() requires path and content arguments');
+        return; // Don't continue compilation if arguments are missing
       }
       compileExpression(node.arguments[0]); // path
       compileExpression(node.arguments[1]); // content
       state.emit(OpCode.FS_WRITE_FILE);
     }
     else {
-      throw new Error(`Unsupported fs method: ${methodName}`);
+      reportError(node, `Unsupported fs method: ${methodName}`);
     }
   }
   // Handle JSON.parse()

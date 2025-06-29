@@ -16,6 +16,6 @@ export const compileContinueStatement: StatementVisitor<ts.ContinueStatement> = 
     loopContext.continueTargets = loopContext.continueTargets || [];
     loopContext.continueTargets.push(continueIndex);
   } else {
-    throw new Error('continue statement not in loop');
+    context.reportError(node, 'continue statement not in loop');
   }
 };

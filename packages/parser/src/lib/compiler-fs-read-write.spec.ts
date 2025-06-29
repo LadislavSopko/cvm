@@ -37,13 +37,13 @@ describe('Compiler - fs.readFile and fs.writeFile', () => {
     });
 
     it('should error when fs.readFile called without arguments', () => {
-      expect(() => {
-        compile(`
-          function main() {
-            const content = fs.readFile();
-          }
-        `);
-      }).toThrow('fs.readFile() requires a path argument');
+      const result = compile(`
+        function main() {
+          const content = fs.readFile();
+        }
+      `);
+      expect(result.success).toBe(false);
+      expect(result.errors[0].message).toBe('fs.readFile() requires a path argument');
     });
 
     it('should compile fs.readFile with expression', () => {
@@ -100,23 +100,23 @@ describe('Compiler - fs.readFile and fs.writeFile', () => {
     });
 
     it('should error when fs.writeFile called without arguments', () => {
-      expect(() => {
-        compile(`
-          function main() {
-            fs.writeFile();
-          }
-        `);
-      }).toThrow('fs.writeFile() requires path and content arguments');
+      const result = compile(`
+        function main() {
+          fs.writeFile();
+        }
+      `);
+      expect(result.success).toBe(false);
+      expect(result.errors[0].message).toBe('fs.writeFile() requires path and content arguments');
     });
 
     it('should error when fs.writeFile called with only one argument', () => {
-      expect(() => {
-        compile(`
-          function main() {
-            fs.writeFile("./file.txt");
-          }
-        `);
-      }).toThrow('fs.writeFile() requires path and content arguments');
+      const result = compile(`
+        function main() {
+          fs.writeFile("./file.txt");
+        }
+      `);
+      expect(result.success).toBe(false);
+      expect(result.errors[0].message).toBe('fs.writeFile() requires path and content arguments');
     });
 
     it('should compile fs.writeFile with JSON.stringify', () => {
@@ -148,13 +148,13 @@ describe('Compiler - fs.readFile and fs.writeFile', () => {
 
   describe('fs method errors', () => {
     it('should error for unsupported fs methods', () => {
-      expect(() => {
-        compile(`
-          function main() {
-            fs.deleteFile("./file.txt");
-          }
-        `);
-      }).toThrow('Unsupported fs method: deleteFile');
+      const result = compile(`
+        function main() {
+          fs.deleteFile("./file.txt");
+        }
+      `);
+      expect(result.success).toBe(false);
+      expect(result.errors[0].message).toBe('Unsupported fs method: deleteFile');
     });
 
     it('should allow chaining fs operations', () => {

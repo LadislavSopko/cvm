@@ -147,7 +147,9 @@ describe('Compiler Break/Continue Statements', () => {
       main();
     `;
     
-    expect(() => compile(source)).toThrow('break statement not in loop');
+    const result = compile(source);
+    expect(result.success).toBe(false);
+    expect(result.errors[0].message).toBe('break statement not in loop');
   });
 
   it('should error on continue outside of loop', () => {
@@ -160,7 +162,9 @@ describe('Compiler Break/Continue Statements', () => {
       main();
     `;
     
-    expect(() => compile(source)).toThrow('continue statement not in loop');
+    const result = compile(source);
+    expect(result.success).toBe(false);
+    expect(result.errors[0].message).toBe('continue statement not in loop');
   });
 
   it('should compile break with proper jump targets', () => {
