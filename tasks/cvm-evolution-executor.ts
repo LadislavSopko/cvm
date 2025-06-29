@@ -318,7 +318,7 @@ function main() {
         console.log("Task: " + taskName);
         
         // First, have Claude read the relevant section of the plan
-        var readPlanPrompt = fileOpsBase + "Read the atomic plan section for " + taskName + " in /home/laco/cvm/tasks/cvm-evolution-plan-atomic-steps.md. " + taskImplement + " Then proceed with implementation." + submitDone;
+        var readPlanPrompt = "[" + taskName + "]: " + fileOpsBase + "Read the atomic plan section for " + taskName + " in /home/laco/cvm/tasks/cvm-evolution-plan-atomic-steps.md. " + taskImplement + " Then proceed with implementation." + submitDone;
         CC(readPlanPrompt);
         
         var continueOnFeature = true;
