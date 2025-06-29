@@ -5,32 +5,52 @@
 [![npm version](https://badge.fury.io/js/cvm-server.svg)](https://www.npmjs.com/package/cvm-server)
 
 **TRADITIONAL SCRIPT**
+
+🔘 Gray = Script Operations
+
 ```mermaid
 flowchart TD
-    TS1[file in files]
-    TS2[claude.call 'analyze']
-    TS3[❌ Amnesia on each call<br/>❌ Human locked out<br/>❌ State is fragile]
-    TSC[Claude processes<br/>in isolation]
+    Start([Start]) --> Loop{More files?}
+    Loop -->|Yes| Call[Call Claude API]
+    Call --> Response[Get Response]
+    Response --> Lost[❌ Context Lost]
+    Lost --> Loop
+    Loop -->|No| End([End])
     
-    TS1 --> TS2
-    TS2 --> TS3
-    TS2 -.PUSH.-> TSC
+    Response -.->|Crash| Restart[Start Over From Beginning]
+    
+    classDef script fill:#e0e0e0,stroke:#666,color:#000
+    
+    class Start,Loop,Call,Response,Lost,End,Restart script
 ```
 
 **CVM ARCHITECTURE**
+
+🟢 Green = CVM Operations | 🔵 Blue = Claude Actions | 🟡 Yellow = Human Control
+
 ```mermaid
 flowchart TD
-    CVM1[for file in files:]
-    CVM2[CC 'analyze file']
-    PAUSE[⏸️ CVM PAUSES & WAITS]
-    NEXT[✓ Next iteration<br/>with state preserved]
+    Start([Start]) --> Loop{More files?}
+    Loop -->|Yes| CC[CC: analyze file]
+    CC --> Pause((⏸️ PAUSE))
+    Pause --> Wait[Wait for Claude]
+    Wait --> GetTask[Claude: getTask]
+    GetTask --> Process[Claude processes]
+    Process --> Submit[Claude: submitTask]
+    Submit --> Save[✓ State saved]
+    Save --> Loop
+    Loop -->|No| End([End])
     
-    CVM1 --> CVM2
-    CVM2 --> PAUSE
-    PAUSE -->|Claude calls getTask| PULL[Claude pulls task]
-    PULL -->|Analyzes file| PROCESS[Claude processes]
-    PROCESS -->|Submits result| SUBMIT[Claude submits result]
-    SUBMIT -->|CVM continues| NEXT
+    Pause -.->|Can inspect| Status[Check Progress]
+    Submit -.->|Crash| Resume[Resume from here]
+    
+    classDef cvm fill:#d4ffd4,stroke:#090,color:#000
+    classDef claude fill:#d4d4ff,stroke:#00d,color:#000
+    classDef human fill:#ffffd4,stroke:#990,color:#000
+    
+    class Start,Loop,CC,Pause,Wait,Save,End cvm
+    class GetTask,Process,Submit claude
+    class Status,Resume human
 ```
 
 ## See It In Action: From Fragile to Resilient
