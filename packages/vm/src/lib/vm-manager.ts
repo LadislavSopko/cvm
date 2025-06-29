@@ -344,6 +344,7 @@ export class VMManager {
    * Delete an execution
    */
   async deleteExecution(executionId: string): Promise<void> {
+    this.vms.delete(executionId); // CRITICAL: Remove from cache!
     return await this.storage.deleteExecution(executionId);
   }
 

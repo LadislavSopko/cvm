@@ -29,6 +29,9 @@ vi.mock('@cvm/storage', () => {
     }),
     getOutput: vi.fn().mockImplementation(async (executionId) => {
       return mockOutputs.get(executionId) || [];
+    }),
+    deleteExecution: vi.fn().mockImplementation(async (executionId) => {
+      mockExecutions.delete(executionId);
     })
   };
 
@@ -114,6 +117,29 @@ describe('VMManager Unit Tests', () => {
       // Next call should complete
       const result2 = await vmManager.getNext('exec-2');
       expect(result2.type).toBe('completed');
+    });
+  });
+
+  describe('VM cleanup on deletion', () => {
+    it('should remove VM from cache when execution deleted', async () => {
+      const source = `
+        function main() {
+          const x = 1;
+        }
+        main();
+      `;
+
+      await vmManager.loadProgram('prog1', source);
+      await vmManager.startExecution('prog1', 'exec1');
+      
+      // Verify VM is cached
+      expect(vmManager['vms'].has('exec1')).toBe(true);
+      
+      // Delete execution
+      await vmManager.deleteExecution('exec1');
+      
+      // Verify VM is removed from cache
+      expect(vmManager['vms'].has('exec1')).toBe(false);
     });
   });
 });
