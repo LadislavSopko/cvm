@@ -68,4 +68,15 @@ describe('JavaScript-compliant [] accessor behavior', () => {
     const state = vm.execute(bytecode);
     expect(state.stack[0]).toBe("e");
   });
+
+  it('should handle out of bounds string access gracefully', () => {
+    const bytecode = [
+      { op: OpCode.PUSH, arg: "hello" },
+      { op: OpCode.PUSH, arg: 10 },
+      { op: OpCode.ARRAY_GET },
+      { op: OpCode.HALT }
+    ];
+    const state = vm.execute(bytecode);
+    expect(state.stack[0]).toEqual({ type: 'undefined' });
+  });
 });
