@@ -17,7 +17,13 @@ import {
   CVMArray
 } from '@cvm/types';
 
-// Helper function to convert CVM values to plain JS for JSON.stringify
+/**
+ * Helper function to convert CVM values to plain JavaScript for JSON.stringify
+ * Handles heap references by dereferencing them
+ * @param value The CVM value to convert
+ * @param heap The VM heap for dereferencing
+ * @returns Plain JavaScript value
+ */
 function cvmValueToJs(value: CVMValue, heap: any): any {
   // Handle array references
   if (isCVMArrayRef(value)) {

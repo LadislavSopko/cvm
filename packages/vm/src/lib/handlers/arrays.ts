@@ -12,7 +12,15 @@ import {
   CVMObject
 } from '@cvm/types';
 
+/**
+ * Opcode handlers for array operations
+ * All array operations work with heap references to maintain JavaScript semantics
+ */
 export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
+  /**
+   * ARRAY_NEW: Creates a new empty array on the heap
+   * Stack: [] -> [array-ref]
+   */
   [OpCode.ARRAY_NEW]: {
     stackIn: 0,
     stackOut: 1,
@@ -24,6 +32,10 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     }
   },
 
+  /**
+   * ARRAY_PUSH: Pushes a value to the end of an array
+   * Stack: [array-ref, value] -> [array-ref]
+   */
   [OpCode.ARRAY_PUSH]: {
     stackIn: 2,
     stackOut: 1,
