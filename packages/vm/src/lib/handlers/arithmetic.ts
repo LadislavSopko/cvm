@@ -1,41 +1,54 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
 import { cvmToNumber } from '@cvm/types';
+import { safePop, isVMError } from '../stack-utils.js';
 
 export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.ADD]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state) => {
-      const right = state.stack.pop()!; // Safe: VM validates stack before calling
-      const left = state.stack.pop()!;   // Safe: VM validates stack before calling
+    execute: (state, instruction) => {
+      const right = safePop(state, instruction.op);
+      if (isVMError(right)) return right;
+      const left = safePop(state, instruction.op);
+      if (isVMError(left)) return left;
+      
       const leftNum = cvmToNumber(left);
       const rightNum = cvmToNumber(right);
       state.stack.push(leftNum + rightNum);
+      return undefined;
     }
   },
 
   [OpCode.SUB]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state) => {
-      const right = state.stack.pop()!;
-      const left = state.stack.pop()!;
+    execute: (state, instruction) => {
+      const right = safePop(state, instruction.op);
+      if (isVMError(right)) return right;
+      const left = safePop(state, instruction.op);
+      if (isVMError(left)) return left;
+      
       const leftNum = cvmToNumber(left);
       const rightNum = cvmToNumber(right);
       state.stack.push(leftNum - rightNum);
+      return undefined;
     }
   },
 
   [OpCode.MUL]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state) => {
-      const right = state.stack.pop()!;
-      const left = state.stack.pop()!;
+    execute: (state, instruction) => {
+      const right = safePop(state, instruction.op);
+      if (isVMError(right)) return right;
+      const left = safePop(state, instruction.op);
+      if (isVMError(left)) return left;
+      
       const leftNum = cvmToNumber(left);
       const rightNum = cvmToNumber(right);
       state.stack.push(leftNum * rightNum);
+      return undefined;
     }
   },
 
@@ -43,8 +56,11 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const right = state.stack.pop()!;
-      const left = state.stack.pop()!;
+      const right = safePop(state, instruction.op);
+      if (isVMError(right)) return right;
+      const left = safePop(state, instruction.op);
+      if (isVMError(left)) return left;
+      
       const leftNum = cvmToNumber(left);
       const rightNum = cvmToNumber(right);
       
@@ -65,32 +81,42 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.MOD]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state) => {
-      const right = state.stack.pop()!;
-      const left = state.stack.pop()!;
+    execute: (state, instruction) => {
+      const right = safePop(state, instruction.op);
+      if (isVMError(right)) return right;
+      const left = safePop(state, instruction.op);
+      if (isVMError(left)) return left;
+      
       const leftNum = cvmToNumber(left);
       const rightNum = cvmToNumber(right);
       state.stack.push(leftNum % rightNum);
+      return undefined;
     }
   },
 
   [OpCode.UNARY_MINUS]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state) => {
-      const value = state.stack.pop()!;
+    execute: (state, instruction) => {
+      const value = safePop(state, instruction.op);
+      if (isVMError(value)) return value;
+      
       const num = cvmToNumber(value);
       state.stack.push(-num);
+      return undefined;
     }
   },
 
   [OpCode.UNARY_PLUS]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state) => {
-      const value = state.stack.pop()!;
+    execute: (state, instruction) => {
+      const value = safePop(state, instruction.op);
+      if (isVMError(value)) return value;
+      
       const num = cvmToNumber(value);
       state.stack.push(num);
+      return undefined;
     }
   }
 };
