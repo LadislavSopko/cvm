@@ -4,7 +4,6 @@ import {
   createCVMObject, 
   createCVMUndefined, 
   isCVMObject, 
-  isCVMString, 
   isCVMNull, 
   isCVMUndefined,
   isCVMArray,
@@ -113,16 +112,10 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      if (!isCVMString(key)) {
-        return {
-          type: 'RuntimeError',
-          message: 'Property key must be a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
-      }
+      // Convert key to string (JavaScript behavior)
+      const stringKey = cvmToString(key);
       
-      obj.properties[key] = value;
+      obj.properties[stringKey] = value;
       state.stack.push(objOrRef); // Push back the original reference or object
       return undefined;
     }

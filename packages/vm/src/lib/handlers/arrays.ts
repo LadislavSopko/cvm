@@ -118,10 +118,29 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         return undefined;
       } else if (isCVMArray(arrayOrRef)) {
         array = arrayOrRef;
+      } else if (isCVMString(arrayOrRef)) {
+        // Handle string character access
+        let charIndex: number | undefined;
+        
+        if (isCVMNumber(index)) {
+          charIndex = index;
+        } else if (isCVMString(index)) {
+          const parsed = parseInt(index, 10);
+          if (!isNaN(parsed) && parsed.toString() === index) {
+            charIndex = parsed;
+          }
+        }
+        
+        if (charIndex !== undefined && charIndex >= 0 && charIndex < arrayOrRef.length) {
+          state.stack.push(arrayOrRef[charIndex]);
+        } else {
+          state.stack.push(createCVMUndefined());
+        }
+        return undefined;
       } else {
         return {
           type: 'RuntimeError',
-          message: 'ARRAY_GET requires an array',
+          message: 'ARRAY_GET requires an array, object, or string',
           pc: state.pc,
           opcode: instruction.op
         };
