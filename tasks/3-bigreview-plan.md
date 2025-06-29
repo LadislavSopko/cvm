@@ -1132,3 +1132,129 @@ The test coverage analysis reveals that **fixing the bugs is only half the solut
 4. **Validate end-to-end functionality** across all packages
 
 The scope and severity of these issues necessitate treating this as an **architectural rescue operation** rather than incremental bug fixes.
+
+---
+
+## Additional Areas Requiring Deep Analysis
+
+### 1. VM Opcode Implementation Status
+**Need to analyze:**
+- Which opcodes are fully implemented vs partially implemented vs broken
+- Arithmetic operations: ADD, SUB, MUL, DIV, MOD - implementation quality
+- Comparison operations: EQ, NE, LT, GT, LTE, GTE - type handling correctness
+- Logical operations: AND, OR, NOT - short-circuit evaluation
+- Control flow: IF, WHILE, FOR_OF, BREAK, CONTINUE - state preservation
+- String operations: LENGTH, SLICE, CHAR_AT, CONCAT, INDEX_OF, etc.
+- Object operations: PROPERTY_GET/SET beyond [] accessors
+- Stack operations: PUSH, POP, DUP - boundary checking
+- Variable operations: LOAD, STORE - scope handling
+
+### 2. CC() Integration and State Management
+**Need to analyze:**
+- How CC() checkpoints preserve VM state
+- Stack preservation across CC() calls
+- Variable scope preservation
+- Iterator state persistence in for-of loops
+- Heap reference integrity during suspension
+- Program counter (PC) management
+- Error state propagation across CC() boundaries
+- Multiple CC() calls in nested contexts
+
+### 3. Memory Bank Priority Features Status
+**Need to analyze implementation status of:**
+- Array methods (map/filter/reduce) - Listed as HIGHEST priority
+- Error handling (try/catch/finally) - Listed as HIGH priority  
+- fs.readFile/writeFile for CVM state persistence - MEDIUM priority
+- String pattern matching/regex support - LOW priority
+- Current workarounds vs proper implementations
+
+### 4. Architectural Extensibility Problems
+**Need to analyze why it's hard to extend:**
+- Handler architecture - is it modular enough?
+- Opcode addition process - what breaks when adding new ones?
+- Type system integration points - where does it fail?
+- Cross-package dependencies - what's tightly coupled?
+- State management architecture - centralized vs distributed
+- Error propagation patterns - consistent or ad-hoc?
+
+### 5. Compiler Architecture Limitations
+**Need to analyze:**
+- What TypeScript constructs are silently ignored
+- Missing visitor implementations
+- Error reporting mechanisms (or lack thereof)
+- AST traversal completeness
+- Bytecode generation patterns
+- Optimization opportunities being missed
+
+### 6. Real Program Execution Analysis
+**Need to analyze with actual CVM programs:**
+- Multi-file analysis programs
+- Programs with nested loops and CC() calls
+- Data transformation programs
+- File system traversal programs
+- Programs that should work but don't
+- Performance under real workloads
+
+### 7. Integration Layer Problems
+**Need to analyze:**
+- VMManager coordination issues
+- MCP-Server to VM communication patterns
+- Storage adapter transaction boundaries
+- State serialization/deserialization correctness
+- Execution lifecycle management
+- Resource cleanup patterns
+
+### 8. Missing Core Functionality
+**Need to analyze what's completely missing:**
+- Function declarations and calls
+- Return statement implementation
+- Scope chain management
+- Closure support (if any)
+- Exception bubbling
+- Native function bindings
+
+### 9. Performance and Scalability Architecture
+**Need to analyze:**
+- Opcode dispatch mechanism efficiency
+- Heap allocation patterns
+- Stack growth characteristics
+- Memory leaks or retention issues
+- Large program handling
+- CC() checkpoint overhead
+
+### 10. Test Infrastructure Problems
+**Need to analyze:**
+- Why tests pass but functionality fails
+- Missing test categories
+- Test isolation issues
+- Mock vs real implementation gaps
+- Integration test feasibility
+
+### 11. TODO/FIXME/Technical Debt Scan
+**Need to systematically scan for:**
+- All TODO comments across packages
+- FIXME markers indicating known issues
+- Commented-out code blocks
+- Temporary workarounds
+- Admitted hacks or shortcuts
+- Incomplete implementations
+
+### 12. Development Workflow Impediments
+**Need to analyze:**
+- Why simple changes require touching multiple packages
+- Build system complexity
+- Debugging difficulty
+- Error message quality
+- Development feedback loops
+
+---
+
+## Next Steps for Comprehensive Analysis
+
+Each of these areas needs deep technical analysis to understand:
+1. Current implementation state
+2. Architectural problems preventing extension
+3. Integration issues with other components
+4. Why it's difficult to fix or extend
+
+This expanded review scope will provide a complete picture of what needs architectural reorganization to make CVM maintainable and extensible.

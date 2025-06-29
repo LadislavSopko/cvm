@@ -1,0 +1,10 @@
+Continue with the refactored implementation plan. I need ALL the critical fixes that will make CVM reliable, not just the top 5. Include:
+
+1. Error propagation through CC() boundaries
+2. Array methods implementation without functions
+3. Compound assignment fixes
+4. Type coercion fixes
+5. Better error messages with context
+6. Any other CRITICAL fixes I missed
+
+Remember: Exact code changes only - file, line, current vs fixed code. No timelines or estimates.
