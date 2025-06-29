@@ -13,7 +13,7 @@ function main() {
         "PROJECT STRUCTURE: This is an Nx monorepo with packages: @cvm/parser (compiles TS to bytecode), @cvm/types (CVMValue type system), @cvm/vm (executes bytecode), @cvm/mcp-server (MCP integration), @cvm/storage (state persistence). " +
         "CURRENT MISSION: Fix critical architectural flaws identified in comprehensive analysis. The [] accessor system is fundamentally broken - obj[123] fails, array['0'] doesn't work like JavaScript, and the compiler emits wrong opcodes. " +
         "CRITICAL: Read the detailed plan at /home/laco/cvm/tasks/cvm-evolution-plan-atomic-steps.md for exact specifications. The line numbers in each task refer to this plan document. then when you do solution read also existing code, dont gues, stay in realty." +
-        "METHODOLOGY: Follow TDD rigorously - write failing tests FIRST, then implement fixes. Use 'npx nx test <project>' for testing. Each atomic step has clear dependencies - ensure prerequisites are met. After tests works you need do also typecheck with npx nx typecheck <project> command";
+        "METHODOLOGY: Follow TDD rigorously - write failing tests FIRST, then implement fixes. Use 'npx nx test <project>' for testing. Each atomic step has clear dependencies - ensure prerequisites are met.";
     
     console.log("Context prompt created");
     console.log("Evolution plan document: /home/laco/cvm/tasks/cvm-evolution-plan-atomic-steps.md");
@@ -347,7 +347,7 @@ function main() {
                 while (testResult != "passed") {
                     console.log("Tests failing. Debugging and fixing...");
                     CC("" + fileOpsBase + findCode + "Fix the implementation for " + taskName + ". Check the atomic plan for exact specifications. Make minimal changes to make tests pass." + submitDone);
-                    testResult = CC("" + fileOpsBase + runTest + taskProject + " to verify fixes." + submitTest);
+                    testResult = CC("" + fileOpsBase + runTest + taskProject + " to verify fixes. After tests works you need do also typecheck with npx nx typecheck <project> command" + submitTest);
                 }
             }
         }
