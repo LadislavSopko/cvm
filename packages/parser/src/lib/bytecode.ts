@@ -97,6 +97,10 @@ export enum OpCode {
   PROPERTY_SET = 'PROPERTY_SET',
   JSON_STRINGIFY = 'JSON_STRINGIFY',
   
+  // Unified access operations
+  GET = 'GET',  // Replaces ARRAY_GET + PROPERTY_GET
+  SET = 'SET',  // Replaces ARRAY_SET + PROPERTY_SET
+  
   // Cognitive
   CC = 'CC',
   
