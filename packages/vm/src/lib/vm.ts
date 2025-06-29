@@ -112,6 +112,15 @@ export class VM {
         // Execute the handler
         const executionError = handler.execute(state, instruction);
         if (executionError) {
+          // Check if next instruction is CC() to allow error handling
+          const nextPC = state.pc + 1;
+          if (nextPC < bytecode.length && bytecode[nextPC].op === OpCode.CC) {
+            state.ccPrompt = `ERROR: ${executionError.message}. How should I proceed?`;
+            state.status = 'waiting_cc';
+            state.pc = nextPC; // Move to CC instruction
+            break;
+          }
+          
           state.status = 'error';
           // For backward compatibility with tests, only use the message
           state.error = executionError.message;

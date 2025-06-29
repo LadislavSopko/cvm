@@ -577,4 +577,21 @@ describe('VM', () => {
       expect(state.error).toContain('Stack underflow');
     });
   });
+
+  describe('Error handling through CC()', () => {
+    it('should allow CC() to handle runtime errors', () => {
+      const vm = new VM();
+      const bytecode = [
+        { op: OpCode.PUSH, arg: 10 },
+        { op: OpCode.PUSH, arg: 0 },
+        { op: OpCode.DIV }, // Division by zero
+        { op: OpCode.CC },
+        { op: OpCode.HALT }
+      ];
+      
+      const state = vm.execute(bytecode);
+      expect(state.status).toBe('waiting_cc');
+      expect(state.ccPrompt).toContain('ERROR: Division by zero');
+    });
+  });
 });
