@@ -53,37 +53,37 @@ function main() {
         //     project: "vm"
         // },
         
-        {
-            name: "Step 2: Update CVMArray Type",
-            implement: "Update CVMArray type definition following plan lines 65-91. Add properties field to CVMArray interface in /packages/types/src/lib/cvm-value.ts.",
-            test: "Create and run tests for CVMArray with properties following lines 70-82.",
-            expectFailure: false,
-            project: "types"
-        },
+        // {
+        //     name: "Step 2: Update CVMArray Type",
+        //     implement: "Update CVMArray type definition following plan lines 65-91. Add properties field to CVMArray interface in /packages/types/src/lib/cvm-value.ts.",
+        //     test: "Create and run tests for CVMArray with properties following lines 70-82.",
+        //     expectFailure: false,
+        //     project: "types"
+        // },
         
-        {
-            name: "Step 3: Add Error Collection to Compiler",
-            implement: "Add error collection array to compiler following plan lines 93-111. Add errors array at top of compile function in /packages/parser/src/lib/compiler.ts.",
-            test: "Create and run tests for compiler error collection following lines 98-110.",
-            expectFailure: false,
-            project: "parser"
-        },
+        // {
+        //     name: "Step 3: Add Error Collection to Compiler",
+        //     implement: "Add error collection array to compiler following plan lines 93-111. Add errors array at top of compile function in /packages/parser/src/lib/compiler.ts.",
+        //     test: "Create and run tests for compiler error collection following lines 98-110.",
+        //     expectFailure: false,
+        //     project: "parser"
+        // },
         
-        {
-            name: "Step 4: VM Cache Memory Leak Fix",
-            implement: "Fix VM cache memory leak following plan lines 113-134. Update deleteExecution method in /packages/vm/src/lib/vm-manager.ts line ~346.",
-            test: "Create and run VM cache cleanup test following lines 118-130.",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 4: VM Cache Memory Leak Fix",
+        //     implement: "Fix VM cache memory leak following plan lines 113-134. Update deleteExecution method in /packages/vm/src/lib/vm-manager.ts line ~346.",
+        //     test: "Create and run VM cache cleanup test following lines 118-130.",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 10: Database Transaction Safety", 
-            implement: "Implement database transactions following plan lines 136-175. Update deleteExecution in /packages/mongodb/src/lib/mongodb-adapter.ts.",
-            test: "Create and run atomic deletion test following lines 141-155.",
-            expectFailure: false,
-            project: "mongodb"
-        },
+        // {
+        //     name: "Step 10: Database Transaction Safety", 
+        //     implement: "Implement database transactions following plan lines 136-175. Update deleteExecution in /packages/mongodb/src/lib/mongodb-adapter.ts.",
+        //     test: "Create and run atomic deletion test following lines 141-155.",
+        //     expectFailure: false,
+        //     project: "mongodb"
+        // },
         
         // PHASE 2: Primitive Extraction Fixes (Depends on Phase 1)
         {
