@@ -1,145 +1,265 @@
-# CVM: Stateful Task Engine for Claude
+# CVM: Turn Claude into a Systematic Processor
 
-**Stop Claude from losing track. CVM is a passive state machine that Claude queries for tasks, maintaining perfect execution flow across complex operations.**
+**Stop writing fragile AI scripts. Write programs that Claude executes one thought at a time.**
 
 [![npm version](https://badge.fury.io/js/cvm-server.svg)](https://www.npmjs.com/package/cvm-server)
 
-## The Problem
+**TRADITIONAL SCRIPT**
+```mermaid
+flowchart TD
+    TS1[file in files]
+    TS2[claude.call 'analyze']
+    TS3[❌ Amnesia on each call<br/>❌ Human locked out<br/>❌ State is fragile]
+    TSC[Claude processes<br/>in isolation]
+    
+    TS1 --> TS2
+    TS2 --> TS3
+    TS2 -.PUSH.-> TSC
+```
 
-"Claude, analyze these 1000 files and create a report" → Claude gets confused, loses context, forgets what it's doing.
+**CVM ARCHITECTURE**
+```mermaid
+flowchart TD
+    CVM1[for file in files:]
+    CVM2[CC 'analyze file']
+    PAUSE[⏸️ CVM PAUSES & WAITS]
+    NEXT[✓ Next iteration<br/>with state preserved]
+    
+    CVM1 --> CVM2
+    CVM2 --> PAUSE
+    PAUSE -->|Claude calls getTask| PULL[Claude pulls task]
+    PULL -->|Analyzes file| PROCESS[Claude processes]
+    PROCESS -->|Submits result| SUBMIT[Claude submits result]
+    SUBMIT -->|CVM continues| NEXT
+```
 
-## The Solution
+## See It In Action: From Fragile to Resilient
 
-CVM is a passive MCP server that holds program state. You write a program with loops and logic, but Claude only sees one task at a time. Claude asks "what's next?", completes the task, and asks again.
+**Without CVM**, you manually chain calls. If it crashes, state is lost:
 
-The magic: CVM never pushes tasks. Claude pulls tasks when ready, maintaining perfect control while CVM quietly manages state between requests.
+```typescript
+// Fragile, stateless, and hard to inspect
+const result1 = await claude.call("Step 1: Analyze this");
+const result2 = await claude.call("Step 2: Based on '" + result1 + "', do this");
+// If this fails, you have to start over from scratch
+```
 
-## What CVM Really Is
+**With CVM**, you write a simple program. The VM manages state:
 
-CVM is an **algorithmic TODO manager**. Think of it as:
-- A TODO list that can have loops ("do this 5 times")
-- A TODO list that can have conditions ("if X then do Y") 
-- A TODO list that maintains variables between tasks
-- A TODO list shaped like a program
+```typescript
+// Resilient, stateful, and observable
+function main() {
+  const step1 = CC("Step 1: Analyze this");
+  const step2 = CC("Step 2: Based on '" + step1 + "', do this");
+  return step2;
+}
+```
 
-When your program hits `CC("analyze this file")`, CVM doesn't call Claude. Instead:
-1. CVM creates a TODO: "analyze this file"
-2. CVM pauses execution and waits
-3. Claude asks CVM: "What should I do next?"
-4. CVM responds: "analyze this file"
-5. Claude does the analysis and submits the result
-6. CVM updates its state and moves to the next instruction
-
-**CVM is completely passive** - it never initiates anything. Claude drives everything.
+The magic: CVM saves `step1` before moving to `step2`. You can stop, inspect, and resume anytime.
 
 ## Try It Now
 
 Save this as `counter.ts`:
+
 ```typescript
 function main() {
   let count = 0;
   while (count < 5) {
     const next = CC("Current number is " + count + ". What's the next number?");
     count = +next;
-    console.log("Count is now: " + count);
   }
-  return count;  // Returns 5
+  return count;
 }
-main();
 ```
 
-Then tell Claude: **"Run counter.ts with CVM"**
+Tell Claude: **"Run counter.ts with CVM"**
 
-What actually happens:
-- CVM loads the program and starts execution
-- When it hits `CC()`, CVM creates a task and waits
-- Claude asks CVM for tasks using `getTask()`
-- CVM gives Claude: "Current number is 0. What's the next number?"
-- Claude figures out the answer is "1" and submits it
-- CVM continues the loop with count=1
-- Process repeats until done
+What happens:
+1. CVM loads your program and starts execution
+2. At each `CC()`, CVM pauses and waits
+3. Claude pulls the next task: "Current number is 0. What's the next number?"
+4. Claude submits "1"
+5. CVM updates `count` and continues the loop
+6. Repeat until done
 
-## How It Works
+## The Paradigm Shift: Claude as the CPU
 
-CVM is a passive MCP server. Claude actively drives execution:
-
-```
-Claude: load("counter", "...program code...")
-Claude: start("counter", "exec-123")
-Claude: getTask("exec-123") → CVM: "Current number is 0. What's the next number?"
-Claude: submitTask("exec-123", "1") → CVM sets count=1, continues loop
-Claude: getTask("exec-123") → CVM: "Current number is 1. What's the next number?"
-Claude: submitTask("exec-123", "2") → CVM sets count=2, continues loop
-...
-Claude: getTask("exec-123") → CVM: "Execution completed with result: 5"
+```mermaid
+graph LR
+    subgraph "CVM as a Computer"
+        CODE["📜 Your Code<br/>(Motherboard)"]-->|"defines logic<br/>& structure"| CVM["💾 CVM<br/>(RAM)"]
+        CVM-->|"holds state<br/>& variables"| CLAUDE["🧠 Claude<br/>(CPU)"]
+        CLAUDE-->|"processes each<br/>CC() instruction"| CVM
+        YOU["👤 You<br/>(Operator)"]-."inspect state<br/>anytime".->CVM
+    end
 ```
 
-## Why This Architecture
+Traditional scripts treat Claude as a service. CVM treats Claude as a processor.
 
-**Traditional approach**: Claude tries to maintain state in its context window
-- ❌ Loses track in complex flows
-- ❌ Forgets variables between steps
-- ❌ Can't handle real loops or conditions reliably
+## CC() is a PAUSE, Not a Call
 
-**CVM approach**: State lives in CVM, Claude just processes individual tasks
-- ✅ Perfect state management
-- ✅ Real loops and conditions that work
-- ✅ Claude's context stays clean
-- ✅ Complex workflows become simple task sequences
+`CC(prompt)` doesn't mean "call Claude." It means:
 
-## Real Example
+```mermaid
+stateDiagram-v2
+    [*] --> Package: CC(analyze this)
+    Package --> PAUSE: Create task
+    PAUSE --> WAIT: Execution stops here
+    WAIT --> PULL: Claude calls getTask
+    PULL --> PROCESS: Claude processes
+    PROCESS --> RESUME: Claude submits result
+    RESUME --> [*]: Continue with result
+    
+    state Package {
+        [*] --> p1: Package prompt
+        p1 --> p2: Into task object
+    }
+    
+    state PAUSE {
+        [*] --> pause: ⏸️ Program paused
+        pause --> save: State saved
+    }
+    
+    state WAIT {
+        [*] --> waiting: 🔄 Waiting for Claude
+    }
+```
+
+It's like `yield` in Python or `await` in JavaScript, but for cognitive tasks.
+
+## Real-World Example
 
 ```typescript
 function main() {
-  const files = fs.listFiles("./docs", { filter: "*.txt" });
-  const summaries = [];
+  const files = fs.listFiles("./docs");
+  const summaries = []; // State lives safely in CVM
   
   for (const file of files) {
-    // This creates a task for Claude, doesn't "call" Claude
-    const content = CC("Read and summarize this file: " + file);
-    // Now we can use objects!
-    summaries.push({
-      filename: file,
-      summary: content
-    });
-    console.log("Processed: " + file);
+    // PAUSE: Ask Claude to summarize this file
+    const content = CC("Read and summarize: " + file);
+    summaries.push({ filename: file, summary: content });
+    // CVM automatically resumes here with content
   }
   
-  // Convert summaries array to JSON for the final task
-  const summariesJson = JSON.stringify(summaries);
-  const report = CC("Create a final report from these file summaries: " + summariesJson);
-  console.log("Final Report: " + report);
-  
+  // PAUSE: Ask Claude to create final report
+  const report = CC("Create report from: " + JSON.stringify(summaries));
   return report;
 }
-main();
 ```
 
-CVM turns this into a dynamic TODO list:
-1. Task: "Read and summarize this file: ./docs/file1.txt"
-2. Task: "Read and summarize this file: ./docs/file2.txt"
-3. Task: "Read and summarize this file: ./docs/file3.txt"
-4. Task: "Create a final report from these summaries: [...]"
+```mermaid
+flowchart TD
+    START([Start]) --> LIST[fs.listFiles]
+    LIST --> INIT[summaries = empty array]
+    INIT --> LOOP{For each file}
+    
+    LOOP -->|Has files| CC1[CC: Read and summarize file]
+    CC1 --> PAUSE1[⏸️ CVM Pauses]
+    PAUSE1 --> CLAUDE1[Claude pulls task]
+    CLAUDE1 --> SUMMARY[Claude returns summary]
+    SUMMARY --> SAVE[Push to summaries array]
+    SAVE --> LOOP
+    
+    LOOP -->|No more files| CC2[CC: Create final report]
+    CC2 --> PAUSE2[⏸️ CVM Pauses]
+    PAUSE2 --> CLAUDE2[Claude creates report]
+    CLAUDE2 --> RETURN[Return report]
+    RETURN --> END([End])
+    
+    CRASH{{If crash at file 500}} -.-> STATE[(CVM State:<br/>499 summaries<br/>preserved)]
+    STATE -.-> RESUME[Can resume<br/>from file 500]
+    
+```
 
-Claude works through these tasks one by one, while CVM maintains the loop state, the summaries array, and the execution position.
+CVM turns this into a resilient workflow. If it fails on file 500 of 1000, the first 499 summaries are safely stored in CVM's state.
 
-## Key Concepts
+## Why Not Just Write a Python Script?
 
-### CC() - Cognitive Context
-`CC(prompt)` doesn't mean "call Claude". It means:
-- Create a task with this prompt
-- Pause execution here
-- Wait for Claude to ask for the next task
-- Resume when Claude provides a result
+```mermaid
+graph LR
+    subgraph YourScript["Your Script"]
+        S1[❌ Stateless]
+        S2[❌ Fragile]
+        S3[❌ Opaque]
+        S4[❌ Rigid]
+        
+        S1 --> API1[API Call 1]
+        API1 --> S2
+        S2 --> API2[API Call 2]
+        API2 --> S3
+        S3 --> CRASH[💥 Crash = Start Over]
+    end
+    
+    subgraph CVMArch["CVM"]
+        C1[✅ Stateful]
+        C2[✅ Resilient]
+        C3[✅ Observable]
+        C4[✅ Flexible]
+        
+        C1 --> TASK1[Task 1]
+        TASK1 --> STATE1[(State Preserved)]
+        STATE1 --> TASK2[Task 2]
+        TASK2 --> STATE2[(State Updated)]
+        STATE2 --> PAUSE[⏸️ Can Pause/Resume]
+    end
+    
+```
 
-### CVM is Passive
-- CVM never sends messages to Claude
-- CVM never initiates actions
-- CVM only responds when Claude asks
-- Claude drives everything via MCP tools
+| Your Script | CVM |
+| :--- | :--- |
+| ❌ **Stateless:** Each API call starts fresh | ✅ **Stateful:** All variables persist automatically |
+| ❌ **Fragile:** Crash = start over | ✅ **Resilient:** State survives, resume anytime |
+| ❌ **Opaque:** Can't see progress | ✅ **Observable:** Check status anytime |
+| ❌ **Rigid:** Can't intervene | ✅ **Flexible:** Paused by default at each CC() |
 
-### State Management
-While Claude processes tasks, CVM maintains:
+## How It Works Under the Hood
+
+CVM is a passive MCP server. Claude actively drives execution:
+
+```mermaid
+sequenceDiagram
+    participant Claude
+    participant CVM
+    participant State as CVM State
+    
+    Claude->>CVM: load("counter", "...program code...")
+    CVM->>State: Store program
+    
+    Claude->>CVM: start("counter", "exec-123")
+    CVM->>State: Initialize count = 0
+    
+    loop While count < 5
+        Claude->>CVM: getTask("exec-123")
+        CVM-->>Claude: "Current number is 0. What's the next number?"
+        Claude->>Claude: Process task
+        Claude->>CVM: submitTask("exec-123", "1")
+        CVM->>State: count = 1
+        Note over CVM: Continue loop execution
+    end
+    
+    Claude->>CVM: getTask("exec-123")
+    CVM-->>Claude: "Execution completed with result: 5"
+```
+
+**CVM is completely passive** - it never initiates anything. Claude drives everything.
+
+## Core Concepts
+
+**Language**: TypeScript-like with:
+- Variables, loops, conditionals
+- Arrays, objects, JSON operations
+- `CC()` for cognitive tasks
+- `fs.listFiles()` for file operations
+- `console.log()` for output
+
+**How Claude Interacts**:
+- `load(programId, source)` - Load a program
+- `start(programId, executionId)` - Start execution
+- `getTask(executionId)` - Pull next task
+- `submitTask(executionId, result)` - Submit result
+- `status(executionId)` - Check state anytime
+
+**State Management**: While Claude processes tasks, CVM maintains:
 - All variables and their values
 - Current execution position
 - Loop counters and conditions
@@ -147,45 +267,18 @@ While Claude processes tasks, CVM maintains:
 
 ## Installation
 
-Add to Claude's `.mcp.json`:
+Add to Claude's MCP settings:
+
 ```json
 {
   "mcpServers": {
     "cvm": {
       "command": "npx",
-      "args": ["cvm-server@latest"],
-      "env": {
-        "CVM_STORAGE_TYPE": "file",
-        "CVM_DATA_DIR": ".cvm"
-      }
+      "args": ["cvm-server@latest"]
     }
   }
 }
 ```
-
-## MCP Tools
-
-Claude uses these tools to interact with CVM:
-
-- **`load(programId, source)`** - Load a program into CVM
-- **`loadFile(programId, filePath)`** - Load from file
-- **`start(programId, executionId)`** - Start execution
-- **`getTask(executionId)`** - Get next task (CVM waits for this)
-- **`submitTask(executionId, result)`** - Submit task result
-- **`status(executionId)`** - Check execution state
-
-## Language Features
-
-CVM executes a TypeScript-like language:
-- Variables, arrays, objects, loops, conditions
-- String/array operations
-- Object literals and property access
-- `JSON.stringify()` and `JSON.parse()`
-- `CC()` for task creation
-- `fs.listFiles()` for file operations
-- `console.log()` for output
-
-[→ Full API Documentation](docs/API.md)
 
 ## Use Cases
 
@@ -193,11 +286,17 @@ Perfect for any workflow where Claude needs to process many items systematically
 - Document analysis pipelines
 - Data extraction from multiple sources
 - Report generation with multiple inputs
+- Code refactoring across many files
 - Any task requiring loops with AI processing
 
-## Summary
+[→ Full API Documentation](docs/API.md)
 
-CVM is a passive, stateful task engine. It turns programs into smart TODO lists that Claude can work through systematically without losing context. The program defines the workflow, Claude provides the intelligence, and CVM quietly maintains the state between them.
+## The Key Insight
+
+CVM doesn't make Claude smarter. It makes Claude systematic.
+
+Without CVM: Brilliant but chaotic
+With CVM: Brilliant with perfect memory and a checklist
 
 ---
 
