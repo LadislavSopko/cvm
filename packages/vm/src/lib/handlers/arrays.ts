@@ -77,14 +77,14 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const indexOrKey = state.stack.pop()!;
-      const arrayOrObjectOrRef = state.stack.pop()!;
+      const index = state.stack.pop()!;
+      const arrayOrRef = state.stack.pop()!;
       
-      let arrayOrObject: CVMArray | CVMObject;
+      let array: CVMArray;
       
       // Dereference if needed
-      if (isCVMArrayRef(arrayOrObjectOrRef)) {
-        const heapObj = state.heap.get(arrayOrObjectOrRef.id);
+      if (isCVMArrayRef(arrayOrRef)) {
+        const heapObj = state.heap.get(arrayOrRef.id);
         if (!heapObj || heapObj.type !== 'array') {
           return {
             type: 'RuntimeError',
@@ -93,67 +93,38 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
             opcode: instruction.op
           };
         }
-        arrayOrObject = heapObj.data as CVMArray;
-      } else if (isCVMObjectRef(arrayOrObjectOrRef)) {
-        const heapObj = state.heap.get(arrayOrObjectOrRef.id);
-        if (!heapObj || heapObj.type !== 'object') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid object reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
-        }
-        arrayOrObject = heapObj.data as CVMObject;
-      } else if (isCVMArray(arrayOrObjectOrRef) || isCVMObject(arrayOrObjectOrRef)) {
-        arrayOrObject = arrayOrObjectOrRef;
+        array = heapObj.data as CVMArray;
+      } else if (isCVMObjectRef(arrayOrRef)) {
+        return {
+          type: 'RuntimeError',
+          message: 'ARRAY_GET requires an array',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      } else if (isCVMArray(arrayOrRef)) {
+        array = arrayOrRef;
       } else {
         return {
           type: 'RuntimeError',
-          message: 'ARRAY_GET requires an array or object',
+          message: 'ARRAY_GET requires an array',
           pc: state.pc,
           opcode: instruction.op
         };
       }
       
-      // Handle arrays
-      if (isCVMArray(arrayOrObject)) {
-        if (!isCVMNumber(indexOrKey)) {
-          return {
-            type: 'RuntimeError',
-            message: 'ARRAY_GET requires numeric index for arrays',
-            pc: state.pc,
-            opcode: instruction.op
-          };
-        }
-        
-        const element = arrayOrObject.elements[indexOrKey] ?? null;
-        state.stack.push(element);
-        return undefined;
+      // Handle array access
+      if (!isCVMNumber(index)) {
+        return {
+          type: 'RuntimeError',
+          message: 'ARRAY_GET requires numeric index',
+          pc: state.pc,
+          opcode: instruction.op
+        };
       }
       
-      // Handle objects with string keys
-      if (isCVMObject(arrayOrObject)) {
-        if (!isCVMString(indexOrKey)) {
-          return {
-            type: 'RuntimeError',
-            message: 'ARRAY_GET requires string key for objects',
-            pc: state.pc,
-            opcode: instruction.op
-          };
-        }
-        
-        const value = arrayOrObject.properties[indexOrKey] ?? null;
-        state.stack.push(value);
-        return undefined;
-      }
-      
-      return {
-        type: 'RuntimeError',
-        message: 'ARRAY_GET requires an array or object',
-        pc: state.pc,
-        opcode: instruction.op
-      };
+      const element = array.elements[index] ?? null;
+      state.stack.push(element);
+      return undefined;
     }
   },
 
