@@ -2,6 +2,7 @@ import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
 import { cvmToString, isCVMString, isCVMArray, cvmTypeof, createCVMArray, createCVMObject, CVMValue, isCVMArrayRef, CVMArray } from '@cvm/types';
 import { VMHeap } from '../vm-heap.js';
+import { safePop, isVMError } from '../stack-utils.js';
 
 // Helper function to convert JSON to CVM values
 function jsonToCVMValue(value: any, heap: VMHeap): CVMValue {
@@ -46,8 +47,11 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const b = state.stack.pop()!;
-      const a = state.stack.pop()!;
+      const b = safePop(state, instruction.op);
+      if (isVMError(b)) return b;
+      const a = safePop(state, instruction.op);
+      if (isVMError(a)) return a;
+      
       state.stack.push(cvmToString(a) + cvmToString(b));
       return undefined;
     }
@@ -57,7 +61,8 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 1,
     execute: (state, instruction) => {
-      const str = state.stack.pop()!;
+      const str = safePop(state, instruction.op);
+      if (isVMError(str)) return str;
       
       if (!isCVMString(str)) {
         return {
@@ -77,7 +82,8 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 1,
     execute: (state, instruction) => {
-      const value = state.stack.pop()!;
+      const value = safePop(state, instruction.op);
+      if (isVMError(value)) return value;
       
       if (isCVMString(value)) {
         state.stack.push(value.length);
@@ -113,7 +119,8 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 1,
     execute: (state, instruction) => {
-      const str = state.stack.pop()!;
+      const str = safePop(state, instruction.op);
+      if (isVMError(str)) return str;
       
       if (!isCVMString(str)) {
         return {
@@ -140,7 +147,9 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 1,
     execute: (state, instruction) => {
-      const value = state.stack.pop()!;
+      const value = safePop(state, instruction.op);
+      if (isVMError(value)) return value;
+      
       state.stack.push(cvmTypeof(value));
       return undefined;
     }
