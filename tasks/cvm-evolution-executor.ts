@@ -30,7 +30,7 @@ function main() {
         "proper error reporting, safe stack operations, no memory leaks, and basic error recovery through CC(). ";
     
     // Common prompt parts
-    var fileOpsBase = contextPrompt + fixContext + "Use Read, Write, Edit tools for file operations. Use Bash tool for running commands. ";
+    var fileOpsBase = " " + contextPrompt + fixContext + "Use Read, Write, Edit tools for file operations. Use Bash tool for running commands. ";
     var submitDone = " Submit task with 'done' when complete.";
     var submitTest = " Submit 'passed' if tests pass, 'failed' if they fail.";
     var runTest = "Run tests using 'npx nx test' command with Bash tool. ";
@@ -318,7 +318,7 @@ function main() {
         console.log("Task: " + taskName);
         
         // First, have Claude read the relevant section of the plan
-        var readPlanPrompt = "[" + taskName + "]: " + fileOpsBase + "Read the atomic plan section for " + taskName + " in /home/laco/cvm/tasks/cvm-evolution-plan-atomic-steps.md. " + taskImplement + " Then proceed with implementation." + submitDone;
+        var readPlanPrompt = "" + "[" + taskName + "]: " + fileOpsBase + "Read the atomic plan section for " + taskName + " in /home/laco/cvm/tasks/cvm-evolution-plan-atomic-steps.md. " + taskImplement + " Then proceed with implementation." + submitDone;
         CC(readPlanPrompt);
         
         var continueOnFeature = true;
@@ -327,7 +327,7 @@ function main() {
         if (taskTest != "") {
             console.log("Running tests for: " + taskName);
             var expectFailure = task["expectFailure"];
-            var testPrompt = fileOpsBase + taskTest + " " + runTest + taskProject + submitTest;
+            var testPrompt = "" + fileOpsBase + taskTest + " " + runTest + taskProject + submitTest;
             var testResult = CC(testPrompt);
             
             // For TDD: some tests are expected to fail initially
@@ -339,25 +339,22 @@ function main() {
                 var checkFeature = CC("The test for '" + taskName + "' passed but was expected to fail. Check if the feature is already implemented or if the test needs adjustment. Submit 'implemented' if feature exists, 'adjust' if test needs fixing.");
                 continueOnFeature = checkFeature != "implemented";
                 if (checkFeature == "adjust") {
-                    CC(fileOpsBase + "Adjust the test to properly capture the expected failure condition, then re-run." + submitDone);
+                    CC("" + fileOpsBase + "Adjust the test to properly capture the expected failure condition, then re-run." + submitDone);
                     testResult = CC(testPrompt);
                 }
             } else if (!expectFailure && testResult == "failed") {
                 // Test should pass but failed - need to fix
                 while (testResult != "passed") {
                     console.log("Tests failing. Debugging and fixing...");
-                    CC(fileOpsBase + findCode + "Fix the implementation for " + taskName + ". Check the atomic plan for exact specifications. Make minimal changes to make tests pass." + submitDone);
-                    testResult = CC(fileOpsBase + runTest + taskProject + " to verify fixes." + submitTest);
+                    CC("" + fileOpsBase + findCode + "Fix the implementation for " + taskName + ". Check the atomic plan for exact specifications. Make minimal changes to make tests pass." + submitDone);
+                    testResult = CC("" + fileOpsBase + runTest + taskProject + " to verify fixes." + submitTest);
                 }
             }
         }
         
-        if(continueOnFeature) {
-            // Commit after each completed step (not for test-only steps)
-            if (taskName.indexOf("Write") == -1 && taskName.indexOf("Tests") == -1) {
-                var stepNumber = taskName.split(":")[0];
-                CC(fileOpsBase + "Git add and commit changes with message: 'fix(cvm): " + stepNumber + " - " + taskName.split(":")[1].trim() + "' - Include brief description of what was fixed." + submitDone);
-            }
+        if(continueOnFeature) {           
+            // Simple commit without parsing task name
+            CC("" + fileOpsBase + "Git add and commit changes with message: 'fix(cvm): " + taskName + "' - Include brief description of what was fixed." + submitDone);
         }
         
         completedTasks.push(taskName);
@@ -374,29 +371,29 @@ function main() {
     var p = 0;
     while (p < packages.length) {
         var pkg = packages[p];
-        var pkgTests = CC(fileOpsBase + runTest + pkg + " - Run all " + pkg + " package tests." + submitTest);
+        var pkgTests = CC("" + fileOpsBase + runTest + pkg + " - Run all " + pkg + " package tests." + submitTest);
         while (pkgTests != "passed") {
-            CC(fileOpsBase + "Fix any remaining " + pkg + " test failures." + submitDone);
-            pkgTests = CC(fileOpsBase + runTest + pkg + " - Re-run " + pkg + " tests." + submitTest);
+            CC("" + fileOpsBase + "Fix any remaining " + pkg + " test failures." + submitDone);
+            pkgTests = CC("" + fileOpsBase + runTest + pkg + " - Re-run " + pkg + " tests." + submitTest);
         }
         p = p + 1;
     }
     
     // Run integration tests
-    CC(fileOpsBase + "Run any integration tests to verify cross-package functionality." + submitDone);
+    CC("" + fileOpsBase + "Run any integration tests to verify cross-package functionality." + submitDone);
     
     // Final code review
-    CC(fileOpsBase + "Use mcp__zen__codereview to review all changes against the original issues in /home/laco/cvm/tasks/1-almost-all.md and /home/laco/cvm/tasks/1-mostly-focus-on-vm.md. Ensure all critical issues are resolved." + submitDone);
+    CC("" + fileOpsBase + "Use mcp__zen__codereview to review all changes against the original issues in /home/laco/cvm/tasks/1-almost-all.md and /home/laco/cvm/tasks/1-mostly-focus-on-vm.md. Ensure all critical issues are resolved." + submitDone);
     
     // Update Memory Bank
-    CC(fileOpsBase + "Update Memory Bank with completion status of CVM Evolution Plan Phase 1. Document which steps were completed and any deviations from the plan." + submitDone);
+    CC("" + fileOpsBase + "Update Memory Bank with completion status of CVM Evolution Plan Phase 1. Document which steps were completed and any deviations from the plan." + submitDone);
     
     console.log("\n=== CVM Evolution Plan Execution Complete! ===");
     console.log("Completed tasks: " + completedTasks.length);
     var summary = "Evolution Plan Complete. Completed " + completedTasks.length + " tasks.";
     
     // Create completion report
-    var report = CC(fileOpsBase + "Create a completion report listing: 1) All completed fixes, 2) Test coverage improvements, 3) Any remaining issues for future phases. Save as /home/laco/cvm/tasks/evolution-phase1-complete.md" + submitDone);
+    var report = CC("" + fileOpsBase + "Create a completion report listing: 1) All completed fixes, 2) Test coverage improvements, 3) Any remaining issues for future phases. Save as /home/laco/cvm/tasks/evolution-phase1-complete.md" + submitDone);
     
     return summary;
 }
