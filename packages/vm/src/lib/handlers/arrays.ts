@@ -128,7 +128,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       }
       
       // Handle array access
-      let arrayIndex: number;
+      let arrayIndex: number | undefined;
       
       if (isCVMNumber(index)) {
         arrayIndex = index;
@@ -138,8 +138,9 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         if (!isNaN(parsed) && parsed.toString() === index && parsed >= 0) {
           arrayIndex = parsed;
         } else {
-          // Non-numeric string - arrays don't have string properties in our model
-          state.stack.push(createCVMUndefined());
+          // Non-numeric string - check array properties
+          const value = array.properties?.[index] ?? createCVMUndefined();
+          state.stack.push(value);
           return undefined;
         }
       } else {
@@ -214,7 +215,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       }
       
       // Handle array access
-      let arrayIndex: number;
+      let arrayIndex: number | undefined;
       
       if (isCVMNumber(index)) {
         arrayIndex = index;
@@ -224,8 +225,11 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         if (!isNaN(parsed) && parsed.toString() === index && parsed >= 0) {
           arrayIndex = parsed;
         } else {
-          // Non-numeric string - arrays don't support string properties
-          // Just push the array back and ignore the set
+          // Non-numeric string - set as array property
+          if (!array.properties) {
+            array.properties = {};
+          }
+          array.properties[index] = value;
           state.stack.push(arrayOrRef);
           return undefined;
         }

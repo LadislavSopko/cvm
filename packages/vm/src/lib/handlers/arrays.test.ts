@@ -156,3 +156,78 @@ describe('Array access with string indices', () => {
     expect(state.stack[0]).toEqual({ type: 'undefined' });
   });
 });
+
+describe('Array properties support', () => {
+  it('should store non-numeric string properties on arrays', () => {
+    const vm = new VM();
+    const state = vm.createInitialState();
+
+    // Create array
+    vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
+    const arrayRef = state.stack.pop()!;
+    
+    // Add numeric elements
+    state.stack.push(arrayRef);
+    state.stack.push('first');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_PUSH });
+    
+    // Set string property
+    state.stack.push(arrayRef);
+    state.stack.push('foo'); // Non-numeric string key
+    state.stack.push('bar'); // Value
+    vm.executeInstruction(state, { op: OpCode.ARRAY_SET });
+    
+    // Clear stack and verify property access
+    state.stack.length = 0;
+    state.stack.push(arrayRef);
+    state.stack.push('foo');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_GET });
+    
+    expect(state.stack.length).toBe(1);
+    expect(state.stack[0]).toBe('bar');
+  });
+
+  it('should keep array elements and properties separate', () => {
+    const vm = new VM();
+    const state = vm.createInitialState();
+
+    // Create array
+    vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
+    const arrayRef = state.stack.pop()!;
+    
+    // Add elements
+    state.stack.push(arrayRef);
+    state.stack.push('element0');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_PUSH });
+    
+    state.stack.push(arrayRef);
+    state.stack.push('element1');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_PUSH });
+    
+    // Set string property
+    state.stack.push(arrayRef);
+    state.stack.push('name');
+    state.stack.push('myArray');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_SET });
+    
+    // Verify element access still works
+    state.stack.length = 0;
+    state.stack.push(arrayRef);
+    state.stack.push(0);
+    vm.executeInstruction(state, { op: OpCode.ARRAY_GET });
+    expect(state.stack[0]).toBe('element0');
+    
+    // Verify property access
+    state.stack.length = 0;
+    state.stack.push(arrayRef);
+    state.stack.push('name');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_GET });
+    expect(state.stack[0]).toBe('myArray');
+    
+    // Verify array length is not affected by properties
+    state.stack.length = 0;
+    state.stack.push(arrayRef);
+    vm.executeInstruction(state, { op: OpCode.ARRAY_LEN });
+    expect(state.stack[0]).toBe(2);
+  });
+});
