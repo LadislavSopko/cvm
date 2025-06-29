@@ -9,7 +9,8 @@ import {
   isCVMArrayRef,
   isCVMObjectRef,
   CVMArray,
-  CVMObject
+  CVMObject,
+  createCVMUndefined
 } from '@cvm/types';
 
 /**
@@ -122,7 +123,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      const element = array.elements[index] ?? null;
+      const element = array.elements[index] ?? createCVMUndefined();
       state.stack.push(element);
       return undefined;
     }

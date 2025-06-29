@@ -96,7 +96,7 @@ describe('VM Array Operations', () => {
       ]);
 
       expect(state.stack.length).toBe(1);
-      expect(state.stack[0]).toBe(null);
+      expect(state.stack[0]).toEqual({ type: 'undefined' });
     });
   });
 
