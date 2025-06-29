@@ -44,20 +44,25 @@ describe('VM - ARRAY_SET', () => {
     expect(array.elements.length).toBe(6);
   });
 
-  it('should error on non-numeric index', () => {
+  it('should ignore non-numeric string index', () => {
     const array = createCVMArray([1, 2, 3]);
     const bytecode = [
       { op: OpCode.PUSH, arg: array },
-      { op: OpCode.PUSH, arg: "one" }, // string index
+      { op: OpCode.PUSH, arg: "one" }, // non-numeric string index
       { op: OpCode.PUSH, arg: 99 },
       { op: OpCode.ARRAY_SET },
-      { op: OpCode.HALT }
+      { op: OpCode.POP }, // Remove the array from stack
+      { op: OpCode.PUSH, arg: array },
+      { op: OpCode.PUSH, arg: 0 },
+      { op: OpCode.ARRAY_GET },
+      { op: OpCode.RETURN }
     ];
 
     const result = vm.execute(bytecode);
     
-    expect(result.status).toBe('error');
-    expect(result.error).toBe('ARRAY_SET requires numeric index');
+    expect(result.status).toBe('complete');
+    // Array should be unchanged - first element should still be 1
+    expect(result.returnValue).toBe(1);
   });
 
   it('should error on negative index', () => {

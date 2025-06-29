@@ -128,16 +128,30 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       }
       
       // Handle array access
-      if (!isCVMNumber(index)) {
+      let arrayIndex: number;
+      
+      if (isCVMNumber(index)) {
+        arrayIndex = index;
+      } else if (isCVMString(index)) {
+        // Try to convert string to number
+        const parsed = parseInt(index, 10);
+        if (!isNaN(parsed) && parsed.toString() === index && parsed >= 0) {
+          arrayIndex = parsed;
+        } else {
+          // Non-numeric string - arrays don't have string properties in our model
+          state.stack.push(createCVMUndefined());
+          return undefined;
+        }
+      } else {
         return {
           type: 'RuntimeError',
-          message: 'ARRAY_GET requires numeric index',
+          message: 'ARRAY_GET requires numeric or numeric string index',
           pc: state.pc,
           opcode: instruction.op
         };
       }
       
-      const element = array.elements[index] ?? createCVMUndefined();
+      const element = array.elements[arrayIndex] ?? createCVMUndefined();
       state.stack.push(element);
       return undefined;
     }
@@ -200,16 +214,31 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       }
       
       // Handle array access
-      if (!isCVMNumber(index)) {
+      let arrayIndex: number;
+      
+      if (isCVMNumber(index)) {
+        arrayIndex = index;
+      } else if (isCVMString(index)) {
+        // Try to convert string to number
+        const parsed = parseInt(index, 10);
+        if (!isNaN(parsed) && parsed.toString() === index && parsed >= 0) {
+          arrayIndex = parsed;
+        } else {
+          // Non-numeric string - arrays don't support string properties
+          // Just push the array back and ignore the set
+          state.stack.push(arrayOrRef);
+          return undefined;
+        }
+      } else {
         return {
           type: 'RuntimeError',
-          message: 'ARRAY_SET requires numeric index',
+          message: 'ARRAY_SET requires numeric or numeric string index',
           pc: state.pc,
           opcode: instruction.op
         };
       }
       
-      const idx = Math.floor(index);
+      const idx = Math.floor(arrayIndex);
       if (idx < 0) {
         return {
           type: 'RuntimeError',

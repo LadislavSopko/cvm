@@ -62,3 +62,97 @@ describe('Object property access with numeric keys', () => {
     expect(state.stack[0]).toEqual('answer');
   });
 });
+
+describe('Array access with string indices', () => {
+  it('should handle string indices that are valid array indices', () => {
+    const vm = new VM();
+    const state = vm.createInitialState();
+
+    // Create array with elements
+    vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
+    const arrayRef = state.stack.pop()!;
+    
+    // Push elements
+    state.stack.push(arrayRef);
+    state.stack.push('first');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_PUSH });
+    
+    state.stack.push(arrayRef);
+    state.stack.push('second');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_PUSH });
+    
+    state.stack.push(arrayRef);
+    state.stack.push('third');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_PUSH });
+    
+    // Clear stack
+    state.stack.length = 0;
+    
+    // Access with string index "0"
+    state.stack.push(arrayRef);
+    state.stack.push('0'); // String index
+    vm.executeInstruction(state, { op: OpCode.ARRAY_GET });
+    
+    expect(state.stack.length).toBe(1);
+    expect(state.stack[0]).toEqual('first');
+  });
+
+  it('should handle string indices for array set operations', () => {
+    const vm = new VM();
+    const state = vm.createInitialState();
+
+    // Create array with elements
+    vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
+    const arrayRef = state.stack.pop()!;
+    
+    // Push initial elements
+    state.stack.push(arrayRef);
+    state.stack.push('first');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_PUSH });
+    
+    state.stack.push(arrayRef);
+    state.stack.push('second');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_PUSH });
+    
+    // Clear stack
+    state.stack.length = 0;
+    
+    // Set element at string index "1"
+    state.stack.push(arrayRef);
+    state.stack.push('1'); // String index
+    state.stack.push('modified');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_SET });
+    
+    // Clear stack and verify
+    state.stack.length = 0;
+    state.stack.push(arrayRef);
+    state.stack.push(1); // Numeric index
+    vm.executeInstruction(state, { op: OpCode.ARRAY_GET });
+    
+    expect(state.stack[0]).toEqual('modified');
+  });
+
+  it('should return undefined for non-numeric string indices on arrays', () => {
+    const vm = new VM();
+    const state = vm.createInitialState();
+
+    // Create array
+    vm.executeInstruction(state, { op: OpCode.ARRAY_NEW });
+    const arrayRef = state.stack.pop()!;
+    
+    state.stack.push(arrayRef);
+    state.stack.push('element');
+    vm.executeInstruction(state, { op: OpCode.ARRAY_PUSH });
+    
+    // Clear stack
+    state.stack.length = 0;
+    
+    // Try to access with non-numeric string
+    state.stack.push(arrayRef);
+    state.stack.push('foo'); // Non-numeric string
+    vm.executeInstruction(state, { op: OpCode.ARRAY_GET });
+    
+    expect(state.stack.length).toBe(1);
+    expect(state.stack[0]).toEqual({ type: 'undefined' });
+  });
+});
