@@ -12,8 +12,8 @@ function main() {
         "CVM is NOT a JavaScript runtime but a custom interpreter that: 1) Parses TypeScript-like code into bytecode, 2) Executes it in a VM with pause/resume capability, 3) Pauses at CC() calls for Claude to process tasks, 4) Preserves complete state between pauses. " +
         "PROJECT STRUCTURE: This is an Nx monorepo with packages: @cvm/parser (compiles TS to bytecode), @cvm/types (CVMValue type system), @cvm/vm (executes bytecode), @cvm/mcp-server (MCP integration), @cvm/storage (state persistence). " +
         "CURRENT MISSION: Fix critical architectural flaws identified in comprehensive analysis. The [] accessor system is fundamentally broken - obj[123] fails, array['0'] doesn't work like JavaScript, and the compiler emits wrong opcodes. " +
-        "CRITICAL: Read the detailed plan at /home/laco/cvm/tasks/cvm-evolution-plan-atomic-steps.md for exact specifications. The line numbers in each task refer to this plan document. " +
-        "METHODOLOGY: Follow TDD rigorously - write failing tests FIRST, then implement fixes. Use 'npx nx test <project>' for testing. Each atomic step has clear dependencies - ensure prerequisites are met. ";
+        "CRITICAL: Read the detailed plan at /home/laco/cvm/tasks/cvm-evolution-plan-atomic-steps.md for exact specifications. The line numbers in each task refer to this plan document. then when you do solution read also existing code, dont gues, stay in realty." +
+        "METHODOLOGY: Follow TDD rigorously - write failing tests FIRST, then implement fixes. Use 'npx nx test <project>' for testing. Each atomic step has clear dependencies - ensure prerequisites are met. After tests works you need do also typecheck with npx nx typecheck <project> command";
     
     console.log("Context prompt created");
     console.log("Evolution plan document: /home/laco/cvm/tasks/cvm-evolution-plan-atomic-steps.md");
@@ -45,13 +45,13 @@ function main() {
     // Define all evolution tasks with line references to atomic plan
     var tasks = [
         // PHASE 1: Foundation (No Dependencies)
-        {
-            name: "Step 1: Create Stack Safety Utils",
-            implement: "Create stack safety utilities following plan lines 23-63. Create /packages/vm/src/lib/stack-utils.ts with safePop and isVMError functions.",
-            test: "Create and run tests for stack-utils following lines 28-45.",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 1: Create Stack Safety Utils",
+        //     implement: "Create stack safety utilities following plan lines 23-63. Create /packages/vm/src/lib/stack-utils.ts with safePop and isVMError functions.",
+        //     test: "Create and run tests for stack-utils following lines 28-45.",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
         {
             name: "Step 2: Update CVMArray Type",
