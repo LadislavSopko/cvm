@@ -95,258 +95,258 @@ function main() {
         // },
         
         // PHASE 2: Primitive Extraction Fixes
-        {
-            name: "Step 5: Fix Object Property Key Extraction",
-            planLines: "lines 179-210",
-            targetFile: "/packages/vm/src/lib/handlers/arrays.ts",
-            targetLine: "line 114",
-            testLocation: "lines 184-203",
-            bugDescription: "const key = index as string - assumes index is already string",
-            fixDescription: "Use cvmToString(index) to properly convert any type to string",
-            expectFailure: true,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 5: Fix Object Property Key Extraction",
+        //     planLines: "lines 179-210",
+        //     targetFile: "/packages/vm/src/lib/handlers/arrays.ts",
+        //     targetLine: "line 114",
+        //     testLocation: "lines 184-203",
+        //     bugDescription: "const key = index as string - assumes index is already string",
+        //     fixDescription: "Use cvmToString(index) to properly convert any type to string",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 6: Write Array Index Tests", 
-            planLines: "lines 212-235",
-            targetFile: "new test file",
-            targetLine: "n/a",
-            testLocation: "lines 212-235",
-            bugDescription: "No tests for array index handling",
-            fixDescription: "Create comprehensive tests for numeric indices, string-to-number conversion, and non-numeric properties",
-            expectFailure: true,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 6: Write Array Index Tests", 
+        //     planLines: "lines 212-235",
+        //     targetFile: "new test file",
+        //     targetLine: "n/a",
+        //     testLocation: "lines 212-235",
+        //     bugDescription: "No tests for array index handling",
+        //     fixDescription: "Create comprehensive tests for numeric indices, string-to-number conversion, and non-numeric properties",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 6: Fix Array GET Index Extraction",
-            planLines: "lines 237-255",
-            targetFile: "/packages/vm/src/lib/handlers/arrays.ts",
-            targetLine: "line 139",
-            testLocation: "from previous step",
-            bugDescription: "Array access doesn't handle JavaScript-compliant string indices",
-            fixDescription: "Implement logic where array['0'] equals array[0], and array['foo'] stores as property",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 6: Fix Array GET Index Extraction",
+        //     planLines: "lines 237-255",
+        //     targetFile: "/packages/vm/src/lib/handlers/arrays.ts",
+        //     targetLine: "line 139",
+        //     testLocation: "from previous step",
+        //     bugDescription: "Array access doesn't handle JavaScript-compliant string indices",
+        //     fixDescription: "Implement logic where array['0'] equals array[0], and array['foo'] stores as property",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 6: Fix Array SET Index Extraction",
-            planLines: "lines 257-282", 
-            targetFile: "/packages/vm/src/lib/handlers/arrays.ts",
-            targetLine: "line 211",
-            testLocation: "from Step 6 tests",
-            bugDescription: "Array assignment doesn't handle JavaScript-compliant indices",
-            fixDescription: "Implement proper index handling for assignment matching GET behavior",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 6: Fix Array SET Index Extraction",
+        //     planLines: "lines 257-282", 
+        //     targetFile: "/packages/vm/src/lib/handlers/arrays.ts",
+        //     targetLine: "line 211",
+        //     testLocation: "from Step 6 tests",
+        //     bugDescription: "Array assignment doesn't handle JavaScript-compliant indices",
+        //     fixDescription: "Implement proper index handling for assignment matching GET behavior",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 6.4: Fix Object Assignment Key",
-            planLines: "lines 284-303",
-            targetFile: "/packages/vm/src/lib/handlers/arrays.ts", 
-            targetLine: "line 187",
-            testLocation: "lines 289-297",
-            bugDescription: "Object assignment has same string assumption bug",
-            fixDescription: "Use proper key extraction for object property assignment",
-            expectFailure: true,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 6.4: Fix Object Assignment Key",
+        //     planLines: "lines 284-303",
+        //     targetFile: "/packages/vm/src/lib/handlers/arrays.ts", 
+        //     targetLine: "line 187",
+        //     testLocation: "lines 289-297",
+        //     bugDescription: "Object assignment has same string assumption bug",
+        //     fixDescription: "Use proper key extraction for object property assignment",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
         
-        // PHASE 3: Compiler Error Reporting
-        {
-            name: "Step 7: Implement Compiler Error Reporting",
-            planLines: "lines 307-362",
-            targetFile: "/packages/parser/src/lib/compiler.ts",
-            targetLine: "reportError function and visitor else clause",
-            testLocation: "lines 312-326",
-            bugDescription: "Compiler silently ignores unsupported syntax",
-            fixDescription: "Implement error reporting for unsupported syntax like switch/try-catch",
-            expectFailure: false,
-            project: "parser"
-        },
+        // // PHASE 3: Compiler Error Reporting
+        // {
+        //     name: "Step 7: Implement Compiler Error Reporting",
+        //     planLines: "lines 307-362",
+        //     targetFile: "/packages/parser/src/lib/compiler.ts",
+        //     targetLine: "reportError function and visitor else clause",
+        //     testLocation: "lines 312-326",
+        //     bugDescription: "Compiler silently ignores unsupported syntax",
+        //     fixDescription: "Implement error reporting for unsupported syntax like switch/try-catch",
+        //     expectFailure: false,
+        //     project: "parser"
+        // },
         
-        // PHASE 4: Apply Stack Safety Everywhere
-        {
-            name: "Step 8: Update Arithmetic Handlers",
-            planLines: "lines 366-396",
-            targetFile: "/packages/vm/src/lib/handlers/arithmetic.ts",
-            targetLine: "all handlers with stack.pop()",
-            testLocation: "lines 371-383",
-            bugDescription: "No stack underflow protection",
-            fixDescription: "Replace all stack.pop()! with safePop pattern",
-            expectFailure: true,
-            project: "vm"
-        },
+        // // PHASE 4: Apply Stack Safety Everywhere
+        // {
+        //     name: "Step 8: Update Arithmetic Handlers",
+        //     planLines: "lines 366-396",
+        //     targetFile: "/packages/vm/src/lib/handlers/arithmetic.ts",
+        //     targetLine: "all handlers with stack.pop()",
+        //     testLocation: "lines 371-383",
+        //     bugDescription: "No stack underflow protection",
+        //     fixDescription: "Replace all stack.pop()! with safePop pattern",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 8: Update Comparison Handlers",
-            planLines: "lines 366-396",
-            targetFile: "/packages/vm/src/lib/handlers/comparison.ts",
-            targetLine: "all handlers with stack.pop()",
-            testLocation: "existing tests",
-            bugDescription: "No stack underflow protection",
-            fixDescription: "Apply safePop pattern to all handlers",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 8: Update Comparison Handlers",
+        //     planLines: "lines 366-396",
+        //     targetFile: "/packages/vm/src/lib/handlers/comparison.ts",
+        //     targetLine: "all handlers with stack.pop()",
+        //     testLocation: "existing tests",
+        //     bugDescription: "No stack underflow protection",
+        //     fixDescription: "Apply safePop pattern to all handlers",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 8: Update Logical Handlers",
-            planLines: "lines 366-396",
-            targetFile: "/packages/vm/src/lib/handlers/logical.ts",
-            targetLine: "all handlers with stack.pop()",
-            testLocation: "existing tests",
-            bugDescription: "No stack underflow protection",
-            fixDescription: "Apply safePop pattern to all handlers",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 8: Update Logical Handlers",
+        //     planLines: "lines 366-396",
+        //     targetFile: "/packages/vm/src/lib/handlers/logical.ts",
+        //     targetLine: "all handlers with stack.pop()",
+        //     testLocation: "existing tests",
+        //     bugDescription: "No stack underflow protection",
+        //     fixDescription: "Apply safePop pattern to all handlers",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 8: Update Object Handlers",
-            planLines: "lines 366-396",
-            targetFile: "/packages/vm/src/lib/handlers/objects.ts",
-            targetLine: "all handlers with stack.pop()",
-            testLocation: "existing tests",
-            bugDescription: "No stack underflow protection",
-            fixDescription: "Apply safePop pattern to all handlers",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 8: Update Object Handlers",
+        //     planLines: "lines 366-396",
+        //     targetFile: "/packages/vm/src/lib/handlers/objects.ts",
+        //     targetLine: "all handlers with stack.pop()",
+        //     testLocation: "existing tests",
+        //     bugDescription: "No stack underflow protection",
+        //     fixDescription: "Apply safePop pattern to all handlers",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 8: Update String Handlers",
-            planLines: "lines 366-396",
-            targetFile: "/packages/vm/src/lib/handlers/strings.ts",
-            targetLine: "all handlers with stack.pop()",
-            testLocation: "existing tests",
-            bugDescription: "No stack underflow protection",
-            fixDescription: "Apply safePop pattern to all handlers",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 8: Update String Handlers",
+        //     planLines: "lines 366-396",
+        //     targetFile: "/packages/vm/src/lib/handlers/strings.ts",
+        //     targetLine: "all handlers with stack.pop()",
+        //     testLocation: "existing tests",
+        //     bugDescription: "No stack underflow protection",
+        //     fixDescription: "Apply safePop pattern to all handlers",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        // PHASE 5: State Management
-        {
-            name: "Step 9: Create State Serialization Tests",
-            planLines: "lines 400-419",
-            targetFile: "new test in vm-manager.spec.ts",
-            targetLine: "n/a",
-            testLocation: "lines 405-418",
-            bugDescription: "No centralized state serialization",
-            fixDescription: "Create tests for serialize/deserialize VM state",
-            expectFailure: true,
-            project: "vm"
-        },
+        // // PHASE 5: State Management
+        // {
+        //     name: "Step 9: Create State Serialization Tests",
+        //     planLines: "lines 400-419",
+        //     targetFile: "new test in vm-manager.spec.ts",
+        //     targetLine: "n/a",
+        //     testLocation: "lines 405-418",
+        //     bugDescription: "No centralized state serialization",
+        //     fixDescription: "Create tests for serialize/deserialize VM state",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 9: Implement State Serialization",
-            planLines: "lines 421-461",
-            targetFile: "/packages/vm/src/lib/vm-manager.ts",
-            targetLine: "add new methods",
-            testLocation: "from previous step",
-            bugDescription: "State serialization duplicated 6+ places",
-            fixDescription: "Create serializeVMState and deserializeVMState methods",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 9: Implement State Serialization",
+        //     planLines: "lines 421-461",
+        //     targetFile: "/packages/vm/src/lib/vm-manager.ts",
+        //     targetLine: "add new methods",
+        //     testLocation: "from previous step",
+        //     bugDescription: "State serialization duplicated 6+ places",
+        //     fixDescription: "Create serializeVMState and deserializeVMState methods",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 9: Replace State Copying Code",
-            planLines: "lines 463-467",
-            targetFile: "/packages/vm/src/lib/vm-manager.ts",
-            targetLine: "lines 129-141, 151-159, 241-250, 261-269",
-            testLocation: "all vm-manager tests",
-            bugDescription: "Manual state copying in 6+ places",
-            fixDescription: "Replace with centralized serialization methods",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 9: Replace State Copying Code",
+        //     planLines: "lines 463-467",
+        //     targetFile: "/packages/vm/src/lib/vm-manager.ts",
+        //     targetLine: "lines 129-141, 151-159, 241-250, 261-269",
+        //     testLocation: "all vm-manager tests",
+        //     bugDescription: "Manual state copying in 6+ places",
+        //     fixDescription: "Replace with centralized serialization methods",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        // PHASE 6: Type System and Error Handling
-        {
-            name: "Step 11: Fix Type Detection Tests",
-            planLines: "lines 471-486",
-            targetFile: "new tests for ADD opcode",
-            targetLine: "n/a",
-            testLocation: "lines 476-485",
-            bugDescription: "No tests for ADD type handling",
-            fixDescription: "Test string concatenation vs numeric addition",
-            expectFailure: true,
-            project: "vm"
-        },
+        // // PHASE 6: Type System and Error Handling
+        // {
+        //     name: "Step 11: Fix Type Detection Tests",
+        //     planLines: "lines 471-486",
+        //     targetFile: "new tests for ADD opcode",
+        //     targetLine: "n/a",
+        //     testLocation: "lines 476-485",
+        //     bugDescription: "No tests for ADD type handling",
+        //     fixDescription: "Test string concatenation vs numeric addition",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 11: Fix Type Detection Heuristics",
-            planLines: "lines 488-515",
-            targetFile: "/packages/parser/src/lib/compiler/statements/expression-statement.ts",
-            targetLine: "lines 41-45",
-            testLocation: "from previous step",
-            bugDescription: "Compiler guesses ADD vs CONCAT based on literals",
-            fixDescription: "Remove heuristic, always emit ADD, let VM decide at runtime",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 11: Fix Type Detection Heuristics",
+        //     planLines: "lines 488-515",
+        //     targetFile: "/packages/parser/src/lib/compiler/statements/expression-statement.ts",
+        //     targetLine: "lines 41-45",
+        //     testLocation: "from previous step",
+        //     bugDescription: "Compiler guesses ADD vs CONCAT based on literals",
+        //     fixDescription: "Remove heuristic, always emit ADD, let VM decide at runtime",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 12: Error Propagation Through CC",
-            planLines: "lines 517-543",
-            targetFile: "/packages/vm/src/lib/vm.ts",
-            targetLine: "execute loop error handling",
-            testLocation: "lines 522-536",
-            bugDescription: "Errors crash VM with no recovery",
-            fixDescription: "Allow CC() to handle runtime errors",
-            expectFailure: true,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 12: Error Propagation Through CC",
+        //     planLines: "lines 517-543",
+        //     targetFile: "/packages/vm/src/lib/vm.ts",
+        //     targetLine: "execute loop error handling",
+        //     testLocation: "lines 522-536",
+        //     bugDescription: "Errors crash VM with no recovery",
+        //     fixDescription: "Allow CC() to handle runtime errors",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
         
-        // PHASE 7: JavaScript Compliance Testing
-        {
-            name: "Step 13: JavaScript Compliance Tests",
-            planLines: "lines 547-607",
-            targetFile: "new file arrays.javascript-compliance.spec.ts",
-            targetLine: "n/a",
-            testLocation: "lines 552-606",
-            bugDescription: "No JavaScript compliance tests",
-            fixDescription: "Test array['0']==array[0], obj[123]==obj['123'], etc",
-            expectFailure: true,
-            project: "vm"
-        },
+        // // PHASE 7: JavaScript Compliance Testing
+        // {
+        //     name: "Step 13: JavaScript Compliance Tests",
+        //     planLines: "lines 547-607",
+        //     targetFile: "new file arrays.javascript-compliance.spec.ts",
+        //     targetLine: "n/a",
+        //     testLocation: "lines 552-606",
+        //     bugDescription: "No JavaScript compliance tests",
+        //     fixDescription: "Test array['0']==array[0], obj[123]==obj['123'], etc",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
         
-        // PHASE 8: Missing Features
-        {
-            name: "Step 14: String Character Access Tests",
-            planLines: "lines 611-625",
-            targetFile: "new tests for string indexing",
-            targetLine: "n/a",
-            testLocation: "lines 616-624",
-            bugDescription: "No string character access tests",
-            fixDescription: "Test 'hello'[0] returns 'h'",
-            expectFailure: true,
-            project: "vm"
-        },
+        // // PHASE 8: Missing Features
+        // {
+        //     name: "Step 14: String Character Access Tests",
+        //     planLines: "lines 611-625",
+        //     targetFile: "new tests for string indexing",
+        //     targetLine: "n/a",
+        //     testLocation: "lines 616-624",
+        //     bugDescription: "No string character access tests",
+        //     fixDescription: "Test 'hello'[0] returns 'h'",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
         
-        {
-            name: "Step 14: Implement String Character Access",
-            planLines: "lines 627-650",
-            targetFile: "/packages/vm/src/lib/handlers/arrays.ts",
-            targetLine: "ARRAY_GET handler",
-            testLocation: "from previous step",
-            bugDescription: "ARRAY_GET doesn't handle strings",
-            fixDescription: "Add string handling to ARRAY_GET",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Step 14: Implement String Character Access",
+        //     planLines: "lines 627-650",
+        //     targetFile: "/packages/vm/src/lib/handlers/arrays.ts",
+        //     targetLine: "ARRAY_GET handler",
+        //     testLocation: "from previous step",
+        //     bugDescription: "ARRAY_GET doesn't handle strings",
+        //     fixDescription: "Add string handling to ARRAY_GET",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
         
         {
             name: "Step 15: Stack Manipulation Opcodes",
-            planLines: "lines 652-717",
+            planLines: "lines 765-839",
             targetFile: "multiple files - bytecode.ts and new handlers",
             targetLine: "n/a",
-            testLocation: "lines 657-677",
+            testLocation: "lines 771-794",
             bugDescription: "No stack manipulation opcodes",
             fixDescription: "Add DUP, SWAP, DUP2 opcodes and handlers",
             expectFailure: false,
@@ -355,10 +355,10 @@ function main() {
         
         {
             name: "Step 16: Array Methods Without Functions",
-            planLines: "lines 719-772",
+            planLines: "lines 841-905",
             targetFile: "multiple files - bytecode.ts and handlers",
             targetLine: "n/a",
-            testLocation: "lines 724-742",
+            testLocation: "lines 847-867",
             bugDescription: "No array methods without function support",
             fixDescription: "Add ARRAY_MAP_PROP and ARRAY_FILTER_PROP opcodes",
             expectFailure: false,
@@ -368,10 +368,10 @@ function main() {
         // PHASE 9: Architectural Improvements
         {
             name: "Step 17: Unified GET/SET Design Tests",
-            planLines: "lines 776-805",
+            planLines: "lines 909-940",
             targetFile: "new tests for unified opcodes",
             targetLine: "n/a",
-            testLocation: "lines 781-804",
+            testLocation: "lines 915-938",
             bugDescription: "No unified GET/SET tests",
             fixDescription: "Test unified GET on arrays, objects, strings",
             expectFailure: true,
@@ -380,7 +380,7 @@ function main() {
         
         {
             name: "Step 17: Implement Unified GET/SET",
-            planLines: "lines 807-835",
+            planLines: "lines 942-970",
             targetFile: "multiple files - bytecode.ts and handlers",
             targetLine: "n/a",
             testLocation: "from previous step",
@@ -393,10 +393,10 @@ function main() {
         // PHASE 10: Integration and Documentation
         {
             name: "Step 19: Integration Test Suite",
-            planLines: "lines 858-883",
+            planLines: "lines 1010-1041",
             targetFile: "new integration tests",
             targetLine: "n/a",
-            testLocation: "lines 863-882",
+            testLocation: "lines 1016-1040",
             bugDescription: "No integration tests",
             fixDescription: "Test complete TypeScript to result pipeline",
             expectFailure: false,
@@ -405,7 +405,7 @@ function main() {
         
         {
             name: "Step 20: Update Documentation",
-            planLines: "lines 885-891",
+            planLines: "lines 1043-1049",
             targetFile: "various documentation files",
             targetLine: "n/a",
             testLocation: "n/a",
