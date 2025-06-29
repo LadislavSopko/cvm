@@ -25,5 +25,28 @@ export const stackHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state) => {
       state.stack.pop();
     }
+  },
+
+  [OpCode.DUP]: {
+    stackIn: 1,
+    stackOut: 2,
+    execute: (state, instruction) => {
+      const value = state.stack.pop()!; // Safe: VM validates stack before calling
+      state.stack.push(value);
+      state.stack.push(value);
+      return undefined;
+    }
+  },
+
+  [OpCode.SWAP]: {
+    stackIn: 2,
+    stackOut: 2,
+    execute: (state, instruction) => {
+      const b = state.stack.pop()!; // Safe: VM validates stack before calling
+      const a = state.stack.pop()!; // Safe: VM validates stack before calling
+      state.stack.push(b);
+      state.stack.push(a);
+      return undefined;
+    }
   }
 };
