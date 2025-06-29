@@ -2,24 +2,6 @@ import * as ts from 'typescript';
 import { OpCode } from '../../bytecode.js';
 import { ExpressionVisitor } from '../visitor-types.js';
 
-// Helper to check if either operand contains a string literal
-function hasStringOperand(left: ts.Node, right: ts.Node): boolean {
-  // Check if either operand is a string literal
-  if (ts.isStringLiteral(left) || ts.isStringLiteral(right)) {
-    return true;
-  }
-  
-  // For binary expressions with +, check recursively
-  if (ts.isBinaryExpression(left) && left.operatorToken.kind === ts.SyntaxKind.PlusToken) {
-    if (hasStringOperand(left.left, left.right)) return true;
-  }
-  if (ts.isBinaryExpression(right) && right.operatorToken.kind === ts.SyntaxKind.PlusToken) {
-    if (hasStringOperand(right.left, right.right)) return true;
-  }
-  
-  return false;
-}
-
 export const compileBinaryExpression: ExpressionVisitor<ts.BinaryExpression> = (
   node,
   state,
@@ -34,15 +16,8 @@ export const compileBinaryExpression: ExpressionVisitor<ts.BinaryExpression> = (
   // Emit appropriate opcode based on operator
   switch (operator) {
     case ts.SyntaxKind.PlusToken:
-      // Determine if this is numeric addition or string concatenation
-      if (hasStringOperand(node.left, node.right)) {
-        // If either operand is a string literal, always use CONCAT
-        state.emit(OpCode.CONCAT);
-      } else {
-        // For all other cases, use ADD
-        // The VM will handle type conversion with cvmToNumber
-        state.emit(OpCode.ADD);
-      }
+      // Always emit ADD - let VM decide at runtime
+      state.emit(OpCode.ADD);
       break;
     case ts.SyntaxKind.MinusToken:
       state.emit(OpCode.SUB);

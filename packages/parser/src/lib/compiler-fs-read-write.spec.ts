@@ -60,7 +60,7 @@ describe('Compiler - fs.readFile and fs.writeFile', () => {
       // Should evaluate the expression first
       expect(bytecode).toContainEqual({ op: OpCode.LOAD, arg: 'base' });
       expect(bytecode).toContainEqual({ op: OpCode.PUSH, arg: '.txt' });
-      expect(bytecode).toContainEqual({ op: OpCode.CONCAT });
+      expect(bytecode).toContainEqual({ op: OpCode.ADD }); // VM decides at runtime
       expect(bytecode).toContainEqual({ op: OpCode.FS_READ_FILE });
     });
   });

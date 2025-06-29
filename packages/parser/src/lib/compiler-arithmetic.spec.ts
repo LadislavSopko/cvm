@@ -51,7 +51,7 @@ describe('compiler - arithmetic operators', () => {
     expect(result.success).toBe(true);
     expect(result.bytecode).toContainEqual({ op: OpCode.PUSH, arg: "Hello" });
     expect(result.bytecode).toContainEqual({ op: OpCode.PUSH, arg: " World" });
-    expect(result.bytecode).toContainEqual({ op: OpCode.CONCAT });
+    expect(result.bytecode).toContainEqual({ op: OpCode.ADD }); // VM decides at runtime
   });
 
   it('should compile complex arithmetic expressions', () => {

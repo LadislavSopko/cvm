@@ -36,13 +36,8 @@ export const compileExpressionStatement: StatementVisitor<ts.ExpressionStatement
         // Apply the appropriate operation
         switch (opToken) {
           case ts.SyntaxKind.PlusEqualsToken:
-            // Check if this should be string concatenation or addition
-            // We check if the right side is a string literal for simple cases
-            if (ts.isStringLiteral(expr.right)) {
-              state.emit(OpCode.CONCAT);
-            } else {
-              state.emit(OpCode.ADD);
-            }
+            // Always emit ADD - let VM decide at runtime
+            state.emit(OpCode.ADD);
             break;
           case ts.SyntaxKind.MinusEqualsToken:
             state.emit(OpCode.SUB);

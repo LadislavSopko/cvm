@@ -97,13 +97,13 @@ describe('Compiler - return statements', () => {
     expect(result.success).toBe(true);
     expect(result.bytecode).toBeDefined();
     
-    // Should contain string literals, CONCAT, RETURN
+    // Should contain string literals, ADD, RETURN
     const bytecode = result.bytecode;
-    const hasConcatReturn = bytecode.some((inst, i) => 
-      inst.op === OpCode.CONCAT &&
+    const hasAddReturn = bytecode.some((inst, i) => 
+      inst.op === OpCode.ADD &&
       bytecode[i + 1]?.op === OpCode.RETURN
     );
-    expect(hasConcatReturn).toBe(true);
+    expect(hasAddReturn).toBe(true);
   });
   
   it('should compile multiple returns in if/else', () => {

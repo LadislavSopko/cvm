@@ -47,7 +47,7 @@ describe('Compiler - Compound Assignment Operators', () => {
       expect(result.bytecode).toContainEqual({ op: OpCode.STORE, arg: 'msg' });
       expect(result.bytecode).toContainEqual({ op: OpCode.LOAD, arg: 'msg' });
       expect(result.bytecode).toContainEqual({ op: OpCode.PUSH, arg: ' World' });
-      expect(result.bytecode).toContainEqual({ op: OpCode.CONCAT });
+      expect(result.bytecode).toContainEqual({ op: OpCode.ADD }); // VM decides at runtime
     });
   });
 

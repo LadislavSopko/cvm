@@ -233,6 +233,6 @@ describe('Compiler - fs.listFiles()', () => {
     expect(result.success).toBe(true);
     expect(result.errors).toEqual([]);
     expect(result.bytecode.some(i => i.op === OpCode.FS_LIST_FILES)).toBe(true);
-    expect(result.bytecode.some(i => i.op === OpCode.CONCAT)).toBe(true);
+    expect(result.bytecode.some(i => i.op === OpCode.ADD)).toBe(true); // VM decides at runtime
   });
 });
