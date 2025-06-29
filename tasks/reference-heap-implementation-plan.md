@@ -1,4 +1,4 @@
-# Reference-Based Object Storage Implementation Plan for CVM
+2# Reference-Based Object Storage Implementation Plan for CVM
 
 ## Overview
 This document outlines a rigorous TDD implementation plan for transforming CVM's value storage from inline nested structures to a reference-based heap system. This will solve the disk storage explosion problem when dealing with large arrays/objects while maintaining JavaScript semantics.

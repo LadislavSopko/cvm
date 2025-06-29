@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import type { CVMValue, CVMArrayRef, CVMObjectRef } from './cvm-value';
-import { isCVMArrayRef, isCVMObjectRef } from './cvm-value';
+import type { CVMArrayRef, CVMObjectRef } from './cvm-value.js';
+import { isCVMArrayRef, isCVMObjectRef } from './cvm-value.js';
 
 describe('CVMValue Reference Types', () => {
   describe('Type Guards', () => {

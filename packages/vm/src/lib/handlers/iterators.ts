@@ -1,16 +1,16 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { isCVMArray, createCVMUndefined } from '@cvm/types';
+import { isCVMArray, isCVMArrayRef, createCVMUndefined, CVMArray } from '@cvm/types';
 
 export const iteratorHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.ITER_START]: {
     stackIn: 1,
     stackOut: 0,
     execute: (state, instruction) => {
-      const array = state.stack.pop()!;
+      const arrayOrRef = state.stack.pop()!;
       
       // Check for null or undefined
-      if (array === null || array === undefined) {
+      if (arrayOrRef === null || arrayOrRef === undefined) {
         return {
           type: 'TypeError',
           message: 'TypeError: Cannot iterate over null or undefined',
@@ -19,8 +19,22 @@ export const iteratorHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      // Check if it's an array
-      if (!isCVMArray(array)) {
+      // Get the actual array (dereference if needed)
+      let array: CVMArray;
+      if (isCVMArrayRef(arrayOrRef)) {
+        const heapObj = state.heap.get(arrayOrRef.id);
+        if (!heapObj || heapObj.type !== 'array') {
+          return {
+            type: 'RuntimeError',
+            message: 'Invalid array reference',
+            pc: state.pc,
+            opcode: instruction.op
+          };
+        }
+        array = heapObj.data as CVMArray;
+      } else if (isCVMArray(arrayOrRef)) {
+        array = arrayOrRef;
+      } else {
         return {
           type: 'TypeError',
           message: 'TypeError: Cannot iterate over non-array value',

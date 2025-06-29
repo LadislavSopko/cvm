@@ -244,7 +244,7 @@ describe('VMManager - fs.readFile and fs.writeFile operations', () => {
       // Mock the VM to throw an error
       // In reality, the VM would throw if it encounters an unknown fs operation
       // For now, just verify the basic flow works
-      const result = await vmManager.getNext('exec-1');
+      await vmManager.getNext('exec-1');
       expect(mockFs.readFile).toHaveBeenCalled();
     });
   });

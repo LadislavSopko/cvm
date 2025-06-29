@@ -104,12 +104,13 @@ describe('VM Manager Heap Serialization', () => {
     
     // Get the saved execution state
     const execution = await storage.getExecution('exec1');
-    expect(execution.heap).toBeDefined();
-    expect(execution.heap.objects).toBeDefined();
-    expect(execution.heap.nextId).toBeGreaterThan(0);
+    expect(execution).not.toBeNull();
+    expect(execution!.heap).toBeDefined();
+    expect(execution!.heap!.objects).toBeDefined();
+    expect(execution!.heap!.nextId).toBeGreaterThan(0);
     
     // Verify heap contains our array and object
-    const heapObjects = Object.values(execution.heap.objects);
+    const heapObjects = Object.values(execution!.heap!.objects);
     expect(heapObjects.length).toBeGreaterThan(0);
   });
 
@@ -187,10 +188,11 @@ describe('VM Manager Heap Serialization', () => {
     
     // Get serialized state
     const execution = await storage.getExecution('exec1');
+    expect(execution).not.toBeNull();
     
     // Verify heap contains the large array
-    expect(execution.heap).toBeDefined();
-    expect(execution.heap.objects).toBeDefined();
+    expect(execution!.heap).toBeDefined();
+    expect(execution!.heap!.objects).toBeDefined();
     
     // The key test: serialized size should be reasonable
     // With heap references, we store the array once, not duplicated in variables

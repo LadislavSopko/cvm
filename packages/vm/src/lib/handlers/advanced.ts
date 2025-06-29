@@ -121,7 +121,14 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
 
       // Execute file system operation synchronously
       const result = state.fileSystem.listFiles(path, options);
-      state.stack.push(result);
+      
+      // If result is an array, convert to heap reference
+      if (isCVMArray(result)) {
+        const ref = state.heap.allocate('array', result);
+        state.stack.push(ref);
+      } else {
+        state.stack.push(result);
+      }
       return undefined;
     }
   },
@@ -318,7 +325,9 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         parts = str.split(delimiter);
       }
       
-      state.stack.push(createCVMArray(parts));
+      const array = createCVMArray(parts);
+      const ref = state.heap.allocate('array', array);
+      state.stack.push(ref);
       return undefined;
     }
   },

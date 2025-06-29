@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
-import { createCVMArray } from '@cvm/types';
+import { isCVMArrayRef, CVMArrayRef, CVMArray } from '@cvm/types';
 
 describe('VM - String method opcodes', () => {
   let vm: VM;
@@ -9,6 +9,18 @@ describe('VM - String method opcodes', () => {
   beforeEach(() => {
     vm = new VM();
   });
+
+  // Helper to check array result from heap
+  function expectArrayResult(state: any, expectedElements: any[]) {
+    const result = state.stack[0];
+    expect(isCVMArrayRef(result)).toBe(true);
+    
+    const heapObj = state.heap.get((result as CVMArrayRef).id);
+    expect(heapObj).toBeDefined();
+    expect(heapObj!.type).toBe('array');
+    const array = heapObj!.data as CVMArray;
+    expect(array.elements).toEqual(expectedElements);
+  }
 
   describe('STRING_SUBSTRING', () => {
     it('should extract substring with start and end indices', () => {
@@ -207,8 +219,7 @@ describe('VM - String method opcodes', () => {
       expect(state.status).toBe('complete');
       expect(state.error).toBeUndefined();
       expect(state.stack).toHaveLength(1);
-      const result = state.stack[0];
-      expect(result).toEqual(createCVMArray(['apple', 'banana', 'cherry']));
+      expectArrayResult(state, ['apple', 'banana', 'cherry']);
     });
 
     it('should handle empty delimiter (split into characters)', () => {
@@ -224,8 +235,7 @@ describe('VM - String method opcodes', () => {
       expect(state.status).toBe('complete');
       expect(state.error).toBeUndefined();
       expect(state.stack).toHaveLength(1);
-      const result = state.stack[0];
-      expect(result).toEqual(createCVMArray(['H', 'e', 'l', 'l', 'o']));
+      expectArrayResult(state, ['H', 'e', 'l', 'l', 'o']);
     });
 
     it('should handle delimiter not found', () => {
@@ -241,8 +251,7 @@ describe('VM - String method opcodes', () => {
       expect(state.status).toBe('complete');
       expect(state.error).toBeUndefined();
       expect(state.stack).toHaveLength(1);
-      const result = state.stack[0];
-      expect(result).toEqual(createCVMArray(['Hello World']));
+      expectArrayResult(state, ['Hello World']);
     });
 
     it('should handle consecutive delimiters', () => {
@@ -258,8 +267,7 @@ describe('VM - String method opcodes', () => {
       expect(state.status).toBe('complete');
       expect(state.error).toBeUndefined();
       expect(state.stack).toHaveLength(1);
-      const result = state.stack[0];
-      expect(result).toEqual(createCVMArray(['a', '', 'b', 'c']));
+      expectArrayResult(state, ['a', '', 'b', 'c']);
     });
 
     it('should handle delimiter at start and end', () => {
@@ -275,8 +283,7 @@ describe('VM - String method opcodes', () => {
       expect(state.status).toBe('complete');
       expect(state.error).toBeUndefined();
       expect(state.stack).toHaveLength(1);
-      const result = state.stack[0];
-      expect(result).toEqual(createCVMArray(['', 'apple', 'banana', '']));
+      expectArrayResult(state, ['', 'apple', 'banana', '']);
     });
 
     it('should error on non-string value', () => {

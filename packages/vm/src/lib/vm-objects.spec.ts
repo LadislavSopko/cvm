@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
-import { isCVMObject, isCVMString, isCVMObjectRef, CVMObjectRef, CVMObject } from '@cvm/types';
+import { isCVMString, isCVMObjectRef, CVMObject } from '@cvm/types';
 
 describe('VM Object Operations', () => {
   let vm: VM;

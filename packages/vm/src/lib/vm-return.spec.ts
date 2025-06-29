@@ -57,8 +57,9 @@ describe('VM - RETURN opcode', () => {
     const state = vm.execute(bytecode);
     
     expect(state.status).toBe('complete');
-    expect(isCVMArrayRef(state.returnValue)).toBe(true);
-    if (isCVMArrayRef(state.returnValue)) {
+    expect(state.returnValue).toBeDefined();
+    expect(isCVMArrayRef(state.returnValue!)).toBe(true);
+    if (state.returnValue && isCVMArrayRef(state.returnValue)) {
       const heapObj = state.heap.get((state.returnValue as CVMArrayRef).id);
       expect(heapObj).toBeDefined();
       expect(heapObj!.type).toBe('array');

@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { createVMHeap } from './vm-heap';
-import type { CVMArray, CVMObject } from '@cvm/types';
+import { createVMHeap } from './vm-heap.js';
+import type { CVMArray } from '@cvm/types';
 
 describe('VM Heap', () => {
   describe('Heap Operations', () => {

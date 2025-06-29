@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
-import { isCVMArray, isCVMNumber, isCVMObject, isCVMArrayRef, isCVMObjectRef, CVMArrayRef, CVMObjectRef, CVMArray, CVMObject } from '@cvm/types';
+import { isCVMNumber, isCVMArrayRef, isCVMObjectRef, CVMArray, CVMObject, CVMObjectRef } from '@cvm/types';
 
 describe('VM Array Operations', () => {
   let vm: VM;
@@ -178,7 +178,7 @@ describe('VM Array Operations', () => {
       const ref = state.stack[0];
       expect(isCVMObjectRef(ref)).toBe(true);
       if (isCVMObjectRef(ref)) {
-        const heapObj = state.heap.get(ref.id);
+        const heapObj = state.heap.get((ref as CVMObjectRef).id);
         expect(heapObj).toBeDefined();
         expect(heapObj!.type).toBe('object');
         const obj = heapObj!.data as CVMObject;

@@ -2,7 +2,7 @@ import { describe, it, expect } from 'vitest';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
 import { FileSystemService } from './file-system.js';
-import { createCVMArray } from '@cvm/types';
+import { createCVMArray, isCVMArrayRef, CVMArrayRef, CVMArray } from '@cvm/types';
 
 // Mock FileSystemService
 class MockFileSystemService implements FileSystemService {
@@ -43,10 +43,14 @@ describe('VM - FS_LIST_FILES opcode', () => {
     expect(state.stack.length).toBe(1);
     
     const result = state.stack[0];
-    expect(result).toEqual({
-      type: 'array',
-      elements: ['/test/file1.txt', '/test/file2.js']
-    });
+    expect(isCVMArrayRef(result)).toBe(true);
+    
+    // Get the actual array from heap
+    const heapObj = state.heap.get((result as CVMArrayRef).id);
+    expect(heapObj).toBeDefined();
+    expect(heapObj!.type).toBe('array');
+    const array = heapObj!.data as CVMArray;
+    expect(array.elements).toEqual(['/test/file1.txt', '/test/file2.js']);
   });
 
   it('should handle options with recursive flag', () => {
@@ -167,8 +171,8 @@ describe('VM - FS_LIST_FILES opcode', () => {
     const vm = new VM();
     const fileSystem = new MockFileSystemService();
     
-    let capturedPath: string;
-    let capturedOptions: any;
+    let capturedPath: string = '';
+    let capturedOptions: any = undefined;
     fileSystem.listFiles = (path: string, options?: any) => {
       capturedPath = path;
       capturedOptions = options;
@@ -186,9 +190,15 @@ describe('VM - FS_LIST_FILES opcode', () => {
     expect(state.status).toBe('complete');
     expect(capturedPath).toBe('/docs');
     expect(capturedOptions).toEqual({});
-    expect(state.stack[0]).toEqual({
-      type: 'array',
-      elements: ['/docs/readme.md', '/docs/guide.md']
-    });
+    
+    const result = state.stack[0];
+    expect(isCVMArrayRef(result)).toBe(true);
+    
+    // Get the actual array from heap
+    const heapObj = state.heap.get((result as CVMArrayRef).id);
+    expect(heapObj).toBeDefined();
+    expect(heapObj!.type).toBe('array');
+    const array = heapObj!.data as CVMArray;
+    expect(array.elements).toEqual(['/docs/readme.md', '/docs/guide.md']);
   });
 });
