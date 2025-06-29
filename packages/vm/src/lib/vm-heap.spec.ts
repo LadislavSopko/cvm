@@ -21,9 +21,11 @@ describe('VM Heap', () => {
       expect(ref2.id).toBe(ref1.id + 1);
     });
 
-    it('should throw on invalid reference access', () => {
+
+    it('should return undefined for invalid heap reference', () => {
       const heap = createVMHeap();
-      expect(() => heap.get(999)).toThrow('Invalid heap reference: 999');
+      const result = heap.get(999);
+      expect(result).toBeUndefined();
     });
   });
 });

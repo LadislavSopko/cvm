@@ -57,7 +57,7 @@ export function createVMHeap(): VMHeap {
     get(id: number): HeapObject | undefined {
       const obj = objects.get(id);
       if (!obj) {
-        throw new Error(`Invalid heap reference: ${id}`);
+        return undefined;
       }
       return obj;
     }
