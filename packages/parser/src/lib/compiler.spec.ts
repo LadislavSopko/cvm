@@ -51,4 +51,28 @@ describe('compiler', () => {
       expect(result.errors[0].character).toBeDefined();
     });
   });
+
+  describe('Compiler error reporting', () => {
+    it('should report unsupported syntax errors', () => {
+      const source = `
+        function main() {
+          switch(x) { case 1: break; }
+        }
+      `;
+      const result = compile(source);
+      expect(result.success).toBe(false);
+      expect(result.errors[0].message).toContain('Unsupported statement: SwitchStatement');
+    });
+
+    it('should report unsupported expression errors', () => {
+      const source = `
+        function main() {
+          const x = yield 5;
+        }
+      `;
+      const result = compile(source);
+      expect(result.success).toBe(false);
+      expect(result.errors[0].message).toContain('Unsupported expression');
+    });
+  });
 });
