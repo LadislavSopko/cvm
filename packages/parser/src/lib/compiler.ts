@@ -4,20 +4,33 @@ import { parseProgram } from './parser.js';
 import { CompilerState } from './compiler-state.js';
 import { statementVisitors, expressionVisitors, CompilerContext } from './compiler/index.js';
 
+export interface CompilationError {
+  message: string;
+  line: number;
+  character: number;
+}
+
 export interface CompileResult {
   success: boolean;
   bytecode: Instruction[];
-  errors: string[];
+  errors: CompilationError[];
 }
 
 export function compile(source: string): CompileResult {
+  const errors: CompilationError[] = [];
   const parseResult = parseProgram(source);
   
   if (parseResult.errors.length > 0) {
+    // Convert string errors to CompilationError format
+    // For parse errors, we don't have line/char info, so use 0
     return {
       success: false,
       bytecode: [],
-      errors: parseResult.errors
+      errors: parseResult.errors.map(err => ({
+        message: err,
+        line: 0,
+        character: 0
+      }))
     };
   }
 
@@ -29,7 +42,13 @@ export function compile(source: string): CompileResult {
     compileStatement,
     compileExpression,
     reportError: (node: ts.Node, message: string): never => {
-      throw new Error(message);
+      const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+      errors.push({
+        message,
+        line: line + 1, // TypeScript uses 0-based lines
+        character: character + 1 // TypeScript uses 0-based columns
+      });
+      throw new Error(message); // Still throw to maintain control flow
     }
   };
   
@@ -38,8 +57,13 @@ export function compile(source: string): CompileResult {
     if (visitor) {
       visitor(node as any, state, context);
     } else {
-      // Unsupported statement type - silently skip
-      // This matches the original compiler behavior
+      // Report unsupported syntax instead of silently skipping
+      const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+      errors.push({
+        message: `Unsupported statement: ${ts.SyntaxKind[node.kind]}`,
+        line: line + 1,
+        character: character + 1
+      });
     }
   }
 
@@ -48,8 +72,13 @@ export function compile(source: string): CompileResult {
     if (visitor) {
       visitor(node as any, state, context);
     } else {
-      // Unsupported expression type - silently skip
-      // This matches the original compiler behavior
+      // Report unsupported syntax instead of silently skipping
+      const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+      errors.push({
+        message: `Unsupported expression: ${ts.SyntaxKind[node.kind]}`,
+        line: line + 1,
+        character: character + 1
+      });
     }
   }
 
@@ -57,7 +86,12 @@ export function compile(source: string): CompileResult {
   sourceFile.forEachChild(node => {
     if (ts.isFunctionDeclaration(node) && node.name?.text === 'main' && node.body) {
       node.body.statements.forEach(stmt => {
-        compileStatement(stmt);
+        try {
+          compileStatement(stmt);
+        } catch (e) {
+          // Error already added to errors array by reportError
+          // Continue processing other statements
+        }
       });
     }
   });
@@ -65,8 +99,8 @@ export function compile(source: string): CompileResult {
   state.emit(OpCode.HALT);
 
   return {
-    success: true,
+    success: errors.length === 0,
     bytecode: state.getBytecode(),
-    errors: []
+    errors
   };
 }

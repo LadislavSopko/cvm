@@ -35,4 +35,20 @@ describe('compiler', () => {
     expect(result.bytecode).toContainEqual({ op: OpCode.CC });
     expect(result.bytecode).toContainEqual(expect.objectContaining({ op: OpCode.STORE }));
   });
+
+  describe('Compiler error collection', () => {
+    it('should collect multiple errors without crashing', () => {
+      const source = `
+        function main() {
+          switch(x) { case 1: break; }  // Error 1
+          try { } catch(e) { }          // Error 2
+        }
+      `;
+      const result = compile(source);
+      expect(result.success).toBe(false);
+      expect(result.errors.length).toBe(2);
+      expect(result.errors[0].line).toBeDefined();
+      expect(result.errors[0].character).toBeDefined();
+    });
+  });
 });
