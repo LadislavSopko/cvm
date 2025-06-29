@@ -1,7 +1,8 @@
 import { describe, it, expect } from 'vitest';
 import { safePop, isVMError } from './stack-utils.js';
 import { VMState } from './vm.js';
-import { OpCode, Instruction } from '@cvm/parser';
+import { OpCode } from '@cvm/parser';
+import { createVMHeap } from './vm-heap.js';
 
 describe('Stack safety utilities', () => {
   it('should return value when stack has elements', () => {
@@ -12,7 +13,7 @@ describe('Stack safety utilities', () => {
       variables: new Map(),
       output: [],
       iterators: [],
-      heap: { nextId: 0, objects: new Map() }
+      heap: createVMHeap()
     };
     const result = safePop(state);
     expect(result).toBe(3);
@@ -27,7 +28,7 @@ describe('Stack safety utilities', () => {
       variables: new Map(),
       output: [],
       iterators: [],
-      heap: { nextId: 0, objects: new Map() }
+      heap: createVMHeap()
     };
     const opcode = OpCode.ADD;
     const result = safePop(state, opcode);
