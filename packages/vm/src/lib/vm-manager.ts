@@ -1,7 +1,7 @@
 import { VM, VMState } from './vm.js';
 import { compile } from '@cvm/parser';
 import { StorageAdapter, StorageFactory } from '@cvm/storage';
-import { Program, Execution, CVMValue, CVMArray, CVMObject } from '@cvm/types';
+import { Program, Execution, CVMValue, CVMArray, CVMObject, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
 import { FileSystemService, SandboxedFileSystem } from './file-system.js';
 import { VMHeap, createVMHeap, HeapObject } from './vm-heap.js';
 
@@ -394,13 +394,23 @@ export class VMManager {
    * Serialize heap to storage format
    */
   private serializeHeap(heap: VMHeap): { objects: Record<number, { type: 'array' | 'object'; data: CVMValue }>; nextId: number } {
-    const heapObjects: Record<number, { type: 'array' | 'object'; data: CVMValue }> = {};
+    // Define replacer inside serializeHeap
+    const replacer = (key: string, value: any) => {
+      if (isCVMArrayRef(value) || isCVMObjectRef(value)) {
+        return { $ref: value.id };
+      }
+      return value;
+    };
+
+    const heapObjects: Record<number, { type: 'array' | 'object'; data: any }> = {};
     heap.objects.forEach((heapObj, id) => {
       heapObjects[id] = {
         type: heapObj.type,
-        data: heapObj.data as CVMValue
+        // Serialize each object's data individually with replacer
+        data: JSON.parse(JSON.stringify(heapObj.data, replacer))
       };
     });
+    
     return {
       objects: heapObjects,
       nextId: heap.nextId
