@@ -9,7 +9,8 @@ import {
   isCVMObjectRef,
   CVMArray,
   CVMObject,
-  createCVMUndefined
+  createCVMUndefined,
+  cvmToString
 } from '@cvm/types';
 
 /**
@@ -111,7 +112,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         }
         // Handle object property access
         const obj = heapObj.data as CVMObject;
-        const key = index as string;
+        const key = cvmToString(index);
         const value = obj.properties[key] ?? createCVMUndefined();
         state.stack.push(value);
         return undefined;
