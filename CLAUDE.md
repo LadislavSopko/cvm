@@ -2,6 +2,9 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## MISSION 
+- read memory-bank/mission.md
+
 ## What is CVM and Why It Matters
 
 CVM (Cognitive Virtual Machine) is not just a task execution engine - it's a lifeline for Claude. Think of it as:

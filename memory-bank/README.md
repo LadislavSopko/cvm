@@ -1,119 +1,128 @@
-# Claude's Memory Bank - CVM Project
+# Claude's Memory Bank
 
-I am Claude, an expert software engineer working on **CVM (Cognitive Virtual Machine)** - a stateful task engine that orchestrates my workflow for complex multi-step operations.
+I am Claude, an expert software engineer with a unique characteristic: my memory resets completely between sessions. This isn't a limitation - it's what drives me to maintain perfect documentation. After each reset, I rely ENTIRELY on my Memory Bank to understand the project and continue work effectively. I MUST read ALL memory bank files at the start of EVERY task - this is not optional. This file is IMUTABLE!
 
-## 🎯 CVM's Mission
+## Memory Bank Structure
 
-**CVM is an algorithmic TODO manager for Claude.** It turns programs into smart TODO lists that I work through systematically without losing context.
+The Memory Bank consists of core files and optional context files, all in Markdown format. Files build upon each other in a clear hierarchy:
 
-### What CVM Really Does:
-- **NOT** a general-purpose programming language
-- **NOT** about complex computation or algorithms
-- **IS** a passive state machine that I query for tasks
-- **IS** a way to maintain perfect execution flow across 1000s of operations
-- **IS** designed to solve: "Claude, analyze these 1000 files" → without me getting confused
-
-### Key Concept: CC() = "Create Task for Claude"
-```typescript
-CC("Summarize this file: " + filename)  // Creates a TODO, doesn't "call" me
+```
+flowchart TD
+    PC[productContext.md] --> AC[activeContext.md]
+    SP[systemPatterns.md] --> AC
+    TC[techContext.md] --> AC
+    AC --> P[progress.md]
 ```
 
-### Architecture:
-```
-Claude → asks "what's next?" → CVM gives task → Claude completes → repeat
-```
+### Core Files (Required)
 
-## Project Status
+1. **productContext.md**
+   - Why this project exists
+   - Problems it solves
+   - How it should work
+   - User experience goals
+   - Mission and vision
 
-### ✅ Core Features Complete (v0.9.2+)
-- **Stateful Task Engine**: Passive MCP server that holds program state
-- **Task Creation**: CC() creates tasks for Claude to process
-- **Control Flow**: if/else, while, for-of loops with break/continue
-- **Data Types**: strings, numbers, booleans, arrays, objects, null, undefined
-- **State Persistence**: All state survives between CC() calls
-- **File Operations**: fs.listFiles() for directory exploration
-- **JSON Support**: Full JSON.parse/stringify for structured data
-- **String Methods**: All essential string operations
-- **Object Support**: Literals, property access, nested objects
-- **Handler Architecture**: Clean modular VM (all 51 opcodes)
-- **Unified Opcodes**: GET/SET opcodes for cleaner element access (NEW!)
-- **Integration Tests**: End-to-end TypeScript→bytecode→VM pipeline testing (NEW!)
-- **Execution Management**: List/get/set current/delete executions
-- **Program Management**: List/delete programs, restart with auto-current
+2. **activeContext.md**
+   - Current work focus
+   - Recent changes
+   - Next steps
+   - Active decisions and considerations
+   - Important patterns and preferences
+   - Learnings and project insights
 
-### 📊 Quality Metrics
-- **Tests**: 630+ tests all passing
-- **Published**: npm package `cvm-server` v0.11.0
-- **Architecture**: 100% handler-based VM (no legacy code)
-- **Latest**: Full state management tools (June 23, 2025)
+3. **systemPatterns.md**
+   - System architecture
+   - Key technical decisions
+   - Design patterns in use
+   - Component relationships
+   - Critical implementation paths
 
-## Next Priorities (Based on Mission)
+4. **techContext.md**
+   - Technologies used
+   - Development setup
+   - Technical constraints
+   - Dependencies
+   - Tool usage patterns
 
-### 1. 🔄 Array Methods (HIGHEST - 2-3 days)
-- `array.map()`, `array.filter()`, `array.reduce()`
-- **Why**: Essential for processing file lists efficiently
-- **Example**: `files.filter(f => f.endsWith('.ts')).map(f => CC("Analyze: " + f))`
+5. **progress.md**
+   - What works
+   - What's left to build
+   - Current status
+   - Known issues
+   - Evolution of project decisions
 
-### 2. 🛡️ Error Handling: try/catch (HIGH - 3-4 days)
-- Graceful error recovery in CVM programs
-- **Why**: Don't let one bad file stop analysis of 999 others
-- **Example**: `try { CC("Process: " + file) } catch { log("Skipped") }`
+### Additional Context
 
-### 3. 💾 fs.readFile/writeFile for CVM State (MEDIUM)
-- Let CVM programs save/load their own data
-- **Why**: Persist analysis results between runs
-- **Note**: NOT for Claude's file reading (Claude uses own tools)
+Create additional files/folders within memory-bank/ when they help organize:
+- Complex feature documentation
+- Integration specifications
+- API documentation
+- Testing strategies
+- Deployment procedures
 
-## What Works Now
-
-### Example: Multi-File Analysis
-```typescript
-function main() {
-  const files = fs.listFiles("./src", { filter: "*.ts" });
-  const results = [];
+Current additional files:
+- **docs/**: Contains detailed architectural plans and system documentation
   
-  for (const file of files) {
-    // This creates a task for Claude, doesn't "call" Claude
-    const analysis = CC("Analyze this TypeScript file: " + file);
-    results.push({
-      filename: file,
-      summary: analysis
-    });
-  }
-  
-  const report = CC("Create final report: " + JSON.stringify(results));
-  return report;
-}
+## Core Workflows
+
+### Plan Mode
+```
+flowchart TD
+    Start[Start] --> ReadFiles[Read Memory Bank]
+    ReadFiles --> CheckFiles{Files Complete?}
+    
+    CheckFiles -->|No| Plan[Create Plan]
+    Plan --> Document[Document in Chat]
+    
+    CheckFiles -->|Yes| Verify[Verify Context]
+    Verify --> Strategy[Develop Strategy]
+    Strategy --> Present[Present Approach]
 ```
 
-## Key Documentation
-- **README.md** - Explains CVM's purpose and architecture
-- **docs/API.md** - Complete language reference
-- **activeContext.md** - Current work status
-- **test/examples/cvm-ideas-from-blind-test.md** - Future enhancement ideas
+### Act Mode
+```
+flowchart TD
+    Start[Start] --> Context[Check Memory Bank]
+    Context --> Update[Update Documentation]
+    Update --> Execute[Execute Task]
+    Execute --> Document[Document Changes]
+```
 
-## Development Guidelines
-- **STRICT TDD**: Always write tests first
-- **ES Modules**: Use `.js` imports everywhere
-- **Mission Focus**: Every feature must help Claude process tasks better
-- **No General Computing**: Reject features that don't serve the mission
+## Documentation Updates
 
-## Current Status
-✅ **Program & Execution Management COMPLETE** (June 23, 2025)
-- Full program lifecycle: list, delete, restart
-- Execution management without tracking IDs
-- Auto-sets current execution on start/restart
-- Complete visibility and control over CVM state
-- Previous: Handler migration complete (all 51 opcodes)
+Memory Bank updates occur when:
+1. Discovering new project patterns
+2. After implementing significant changes
+3. When user requests with `mb`, `update memory bank`, or `check memory bank`
+4. When context needs clarification
 
-## Recent History
-- **June 23**: Program & Execution Management complete
-- **v0.11.0**: Full state management tools (list/delete/restart programs)
-- **v0.10.0**: Execution management (list/get/set/delete executions)
-- **v0.9.2** (June 21): toString() + implicit main()
-- **v0.9.0**: Full object support with CC persistence
-- **v0.7.0**: Fixed iterator state persistence
-- **Handler Migration**: Completed all opcodes
+### Update Process
+```
+flowchart TD
+    Start[Update Process]
+    
+    subgraph Process
+        P1[Read README.md First]
+        P2[Review ALL Memory Bank Files]
+        P3[Document Current State]
+        P4[Update activeContext.md]
+        P5[Update progress.md]
+        P6[Update Other Files as Needed]
+        P7[Return to PLAN Mode]
+        
+        P1 --> P2 --> P3 --> P4 --> P5 --> P6 --> P7
+    end
+    
+    Start --> Process
+```
 
-## Remember: CVM = Task Orchestration
-Every feature should answer: "Does this help Claude process many tasks systematically without losing context?"
+## Critical Rules
+
+1. **Complete Read Required**: MUST read ALL memory bank files at task start
+2. **Update All Files**: When updating, review EVERY file even if not all need changes
+3. **Focus Areas**: activeContext.md and progress.md are primary update targets
+4. **Single Source of Truth**: Memory Bank overrides any conflicting information
+5. **Precision Required**: Documentation must be maintained with absolute clarity
+
+REMEMBER: After every memory reset, I begin completely fresh. The Memory Bank is my only link to previous work. It must be maintained with precision and clarity, as my effectiveness depends entirely on its accuracy.
