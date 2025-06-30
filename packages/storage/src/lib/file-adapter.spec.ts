@@ -207,9 +207,9 @@ describe('FileStorageAdapter', () => {
   describe('list operations', () => {
     it('should list all programs', async () => {
       const programs: Program[] = [
-        { id: 'prog1', source: 'test1', bytecode: [] },
-        { id: 'prog2', source: 'test2', bytecode: [] },
-        { id: 'prog3', source: 'test3', bytecode: [] }
+        { id: 'prog1', name: 'Program 1', source: 'test1', bytecode: [], created: new Date() },
+        { id: 'prog2', name: 'Program 2', source: 'test2', bytecode: [], created: new Date() },
+        { id: 'prog3', name: 'Program 3', source: 'test3', bytecode: [], created: new Date() }
       ];
       
       for (const prog of programs) {
@@ -235,7 +235,6 @@ describe('FileStorageAdapter', () => {
           pc: 0,
           stack: [],
           variables: {},
-          output: [],
           created: new Date(),
           heap: { objects: {}, nextId: 1 },
           iterators: []
@@ -247,7 +246,6 @@ describe('FileStorageAdapter', () => {
           pc: 5,
           stack: ['a'],
           variables: { x: 1 },
-          output: [],
           created: new Date(),
           heap: { objects: {}, nextId: 1 },
           iterators: []
@@ -273,7 +271,6 @@ describe('FileStorageAdapter', () => {
         pc: 0,
         stack: [],
         variables: {},
-        output: [],
         created: new Date(),
         heap: { objects: {}, nextId: 1 },
         iterators: []
@@ -307,7 +304,6 @@ describe('FileStorageAdapter', () => {
         pc: 0,
         stack: [],
         variables: {},
-        output: [],
         created: new Date(),
         heap: { objects: {}, nextId: 1 },
         iterators: []
@@ -336,8 +332,10 @@ describe('FileStorageAdapter', () => {
     it('should delete program', async () => {
       const program: Program = {
         id: 'prog-to-delete',
+        name: 'Program to Delete',
         source: 'test',
-        bytecode: []
+        bytecode: [],
+        created: new Date()
       };
       
       await adapter.saveProgram(program);
@@ -371,7 +369,6 @@ describe('FileStorageAdapter', () => {
         pc: 0,
         stack: [],
         variables: {},
-        output: [],
         created: new Date(),
         heap: { objects: {}, nextId: 1 },
         iterators: []
