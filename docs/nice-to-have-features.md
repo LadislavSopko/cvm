@@ -67,11 +67,27 @@ switch (fileType) {
 }
 ```
 
+### 5. Basic RegExp for Response Validation
+```typescript
+const response = CC("Extract the version number from package.json");
+if (/^\d+\.\d+\.\d+$/.test(response)) {
+  // Valid semantic version
+  fs.writeFile("VERSION", response);
+} else {
+  CC("Invalid version format '" + response + "'. Please provide in X.Y.Z format");
+}
+```
+
+Could validate:
+- Specific response formats
+- Yes/no answers
+- Numeric ranges
+- File paths or names
+
 ## Features NOT Needed (Against Mission)
 
 ### ❌ Complex Computation
 - Math operations beyond basic counting
-- Regex (CVM doesn't analyze content)
 - Complex data transformations
 
 ### ❌ Advanced Programming Constructs
@@ -97,6 +113,7 @@ switch (fileType) {
 2. Switch statements - Cleaner task routing
 3. `array.filter()` with simple predicates - File filtering
 4. `Object.keys()` - When configs are objects
+5. Basic RegExp - Validate CC() responses
 
 ### Probably Don't Need
 - Most other features from the original list
