@@ -1,181 +1,161 @@
 # CVM Architecture Understanding
 
-## Overview
-CVM has a layered architecture with clean separation of concerns:
+## What is CVM?
+
+CVM (Cognitive Virtual Machine) is an **algorithmic TODO manager for Claude**. It inverts the traditional AI integration pattern - instead of your code calling AI, CVM creates a stateful TODO list that Claude works through systematically.
+
+**Key insight**: CVM is a passive state machine. It never pushes tasks to Claude. Instead, Claude pulls tasks when ready, maintaining perfect control while CVM quietly manages state between requests.
+
+## Project Organization
+
+CVM is organized as an Nx monorepo with clear package boundaries:
+
+```
+cvm/
+├── packages/          # Core libraries
+│   ├── parser/       # TypeScript → Bytecode compiler
+│   ├── types/        # Shared type definitions
+│   ├── storage/      # Persistence abstraction
+│   ├── vm/           # Execution engine
+│   ├── mcp-server/   # MCP protocol interface
+│   ├── mongodb/      # MongoDB utilities
+│   └── integration/  # Integration tests
+│
+├── apps/             # Executable applications
+│   └── cvm-server/   # npm package users install
+│
+└── memory-bank/      # Project documentation
+    └── docs/         # Technical documentation
+```
+
+## Architecture Layers
 
 ```
 ┌─────────────────────────────────────────┐
-│         MCP Server Layer                │  ← Claude interacts here
+│      Claude Desktop (MCP Client)        │
 ├─────────────────────────────────────────┤
-│         VM Manager Layer                │  ← High-level orchestration
+│    cvm-server app (stdio transport)     │  ← apps/cvm-server/README.md
 ├─────────────────────────────────────────┤
-│      Parser → Compiler → VM             │  ← Core execution pipeline
+│   MCP Server (protocol interface)       │  ← packages/mcp-server/README.md
+├─────────────────────────────────────────┤
+│     VM Manager (orchestration)          │  ← packages/vm/README.md
+├─────────────────────────────────────────┤
+│  Parser → Compiler → VM → Storage       │  ← Individual package READMEs
 └─────────────────────────────────────────┘
 ```
 
-## 1. Parser (`parser.ts`)
-**Actually a validator + basic AST walker:**
-- Uses TypeScript's `createSourceFile` to parse code
-- Validates CVM-specific requirements (has main(), no params, etc.)
-- Checks for unsupported functions (setTimeout, fetch, etc.)
-- Returns errors and basic bytecode placeholder
-- Main function: `parseProgram(source: string): ParseResult`
+## Core Packages
 
-## 2. Compiler (`compiler.ts`)
-**The real compilation engine:**
-- Uses TypeScript AST from `ts.createSourceFile`
-- Implements visitor pattern for statements and expressions
-- Single-pass compilation to bytecode
-- Key components:
-  - `compile()` - Main entry point
-  - `CompilerState` - Manages bytecode emission and labels
-  - Statement visitors in `compiler/statements/`
-  - Expression visitors in `compiler/expressions/`
-  - Error reporting with line/column information
+### 1. Parser Package
+**Location**: `packages/parser/` ([README](../../../packages/parser/README.md))
+- Transforms TypeScript-like source into bytecode
+- Uses TypeScript compiler API for parsing
+- Implements visitor pattern for compilation
+- No runtime dependencies
 
-### Visitor Pattern Architecture
-```typescript
-const context: CompilerContext = {
-  compileStatement,    // Dispatches to statement visitors
-  compileExpression,   // Dispatches to expression visitors
-  reportError         // Reports errors with source location
-};
-```
+### 2. Types Package  
+**Location**: `packages/types/` ([README](../../../packages/types/README.md))
+- Defines CVM's value system (primitives, arrays, objects)
+- Core interfaces: Program, Execution
+- Type guards for runtime safety
+- Foundation for all other packages
 
-## 3. VM (`vm.ts`)
-**Stack-based virtual machine with heap:**
-- Execution state includes stack, variables, heap, and iterators
-- Handler-based opcode execution (see `handlers/` directory)
-- Supports reference types via heap (arrays, objects)
-- Key features:
-  - Stack validation before each operation
-  - Iterator contexts for for...of loops
-  - CC (Cognitive Compute) pause/resume
-  - File system operations (sandboxed)
-  - Return value support
+### 3. Storage Package
+**Location**: `packages/storage/` ([README](../../../packages/storage/README.md))
+- Abstraction layer for persistence
+- File and MongoDB backends
+- Manages programs, executions, and output
+- Storage adapter interface pattern
 
-### VM State (Current)
-```typescript
-interface VMState {
-  pc: number;                    // Program counter
-  stack: CVMValue[];            // Operand stack
-  variables: Map<string, CVMValue>;  // Variable storage
-  status: VMStatus;             // running, waiting_cc, complete, error
-  output: string[];             // Console output
-  ccPrompt?: string;            // Current CC prompt
-  error?: string;               // Error message
-  iterators: IteratorContext[]; // For...of loop state
-  returnValue?: CVMValue;       // ✅ Return value exists!
-  fileSystem?: FileSystemService;
-  heap: VMHeap;                 // Reference type storage
-}
-```
+### 4. VM Package
+**Location**: `packages/vm/` ([README](../../../packages/vm/README.md))
+- Core execution engine
+- Stack-based bytecode interpreter
+- Heap management for reference types
+- Handler pattern for opcodes
+- Pause/resume at CC() calls
 
-## 4. VM Manager (`vm-manager.ts`)
-**High-level orchestration layer:**
-- Manages program compilation and storage
-- Handles execution lifecycle
-- Integrates with storage adapters (file, MongoDB)
-- Provides clean API for MCP server
-- Key methods:
-  - `loadProgram()` - Compile and store
-  - `startExecution()` - Begin execution
-  - `continueExecution()` - Resume after CC
-  - `getExecutionStatus()` - Check state
+### 5. MCP Server Package
+**Location**: `packages/mcp-server/` ([README](../../../packages/mcp-server/README.md))
+- MCP protocol implementation
+- Exposes CVM as MCP tools
+- Thin interface layer
+- Current execution context
 
-## 5. Handler Architecture
-**Modular opcode implementation:**
-- Each opcode group has its own handler file
-- Handlers define stack requirements and execution
-- Located in `vm/src/lib/handlers/`:
-  - `arithmetic.ts` - Math operations
-  - `arrays.ts` - Array operations
-  - `objects.ts` - Object operations
-  - `control.ts` - Flow control (JUMP, HALT, RETURN)
-  - `io.ts` - Input/output (CC, PRINT)
-  - `variables.ts` - Variable operations
-  - `logical.ts` - Boolean operations
-  - `strings.ts` - String methods
-  - `unified.ts` - GET/SET property access
+### 6. MongoDB Package
+**Location**: `packages/mongodb/` ([README](../../../packages/mongodb/README.md))
+- Low-level MongoDB utilities
+- Used by storage package
+- Simple wrapper around driver
 
-## Key Design Decisions
+## The Application
 
-### 1. Heap for Reference Types
-- Arrays and objects stored in heap with numeric IDs
-- Stack holds references (IDs), not actual objects
-- Enables proper mutation semantics
-- Serializable for pause/resume
+### CVM Server
+**Location**: `apps/cvm-server/` ([README](../../../apps/cvm-server/README.md))
+- The npm package users install
+- Configuration management
+- Logging and monitoring
+- Graceful shutdown handling
 
-### 2. Handler Pattern
-- Each opcode has a handler with:
-  - `stackIn`: Required stack depth
-  - `stackOut`: Stack effect
-  - `execute`: Implementation
-- Centralized validation in VM
+## How It All Works Together
 
-### 3. Visitor Pattern for Compilation
-- Clean separation of AST traversal and bytecode generation
-- Easy to add new language features
-- Consistent error reporting
+1. **User installs** `cvm-server` via npm
+2. **Claude Desktop** launches it as MCP server
+3. **cvm-server** creates CVMMcpServer instance
+4. **CVMMcpServer** exposes MCP tools to Claude
+5. **Claude** loads programs and starts executions
+6. **VMManager** compiles code and manages state
+7. **VM** executes bytecode until CC() pause
+8. **Storage** persists state between calls
+9. **Claude** pulls tasks and submits results
+10. **Cycle repeats** until execution completes
 
-### 4. Storage Abstraction
-- Programs and executions stored via adapters
-- Supports file system and MongoDB
-- Easy to add new storage backends
+## Key Design Principles
 
-## Current Capabilities
+### 1. Inversion of Control
+- CVM is passive - it waits for Claude to ask
+- Claude drives execution by pulling tasks
+- State lives in CVM, not Claude's context
 
-### ✅ Working Features
-- All control flow (if/else, while, for...of)
-- Variables with proper scoping
-- Arrays with methods (push, length, indexing)
-- Objects with property access
-- String methods and operations
-- JSON parsing/stringification
-- File system operations
-- Return statements
-- CC (Cognitive Compute) pause/resume
-- Type checking (typeof)
-- Ternary operator
-- Logical operators (&&, ||, !)
-- Comparison operators
-- Unary operators (++, --, !, -, +)
+### 2. Clean Architecture
+- Each package has single responsibility
+- Dependencies flow inward
+- Interfaces define boundaries
+- No circular dependencies
 
-### ❌ Not Implemented
-- Function parameters
-- Function calls (only main() supported)
-- Traditional for(;;) loops
-- Try/catch error handling
-- Classes and new
-- Async/await (use CC instead)
-- Import/export
-- Spread operator
-- Destructuring
+### 3. State Preservation
+- All state serializable to JSON
+- Execution can resume after crashes
+- Multiple concurrent executions supported
 
-## Adding New Features
+### 4. Error Handling
+- Operations return success/failure
+- No exceptions thrown
+- Errors stored in state
+- Graceful degradation
 
-### Adding a Statement Type
-1. Create handler in `compiler/statements/`
-2. Add to statement visitor map
-3. Implement bytecode generation
-4. Add tests
+## Development Workflow
 
-### Adding an Expression Type
-1. Create handler in `compiler/expressions/`
-2. Add to expression visitor map
-3. Implement bytecode generation
-4. Add tests
+1. **Read Memory Bank** first for context
+2. **Check package README** for detailed info
+3. **Run tests** with `npx nx test <package>`
+4. **Build** with `npx nx build <package>`
+5. **Test locally** with Claude Desktop
 
-### Adding an Opcode
-1. Add to `OpCode` enum in `bytecode.ts`
-2. Create/update handler in `vm/handlers/`
-3. Add to handlers map
-4. Update compiler to emit opcode
-5. Add tests
+## Quick Navigation
+
+- **What does X package do?** → Check `packages/X/README.md`
+- **How do opcodes work?** → See `packages/vm/README.md`
+- **What's the bytecode format?** → See `packages/parser/README.md`
+- **How is state stored?** → See `packages/storage/README.md`
+- **What MCP tools exist?** → See `packages/mcp-server/README.md`
+- **How to configure?** → See `apps/cvm-server/README.md`
 
 ## Testing Strategy
-- **Unit tests**: Individual opcode handlers
-- **Compiler tests**: AST → bytecode verification
-- **VM tests**: Bytecode execution
-- **Integration tests**: Full source → execution
-- **E2E tests**: MCP server interaction
+
+- **Unit tests**: Each package tested independently
+- **Integration tests**: `packages/integration/` for cross-package
+- **Coverage target**: 85%+ for core packages
+- **Test runner**: Vitest with Nx integration
+
+This architecture enables CVM to be a reliable, passive orchestrator that helps Claude work through complex tasks systematically without losing context.

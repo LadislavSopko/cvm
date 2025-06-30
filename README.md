@@ -11,7 +11,7 @@
 ```mermaid
 flowchart TD
     Start([Start]) --> Loop{More files?}
-    Loop -->|Yes| Call[Call Claude API]
+    Loop -->|Yes| Call[Call Claude API with process file prompt]
     Call --> Response[Get Response]
     Response --> Lost[❌ Context Lost]
     Lost --> Loop
@@ -35,14 +35,14 @@ flowchart TD
     CC --> Pause((⏸️ PAUSE))
     Pause --> Wait[Wait for Claude]
     Wait --> GetTask[Claude: getTask]
-    GetTask --> Process[Claude processes]
+    GetTask --> Process[Claude analyze file]
     Process --> Submit[Claude: submitTask]
     Submit --> Save[✓ State saved]
     Save --> Loop
     Loop -->|No| End([End])
     
     Pause -.->|Can inspect| Status[Check Progress]
-    Submit -.->|Crash| Resume[Resume from here]
+    Submit -.->|Crash| Resume[Resume from here, just going to start]
     
     classDef cvm fill:#d4ffd4,stroke:#090,color:#000
     classDef claude fill:#d4d4ff,stroke:#00d,color:#000
@@ -106,20 +106,21 @@ What happens:
 
 ```mermaid
 graph LR
-    subgraph "CVM as a Computer"
-        CODE["📜 Your Code<br/>(Motherboard)"]-->|"defines logic<br/>& structure"| CVM["💾 CVM<br/>(RAM)"]
-        CVM-->|"holds state<br/>& variables"| CLAUDE["🧠 Claude<br/>(CPU)"]
-        CLAUDE-->|"processes each<br/>CC() instruction"| CVM
-        YOU["👤 You<br/>(Operator)"]-."inspect state<br/>anytime".->CVM
+    subgraph "CVM System"
+        PROGRAM["📜 Program<br/>(Instructions)"]-->|"loaded into"| CVM["🖥️ CVM<br/>(CPU + RAM)"]
+        CVM-->|"executes until CC()<br/>then halts"| HALT["⏸️ Halted<br/>(Awaiting input)"]
+        HALT-->|"getTask"| CLAUDE["🧠 Claude<br/>(Driver)"]
+        CLAUDE-->|"submitTask"| CVM
+        USER["👤 User<br/>(Observer)"]-."can interact<br/>with Claude".->CLAUDE
     end
 ```
 
-Traditional scripts treat Claude as a service. CVM treats Claude as a processor.
+Traditional scripts treat Claude as a service. CVM treats Claude as the driver.
 
 ## Why CVM is a Game-Changer for Developers
 
 **Unique Architecture Benefits:**
-- **Inverted control flow**: Instead of your code calling AI APIs, the VM orchestrates and calls you as the cognitive processor
+- **Inverted control flow**: Instead of your code calling AI APIs, the VM simply pauses and waits. Claude actively pulls tasks when ready
 - **State preservation**: The VM maintains all state across interactions, preventing context loss in long-running tasks
 - **Focused cognitive tasks**: Developers only need to handle specific decision points, not manage the entire flow
 
@@ -127,7 +128,7 @@ Traditional scripts treat Claude as a service. CVM treats Claude as a processor.
 - **Simple API**: Just 6 straightforward functions (load, start, getTask, submitTask, status, etc.)
 - **TypeScript native**: Write programs in familiar TypeScript syntax
 - **Clean separation**: Deterministic logic in code, cognitive tasks delegated to AI
-- **MongoDB persistence**: Automatic state management between calls
+- **MongoDB or File persistence**: Automatic state management between calls
 
 **Use Cases for Developers:**
 - Complex multi-step workflows that need AI reasoning
@@ -179,8 +180,7 @@ function main() {
   var files = fs.listFiles("./docs");
   var summaries = []; // State lives safely in CVM
   
-  for (var i = 0; i < files.length; i++) {
-    var file = files[i];
+  for (const file of files) {
     // PAUSE: Ask Claude to summarize this file
     var content = CC("Read and summarize: " + file);
     summaries.push({ filename: file, summary: content });
@@ -316,9 +316,8 @@ Since CVM uses a custom interpreter, it supports a TypeScript-like subset design
 | Basic Types | Strings, Numbers, Booleans, `null`, `undefined` |
 | Arrays | `[1, 2, 3]`, `items.push(4)`, `items[0]` |
 | Objects | `{name: "Claude", age: 2}`, `obj.name` |
-| Loops | `for (var i = 0; i < items.length; i++)`, `while (i < 5)` |
+| Loops | `while (i < 5)`, `for (const item of array)` |
 | Conditionals | `if (x > 10) { ... } else { ... }` |
-| Functions | `function helper(x) { return x * 2; }` |
 | Operators | `+`, `-`, `*`, `/`, `===`, `!==`, `&&`, `||` |
 
 ### ❌ Not Supported

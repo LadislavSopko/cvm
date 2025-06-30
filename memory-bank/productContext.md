@@ -8,7 +8,7 @@ CVM (Cognitive Virtual Machine) is an algorithmic TODO manager for Claude. It in
 
 When Claude processes complex multi-step tasks, context gets lost:
 - "Analyze these 1000 files" → Claude forgets what was analyzed after file 50
-- Chained API calls lose state between calls
+- Chained operations lose state between calls
 - Crashes mean starting over from the beginning
 - No way to inspect progress or resume from failures
 
@@ -18,7 +18,7 @@ CVM provides a **guide rope through the tunnel** - a program that:
 1. Breaks complex tasks into manageable cognitive checkpoints (CC calls)
 2. Maintains all state between checkpoints
 3. Allows pause, inspect, and resume at any point
-4. Treats Claude as a CPU that processes one instruction at a time
+4. Treats Claude as a stateless processor of individual tasks
 
 ## The Beautiful Paradigm Shift
 
@@ -57,4 +57,8 @@ CVM is like a GPS navigation system:
 - NOT a replacement for traditional scripting
 - NOT trying to make Claude "smarter"
 
-CVM makes Claude SYSTEMATIC - turning brilliant but chaotic into brilliant with perfect memory and a checklist.
+CVM makes Claude SYSTEMATIC - turning brilliant but chaotic into brilliant and methodical.
+
+## Mission
+
+**CVM's mission**: Be an algorithmic TODO manager that helps Claude work through complex tasks without losing context.
