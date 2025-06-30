@@ -43,11 +43,11 @@ CVM's purpose: Help Claude process tasks like "analyze these 1000 files" without
   }
   ```
 
-### 3. Error Handling Patterns (Without Try-Catch)
-Since try-catch is complex for VM implementation, use simple patterns:
+### 3. Error Handling Through Null/Undefined Returns
+CVM design principle: **Operations never throw, they return null/undefined on error**
 
 ```typescript
-// Option 1: Check for null/error returns
+// fs.readFile returns null if file doesn't exist
 const content = fs.readFile(path);
 if (content === null) {
   CC("File not found: " + path + " - how should I proceed?");
@@ -55,13 +55,13 @@ if (content === null) {
   CC("Analyze content: " + content.substring(0, 100));
 }
 
-// Option 2: File existence check (if we add fs.exists)
-if (fs.exists && fs.exists(path)) {
-  const content = fs.readFile(path);
-  CC("Process: " + content);
-} else {
-  CC("Skip missing file: " + path);
+// All operations follow this pattern:
+const parsed = JSON.parse(jsonStr);  // Returns null on invalid JSON
+if (parsed !== null) {
+  CC("Process data with " + parsed.count + " items");
 }
+
+// No try-catch needed anywhere!
 ```
 
 ### 4. Switch for Task Routing
@@ -118,7 +118,7 @@ Could validate:
 1. `string.endsWith()` - File type detection
 2. `string.includes()` - Path pattern matching
 3. `array.slice()` - Batch processing
-4. `fs.exists()` - Check before read (simpler than try-catch)
+4. **Design rule**: All operations return null/undefined on error (never throw)
 
 ### Nice to Have (Quality of Life)
 1. `string.startsWith()` - Directory filtering
