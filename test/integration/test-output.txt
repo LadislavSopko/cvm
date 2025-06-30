@@ -1,1 +1,1 @@
-Hello from CVM!
+This is a test file created by CVM
