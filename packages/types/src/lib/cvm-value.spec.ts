@@ -9,7 +9,12 @@ import {
   cvmToString,
   cvmToBoolean,
   cvmToNumber,
-  createCVMArray
+  cvmTypeof,
+  createCVMArray,
+  createCVMUndefined,
+  createCVMObject,
+  CVMArrayRef,
+  CVMObjectRef
 } from './cvm-value.js';
 
 describe('CVMValue Type System', () => {
@@ -105,6 +110,22 @@ describe('CVMValue Type System', () => {
         expect(cvmToString(null)).toBe('null');
         expect(cvmToString(createCVMArray(['a', 'b']))).toBe('[array:2]');
       });
+
+      it('should convert undefined to "undefined"', () => {
+        expect(cvmToString(createCVMUndefined())).toBe('undefined');
+      });
+
+      it('should convert objects to "[object Object]"', () => {
+        expect(cvmToString(createCVMObject({}))).toBe('[object Object]');
+        expect(cvmToString(createCVMObject({ a: 1, b: 2 }))).toBe('[object Object]');
+      });
+
+      it('should handle references using String fallback', () => {
+        const arrayRef: CVMArrayRef = { type: 'array-ref', id: 1 };
+        const objRef: CVMObjectRef = { type: 'object-ref', id: 1 };
+        expect(cvmToString(arrayRef)).toBe('[object Object]');
+        expect(cvmToString(objRef)).toBe('[object Object]');
+      });
     });
 
     describe('cvmToBoolean', () => {
@@ -131,6 +152,22 @@ describe('CVMValue Type System', () => {
         // Arrays are always truthy
         expect(cvmToBoolean(createCVMArray([]))).toBe(true);
         expect(cvmToBoolean(createCVMArray(['a']))).toBe(true);
+      });
+
+      it('should handle undefined as falsy', () => {
+        expect(cvmToBoolean(createCVMUndefined())).toBe(false);
+      });
+
+      it('should handle objects as truthy', () => {
+        expect(cvmToBoolean(createCVMObject({}))).toBe(true);
+        expect(cvmToBoolean(createCVMObject({ a: 1 }))).toBe(true);
+      });
+
+      it('should handle references using Boolean fallback', () => {
+        const arrayRef: CVMArrayRef = { type: 'array-ref', id: 1 };
+        const objRef: CVMObjectRef = { type: 'object-ref', id: 1 };
+        expect(cvmToBoolean(arrayRef)).toBe(true);
+        expect(cvmToBoolean(objRef)).toBe(true);
       });
     });
 
@@ -170,6 +207,61 @@ describe('CVMValue Type System', () => {
       it('should return NaN for arrays', () => {
         expect(cvmToNumber(createCVMArray([]))).toBeNaN();
         expect(cvmToNumber(createCVMArray([1, 2, 3]))).toBeNaN();
+      });
+
+      it('should return NaN for undefined', () => {
+        expect(cvmToNumber(createCVMUndefined())).toBeNaN();
+      });
+
+      it('should handle objects', () => {
+        const obj = createCVMObject({ a: 1 });
+        expect(cvmToNumber(obj)).toBeNaN();
+      });
+
+      it('should handle object references', () => {
+        const objRef: CVMObjectRef = { type: 'object-ref', id: 1 };
+        expect(cvmToNumber(objRef)).toBeNaN();
+      });
+    });
+
+    describe('cvmTypeof', () => {
+      it('should return correct types for primitives', () => {
+        expect(cvmTypeof('hello')).toBe('string');
+        expect(cvmTypeof(123)).toBe('number');
+        expect(cvmTypeof(true)).toBe('boolean');
+        expect(cvmTypeof(false)).toBe('boolean');
+        expect(cvmTypeof(null)).toBe('null');
+      });
+
+      it('should return undefined for undefined value', () => {
+        expect(cvmTypeof(createCVMUndefined())).toBe('undefined');
+      });
+
+      it('should return array for arrays', () => {
+        expect(cvmTypeof(createCVMArray([]))).toBe('array');
+        expect(cvmTypeof(createCVMArray([1, 2, 3]))).toBe('array');
+      });
+
+      it('should return array for array references', () => {
+        const arrayRef: CVMArrayRef = { type: 'array-ref', id: 1 };
+        expect(cvmTypeof(arrayRef)).toBe('array');
+      });
+
+      it('should return object for objects', () => {
+        expect(cvmTypeof(createCVMObject({}))).toBe('object');
+        expect(cvmTypeof(createCVMObject({ a: 1 }))).toBe('object');
+      });
+
+      it('should return object for object references', () => {
+        const objRef: CVMObjectRef = { type: 'object-ref', id: 1 };
+        expect(cvmTypeof(objRef)).toBe('object');
+      });
+
+      it('should return unknown for unrecognized types', () => {
+        // This case is hard to test since all CVMValue types should be covered
+        // but it's there as a fallback. We can test it by casting an invalid value
+        const invalidValue = { type: 'invalid' } as any;
+        expect(cvmTypeof(invalidValue)).toBe('unknown');
       });
     });
   });

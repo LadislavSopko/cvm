@@ -183,4 +183,217 @@ describe('FileStorageAdapter', () => {
         .rejects.toThrow('Not connected');
     });
   });
+
+  describe('current execution management', () => {
+    it('should get and set current execution ID', async () => {
+      const executionId = 'current-exec-1';
+      
+      // Initially null
+      let currentId = await adapter.getCurrentExecutionId();
+      expect(currentId).toBeNull();
+      
+      // Set current execution
+      await adapter.setCurrentExecutionId(executionId);
+      currentId = await adapter.getCurrentExecutionId();
+      expect(currentId).toBe(executionId);
+      
+      // Clear current execution
+      await adapter.setCurrentExecutionId(null);
+      currentId = await adapter.getCurrentExecutionId();
+      expect(currentId).toBeNull();
+    });
+  });
+
+  describe('list operations', () => {
+    it('should list all programs', async () => {
+      const programs: Program[] = [
+        { id: 'prog1', source: 'test1', bytecode: [] },
+        { id: 'prog2', source: 'test2', bytecode: [] },
+        { id: 'prog3', source: 'test3', bytecode: [] }
+      ];
+      
+      for (const prog of programs) {
+        await adapter.saveProgram(prog);
+      }
+      
+      const listed = await adapter.listPrograms();
+      expect(listed).toHaveLength(3);
+      expect(listed.map(p => p.id).sort()).toEqual(['prog1', 'prog2', 'prog3']);
+    });
+
+    it('should return empty array when no programs exist', async () => {
+      const listed = await adapter.listPrograms();
+      expect(listed).toEqual([]);
+    });
+
+    it('should list all executions', async () => {
+      const executions: Execution[] = [
+        {
+          id: 'exec1',
+          programId: 'prog1',
+          state: 'READY',
+          pc: 0,
+          stack: [],
+          variables: {},
+          output: [],
+          created: new Date(),
+          heap: { objects: {}, nextId: 1 },
+          iterators: []
+        },
+        {
+          id: 'exec2',
+          programId: 'prog2',
+          state: 'RUNNING',
+          pc: 5,
+          stack: ['a'],
+          variables: { x: 1 },
+          output: [],
+          created: new Date(),
+          heap: { objects: {}, nextId: 1 },
+          iterators: []
+        }
+      ];
+      
+      for (const exec of executions) {
+        await adapter.saveExecution(exec);
+      }
+      
+      const listed = await adapter.listExecutions();
+      expect(listed).toHaveLength(2);
+      expect(listed.map(e => e.id).sort()).toEqual(['exec1', 'exec2']);
+    });
+  });
+
+  describe('delete operations', () => {
+    it('should delete execution and its output', async () => {
+      const execution: Execution = {
+        id: 'exec-to-delete',
+        programId: 'test-prog',
+        state: 'READY',
+        pc: 0,
+        stack: [],
+        variables: {},
+        output: [],
+        created: new Date(),
+        heap: { objects: {}, nextId: 1 },
+        iterators: []
+      };
+      
+      await adapter.saveExecution(execution);
+      await adapter.appendOutput(execution.id, ['Test output']);
+      
+      // Verify they exist
+      let retrieved = await adapter.getExecution(execution.id);
+      expect(retrieved).not.toBeNull();
+      let output = await adapter.getOutput(execution.id);
+      expect(output).toEqual(['Test output']);
+      
+      // Delete execution
+      await adapter.deleteExecution(execution.id);
+      
+      // Verify they're gone
+      retrieved = await adapter.getExecution(execution.id);
+      expect(retrieved).toBeNull();
+      output = await adapter.getOutput(execution.id);
+      expect(output).toEqual([]);
+    });
+
+    it('should clear current execution when deleting current', async () => {
+      const executionId = 'current-to-delete';
+      const execution: Execution = {
+        id: executionId,
+        programId: 'test-prog',
+        state: 'READY',
+        pc: 0,
+        stack: [],
+        variables: {},
+        output: [],
+        created: new Date(),
+        heap: { objects: {}, nextId: 1 },
+        iterators: []
+      };
+      
+      await adapter.saveExecution(execution);
+      await adapter.setCurrentExecutionId(executionId);
+      
+      // Verify it's current
+      let currentId = await adapter.getCurrentExecutionId();
+      expect(currentId).toBe(executionId);
+      
+      // Delete execution
+      await adapter.deleteExecution(executionId);
+      
+      // Verify current is cleared
+      currentId = await adapter.getCurrentExecutionId();
+      expect(currentId).toBeNull();
+    });
+
+    it('should handle deleting non-existent execution', async () => {
+      // Should not throw
+      await expect(adapter.deleteExecution('nonexistent')).resolves.not.toThrow();
+    });
+
+    it('should delete program', async () => {
+      const program: Program = {
+        id: 'prog-to-delete',
+        source: 'test',
+        bytecode: []
+      };
+      
+      await adapter.saveProgram(program);
+      
+      // Verify it exists
+      let retrieved = await adapter.getProgram(program.id);
+      expect(retrieved).not.toBeNull();
+      
+      // Delete program
+      await adapter.deleteProgram(program.id);
+      
+      // Verify it's gone
+      retrieved = await adapter.getProgram(program.id);
+      expect(retrieved).toBeNull();
+    });
+
+    it('should handle deleting non-existent program', async () => {
+      // Should not throw
+      await expect(adapter.deleteProgram('nonexistent')).resolves.not.toThrow();
+    });
+  });
+
+  describe('error handling with connected adapter', () => {
+    it('should throw when operations fail after connection', async () => {
+      await adapter.disconnect();
+      
+      await expect(adapter.saveExecution({
+        id: 'test',
+        programId: 'test',
+        state: 'READY',
+        pc: 0,
+        stack: [],
+        variables: {},
+        output: [],
+        created: new Date(),
+        heap: { objects: {}, nextId: 1 },
+        iterators: []
+      })).rejects.toThrow('Not connected');
+      await expect(adapter.getExecution('test'))
+        .rejects.toThrow('Not connected');
+      await expect(adapter.listExecutions())
+        .rejects.toThrow('Not connected');
+      await expect(adapter.appendOutput('test', ['line']))
+        .rejects.toThrow('Not connected');
+      await expect(adapter.getOutput('test'))
+        .rejects.toThrow('Not connected');
+      await expect(adapter.getCurrentExecutionId())
+        .rejects.toThrow('Not connected');
+      await expect(adapter.setCurrentExecutionId('test'))
+        .rejects.toThrow('Not connected');
+      await expect(adapter.deleteExecution('test'))
+        .rejects.toThrow('Not connected');
+      await expect(adapter.listPrograms())
+        .rejects.toThrow('Not connected');
+      await expect(adapter.deleteProgram('test'))
+        .rejects.toThrow('Not connected');
+    });
+  });
 });
