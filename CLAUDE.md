@@ -2,8 +2,8 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-## MISSION 
-- read memory-bank/mission.md
+## MEMORY BANK
+Read memory-bank/README.md for instructions on which files to read and when.
 
 ## What is CVM and Why It Matters
 
