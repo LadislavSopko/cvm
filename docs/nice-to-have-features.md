@@ -43,13 +43,24 @@ CVM's purpose: Help Claude process tasks like "analyze these 1000 files" without
   }
   ```
 
-### 3. Try-Catch for Resilient Workflows
+### 3. Error Handling Patterns (Without Try-Catch)
+Since try-catch is complex for VM implementation, use simple patterns:
+
 ```typescript
-try {
-  const content = fs.readFile(path);
+// Option 1: Check for null/error returns
+const content = fs.readFile(path);
+if (content === null) {
+  CC("File not found: " + path + " - how should I proceed?");
+} else {
   CC("Analyze content: " + content.substring(0, 100));
-} catch (e) {
-  CC("File read failed for " + path + " - skip or handle differently");
+}
+
+// Option 2: File existence check (if we add fs.exists)
+if (fs.exists && fs.exists(path)) {
+  const content = fs.readFile(path);
+  CC("Process: " + content);
+} else {
+  CC("Skip missing file: " + path);
 }
 ```
 
@@ -94,6 +105,7 @@ Could validate:
 - Classes/OOP (overengineering for TODO lists)
 - Async/Promises (CVM is synchronous by design)
 - Type annotations (CVM programs are simple)
+- Try-catch (complex VM implementation for simple need)
 
 ### ❌ General Purpose Features
 - Map/Set collections
@@ -106,7 +118,7 @@ Could validate:
 1. `string.endsWith()` - File type detection
 2. `string.includes()` - Path pattern matching
 3. `array.slice()` - Batch processing
-4. Try-catch - Resilient file operations
+4. `fs.exists()` - Check before read (simpler than try-catch)
 
 ### Nice to Have (Quality of Life)
 1. `string.startsWith()` - Directory filtering

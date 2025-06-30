@@ -116,6 +116,31 @@ graph LR
 
 Traditional scripts treat Claude as a service. CVM treats Claude as a processor.
 
+## Why CVM is a Game-Changer for Developers
+
+**Unique Architecture Benefits:**
+- **Inverted control flow**: Instead of your code calling AI APIs, the VM orchestrates and calls you as the cognitive processor
+- **State preservation**: The VM maintains all state across interactions, preventing context loss in long-running tasks
+- **Focused cognitive tasks**: Developers only need to handle specific decision points, not manage the entire flow
+
+**Developer Experience:**
+- **Simple API**: Just 6 straightforward functions (load, start, getTask, submitTask, status, etc.)
+- **TypeScript native**: Write programs in familiar TypeScript syntax
+- **Clean separation**: Deterministic logic in code, cognitive tasks delegated to AI
+- **MongoDB persistence**: Automatic state management between calls
+
+**Use Cases for Developers:**
+- Complex multi-step workflows that need AI reasoning
+- Data processing pipelines with intelligent decision points
+- Interactive development tools that adapt based on context
+- Testing scenarios that require creative input
+- Code generation workflows with checkpoints
+
+**What Makes It Special:**
+The "GPS analogy" from Claude's docs is perfect - developers write the route, but don't have to worry about getting lost in complex flows. The VM guides execution step-by-step, making it ideal for tasks that would otherwise overwhelm AI context windows.
+
+It's particularly elegant for developers who want to build AI-augmented tools without wrestling with prompt engineering and state management complexities.
+
 ## CC() is a PAUSE, Not a Call
 
 `CC(prompt)` doesn't mean "call Claude." It means:
