@@ -31,9 +31,10 @@ Currently rebuilding Memory Bank from scratch to follow proper structure per REA
 ## Next Steps
 
 ### Immediate
-1. Complete Memory Bank core files (this task)
-2. Ensure all cross-references are valid
-3. Verify documentation accuracy against code
+1. ~~Complete Memory Bank core files~~ ✓ (completed)
+2. Review and clean up test programs in /home/laco/cvm/test/programs
+3. Ensure all cross-references are valid
+4. Verify documentation accuracy against code
 
 ### Short Term
 1. Create integration test README
