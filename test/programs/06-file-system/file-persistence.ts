@@ -2,7 +2,7 @@
 function main() {
   console.log("Testing state persistence with fs.readFile/writeFile...");
   
-  const stateFile = "./cvm-state.json";
+  const stateFile = "./tmp/cvm-state.json";
   
   // Load existing state or initialize
   const existingData = fs.readFile(stateFile);
@@ -58,7 +58,7 @@ function main() {
                       JSON.stringify(state.history));
     
     // Save final report
-    fs.writeFile("./analysis-report.txt", report);
+    fs.writeFile("./tmp/analysis-report.txt", report);
     
     // Clean up state file
     fs.writeFile(stateFile, "{}"); // Reset for next run

@@ -60,3 +60,7 @@ vitest.config.*.timestamp*
 
 # NPM publishing status (contains sensitive info)
 .npm-publishing-status.md
+
+# Test output directory
+test/integration/tmp/
+test-results.log
