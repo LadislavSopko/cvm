@@ -10,7 +10,8 @@ import {
   CVMArray,
   CVMObject,
   createCVMUndefined,
-  cvmToString
+  cvmToString,
+  isCVMUndefined
 } from '@cvm/types';
 
 /**
@@ -482,6 +483,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const stringElements = array.elements.map(el => {
         if (el === null) return 'null';
         if (el === undefined) return 'undefined';
+        if (isCVMUndefined(el)) return 'undefined';
         return String(el);
       });
       

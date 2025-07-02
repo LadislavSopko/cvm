@@ -22,7 +22,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('true,true,true');
   });
@@ -45,7 +45,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('hello world|hello world  |  hello world');
   });
@@ -67,7 +67,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('hello bar foo baz foo|hello bar hello baz hello');
   });
@@ -89,7 +89,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('16,hahaha');
   });
@@ -112,7 +112,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('00042|John......');
   });
@@ -136,7 +136,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('apple,banana,cherry,date|apple\nbanana\ncherry\ndate|applebananacherrydate');
   });
@@ -177,7 +177,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('File: report.final.pdf, Name: report, PDF: true, Temp: false, Has middle: true');
   });
@@ -206,7 +206,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('Name           Age  City      \n------------------------------');
   });
@@ -250,7 +250,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('unix1|unix2|C:/Windows/System32/cmd.exe');
   });
@@ -284,7 +284,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('Name,Age,Role\nJohn,25,Engineer\nJane,30,Designer\nBob,35,Manager');
   });
@@ -333,7 +333,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('valid1,valid2,invalid3,invalid4');
   });
@@ -361,7 +361,7 @@ describe('String and Array Methods - Comprehensive Integration', () => {
     const compileResult = bytecode;
     expect(compileResult.success).toBe(true);
     
-    const result = vm.execute(compileResult.bytecode, { entryPoint: 'main' });
+    const result = vm.execute(compileResult.bytecode);
     expect(result.status).toBe('complete');
     expect(result.returnValue).toBe('==================================================\n[INFO]    Application started     2024-01-15\n==================================================');
   });

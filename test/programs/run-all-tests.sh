@@ -145,9 +145,12 @@ run_test "../programs/08-examples/password-validator.ts" "mypass123" "mypass123"
 # restart-example.ts requires special handling, skipping
 
 echo -e "\n${YELLOW}=== 09-comprehensive ===${NC}"
-# These comprehensive tests may need specific CC responses
-# run_test "../programs/09-comprehensive/all-features.ts"
-# run_test "../programs/09-comprehensive/phase2-features.ts"
+# all-features.ts: text processing, age, score, final score
+run_test "../programs/09-comprehensive/all-features.ts" "Hello World!" "25" "85" "92"
+# phase2-features.ts: age, password, confirm password
+run_test "../programs/09-comprehensive/phase2-features.ts" "30" "secure123" "secure123"
+# string-array-methods-all.ts: filename, windows path, invoice#, search pattern, email, log level, log message
+run_test "../programs/09-comprehensive/string-array-methods-all.ts" "  test.js  " "C:\\Users\\test\\file.txt" "42" "projects" "user@example.com" "INFO" "Application started"
 
 # Summary
 echo -e "\n${YELLOW}======================================${NC}"

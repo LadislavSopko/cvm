@@ -2,7 +2,7 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from '../vm.js';
 import { OpCode } from '@cvm/parser';
 import { advancedHandlers } from './advanced.js';
-import { VMState } from '../types.js';
+import type { VMState } from '../vm.js';
 
 describe('String utility methods', () => {
   let vm: VM;

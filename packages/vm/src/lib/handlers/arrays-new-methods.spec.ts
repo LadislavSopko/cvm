@@ -2,8 +2,8 @@ import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from '../vm.js';
 import { OpCode } from '@cvm/parser';
 import { arraysHandlers } from './arrays.js';
-import { VMState } from '../types.js';
-import { createCVMArray } from '@cvm/types';
+import { createCVMArray, createCVMUndefined } from '@cvm/types';
+import type { VMState } from '../vm.js';
 
 describe('Array new methods', () => {
   let vm: VM;
@@ -29,8 +29,8 @@ describe('Array new methods', () => {
       expect(error).toBeUndefined();
       const resultRef = state.stack.pop()!;
       expect(typeof resultRef).toBe('object');
-      expect(resultRef.type).toBe('array-ref');
-      const heapObj = state.heap.get(resultRef.id);
+      expect((resultRef as any).type).toBe('array-ref');
+      const heapObj = state.heap.get((resultRef as any).id);
       expect(heapObj?.type).toBe('array');
       expect((heapObj?.data as any)?.elements).toEqual(['b', 'c']);
     });
@@ -41,14 +41,14 @@ describe('Array new methods', () => {
       
       state.stack.push(arrayRef);
       state.stack.push(2);
-      state.stack.push(undefined);
+      state.stack.push(createCVMUndefined());
       
       const handler = arraysHandlers[OpCode.ARRAY_SLICE]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_SLICE });
       
       expect(error).toBeUndefined();
       const resultRef = state.stack.pop()!;
-      const heapObj = state.heap.get(resultRef.id);
+      const heapObj = state.heap.get((resultRef as any).id);
       expect(heapObj?.type).toBe('array');
       expect((heapObj?.data as any)?.elements).toEqual(['c', 'd', 'e']);
     });
@@ -66,7 +66,7 @@ describe('Array new methods', () => {
       
       expect(error).toBeUndefined();
       const resultRef = state.stack.pop()!;
-      const heapObj = state.heap.get(resultRef.id);
+      const heapObj = state.heap.get((resultRef as any).id);
       expect(heapObj?.type).toBe('array');
       expect((heapObj?.data as any)?.elements).toEqual(['c', 'd']);
     });
@@ -84,7 +84,7 @@ describe('Array new methods', () => {
       
       expect(error).toBeUndefined();
       const resultRef = state.stack.pop()!;
-      const heapObj = state.heap.get(resultRef.id);
+      const heapObj = state.heap.get((resultRef as any).id);
       expect(heapObj?.type).toBe('array');
       expect((heapObj?.data as any)?.elements).toEqual([]);
     });
@@ -147,7 +147,7 @@ describe('Array new methods', () => {
     });
 
     it('should convert non-string elements to strings', () => {
-      const array = createCVMArray([1, true, null, undefined]);
+      const array = createCVMArray([1, true, null, createCVMUndefined()]);
       const arrayRef = state.heap.allocate('array', array);
       
       state.stack.push(arrayRef);
@@ -245,7 +245,7 @@ describe('Array new methods', () => {
     });
 
     it('should handle null and undefined', () => {
-      const array = createCVMArray([null, undefined, 0, false]);
+      const array = createCVMArray([null, createCVMUndefined(), 0, false]);
       const arrayRef = state.heap.allocate('array', array);
       
       state.stack.push(arrayRef);
