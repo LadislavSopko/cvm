@@ -555,5 +555,65 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       state.stack.push(str.startsWith(search));
       return undefined;
     }
+  },
+
+  [OpCode.STRING_TRIM]: {
+    stackIn: 1,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_TRIM requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      state.stack.push(str.trim());
+      return undefined;
+    }
+  },
+
+  [OpCode.STRING_TRIM_START]: {
+    stackIn: 1,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_TRIM_START requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      state.stack.push(str.trimStart());
+      return undefined;
+    }
+  },
+
+  [OpCode.STRING_TRIM_END]: {
+    stackIn: 1,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_TRIM_END requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      state.stack.push(str.trimEnd());
+      return undefined;
+    }
   }
 };
