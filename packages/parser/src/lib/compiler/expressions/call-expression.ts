@@ -261,6 +261,34 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       }
       state.emit(OpCode.STRING_REPEAT);
     }
+    else if (methodName === 'padStart') {
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, 0);
+      }
+      if (node.arguments.length > 1) {
+        compileExpression(node.arguments[1]);
+      } else {
+        state.emit(OpCode.PUSH, ' ');
+      }
+      state.emit(OpCode.STRING_PAD_START);
+    }
+    else if (methodName === 'padEnd') {
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, 0);
+      }
+      if (node.arguments.length > 1) {
+        compileExpression(node.arguments[1]);
+      } else {
+        state.emit(OpCode.PUSH, ' ');
+      }
+      state.emit(OpCode.STRING_PAD_END);
+    }
     else {
       throw new Error(`Method call '${methodName}' is not supported`);
     }
