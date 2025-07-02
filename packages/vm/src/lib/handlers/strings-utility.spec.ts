@@ -174,4 +174,204 @@ describe('String utility methods', () => {
       expect(error?.message).toBe('STRING_REPEAT requires non-negative number');
     });
   });
+
+  describe('STRING_PAD_START', () => {
+    it('should pad string from start to target length', () => {
+      state.stack.push('5');
+      state.stack.push(3);
+      state.stack.push('0');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_START]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_START });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('005');
+    });
+
+    it('should pad with default space when padString is empty', () => {
+      state.stack.push('test');
+      state.stack.push(8);
+      state.stack.push('');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_START]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_START });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('    test');
+    });
+
+    it('should repeat pad string as needed', () => {
+      state.stack.push('test');
+      state.stack.push(10);
+      state.stack.push('ab');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_START]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_START });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('abababtest');
+    });
+
+    it('should return original string if already at target length', () => {
+      state.stack.push('hello');
+      state.stack.push(5);
+      state.stack.push('x');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_START]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_START });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('hello');
+    });
+
+    it('should return original string if longer than target', () => {
+      state.stack.push('hello world');
+      state.stack.push(5);
+      state.stack.push('x');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_START]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_START });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('hello world');
+    });
+
+    it('should convert non-string pad value to string', () => {
+      state.stack.push('42');
+      state.stack.push(5);
+      state.stack.push(0);
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_START]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_START });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('00042');
+    });
+
+    it('should return error when target is not a string', () => {
+      state.stack.push(123);
+      state.stack.push(5);
+      state.stack.push('0');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_START]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_START });
+      
+      expect(error).toBeDefined();
+      expect(error?.type).toBe('RuntimeError');
+      expect(error?.message).toBe('STRING_PAD_START requires a string');
+    });
+
+    it('should return error when length is not a number', () => {
+      state.stack.push('test');
+      state.stack.push('abc');
+      state.stack.push('0');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_START]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_START });
+      
+      expect(error).toBeDefined();
+      expect(error?.type).toBe('RuntimeError');
+      expect(error?.message).toBe('STRING_PAD_START requires number for length');
+    });
+  });
+
+  describe('STRING_PAD_END', () => {
+    it('should pad string from end to target length', () => {
+      state.stack.push('Name');
+      state.stack.push(10);
+      state.stack.push('.');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_END]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_END });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('Name......');
+    });
+
+    it('should pad with default space when padString is empty', () => {
+      state.stack.push('test');
+      state.stack.push(8);
+      state.stack.push('');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_END]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_END });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('test    ');
+    });
+
+    it('should repeat pad string as needed', () => {
+      state.stack.push('test');
+      state.stack.push(10);
+      state.stack.push('xy');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_END]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_END });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('testxyxyxy');
+    });
+
+    it('should return original string if already at target length', () => {
+      state.stack.push('hello');
+      state.stack.push(5);
+      state.stack.push('x');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_END]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_END });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('hello');
+    });
+
+    it('should return original string if longer than target', () => {
+      state.stack.push('hello world');
+      state.stack.push(5);
+      state.stack.push('x');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_END]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_END });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('hello world');
+    });
+
+    it('should convert non-string pad value to string', () => {
+      state.stack.push('Price');
+      state.stack.push(10);
+      state.stack.push(false);
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_END]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_END });
+      
+      expect(error).toBeUndefined();
+      expect(state.stack.pop()).toBe('Pricefalse');
+    });
+
+    it('should return error when target is not a string', () => {
+      state.stack.push(123);
+      state.stack.push(5);
+      state.stack.push('0');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_END]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_END });
+      
+      expect(error).toBeDefined();
+      expect(error?.type).toBe('RuntimeError');
+      expect(error?.message).toBe('STRING_PAD_END requires a string');
+    });
+
+    it('should return error when length is not a number', () => {
+      state.stack.push('test');
+      state.stack.push('abc');
+      state.stack.push('0');
+      
+      const handler = advancedHandlers[OpCode.STRING_PAD_END]!;
+      const error = handler.execute(state, { op: OpCode.STRING_PAD_END });
+      
+      expect(error).toBeDefined();
+      expect(error?.type).toBe('RuntimeError');
+      expect(error?.message).toBe('STRING_PAD_END requires number for length');
+    });
+  });
 });

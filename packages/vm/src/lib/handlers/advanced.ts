@@ -725,5 +725,69 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       state.stack.push(str.repeat(Math.floor(count)));
       return undefined;
     }
+  },
+
+  [OpCode.STRING_PAD_START]: {
+    stackIn: 3,  // string, targetLength, padString
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const padString = state.stack.pop()!;
+      const targetLength = state.stack.pop()!;
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_PAD_START requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      if (!isCVMNumber(targetLength)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_PAD_START requires number for length',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const pad = isCVMString(padString) ? padString : String(padString);
+      state.stack.push(str.padStart(targetLength, pad || ' '));
+      return undefined;
+    }
+  },
+
+  [OpCode.STRING_PAD_END]: {
+    stackIn: 3,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const padString = state.stack.pop()!;
+      const targetLength = state.stack.pop()!;
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_PAD_END requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      if (!isCVMNumber(targetLength)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_PAD_END requires number for length',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const pad = isCVMString(padString) ? padString : String(padString);
+      state.stack.push(str.padEnd(targetLength, pad || ' '));
+      return undefined;
+    }
   }
 };
