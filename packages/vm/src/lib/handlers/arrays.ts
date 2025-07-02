@@ -319,7 +319,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      const heapObj = state.heap.get(arrayRef.id);
+      const heapObj = state.heap.get((arrayRef as any).id);
       if (!heapObj || heapObj.type !== 'array') {
         return {
           type: 'RuntimeError',
@@ -369,7 +369,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      const heapObj = state.heap.get(arrayRef.id);
+      const heapObj = state.heap.get((arrayRef as any).id);
       if (!heapObj || heapObj.type !== 'array') {
         return {
           type: 'RuntimeError',
@@ -428,7 +428,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      const heapObj = state.heap.get(arrayRef.id);
+      const heapObj = state.heap.get((arrayRef as any).id);
       const array = heapObj!.data as CVMArray;
       const startIdx = isCVMNumber(start) ? start : 0;
       const endIdx = end === undefined ? array.elements.length : 
@@ -474,7 +474,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      const heapObj = state.heap.get(arrayRef.id);
+      const heapObj = state.heap.get((arrayRef as any).id);
       const array = heapObj!.data as CVMArray;
       const sep = isCVMString(separator) ? separator : String(separator);
       
@@ -516,7 +516,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      const heapObj = state.heap.get(arrayRef.id);
+      const heapObj = state.heap.get((arrayRef as any).id);
       const array = heapObj!.data as CVMArray;
       
       // Find index using strict equality
