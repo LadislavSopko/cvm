@@ -489,5 +489,71 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       state.stack.push(result);
       return undefined;
     }
+  },
+
+  [OpCode.STRING_INCLUDES]: {
+    stackIn: 2,  // string, searchString
+    stackOut: 1, // boolean
+    execute: (state, instruction) => {
+      const searchString = state.stack.pop()!;
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_INCLUDES requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const search = String(searchString);
+      state.stack.push(str.includes(search));
+      return undefined;
+    }
+  },
+
+  [OpCode.STRING_ENDS_WITH]: {
+    stackIn: 2,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const searchString = state.stack.pop()!;
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_ENDS_WITH requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const search = String(searchString);
+      state.stack.push(str.endsWith(search));
+      return undefined;
+    }
+  },
+
+  [OpCode.STRING_STARTS_WITH]: {
+    stackIn: 2,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const searchString = state.stack.pop()!;
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_STARTS_WITH requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const search = String(searchString);
+      state.stack.push(str.startsWith(search));
+      return undefined;
+    }
   }
 };
