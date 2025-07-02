@@ -176,6 +176,33 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       compileExpression(node.expression.expression);
       state.emit(OpCode.TO_STRING);
     }
+    else if (methodName === 'includes') {
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, '');
+      }
+      state.emit(OpCode.STRING_INCLUDES);
+    }
+    else if (methodName === 'endsWith') {
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, '');
+      }
+      state.emit(OpCode.STRING_ENDS_WITH);
+    }
+    else if (methodName === 'startsWith') {
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, '');
+      }
+      state.emit(OpCode.STRING_STARTS_WITH);
+    }
     else {
       throw new Error(`Method call '${methodName}' is not supported`);
     }
