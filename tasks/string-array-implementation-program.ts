@@ -22,8 +22,9 @@ function main() {
     var fileOpsBase = " " + contextPrompt + " Use Read, Write, Edit, MultiEdit tools for file operations. Use Bash tool for running commands. ";
     var submitDone = " Submit task with 'done' when complete.";
     var submitTest = " Submit 'passed' if tests pass, 'failed' if they fail.";
-    var runTest = "Run tests using 'npx nx test' command with Bash tool. ";
+    var runTest = "Run tests using appropriate nx command based on project type with Bash tool. ";
     var findCode = "Use Grep and Read tools to search and analyze code. ";
+    var rebuildNote = " Remember: After implementing handlers or compiler changes, rebuild affected packages before running integration/E2E tests. ";
     
     // Track progress
     var completedTasks = [];
@@ -41,34 +42,48 @@ function main() {
         
         // PHASE 2: String Checking Methods (includes, endsWith, startsWith)
         {
-            name: "Task 2: Write Tests for String Checking Methods",
-            implement: "Follow ordered plan Lines 20-23. Write test file string-checking-methods.ts in /home/laco/cvm/test/programs/03-built-ins/. Test includes(), endsWith(), startsWith(). Test cases: path.endsWith('.ts'), path.startsWith('/home'), path.includes('test'). Reference: Implementation plan lines 580-590.",
-            test: "Run the new string checking tests (should fail - methods not implemented).",
+            name: "Task 2: Write VM Unit Tests for String Checking Methods",
+            implement: "Create unit test file 'strings-checking.spec.ts' in /home/laco/cvm/packages/vm/src/lib/handlers/. Write tests for STRING_INCLUDES, STRING_ENDS_WITH, STRING_STARTS_WITH handlers. Test the handler functions directly with mock VM state. Reference: Implementation plan lines 52-115 for handler behavior.",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-checking.spec.ts' (should fail - handlers not implemented).",
             expectFailure: true,
-            project: "integration"
+            project: "vm"
         },
         {
-            name: "Task 3: Add Compiler Support for String Checking",
-            implement: "Follow ordered plan Lines 28-30. Add compiler support for string checking methods in /home/laco/cvm/packages/parser/src/lib/compiler/expressions/call-expression.ts. Add cases for includes, endsWith, startsWith. Reference: Implementation plan lines 455-468.",
-            test: "Build parser package to verify compilation.",
+            name: "Task 3: Implement String Checking Handlers",
+            implement: "Follow ordered plan Lines 34-41. Implement in /home/laco/cvm/packages/vm/src/lib/handlers/advanced.ts: STRING_INCLUDES handler (Implementation plan lines 52-67), STRING_ENDS_WITH handler (Implementation plan lines 76-91), STRING_STARTS_WITH handler (Implementation plan lines 100-115). Make sure handlers are registered in the handlers map.",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-checking.spec.ts' (should now pass).",
+            expectFailure: false,
+            project: "vm"
+        },
+        {
+            name: "Task 4: Add Compiler Support for String Checking",
+            implement: "Follow ordered plan Lines 28-30. Add compiler support for string checking methods in /home/laco/cvm/packages/parser/src/lib/compiler/expressions/call-expression.ts. Add cases for includes, endsWith, startsWith that emit the new opcodes. Reference: Implementation plan lines 455-468.",
+            test: "Build parser package with 'npx nx build parser' to verify compilation.",
             expectFailure: false,
             project: "parser"
         },
         {
-            name: "Tasks 4-6: Implement String Checking Handlers",
-            implement: "Follow ordered plan Lines 34-41. Implement in /home/laco/cvm/packages/vm/src/lib/handlers/advanced.ts: STRING_INCLUDES handler (Implementation plan lines 52-67), STRING_ENDS_WITH handler (Implementation plan lines 76-91), STRING_STARTS_WITH handler (Implementation plan lines 100-115).",
-            test: "Run string checking tests - should now pass.",
+            name: "Task 5: Write Integration Tests for String Checking",
+            implement: "Create integration test in /home/laco/cvm/packages/integration/src/ called 'string-checking-methods.spec.ts'. Test complete flow: compile TypeScript code using the methods -> execute in VM -> verify results. Reference: Implementation plan lines 580-590 for test cases.",
+            test: "Run integration tests with 'npx nx test integration -- string-checking-methods.spec.ts' (should pass).",
             expectFailure: false,
             project: "integration"
         },
         
         // PHASE 3: String Trim Methods
         {
-            name: "Task 7: Write Tests for String Trim Methods",
-            implement: "Follow ordered plan Lines 45-48. Write test file string-trim-methods.ts. Test trim(), trimStart(), trimEnd(). Test whitespace removal from user input. Reference: Implementation plan lines 598-601.",
-            test: "Run the new trim tests (should fail).",
+            name: "Task 6: Write VM Unit Tests for String Trim Methods",
+            implement: "Create unit test file 'strings-trim.spec.ts' in /home/laco/cvm/packages/vm/src/lib/handlers/. Write tests for STRING_TRIM, STRING_TRIM_START, STRING_TRIM_END handlers. Test whitespace removal behavior. Reference: Implementation plan lines 124-137, 209-233.",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-trim.spec.ts' (should fail).",
             expectFailure: true,
-            project: "integration"
+            project: "vm"
+        },
+        {
+            name: "Task 7: Implement Trim Handlers",
+            implement: "Follow ordered plan Lines 56-60. Implement STRING_TRIM handler (Implementation plan lines 124-137), STRING_TRIM_START and STRING_TRIM_END handlers (Implementation plan lines 209-233) in advanced.ts.",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-trim.spec.ts' (should pass).",
+            expectFailure: false,
+            project: "vm"
         },
         {
             name: "Task 8: Add Compiler Support for Trim Methods",
@@ -78,20 +93,27 @@ function main() {
             project: "parser"
         },
         {
-            name: "Tasks 9-10: Implement Trim Handlers",
-            implement: "Follow ordered plan Lines 56-60. Implement STRING_TRIM handler (Implementation plan lines 124-137), STRING_TRIM_START and STRING_TRIM_END handlers (Implementation plan lines 209-233).",
-            test: "Run trim tests - should now pass.",
+            name: "Task 9: Write Integration Tests for Trim Methods",
+            implement: "Add trim method tests to the integration test file. Test whitespace removal from user input. Reference: Implementation plan lines 598-601.",
+            test: "Run integration tests (should pass).",
             expectFailure: false,
             project: "integration"
         },
         
         // PHASE 4: String Replace Methods
         {
-            name: "Task 11: Write Tests for String Replace Methods",
-            implement: "Follow ordered plan Lines 64-67. Write test file string-replace-methods.ts. Test replace() and replaceAll(). Test: path.replace('/home/user', '~'), path.replaceAll('/', '\\\\'). Reference: Implementation plan lines 604-605.",
-            test: "Run the new replace tests (should fail).",
+            name: "Task 10: Write VM Unit Tests for String Replace Methods",
+            implement: "Create unit test file 'strings-replace.spec.ts' in /home/laco/cvm/packages/vm/src/lib/handlers/. Write tests for STRING_REPLACE and STRING_REPLACE_ALL handlers. Test single vs all occurrences. Reference: Implementation plan lines 146-199.",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-replace.spec.ts' (should fail).",
             expectFailure: true,
-            project: "integration"
+            project: "vm"
+        },
+        {
+            name: "Task 11: Implement Replace Handlers",
+            implement: "Follow ordered plan Lines 75-79. Implement STRING_REPLACE handler - FIRST occurrence only (Implementation plan lines 146-169), and STRING_REPLACE_ALL handler (Implementation plan lines 178-199).",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-replace.spec.ts' (should pass).",
+            expectFailure: false,
+            project: "vm"
         },
         {
             name: "Task 12: Add Compiler Support for Replace Methods",
@@ -100,125 +122,121 @@ function main() {
             expectFailure: false,
             project: "parser"
         },
-        {
-            name: "Tasks 13-14: Implement Replace Handlers",
-            implement: "Follow ordered plan Lines 75-79. Implement STRING_REPLACE handler - FIRST occurrence only (Implementation plan lines 146-169), and STRING_REPLACE_ALL handler (Implementation plan lines 178-199).",
-            test: "Run replace tests - should now pass.",
-            expectFailure: false,
-            project: "integration"
-        },
         
         // PHASE 5: String Utility Methods (lastIndexOf, repeat)
         {
-            name: "Task 15: Write Tests for String Utility Methods Part 1",
-            implement: "Follow ordered plan Lines 83-86. Write test file string-utility-methods.ts. Test lastIndexOf() and repeat(). Test: path.lastIndexOf('.'), '='.repeat(50). Reference: Implementation plan lines 593-594, 608.",
-            test: "Run the utility tests (should fail).",
+            name: "Task 13: Write VM Unit Tests for String Utility Methods",
+            implement: "Create unit test file 'strings-utility.spec.ts' in /home/laco/cvm/packages/vm/src/lib/handlers/. Write tests for STRING_LAST_INDEX_OF and STRING_REPEAT handlers. Reference: Implementation plan lines 242-283.",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-utility.spec.ts' (should fail).",
             expectFailure: true,
-            project: "integration"
+            project: "vm"
         },
         {
-            name: "Task 16: Add Compiler Support for Utility Methods Part 1",
+            name: "Task 14: Implement Utility Handlers",
+            implement: "Follow ordered plan Lines 94-98. Implement STRING_LAST_INDEX_OF handler (Implementation plan lines 242-257) and STRING_REPEAT handler (Implementation plan lines 266-283).",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-utility.spec.ts' (should pass).",
+            expectFailure: false,
+            project: "vm"
+        },
+        {
+            name: "Task 15: Add Compiler Support for Utility Methods",
             implement: "Follow ordered plan Lines 90-92. Add compiler support for lastIndexOf and repeat. Reference: Implementation plan lines 550-558.",
             test: "Build parser package.",
             expectFailure: false,
             project: "parser"
         },
-        {
-            name: "Tasks 17-18: Implement Utility Handlers Part 1",
-            implement: "Follow ordered plan Lines 94-98. Implement STRING_LAST_INDEX_OF handler (Implementation plan lines 242-257) and STRING_REPEAT handler (Implementation plan lines 266-283).",
-            test: "Run utility tests - should now pass.",
-            expectFailure: false,
-            project: "integration"
-        },
         
         // PHASE 6: String Padding Methods
         {
-            name: "Task 19: Write Tests for String Padding Methods",
-            implement: "Follow ordered plan Lines 102-105. Update string-utility-methods.ts to also test padStart() and padEnd(). Test: 'Name'.padEnd(20, ' '), '42'.padStart(5, '0'). Reference: Implementation plan lines 612-619.",
-            test: "Run the updated utility tests (padding tests should fail).",
+            name: "Task 16: Write VM Unit Tests for String Padding Methods",
+            implement: "Add tests to 'strings-utility.spec.ts' for STRING_PAD_START and STRING_PAD_END handlers. Test padding with different fill strings. Reference: Implementation plan lines 294-336.",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-utility.spec.ts' (padding tests should fail).",
             expectFailure: true,
-            project: "integration"
+            project: "vm"
         },
         {
-            name: "Task 20: Add Compiler Support for Padding Methods",
+            name: "Task 17: Implement Padding Handlers",
+            implement: "Follow ordered plan Lines 113-114. Implement STRING_PAD_START and STRING_PAD_END handlers. Reference: Implementation plan lines 294-336.",
+            test: "Run VM unit tests with 'npx nx test vm -- strings-utility.spec.ts' (all should pass).",
+            expectFailure: false,
+            project: "vm"
+        },
+        {
+            name: "Task 18: Add Compiler Support for Padding Methods",
             implement: "Follow ordered plan Lines 109-111. Add compiler support for padStart and padEnd. Reference: Implementation plan lines 560-571.",
             test: "Build parser package.",
             expectFailure: false,
             project: "parser"
         },
-        {
-            name: "Task 21: Implement Padding Handlers",
-            implement: "Follow ordered plan Lines 113-114. Implement STRING_PAD_START and STRING_PAD_END handlers. Reference: Implementation plan lines 294-336.",
-            test: "Run utility tests - all should now pass.",
-            expectFailure: false,
-            project: "integration"
-        },
         
         // PHASE 7: Array Methods
         {
-            name: "Task 22: Write Tests for Array Methods",
-            implement: "Follow ordered plan Lines 118-121. Write test file array-methods.ts. Test slice(), join(), indexOf(). Test: files.slice(0, 2), files.join(','), files.indexOf('README.md'). Reference: Implementation plan lines 624-635.",
-            test: "Run the array tests (should fail).",
+            name: "Task 19: Write VM Unit Tests for Array Methods",
+            implement: "Create unit test file 'arrays-new-methods.spec.ts' in /home/laco/cvm/packages/vm/src/lib/handlers/. Write tests for ARRAY_SLICE, ARRAY_JOIN, and ARRAY_INDEX_OF handlers. Reference: Implementation plan lines 347-446.",
+            test: "Run VM unit tests with 'npx nx test vm -- arrays-new-methods.spec.ts' (should fail).",
             expectFailure: true,
-            project: "integration"
+            project: "vm"
         },
         {
-            name: "Task 23: Add Compiler Support for Array Methods",
+            name: "Task 20: Implement Array Handlers",
+            implement: "Follow ordered plan Lines 132-139. Implement in /home/laco/cvm/packages/vm/src/lib/handlers/arrays.ts: ARRAY_SLICE handler (Implementation plan lines 347-379), ARRAY_JOIN handler (Implementation plan lines 388-413), ARRAY_INDEX_OF handler (Implementation plan lines 422-446).",
+            test: "Run VM unit tests with 'npx nx test vm -- arrays-new-methods.spec.ts' (should pass).",
+            expectFailure: false,
+            project: "vm"
+        },
+        {
+            name: "Task 21: Add Compiler Support for Array Methods",
             implement: "Follow ordered plan Lines 125-128. Add compiler support for slice, join, indexOf. Note: slice needs special handling for optional second argument. Reference: Implementation plan lines 481-501.",
             test: "Build parser package.",
             expectFailure: false,
             project: "parser"
         },
+        
+        // PHASE 8: Integration Testing
         {
-            name: "Tasks 24-26: Implement Array Handlers",
-            implement: "Follow ordered plan Lines 132-139. Implement in /home/laco/cvm/packages/vm/src/lib/handlers/arrays.ts: ARRAY_SLICE handler (Implementation plan lines 347-379), ARRAY_JOIN handler (Implementation plan lines 388-413), ARRAY_INDEX_OF handler (Implementation plan lines 422-446).",
-            test: "Run array tests - should now pass.",
+            name: "Task 22: Write Comprehensive Integration Tests",
+            implement: "Create comprehensive integration test in /home/laco/cvm/packages/integration/src/ called 'string-array-all-methods.spec.ts'. Test all 15 methods working together through the full compile->execute pipeline. Reference: Implementation plan lines 575-638.",
+            test: "Run integration tests with 'npx nx test integration -- string-array-all-methods.spec.ts' (should pass).",
             expectFailure: false,
             project: "integration"
         },
         
-        // PHASE 8: Comprehensive Integration Test
+        // PHASE 9: E2E Testing
         {
-            name: "Task 27: Write Comprehensive Integration Test",
-            implement: "Follow ordered plan Lines 143-146. Create comprehensive test /home/laco/cvm/test/programs/09-comprehensive/string-array-methods-all.ts that tests all 15 methods together. Reference: Implementation plan lines 575-638.",
-            test: "Run comprehensive test (some parts may fail if there are integration issues).",
-            expectFailure: true,
-            project: "integration"
-        },
-        {
-            name: "Fix Any Integration Issues",
-            implement: "Debug and fix any remaining issues found by the comprehensive test. Check handler registrations, imports, and edge cases.",
-            test: "Run comprehensive test - should now pass completely.",
+            name: "Task 23: Write E2E Test Program",
+            implement: "Create E2E test program /home/laco/cvm/test/programs/09-comprehensive/string-array-methods-all.ts that demonstrates all 15 methods in a realistic CVM program with CC() calls. Reference: Implementation plan lines 575-638. Read how run e2e in /home/laco/cvm/memory-bank/docs/E2E_TESTING.md)",
+            test: "Run E2E test with MCP client from test/integration directory: 'npx tsx mcp-test-client.ts ../programs/09-comprehensive/string-array-methods-all.ts [responses]' (should pass).",
             expectFailure: false,
-            project: "integration"
+            project: "e2e"
         },
         
-        // PHASE 9: Final Validation
+        // PHASE 10: Final Validation
         {
-            name: "Task 28: Run All VM Tests",
-            implement: "Follow ordered plan Lines 150-151. Ensure no regressions in existing functionality.",
-            test: "Run all VM package tests.",
+            name: "Task 24: Run All VM Tests",
+            implement: "Ensure no regressions in existing VM functionality.",
+            test: "Run all VM package tests with 'npx nx test vm' (all should pass).",
             expectFailure: false,
             project: "vm"
         },
         {
-            name: "Task 29: Run All Parser Tests",
-            implement: "Follow ordered plan Lines 153-154. Ensure parser changes don't break existing code.",
-            test: "Run all parser package tests.",
+            name: "Task 25: Run All Parser Tests",
+            implement: "Ensure parser changes don't break existing code.",
+            test: "Run all parser package tests with 'npx nx test parser' (all should pass).",
             expectFailure: false,
             project: "parser"
         },
         {
-            name: "Task 30: Update Documentation",
-            implement: "Follow ordered plan Lines 156-158. Update /home/laco/cvm/docs/API.md to mark all methods as 'Implemented & Tested'. Remove them from roadmap section.",
+            name: "Task 26: Update Documentation",
+            implement: "Update /home/laco/cvm/docs/API.md to mark all methods as 'Implemented & Tested'. Remove them from roadmap section.",
             test: "",
             expectFailure: false,
-            project: ""
+            project: "docs"
         }
     ];
     
     // Process all tasks
     console.log("Starting TDD task processing. Total tasks: " + tasks.length);
+    console.log("Task flow: VM Unit Tests -> Implementation -> Parser Support -> Integration Tests -> E2E Tests");
     var i = 0;
     while (i < tasks.length) {
         console.log("\n=== Task " + (i + 1) + " of " + tasks.length + " ===");
@@ -230,18 +248,21 @@ function main() {
         var taskProject = task["project"];
         
         console.log("Task: " + taskName);
+        console.log("Project: " + (taskProject || "none"));
         
         // Implementation phase
-        var implementPrompt = "[" + taskName + "]: " + fileOpsBase + "Read the ordered plan at the specified lines. " + taskImplement + submitDone;
+        var implementPrompt = "[" + taskName + "]: " + fileOpsBase + "Read the ordered plan at the specified lines if mentioned. " + taskImplement + submitDone;
         CC(implementPrompt);
         
         var continueOnFeature = true;
         
         // Test phase if task has tests
         if (taskTest != "") {
-            console.log("Running tests for: " + taskName);
+            console.log("Test type: " + (taskProject == "e2e" ? "E2E Test" : (taskProject || "validation") + " tests"));
             var expectFailure = task["expectFailure"];
-            var testPrompt = fileOpsBase + taskTest + " " + runTest + (taskProject ? taskProject + " " : "") + submitTest;
+            
+            // The test description contains the exact command to run
+            var testPrompt = fileOpsBase + taskTest + " " + submitTest;
             var testResult = CC(testPrompt);
             
             // TDD: Handle expected failures
@@ -257,10 +278,23 @@ function main() {
                 }
             } else if (!expectFailure && testResult == "failed") {
                 // Test should pass but failed - need to fix
-                while (testResult != "passed") {
-                    console.log("Tests failing. Debugging and fixing...");
-                    CC(fileOpsBase + findCode + "Fix the implementation for " + taskName + ". Check the implementation plan for exact specifications. Make minimal changes to make tests pass." + submitDone);
-                    testResult = CC(fileOpsBase + runTest + taskProject + " to verify fixes." + submitTest);
+                var allClean = false;
+                while (!allClean) {
+                    if (testResult != "passed") {
+                        console.log("Tests failing. Debugging and fixing...");
+                        CC(fileOpsBase + findCode + "Fix the implementation for " + taskName + ". Check the implementation plan for exact specifications. Make minimal changes to make tests pass." + submitDone);
+                        // Re-run the test using the command from task description
+                        testResult = CC(fileOpsBase + "Re-run the test to verify fixes. " + taskTest + " " + submitTest);
+                    } else {
+                        // Tests pass, now check types
+                        var typecheckResult = CC(fileOpsBase + "Run typecheck for " + taskProject + " package using 'npx nx run " + taskProject + ":typecheck' command. If there are type errors, fix them. Submit 'clean' if no errors, 'errors' if there are errors to fix." + submitDone);
+                        if (typecheckResult == "clean") {
+                            allClean = true;
+                        } else {
+                            // Re-run tests after type fixes to ensure nothing broke
+                            testResult = CC(fileOpsBase + "Re-run test to verify type fixes didn't break anything. " + taskTest + " " + submitTest);
+                        }
+                    }
                 }
             }
         }
@@ -269,22 +303,24 @@ function main() {
         console.log("Completed: " + taskName);
         
         i = i + 1;
+        CC("Commit progress: Completed " + (i) + " of " + tasks.length + " tasks. Continue to next task. IMPORTANT: Use only technical commit message - do NOT include emojis, attributions, co-authors, or non-technical information like 'Generated with Claude'.");
     }
     
     // Final steps
     console.log("\n=== Final Steps ===");
     
     // Commit changes
-    CC(fileOpsBase + "Git add and commit changes with message: 'feat(cvm): implement 15 string and array methods using TDD' - Include list of all methods added." + submitDone);
+    CC(fileOpsBase + "Git add and commit changes with message: 'feat(cvm): implement 15 string and array methods using TDD' - Include list of all methods added. IMPORTANT: Use only technical commit message - do NOT include emojis, attributions, co-authors, or non-technical information like 'Generated with Claude'." + submitDone);
     
     // Update Memory Bank
     CC(fileOpsBase + "Update Memory Bank progress.md with: 'Implemented 15 string/array methods for CVM using TDD. Added: string.includes, endsWith, startsWith, trim, trimStart, trimEnd, replace, replaceAll, lastIndexOf, repeat, padStart, padEnd, array.slice, join, indexOf. All methods are JavaScript-compliant and tested.'" + submitDone);
     
     console.log("\n=== String & Array Methods Implementation Complete! ===");
-    console.log("Completed tasks: " + completedTasks.length);
+    console.log("Completed tasks: " + completedTasks.length + " of " + tasks.length);
+    console.log("Methods implemented: 12 string methods + 3 array methods = 15 total");
     
     // Create completion report
-    CC(fileOpsBase + "Create completion report at /home/laco/cvm/tasks/string-array-methods-complete.md listing: 1) All 15 methods implemented, 2) Test coverage for each method group, 3) TDD process followed, 4) JavaScript compliance verified." + submitDone);
+    CC(fileOpsBase + "Create completion report at /home/laco/cvm/tasks/string-array-methods-complete.md listing: 1) All 15 methods implemented with TDD approach, 2) Unit tests -> Implementation -> Compiler -> Integration -> E2E flow followed, 3) Test coverage at unit, integration, and E2E levels, 4) JavaScript compliance verified." + submitDone);
     
-    return "TDD Implementation Complete: 15 string/array methods added";
+    return "TDD Implementation Complete: 15 string/array methods added with full test coverage";
 }
