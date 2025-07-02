@@ -129,7 +129,9 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       state.emit(OpCode.STRING_SPLIT);
     }
     else if (methodName === 'slice') {
-      // Check if this is a string or array method
+      // This method exists on both strings and arrays
+      // Since we can't determine type at compile time, we need to handle this differently
+      // For now, we'll add a separate check after the string methods
       compileExpression(node.expression.expression);
       
       // Compile start argument
@@ -302,6 +304,17 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
         state.emit(OpCode.PUSH, ' ');
       }
       state.emit(OpCode.STRING_PAD_END);
+    }
+    // Array methods that share names with string methods need special handling
+    else if (methodName === 'push') {
+      // Array push method
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH_UNDEFINED);
+      }
+      state.emit(OpCode.ARRAY_PUSH);
     }
     else {
       throw new Error(`Method call '${methodName}' is not supported`);
