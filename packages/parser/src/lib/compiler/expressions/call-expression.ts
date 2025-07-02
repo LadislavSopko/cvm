@@ -203,6 +203,18 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       }
       state.emit(OpCode.STRING_STARTS_WITH);
     }
+    else if (methodName === 'trim') {
+      compileExpression(node.expression.expression);
+      state.emit(OpCode.STRING_TRIM);
+    }
+    else if (methodName === 'trimStart') {
+      compileExpression(node.expression.expression);
+      state.emit(OpCode.STRING_TRIM_START);
+    }
+    else if (methodName === 'trimEnd') {
+      compileExpression(node.expression.expression);
+      state.emit(OpCode.STRING_TRIM_END);
+    }
     else {
       throw new Error(`Method call '${methodName}' is not supported`);
     }
