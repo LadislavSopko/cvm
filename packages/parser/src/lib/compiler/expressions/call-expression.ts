@@ -215,6 +215,34 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       compileExpression(node.expression.expression);
       state.emit(OpCode.STRING_TRIM_END);
     }
+    else if (methodName === 'replace') {
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, '');
+      }
+      if (node.arguments.length > 1) {
+        compileExpression(node.arguments[1]);
+      } else {
+        state.emit(OpCode.PUSH, '');
+      }
+      state.emit(OpCode.STRING_REPLACE);
+    }
+    else if (methodName === 'replaceAll') {
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, '');
+      }
+      if (node.arguments.length > 1) {
+        compileExpression(node.arguments[1]);
+      } else {
+        state.emit(OpCode.PUSH, '');
+      }
+      state.emit(OpCode.STRING_REPLACE_ALL);
+    }
     else {
       throw new Error(`Method call '${methodName}' is not supported`);
     }
