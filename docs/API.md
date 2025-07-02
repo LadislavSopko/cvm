@@ -90,9 +90,13 @@ arr.reduce()  // WILL NOT WORK!
 arr.forEach() // WILL NOT WORK!
 arr.find()    // WILL NOT WORK!
 arr.sort()    // WILL NOT WORK!
-arr.slice()   // WILL NOT WORK!
 
-// ✅ Only array.push() and array.length are supported
+// ✅ Supported array methods:
+// array.push()
+// array.length
+// array.slice()    // WORKS! (implemented)
+// array.join()     // WORKS! (implemented)
+// array.indexOf()  // WORKS! (implemented)
 
 // ❌ Object methods
 Object.keys(obj)    // WILL NOT WORK!
@@ -1189,7 +1193,7 @@ CVM follows JavaScript's type system with some differences:
 4. **for loops** - No traditional for(;;) loops
 5. **Additional file operations** - Only fs.listFiles() is implemented
 6. **Error handling** - No try/catch/throw
-7. **Additional string methods** - match, search, padLeft, padRight (most common methods now implemented)
+7. **Additional string methods** - match, search (Note: padStart/padEnd are implemented as JavaScript standard names)
 
 ## Error Handling
 
