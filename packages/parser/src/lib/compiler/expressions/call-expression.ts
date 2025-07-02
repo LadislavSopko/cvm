@@ -129,7 +129,7 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       state.emit(OpCode.STRING_SPLIT);
     }
     else if (methodName === 'slice') {
-      // Compile the string expression
+      // Check if this is a string or array method
       compileExpression(node.expression.expression);
       
       // Compile start argument
@@ -142,9 +142,23 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       // Compile end argument if provided
       if (node.arguments.length > 1) {
         compileExpression(node.arguments[1]);
+      } else {
+        state.emit(OpCode.PUSH_UNDEFINED);
       }
       
+      // For now, emit STRING_SLICE - it will work for strings
+      // Arrays will need to use a different approach or runtime type checking
       state.emit(OpCode.STRING_SLICE);
+    }
+    else if (methodName === 'join') {
+      // Array join method
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, ',');
+      }
+      state.emit(OpCode.ARRAY_JOIN);
     }
     else if (methodName === 'charAt') {
       // Compile the string expression
