@@ -243,6 +243,24 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       }
       state.emit(OpCode.STRING_REPLACE_ALL);
     }
+    else if (methodName === 'lastIndexOf') {
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, '');
+      }
+      state.emit(OpCode.STRING_LAST_INDEX_OF);
+    }
+    else if (methodName === 'repeat') {
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, 0);
+      }
+      state.emit(OpCode.STRING_REPEAT);
+    }
     else {
       throw new Error(`Method call '${methodName}' is not supported`);
     }
