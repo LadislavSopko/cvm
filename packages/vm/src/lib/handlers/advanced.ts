@@ -615,5 +615,63 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       state.stack.push(str.trimEnd());
       return undefined;
     }
+  },
+
+  [OpCode.STRING_REPLACE]: {
+    stackIn: 3,  // string, search, replacement
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const replacement = state.stack.pop()!;
+      const search = state.stack.pop()!;
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_REPLACE requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const searchStr = String(search);
+      const replaceStr = String(replacement);
+      
+      // Replace FIRST occurrence only
+      const index = str.indexOf(searchStr);
+      const result = index === -1 ? str : 
+        str.substring(0, index) + replaceStr + str.substring(index + searchStr.length);
+      
+      state.stack.push(result);
+      return undefined;
+    }
+  },
+
+  [OpCode.STRING_REPLACE_ALL]: {
+    stackIn: 3,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const replacement = state.stack.pop()!;
+      const search = state.stack.pop()!;
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_REPLACE_ALL requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const searchStr = String(search);
+      const replaceStr = String(replacement);
+      
+      // Replace ALL occurrences using split/join
+      const result = str.split(searchStr).join(replaceStr);
+      
+      state.stack.push(result);
+      return undefined;
+    }
   }
 };
