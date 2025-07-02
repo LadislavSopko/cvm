@@ -28,9 +28,11 @@ describe('Array new methods', () => {
       
       expect(error).toBeUndefined();
       const resultRef = state.stack.pop()!;
-      const result = state.heap.get(resultRef);
-      expect(result.type).toBe('array');
-      expect(result.elements).toEqual(['b', 'c']);
+      expect(typeof resultRef).toBe('object');
+      expect(resultRef.type).toBe('array-ref');
+      const heapObj = state.heap.get(resultRef.id);
+      expect(heapObj?.type).toBe('array');
+      expect((heapObj?.data as any)?.elements).toEqual(['b', 'c']);
     });
 
     it('should slice array with only start index', () => {
@@ -46,9 +48,9 @@ describe('Array new methods', () => {
       
       expect(error).toBeUndefined();
       const resultRef = state.stack.pop()!;
-      const result = state.heap.get(resultRef);
-      expect(result.type).toBe('array');
-      expect(result.elements).toEqual(['c', 'd', 'e']);
+      const heapObj = state.heap.get(resultRef.id);
+      expect(heapObj?.type).toBe('array');
+      expect((heapObj?.data as any)?.elements).toEqual(['c', 'd', 'e']);
     });
 
     it('should handle negative indices', () => {
@@ -64,9 +66,9 @@ describe('Array new methods', () => {
       
       expect(error).toBeUndefined();
       const resultRef = state.stack.pop()!;
-      const result = state.heap.get(resultRef);
-      expect(result.type).toBe('array');
-      expect(result.elements).toEqual(['c', 'd']);
+      const heapObj = state.heap.get(resultRef.id);
+      expect(heapObj?.type).toBe('array');
+      expect((heapObj?.data as any)?.elements).toEqual(['c', 'd']);
     });
 
     it('should return empty array when start >= end', () => {
@@ -82,9 +84,9 @@ describe('Array new methods', () => {
       
       expect(error).toBeUndefined();
       const resultRef = state.stack.pop()!;
-      const result = state.heap.get(resultRef);
-      expect(result.type).toBe('array');
-      expect(result.elements).toEqual([]);
+      const heapObj = state.heap.get(resultRef.id);
+      expect(heapObj?.type).toBe('array');
+      expect((heapObj?.data as any)?.elements).toEqual([]);
     });
 
     it('should return error when target is not an array', () => {

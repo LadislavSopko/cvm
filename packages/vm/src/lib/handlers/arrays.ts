@@ -400,5 +400,138 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       state.stack.push(resultRef);
       return undefined;
     }
+  },
+
+  [OpCode.ARRAY_SLICE]: {
+    stackIn: 3,  // array, start, end
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const end = state.stack.pop()!;
+      const start = state.stack.pop()!;
+      const arrayRef = state.stack.pop()!;
+      
+      // Helper function to check if value is an array reference
+      const isArrayReference = (value: any): boolean => {
+        if (!isCVMArrayRef(value)) {
+          return false;
+        }
+        const heapObj = state.heap.get(value.id);
+        return heapObj !== undefined && heapObj.type === 'array';
+      };
+      
+      if (!isArrayReference(arrayRef)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'ARRAY_SLICE requires an array',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const heapObj = state.heap.get(arrayRef.id);
+      const array = heapObj!.data as CVMArray;
+      const startIdx = isCVMNumber(start) ? start : 0;
+      const endIdx = end === undefined ? array.elements.length : 
+                     isCVMNumber(end) ? end : array.elements.length;
+      
+      // Handle negative indices
+      const normalizedStart = startIdx < 0 ? 
+        Math.max(0, array.elements.length + startIdx) : startIdx;
+      const normalizedEnd = endIdx < 0 ? 
+        Math.max(0, array.elements.length + endIdx) : endIdx;
+      
+      const slicedElements = array.elements.slice(normalizedStart, normalizedEnd);
+      const newArray = createCVMArray(slicedElements);
+      const newArrayRef = state.heap.allocate('array', newArray);
+      
+      state.stack.push(newArrayRef);
+      return undefined;
+    }
+  },
+
+  [OpCode.ARRAY_JOIN]: {
+    stackIn: 2,  // array, separator
+    stackOut: 1, // string
+    execute: (state, instruction) => {
+      const separator = state.stack.pop()!;
+      const arrayRef = state.stack.pop()!;
+      
+      // Helper function to check if value is an array reference
+      const isArrayReference = (value: any): boolean => {
+        if (!isCVMArrayRef(value)) {
+          return false;
+        }
+        const heapObj = state.heap.get(value.id);
+        return heapObj !== undefined && heapObj.type === 'array';
+      };
+      
+      if (!isArrayReference(arrayRef)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'ARRAY_JOIN requires an array',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const heapObj = state.heap.get(arrayRef.id);
+      const array = heapObj!.data as CVMArray;
+      const sep = isCVMString(separator) ? separator : String(separator);
+      
+      // Convert all elements to strings
+      const stringElements = array.elements.map(el => {
+        if (el === null) return 'null';
+        if (el === undefined) return 'undefined';
+        return String(el);
+      });
+      
+      const result = stringElements.join(sep);
+      state.stack.push(result);
+      return undefined;
+    }
+  },
+
+  [OpCode.ARRAY_INDEX_OF]: {
+    stackIn: 2,  // array, searchElement
+    stackOut: 1, // number (index or -1)
+    execute: (state, instruction) => {
+      const searchElement = state.stack.pop()!;
+      const arrayRef = state.stack.pop()!;
+      
+      // Helper function to check if value is an array reference
+      const isArrayReference = (value: any): boolean => {
+        if (!isCVMArrayRef(value)) {
+          return false;
+        }
+        const heapObj = state.heap.get(value.id);
+        return heapObj !== undefined && heapObj.type === 'array';
+      };
+      
+      if (!isArrayReference(arrayRef)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'ARRAY_INDEX_OF requires an array',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const heapObj = state.heap.get(arrayRef.id);
+      const array = heapObj!.data as CVMArray;
+      
+      // Find index using strict equality
+      for (let i = 0; i < array.elements.length; i++) {
+        if (array.elements[i] === searchElement) {
+          state.stack.push(i);
+          return undefined;
+        }
+      }
+      
+      state.stack.push(-1); // Not found
+      return undefined;
+    }
   }
 };
+
+// Also export as arraysHandlers for consistency
+export const arraysHandlers = arrayHandlers;
