@@ -1,6 +1,6 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString } from '@cvm/types';
+import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber } from '@cvm/types';
 
 export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.RETURN]: {
@@ -671,6 +671,58 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const result = str.split(searchStr).join(replaceStr);
       
       state.stack.push(result);
+      return undefined;
+    }
+  },
+
+  [OpCode.STRING_LAST_INDEX_OF]: {
+    stackIn: 2,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const searchString = state.stack.pop()!;
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_LAST_INDEX_OF requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const search = String(searchString);
+      state.stack.push(str.lastIndexOf(search));
+      return undefined;
+    }
+  },
+
+  [OpCode.STRING_REPEAT]: {
+    stackIn: 2,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const count = state.stack.pop()!;
+      const str = state.stack.pop()!;
+      
+      if (!isCVMString(str)) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_REPEAT requires a string',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      if (!isCVMNumber(count) || count < 0) {
+        return { 
+          type: 'RuntimeError', 
+          message: 'STRING_REPEAT requires non-negative number',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      state.stack.push(str.repeat(Math.floor(count)));
       return undefined;
     }
   }
