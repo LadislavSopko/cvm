@@ -440,32 +440,146 @@ Returns the string converted to lowercase.
 ```
 
 ### string.endsWith(searchString) → boolean
-**Status**: ❌ Not Implemented (Priority: Must Have)
+**Status**: ✅ Implemented & Tested
 
-Will return true if the string ends with the specified searchString.
+Returns true if the string ends with the specified searchString.
 
 ```javascript
-// Future implementation:
 "hello.txt".endsWith(".txt");    // true
 "hello.txt".endsWith(".js");     // false
 "hello".endsWith("lo");          // true
+"test".endsWith("");             // true (empty string always matches)
 ```
 
 **Note**: Essential for file type detection in CVM programs.
 
 ### string.includes(searchString) → boolean
-**Status**: ❌ Not Implemented (Priority: Must Have)
+**Status**: ✅ Implemented & Tested
 
-Will return true if the string contains the specified searchString.
+Returns true if the string contains the specified searchString.
 
 ```javascript
-// Future implementation:
 "hello world".includes("world"); // true
 "hello world".includes("xyz");   // false
 "/path/to/test.js".includes("test"); // true
+"test".includes("");             // true (empty string always found)
 ```
 
 **Note**: Essential for path pattern matching in CVM programs.
+
+### string.startsWith(searchString) → boolean
+**Status**: ✅ Implemented & Tested
+
+Returns true if the string starts with the specified searchString.
+
+```javascript
+"/home/user/file.txt".startsWith("/home");  // true
+"hello world".startsWith("hello");          // true
+"test".startsWith("est");                   // false
+"test".startsWith("");                      // true (empty string always matches)
+```
+
+### string.trim() → string
+**Status**: ✅ Implemented & Tested
+
+Removes whitespace from both ends of the string.
+
+```javascript
+"  hello  ".trim();       // "hello"
+"\t\ntest\r\n".trim();    // "test"
+"no whitespace".trim();   // "no whitespace"
+```
+
+### string.trimStart() → string
+**Status**: ✅ Implemented & Tested
+
+Removes whitespace from the beginning of the string.
+
+```javascript
+"  hello  ".trimStart();    // "hello  "
+"\t\ntest".trimStart();     // "test"
+"no space".trimStart();     // "no space"
+```
+
+### string.trimEnd() → string
+**Status**: ✅ Implemented & Tested
+
+Removes whitespace from the end of the string.
+
+```javascript
+"  hello  ".trimEnd();      // "  hello"
+"test\r\n".trimEnd();       // "test"
+"no space".trimEnd();       // "no space"
+```
+
+### string.replace(search, replacement) → string
+**Status**: ✅ Implemented & Tested
+
+Replaces the FIRST occurrence of search string with replacement.
+
+```javascript
+"hello world".replace("o", "a");        // "hella world" (only first 'o')
+"test test".replace("test", "best");    // "best test"
+"no match".replace("xyz", "abc");       // "no match" (no change)
+```
+
+### string.replaceAll(search, replacement) → string
+**Status**: ✅ Implemented & Tested
+
+Replaces ALL occurrences of search string with replacement.
+
+```javascript
+"hello world".replaceAll("o", "a");     // "hella warld" (all 'o's)
+"test test".replaceAll("test", "best"); // "best best"
+"aaa".replaceAll("a", "b");             // "bbb"
+```
+
+### string.lastIndexOf(searchString) → number
+**Status**: ✅ Implemented & Tested
+
+Returns the index of the last occurrence of searchString, or -1 if not found.
+
+```javascript
+"hello world hello".lastIndexOf("hello");  // 12
+"test.backup.js".lastIndexOf(".");         // 11
+"no match".lastIndexOf("xyz");             // -1
+```
+
+### string.repeat(count) → string
+**Status**: ✅ Implemented & Tested
+
+Returns a new string with the original string repeated count times.
+
+```javascript
+"ha".repeat(3);           // "hahaha"
+"=".repeat(10);          // "=========="
+"test".repeat(0);        // ""
+"x".repeat(5);           // "xxxxx"
+```
+
+### string.padStart(targetLength, padString) → string
+**Status**: ✅ Implemented & Tested
+
+Pads the string from the start to reach targetLength using padString.
+
+```javascript
+"5".padStart(3, "0");         // "005"
+"hello".padStart(10, " ");    // "     hello"
+"test".padStart(6, "ab");     // "abtest"
+"long string".padStart(5, "x"); // "long string" (already longer)
+```
+
+### string.padEnd(targetLength, padString) → string
+**Status**: ✅ Implemented & Tested
+
+Pads the string from the end to reach targetLength using padString.
+
+```javascript
+"5".padEnd(3, "0");           // "500"
+"hello".padEnd(10, ".");      // "hello....."
+"test".padEnd(6, "ab");       // "testab"
+"long string".padEnd(5, "x"); // "long string" (already longer)
+```
 
 ### value.toString() → string
 **Status**: ✅ Implemented
@@ -532,19 +646,54 @@ let count = arr.length;
 ```
 
 ### array.slice(start[, end]) → array
-**Status**: ❌ Not Implemented (Priority: Must Have)
+**Status**: ✅ Implemented & Tested
 
-Will extract a section of the array and return it as a new array.
+Extracts a section of the array and returns it as a new array.
 
 ```javascript
-// Future implementation:
 let arr = [1, 2, 3, 4, 5];
 arr.slice(1, 3);      // [2, 3]
 arr.slice(2);         // [3, 4, 5]
 arr.slice(-2);        // [4, 5]
+arr.slice(0, -1);     // [1, 2, 3, 4]
 ```
 
+**Special behaviors**:
+- Negative indices count from the end of the array
+- If end is omitted, extracts to the end of the array
+- Returns a new array (does not modify original)
+
 **Note**: Essential for batch processing in CVM programs.
+
+### array.join(separator) → string
+**Status**: ✅ Implemented & Tested
+
+Joins all array elements into a string using the specified separator.
+
+```javascript
+["a", "b", "c"].join(",");          // "a,b,c"
+[1, 2, 3].join(" - ");              // "1 - 2 - 3"
+["hello", "world"].join("");        // "helloworld"
+[].join(",");                       // "" (empty array returns empty string)
+```
+
+**Special behaviors**:
+- Converts all elements to strings before joining
+- null becomes "null", undefined becomes "undefined"
+- Empty array returns empty string
+
+### array.indexOf(searchElement) → number
+**Status**: ✅ Implemented & Tested
+
+Returns the index of the first occurrence of searchElement, or -1 if not found.
+
+```javascript
+[1, 2, 3, 2].indexOf(2);           // 1 (first occurrence)
+["a", "b", "c"].indexOf("c");      // 2
+[1, 2, 3].indexOf(4);              // -1 (not found)
+```
+
+**Note**: Uses strict equality (===) for comparison.
 
 ## Variables and Assignment
 
@@ -992,7 +1141,25 @@ CVM follows JavaScript's type system with some differences:
   - string.charAt(index)
   - string.toUpperCase()
   - string.toLowerCase()
-- Array length (array.length)
+  - string.includes(searchString)
+  - string.endsWith(searchString)
+  - string.startsWith(searchString)
+  - string.trim()
+  - string.trimStart()
+  - string.trimEnd()
+  - string.replace(search, replacement)
+  - string.replaceAll(search, replacement)
+  - string.lastIndexOf(searchString)
+  - string.repeat(count)
+  - string.padStart(targetLength, padString)
+  - string.padEnd(targetLength, padString)
+  - value.toString()
+- Array operations:
+  - array.length
+  - array.push(value)
+  - array.slice(start[, end])
+  - array.join(separator)
+  - array.indexOf(searchElement)
 - if/else statements
 - while loops
 - **for-of loops** - Complete iteration support with array snapshots
@@ -1022,7 +1189,7 @@ CVM follows JavaScript's type system with some differences:
 4. **for loops** - No traditional for(;;) loops
 5. **Additional file operations** - Only fs.listFiles() is implemented
 6. **Error handling** - No try/catch/throw
-7. **Additional string methods** - trim, replace, etc.
+7. **Additional string methods** - match, search, padLeft, padRight (most common methods now implemented)
 
 ## Error Handling
 
@@ -1175,13 +1342,15 @@ Tests are organized by category in `/test/programs/`:
 - ✅ **All operators** tested including compound assignments
 - ✅ **Control flow** including for-of loops with break/continue
 - ✅ **Type operations** including typeof and toString
-- ❌ **Missing methods** not yet implemented: string.endsWith(), string.includes(), array.slice()
+- ✅ **All essential string methods** implemented: includes, endsWith, startsWith, trim, replace, etc.
+- ✅ **Essential array methods** implemented: slice, join, indexOf
 
 ### Unit Test Statistics
-- **570+ unit tests passing** across all packages
+- **615+ unit tests passing** across all packages
 - **83%+ code coverage** on core packages
 - Comprehensive VM opcode testing
 - Full compiler transformation testing
+- All 15 new string/array methods tested
 
 ## Next Development Phases
 
