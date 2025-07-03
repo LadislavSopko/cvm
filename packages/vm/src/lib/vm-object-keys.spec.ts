@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import { compile } from '@cvm/parser';
 import { VM } from './vm.js';
+import { isCVMArrayRef, CVMArray } from '@cvm/types';
 
 describe('Object.keys() VM integration', () => {
   it('should execute Object.keys() in compiled program', () => {
@@ -19,9 +20,12 @@ describe('Object.keys() VM integration', () => {
     const state = vm.execute(compiled.bytecode);
     
     expect(state.status).toBe('complete');
-    expect(state.returnValue?.type).toBe('array-ref');
+    expect(isCVMArrayRef(state.returnValue!)).toBe(true);
     // Verify the keys array contains ["a", "b", "c"]
-    const keysArray = state.heap.get(state.returnValue.id);
-    expect(keysArray.data.elements.map(k => k.value)).toEqual(['a', 'b', 'c']);
+    if (state.returnValue && isCVMArrayRef(state.returnValue)) {
+      const keysArray = state.heap.get(state.returnValue.id);
+      const arr = keysArray!.data as CVMArray;
+      expect(arr.elements).toEqual(['a', 'b', 'c']);
+    }
   });
 });

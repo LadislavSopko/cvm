@@ -13,6 +13,7 @@ export interface JumpContext {
 export class CompilerState {
   private bytecode: Instruction[] = [];
   private contextStack: JumpContext[] = [];
+  private tempVarCounter = 0;
 
   /**
    * Emit an instruction and return its index
@@ -101,5 +102,12 @@ export class CompilerState {
    */
   getUnclosedContexts(): JumpContext[] {
     return [...this.contextStack];
+  }
+
+  /**
+   * Generate a unique temporary variable name
+   */
+  generateTempVar(): string {
+    return `__temp${this.tempVarCounter++}`;
   }
 }

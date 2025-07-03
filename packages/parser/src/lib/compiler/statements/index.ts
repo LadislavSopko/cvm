@@ -3,6 +3,8 @@ import { StatementVisitor } from '../visitor-types.js';
 import { compileIfStatement } from './if-statement.js';
 import { compileWhileStatement } from './while-statement.js';
 import { compileForOfStatement } from './for-of-statement.js';
+import { compileForStatement } from './for-statement.js';
+import { compileSwitchStatement } from './switch-statement.js';
 import { compileBlockStatement } from './block-statement.js';
 import { compileVariableStatement } from './variable-statement.js';
 import { compileExpressionStatement } from './expression-statement.js';
@@ -15,6 +17,8 @@ export const statementVisitors: Partial<Record<ts.SyntaxKind, StatementVisitor<a
   [ts.SyntaxKind.IfStatement]: compileIfStatement,
   [ts.SyntaxKind.WhileStatement]: compileWhileStatement,
   [ts.SyntaxKind.ForOfStatement]: compileForOfStatement,
+  [ts.SyntaxKind.ForStatement]: compileForStatement,
+  [ts.SyntaxKind.SwitchStatement]: compileSwitchStatement,
   [ts.SyntaxKind.Block]: compileBlockStatement,
   [ts.SyntaxKind.VariableStatement]: compileVariableStatement,
   [ts.SyntaxKind.ExpressionStatement]: compileExpressionStatement,

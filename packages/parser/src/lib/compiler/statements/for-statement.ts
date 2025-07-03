@@ -1,56 +1,67 @@
-import { ForStatement } from '../../ast.js';
-import { CompilerContext } from '../context.js';
+import * as ts from 'typescript';
 import { OpCode } from '../../bytecode.js';
+import { StatementVisitor } from '../visitor-types.js';
+import { JumpContext } from '../../compiler-state.js';
 
-export function compileForStatement(node: ForStatement, context: CompilerContext): void {
+export const compileForStatement: StatementVisitor<ts.ForStatement> = (
+  node,
+  state,
+  { compileExpression, compileStatement }
+) => {
   // 1. Compile init
-  if (node.init) {
-    if (node.init.type === 'VariableDeclaration') {
-      context.compileStatement(node.init);
+  if (node.initializer) {
+    if (ts.isVariableDeclarationList(node.initializer)) {
+      // Handle variable declaration list
+      for (const declaration of node.initializer.declarations) {
+        if (declaration.initializer) {
+          compileExpression(declaration.initializer);
+          state.emit(OpCode.STORE, declaration.name.getText());
+        }
+      }
     } else {
-      context.compileExpression(node.init);
-      context.emit({ op: OpCode.POP }); // Discard init expression result
+      compileExpression(node.initializer);
+      state.emit(OpCode.POP); // Discard init expression result
     }
   }
   
   // 2. Mark loop start
-  const loopStart = context.bytecode.length;
-  const exitJumps: number[] = [];
+  const loopStart = state.currentAddress();
   
   // 3. Compile test condition
-  if (node.test) {
-    context.compileExpression(node.test);
-    const jumpIndex = context.bytecode.length;
-    context.emit({ op: OpCode.JUMP_IF_FALSE, arg: -1 }); // Will patch later
-    exitJumps.push(jumpIndex);
+  let jumpIfFalseIndex: number | undefined;
+  if (node.condition) {
+    compileExpression(node.condition);
+    jumpIfFalseIndex = state.emit(OpCode.JUMP_IF_FALSE, -1); // Will patch later
   }
   
-  // 4. Compile body
-  context.pushLoop(loopStart);
-  context.compileStatement(node.body);
+  // 4. Set up loop context
+  const loopContext: JumpContext = {
+    type: 'loop',
+    breakTargets: jumpIfFalseIndex ? [jumpIfFalseIndex] : [],
+    continueTargets: [],
+    endTargets: [],
+    startAddress: loopStart
+  };
+  state.pushContext(loopContext);
   
-  // 5. Continue target (for continue statements)
-  const continueTarget = context.bytecode.length;
-  context.loops[context.loops.length - 1].continueTarget = continueTarget;
+  // 5. Compile body
+  compileStatement(node.statement);
   
   // 6. Compile update
-  if (node.update) {
-    context.compileExpression(node.update);
-    context.emit({ op: OpCode.POP }); // Discard update expression result
+  if (node.incrementor) {
+    compileExpression(node.incrementor);
+    state.emit(OpCode.POP); // Discard update expression result
   }
   
   // 7. Jump back to start
-  context.emit({ op: OpCode.JUMP, arg: loopStart });
+  state.emit(OpCode.JUMP, loopStart);
   
-  // 8. Patch exit jumps
-  const exitPoint = context.bytecode.length;
-  exitJumps.forEach(jumpIndex => {
-    context.bytecode[jumpIndex].arg = exitPoint;
-  });
-  
-  // Patch break jumps
-  const loop = context.popLoop();
-  loop.breakJumps.forEach(jumpIndex => {
-    context.bytecode[jumpIndex].arg = exitPoint;
-  });
-}
+  // 8. Pop context and patch jumps
+  const context = state.popContext();
+  if (context) {
+    const endAddress = state.currentAddress();
+    
+    // Patch all break targets to jump to end
+    state.patchJumps(context.breakTargets || [], endAddress);
+  }
+};
