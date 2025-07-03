@@ -350,7 +350,7 @@ function main() {
         console.log("Completed: " + taskName);
         
         i = i + 1;
-        CC("Commit progress: Completed " + (i) + " of " + tasks.length + " tasks. Continue to next task. IMPORTANT: Use only technical commit message - do NOT include emojis, attributions, co-authors, or non-technical information like 'Generated with Claude'.");
+        console.log("Progress: Completed " + i + " of " + tasks.length + " tasks.");
     }
     
     // Final steps
