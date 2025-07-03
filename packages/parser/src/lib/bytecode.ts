@@ -110,6 +110,7 @@ export enum OpCode {
   OBJECT_CREATE = 'OBJECT_CREATE',
   PROPERTY_GET = 'PROPERTY_GET',
   PROPERTY_SET = 'PROPERTY_SET',
+  OBJECT_KEYS = 'OBJECT_KEYS',
   JSON_STRINGIFY = 'JSON_STRINGIFY',
   
   // Unified access operations
