@@ -32,64 +32,64 @@ function main() {
     // TDD Tasks - Test First, Then Implement
     var tasks = [
         // FEATURE 1: Object.keys() Implementation
-        {
-            name: "Task 1.1: Add OBJECT_KEYS Opcode",
-            implement: "Follow plan Step 1.1: Add OBJECT_KEYS = 'OBJECT_KEYS', to OpCode enum after line 113 (after PROPERTY_SET) in /home/laco/cvm/packages/parser/src/lib/bytecode.ts",
-            test: "Run 'npx nx test parser' (should still pass - just adding enum)",
-            expectFailure: false,
-            project: "parser"
-        },
-        {
-            name: "Task 1.2: Write Object.keys() VM Handler Tests",
-            implement: "Follow plan Step 1.2: Create test file /home/laco/cvm/packages/vm/src/lib/handlers/objects-keys.spec.ts with test cases for: object keys array, empty object, non-object values. Use exact test code from plan lines 16-46.",
-            test: "Run 'npx nx test vm -- objects-keys.spec.ts' (should fail - handler not implemented)",
-            expectFailure: true,
-            project: "vm"
-        },
-        {
-            name: "Task 1.3: Implement OBJECT_KEYS Handler",
-            implement: "Follow plan Step 1.3: Add OBJECT_KEYS handler to /home/laco/cvm/packages/vm/src/lib/handlers/objects.ts objectHandlers export. Use exact handler code from plan lines 52-68.",
-            test: "Run 'npx nx test vm -- objects-keys.spec.ts' (should pass)",
-            expectFailure: false,
-            project: "vm"
-        },
-        {
-            name: "Task 1.4: Write Object.keys() Compiler Tests",
-            implement: "Follow plan Step 1.4: Create test file /home/laco/cvm/packages/parser/src/lib/compiler/expressions/object-keys.spec.ts with compilation tests. Use exact test code from plan lines 75-96.",
-            test: "Run 'npx nx test parser -- object-keys.spec.ts' (should fail - not compiling)",
-            expectFailure: true,
-            project: "parser"
-        },
-        {
-            name: "Task 1.5: Implement Object.keys() in Compiler",
-            implement: "Follow plan Step 1.5: Add Object.keys() handling to /home/laco/cvm/packages/parser/src/lib/compiler/expressions/call-expression.ts before general function call handling (around line 20). Use exact code from plan lines 104-119.",
-            test: "Run 'npx nx test parser -- object-keys.spec.ts' (should pass)",
-            expectFailure: false,
-            project: "parser"
-        },
-        {
-            name: "Task 1.6: Write Object.keys() VM Integration Test",
-            implement: "Follow plan Step 1.6: Create integration test /home/laco/cvm/packages/vm/src/lib/vm-object-keys.spec.ts that compiles and runs a program using Object.keys(). Use exact test code from plan lines 126-153.",
-            test: "Run 'npx nx test vm -- vm-object-keys.spec.ts' (should pass)",
-            expectFailure: false,
-            project: "vm"
-        },
+        // {
+        //     name: "Task 1.1: Add OBJECT_KEYS Opcode",
+        //     implement: "Follow plan Step 1.1: Add OBJECT_KEYS = 'OBJECT_KEYS', to OpCode enum after line 113 (after PROPERTY_SET) in /home/laco/cvm/packages/parser/src/lib/bytecode.ts",
+        //     test: "Run 'npx nx test parser' (should still pass - just adding enum)",
+        //     expectFailure: false,
+        //     project: "parser"
+        // },
+        // {
+        //     name: "Task 1.2: Write Object.keys() VM Handler Tests",
+        //     implement: "Follow plan Step 1.2: Create test file /home/laco/cvm/packages/vm/src/lib/handlers/objects-keys.spec.ts with test cases for: object keys array, empty object, non-object values. Use exact test code from plan lines 16-46.",
+        //     test: "Run 'npx nx test vm -- objects-keys.spec.ts' (should fail - handler not implemented)",
+        //     expectFailure: true,
+        //     project: "vm"
+        // },
+        // {
+        //     name: "Task 1.3: Implement OBJECT_KEYS Handler",
+        //     implement: "Follow plan Step 1.3: Add OBJECT_KEYS handler to /home/laco/cvm/packages/vm/src/lib/handlers/objects.ts objectHandlers export. Use exact handler code from plan lines 52-68.",
+        //     test: "Run 'npx nx test vm -- objects-keys.spec.ts' (should pass)",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
+        // {
+        //     name: "Task 1.4: Write Object.keys() Compiler Tests",
+        //     implement: "Follow plan Step 1.4: Create test file /home/laco/cvm/packages/parser/src/lib/compiler/expressions/object-keys.spec.ts with compilation tests. Use exact test code from plan lines 75-96.",
+        //     test: "Run 'npx nx test parser -- object-keys.spec.ts' (should fail - not compiling)",
+        //     expectFailure: true,
+        //     project: "parser"
+        // },
+        // {
+        //     name: "Task 1.5: Implement Object.keys() in Compiler",
+        //     implement: "Follow plan Step 1.5: Add Object.keys() handling to /home/laco/cvm/packages/parser/src/lib/compiler/expressions/call-expression.ts before general function call handling (around line 20). Use exact code from plan lines 104-119.",
+        //     test: "Run 'npx nx test parser -- object-keys.spec.ts' (should pass)",
+        //     expectFailure: false,
+        //     project: "parser"
+        // },
+        // {
+        //     name: "Task 1.6: Write Object.keys() VM Integration Test",
+        //     implement: "Follow plan Step 1.6: Create integration test /home/laco/cvm/packages/vm/src/lib/vm-object-keys.spec.ts that compiles and runs a program using Object.keys(). Use exact test code from plan lines 126-153.",
+        //     test: "Run 'npx nx test vm -- vm-object-keys.spec.ts' (should pass)",
+        //     expectFailure: false,
+        //     project: "vm"
+        // },
 
-        // FEATURE 2: Traditional for(;;) Loop Implementation
-        {
-            name: "Task 2.1: Write For Loop Compiler Tests",
-            implement: "Follow plan Step 2.1: Create test file /home/laco/cvm/packages/parser/src/lib/compiler/statements/for-statement.spec.ts with compilation tests for basic for loop, break/continue, and edge cases. Use exact test code from plan lines 167-211.",
-            test: "Run 'npx nx test parser -- for-statement.spec.ts' (should fail - not implemented)",
-            expectFailure: true,
-            project: "parser"
-        },
-        {
-            name: "Task 2.2: Implement For Loop Statement Visitor",
-            implement: "Follow plan Step 2.2: Create visitor file /home/laco/cvm/packages/parser/src/lib/compiler/statements/for-statement.ts with complete for loop compilation logic. Use exact code from plan lines 218-274.",
-            test: "Run 'npx nx test parser -- for-statement.spec.ts' (should still fail - not registered)",
-            expectFailure: true,
-            project: "parser"
-        },
+        // // FEATURE 2: Traditional for(;;) Loop Implementation
+        // {
+        //     name: "Task 2.1: Write For Loop Compiler Tests",
+        //     implement: "Follow plan Step 2.1: Create test file /home/laco/cvm/packages/parser/src/lib/compiler/statements/for-statement.spec.ts with compilation tests for basic for loop, break/continue, and edge cases. Use exact test code from plan lines 167-211.",
+        //     test: "Run 'npx nx test parser -- for-statement.spec.ts' (should fail - not implemented)",
+        //     expectFailure: true,
+        //     project: "parser"
+        // },
+        // {
+        //     name: "Task 2.2: Implement For Loop Statement Visitor",
+        //     implement: "Follow plan Step 2.2: Create visitor file /home/laco/cvm/packages/parser/src/lib/compiler/statements/for-statement.ts with complete for loop compilation logic. Use exact code from plan lines 218-274.",
+        //     test: "Run 'npx nx test parser -- for-statement.spec.ts' (should still fail - not registered)",
+        //     expectFailure: true,
+        //     project: "parser"
+        // },
         {
             name: "Task 2.3: Register For Statement in Compiler",
             implement: "Follow plan Step 2.3: Add import and registration to /home/laco/cvm/packages/parser/src/lib/compiler/statements/index.ts. Import compileForStatement and add ForStatement: compileForStatement to statementVisitors.",
