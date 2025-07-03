@@ -73,6 +73,20 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
     }
     state.emit(OpCode.JSON_STRINGIFY);
   }
+  // Handle Object.keys()
+  else if (ts.isPropertyAccessExpression(node.expression) &&
+      ts.isIdentifier(node.expression.expression) &&
+      node.expression.expression.text === 'Object' &&
+      node.expression.name.text === 'keys') {
+    
+    if (node.arguments.length !== 1) {
+      reportError(node, 'Object.keys() requires exactly one argument');
+      return;
+    }
+    
+    compileExpression(node.arguments[0]);
+    state.emit(OpCode.OBJECT_KEYS);
+  }
   // Handle CC() calls
   else if (ts.isIdentifier(node.expression) && node.expression.text === 'CC') {
     if (node.arguments.length > 0) {
