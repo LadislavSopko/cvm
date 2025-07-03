@@ -7,9 +7,10 @@ import { VMHeap, createVMHeap } from './vm-heap.js';
 export type VMStatus = 'running' | 'waiting_cc' | 'complete' | 'error';
 
 export interface IteratorContext {
-  array: CVMArray;
+  array: CVMArray | null;  // null for object iteration
   index: number;
-  length: number;  // Store initial length to prevent issues with array mutations
+  length: number;
+  keys?: string[];  // For object iteration
 }
 
 export interface VMState {

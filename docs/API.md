@@ -61,8 +61,8 @@ class MyClass {}  // WILL NOT WORK!
 // ❌ try/catch
 try { } catch (e) { }  // WILL NOT WORK!
 
-// ❌ switch statements
-switch (x) { }  // WILL NOT WORK!
+// ✅ switch statements are now supported!
+// See Control Flow section
 
 // ❌ Regular expressions
 /pattern/.test(str);  // WILL NOT WORK!
@@ -74,8 +74,8 @@ const [x, y] = arr;  // WILL NOT WORK!
 // ❌ Spread operator
 ...array  // WILL NOT WORK!
 
-// ❌ for-in loops
-for (let key in obj) { }  // WILL NOT WORK!
+// ✅ for-in loops are now supported!
+// See Control Flow section
 
 // ❌ do-while loops
 do { } while (condition);  // WILL NOT WORK!
@@ -98,8 +98,10 @@ arr.sort()    // WILL NOT WORK!
 // array.join()     // WORKS! (implemented)
 // array.indexOf()  // WORKS! (implemented)
 
-// ❌ Object methods
-Object.keys(obj)    // WILL NOT WORK!
+// ✅ Some Object methods now supported:
+Object.keys(obj)    // WORKS! (see Object Methods section)
+
+// ❌ Other object methods still NOT supported:
 Object.values(obj)  // WILL NOT WORK!
 Object.entries(obj) // WILL NOT WORK!
 ```
@@ -880,6 +882,122 @@ function main() {
 
 **Note**: Only works in main(). Other functions are not yet supported.
 
+### Traditional for(;;) loops
+**Status**: ✅ Implemented
+
+Traditional C-style for loops with initialization, condition, and increment.
+
+```javascript
+// Basic counting loop
+for (let i = 0; i < 5; i++) {
+  console.log("Count: " + i);  // Prints: 0, 1, 2, 3, 4
+}
+
+// With custom increment
+for (let i = 10; i >= 0; i = i - 2) {
+  console.log(i);  // Prints: 10, 8, 6, 4, 2, 0
+}
+
+// Using variables
+let start = 1;
+let end = 3;
+for (let i = start; i <= end; i++) {
+  console.log("Value: " + i);
+}
+
+// Complex initialization
+for (let i = 0, sum = 0; i < 5; i++) {
+  sum = sum + i;
+  console.log("i=" + i + ", sum=" + sum);
+}
+```
+
+**Features**:
+- Full C-style syntax: `for (init; condition; increment)`
+- Supports `let` and `const` in initialization
+- Complex expressions in all three parts
+- Proper loop scoping
+- Works with break/continue statements
+
+### switch/case statements
+**Status**: ✅ Implemented
+
+Multi-way conditional branching with switch statements.
+
+```javascript
+const action = CC("What action? (start/stop/restart)");
+switch (action) {
+  case "start":
+    console.log("Starting service...");
+    break;
+  case "stop":
+    console.log("Stopping service...");
+    break;
+  case "restart":
+    console.log("Restarting service...");
+    break;
+  default:
+    console.log("Unknown action: " + action);
+}
+
+// Fall-through behavior works too
+const code = 2;
+let priority = "";
+switch (code) {
+  case 1:
+  case 2:
+  case 3:
+    priority = "low";
+    break;
+  case 4:
+  case 5:
+    priority = "high";
+    break;
+  default:
+    priority = "unknown";
+}
+```
+
+**Features**:
+- Standard switch/case syntax
+- Fall-through behavior (when break is omitted)
+- Default case support
+- Works with strings, numbers, and variables
+- Proper break statement handling
+
+### for...in loops
+**Status**: ✅ Implemented
+
+Iterate over object properties with for-in syntax.
+
+```javascript
+const config = { host: "localhost", port: 3000, debug: true };
+for (const key in config) {
+  console.log(key + ": " + config[key]);
+}
+// Prints:
+// host: localhost
+// port: 3000
+// debug: true
+
+// With variable declarations
+for (let prop in { a: 1, b: 2 }) {
+  console.log("Property: " + prop);
+}
+
+// Empty objects work too
+for (const key in {}) {
+  console.log("This won't print");
+}
+```
+
+**Features**:
+- Standard for-in syntax: `for (variable in object)`
+- Supports `const` and `let` declarations
+- Iterates over object properties in definition order
+- Safe iteration over empty objects
+- Compatible with object literals and variables
+
 ## Logical Operators
 
 ### AND (&&)
@@ -1105,6 +1223,42 @@ let data = { user: {} };
 data.user.email = "test@example.com";
 ```
 
+### Object.keys(object) → string[]
+**Status**: ✅ Implemented
+
+Get an array of all property names (keys) from an object.
+
+```javascript
+// Basic usage
+const config = { host: "localhost", port: 3000, debug: true };
+const keys = Object.keys(config);
+// keys = ["host", "port", "debug"]
+
+// Use with for-of loop
+for (const key of Object.keys(config)) {
+  console.log(key + ": " + config[key]);
+}
+
+// Use with traditional for loop
+for (let i = 0; i < keys.length; i++) {
+  console.log("Key " + i + ": " + keys[i]);
+}
+
+// Empty object
+const empty = {};
+const emptyKeys = Object.keys(empty);  // []
+
+// Works with any object
+const person = { name: "John", age: 30 };
+const personKeys = Object.keys(person);  // ["name", "age"]
+```
+
+**Features**:
+- Returns array of strings containing all enumerable property names
+- Keys returned in object definition order
+- Empty objects return empty array `[]`
+- Compatible with all CVM loop types (for-of, for(;;), for-in)
+
 ## Type System
 
 CVM follows JavaScript's type system with some differences:
@@ -1182,6 +1336,10 @@ CVM follows JavaScript's type system with some differences:
   - Shorthand property syntax
   - Nested objects
   - Object persistence through CC
+  - **Object.keys()** - Get array of property names
+- **Traditional for(;;) loops** - C-style loops with init, condition, increment
+- **switch/case statements** - Multi-way branching with fall-through support
+- **for...in loops** - Object property iteration
 
 ### 🔧 VM Ready, Awaiting Compiler Support:
 1. **Function calls** - CALL, RETURN opcodes defined
@@ -1189,11 +1347,11 @@ CVM follows JavaScript's type system with some differences:
 
 ### ❌ Not Implemented:
 1. **Function definitions** - Only main() is supported
-3. **Function parameters** - No parameter passing
-4. **for loops** - No traditional for(;;) loops
-5. **Additional file operations** - Only fs.listFiles() is implemented
-6. **Error handling** - No try/catch/throw
-7. **Additional string methods** - match, search (Note: padStart/padEnd are implemented as JavaScript standard names)
+2. **Function parameters** - No parameter passing
+3. **Additional file operations** - Only fs.listFiles() is implemented
+4. **Error handling** - No try/catch/throw
+5. **Additional string methods** - match, search (Note: padStart/padEnd are implemented as JavaScript standard names)
+6. **Additional object methods** - Object.values(), Object.entries(), etc.
 
 ## Error Handling
 

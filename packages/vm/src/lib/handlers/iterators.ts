@@ -83,7 +83,7 @@ export const iteratorHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       // Check if we have more elements (using stored length)
       if (iterator.index < iterator.length) {
         // Push current element (check bounds in case array was shortened)
-        if (iterator.index < iterator.array.elements.length) {
+        if (iterator.array && iterator.index < iterator.array.elements.length) {
           state.stack.push(iterator.array.elements[iterator.index]);
         } else {
           // Array was shortened during iteration, push undefined
