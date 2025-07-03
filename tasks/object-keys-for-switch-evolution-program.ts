@@ -293,10 +293,12 @@ function main() {
             var testResult = CC(testPrompt);
             
             // TDD: Handle expected failures
+            console.log("Test evaluation: expectFailure=" + expectFailure + ", testResult='" + testResult + "'");
+            
             if (expectFailure && testResult == "failed") {
-                console.log("Test failed as expected (TDD). Continue with implementation.");
+                console.log("✓ Test failed as expected (TDD). Continue with implementation.");
             } else if (expectFailure && testResult == "passed") {
-                console.log("TDD: Test passed but was expected to fail.");
+                console.log("⚠ TDD: Test passed but was expected to fail.");
                 var checkFeature = CC("The test for '" + taskName + "' passed but was expected to fail. Check if the feature is already implemented or if the test needs adjustment. Submit 'implemented' if feature exists, 'adjust' if test needs fixing.");
                 continueOnFeature = checkFeature != "implemented";
                 if (checkFeature == "adjust") {
@@ -304,25 +306,43 @@ function main() {
                     testResult = CC(testPrompt);
                 }
             } else if (!expectFailure && testResult == "failed") {
-                // Test should pass but failed - need to fix
+                console.log("❌ Test should pass but failed - entering debugging mode...");
                 var allClean = false;
-                while (!allClean) {
+                var debugAttempts = 0;
+                while (!allClean && debugAttempts < 5) {
+                    debugAttempts = debugAttempts + 1;
+                    console.log("Debug attempt " + debugAttempts + "/5");
+                    
                     if (testResult != "passed") {
                         console.log("Tests failing. Debugging and fixing...");
                         CC(fileOpsBase + findCode + "Fix the implementation for " + taskName + ". Check the implementation plan for exact specifications. Make minimal changes to make tests pass." + submitDone);
                         // Re-run the test using the command from task description
+                        console.log("Re-running test to verify fixes...");
                         testResult = CC(fileOpsBase + "Re-run the test to verify fixes. " + taskTest + " " + submitTest);
+                        console.log("Test result after fix: " + testResult);
                     } else {
                         // Tests pass, now check types
+                        console.log("Tests pass, checking types...");
                         var typecheckResult = CC(fileOpsBase + "Run typecheck for " + taskProject + " package using 'npx nx run " + taskProject + ":typecheck' command. If there are type errors, fix them. Submit 'clean' if no errors, 'errors' if there are errors to fix." + submitDone);
+                        console.log("Typecheck result: " + typecheckResult);
                         if (typecheckResult == "clean") {
                             allClean = true;
+                            console.log("✓ All clean - task complete");
                         } else {
+                            console.log("Type errors found, fixing and re-testing...");
                             // Re-run tests after type fixes to ensure nothing broke
                             testResult = CC(fileOpsBase + "Re-run test to verify type fixes didn't break anything. " + taskTest + " " + submitTest);
+                            console.log("Test result after type fixes: " + testResult);
                         }
                     }
                 }
+                if (debugAttempts >= 5) {
+                    console.log("⚠ Maximum debug attempts reached. Moving to next task.");
+                }
+            } else if (!expectFailure && testResult == "passed") {
+                console.log("✓ Test passed as expected.");
+            } else {
+                console.log("⚠ Unexpected test state: expectFailure=" + expectFailure + ", testResult=" + testResult);
             }
         }
         
