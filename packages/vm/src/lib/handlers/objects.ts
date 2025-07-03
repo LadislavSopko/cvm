@@ -177,5 +177,34 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       state.stack.push(JSON.stringify(jsValue));
       return undefined;
     }
+  },
+
+  [OpCode.OBJECT_KEYS]: {
+    stackIn: 1,
+    stackOut: 1,
+    execute: (state, instruction) => {
+      const value = safePop(state, instruction.op);
+      if (isVMError(value)) return value;
+      
+      if (isCVMObjectRef(value)) {
+        const heapObj = state.heap.get(value.id);
+        if (heapObj && heapObj.type === 'object') {
+          const obj = heapObj.data as CVMObject;
+          const keys = Object.keys(obj.properties).map(key => ({ type: 'string' as const, value: key }));
+          const arrayRef = state.heap.allocate('array', { elements: keys });
+          state.stack.push(arrayRef);
+        } else {
+          state.stack.push({ type: 'null', value: null });
+        }
+      } else if (isCVMObject(value)) {
+        const keys = Object.keys(value.properties).map(key => ({ type: 'string' as const, value: key }));
+        const arrayRef = state.heap.allocate('array', { elements: keys });
+        state.stack.push(arrayRef);
+      } else {
+        state.stack.push({ type: 'null', value: null });
+      }
+      
+      return undefined;
+    }
   }
 };
