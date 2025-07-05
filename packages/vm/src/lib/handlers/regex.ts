@@ -276,6 +276,111 @@ const stringMatch: OpcodeHandler = {
 };
 
 /**
+ * Handler for STRING_REPLACE_REGEX opcode
+ * Executes string.replace(regex, replacement) operation
+ * 
+ * Stack Effect: [string, regexRef, replacement] → [newString]
+ * Heap Effect: None (produces primitive string result)
+ * 
+ * Error Cases:
+ * - First stack item is not a string
+ * - Second stack item is not a regex object reference  
+ * - Third stack item is not a string
+ * - Stack underflow (less than 3 items)
+ */
+const stringReplaceRegex: OpcodeHandler = {
+  stackIn: 3,     // Consumes string, regex reference, and replacement string
+  stackOut: 1,    // Produces new string
+  
+  execute: (state, instruction) => {
+    // Pop replacement
+    const replacement = safePop(state, instruction.op);
+    if (isVMError(replacement)) return replacement;
+    
+    // Pop regex reference
+    const regexRef = safePop(state, instruction.op);
+    if (isVMError(regexRef)) return regexRef;
+    
+    // Pop string input
+    const inputString = safePop(state, instruction.op);
+    if (isVMError(inputString)) return inputString;
+    
+    // Validate string input
+    if (typeof inputString !== 'string') {
+      return {
+        type: 'TypeError',
+        message: `Expected string input for replace, got ${typeof inputString}`,
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    // Validate regex reference
+    if (!isCVMObjectRef(regexRef)) {
+      return {
+        type: 'TypeError',
+        message: 'Expected regex object for replace',
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    // Validate replacement string
+    if (typeof replacement !== 'string') {
+      return {
+        type: 'TypeError',
+        message: `Expected string replacement, got ${typeof replacement}`,
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    // Get regex object from heap
+    const regexObj = state.heap.get(regexRef.id);
+    if (!regexObj || regexObj.type !== 'object') {
+      return {
+        type: 'TypeError',
+        message: 'Invalid regex object reference',
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    try {
+      // Recreate JavaScript RegExp from stored properties
+      const cvmObject = regexObj.data as CVMObject;
+      const pattern = cvmObject.properties.source;
+      const flags = cvmObject.properties.flags;
+      
+      if (typeof pattern !== 'string' || typeof flags !== 'string') {
+        return {
+          type: 'TypeError',
+          message: 'Invalid regex object structure',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const regex = new RegExp(pattern, flags);
+      const replaceResult = inputString.replace(regex, replacement);
+      
+      // Push result string to stack
+      state.stack.push(replaceResult);
+      
+      return undefined; // Success
+      
+    } catch (error) {
+      return {
+        type: 'RuntimeError',
+        message: `String replace failed: ${(error as Error).message}`,
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+  }
+};
+
+/**
  * Registry of all regex-related opcode handlers
  * Export this to be included in main handler registry
  */
@@ -283,4 +388,5 @@ export const regexHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.LOAD_REGEX]: loadRegex,
   [OpCode.REGEX_TEST]: regexTest,
   [OpCode.STRING_MATCH]: stringMatch,
+  [OpCode.STRING_REPLACE_REGEX]: stringReplaceRegex,
 };
