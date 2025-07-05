@@ -171,10 +171,116 @@ const regexTest: OpcodeHandler = {
 };
 
 /**
+ * Handler for STRING_MATCH opcode
+ * Executes string.match(regex) operation
+ * 
+ * Stack Effect: [string, regexRef] → [arrayRef | null]
+ * Heap Effect: Allocates new array object for matches (or pushes null)
+ * 
+ * Error Cases:
+ * - First stack item is not a string
+ * - Second stack item is not a regex object reference
+ * - Stack underflow (less than 2 items)
+ */
+const stringMatch: OpcodeHandler = {
+  stackIn: 2,     // Consumes string and regex reference
+  stackOut: 1,    // Produces array reference or null
+  
+  execute: (state, instruction) => {
+    // Pop regex reference
+    const regexRef = safePop(state, instruction.op);
+    if (isVMError(regexRef)) return regexRef;
+    
+    // Pop string input
+    const inputString = safePop(state, instruction.op);
+    if (isVMError(inputString)) return inputString;
+    
+    // Validate string input
+    if (typeof inputString !== 'string') {
+      return {
+        type: 'TypeError',
+        message: `Expected string input for match, got ${typeof inputString}`,
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    // Validate regex reference
+    if (!isCVMObjectRef(regexRef)) {
+      return {
+        type: 'TypeError',
+        message: 'Expected regex object for match',
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    // Get regex object from heap
+    const regexObj = state.heap.get(regexRef.id);
+    if (!regexObj || regexObj.type !== 'object') {
+      return {
+        type: 'TypeError',
+        message: 'Invalid regex object reference',
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    try {
+      // Recreate JavaScript RegExp from stored properties
+      const cvmObject = regexObj.data as CVMObject;
+      const pattern = cvmObject.properties.source;
+      const flags = cvmObject.properties.flags;
+      
+      if (typeof pattern !== 'string' || typeof flags !== 'string') {
+        return {
+          type: 'TypeError',
+          message: 'Invalid regex object structure',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const regex = new RegExp(pattern, flags);
+      const matchResult = inputString.match(regex);
+      
+      if (matchResult === null) {
+        // No match found - push null
+        state.stack.push(null);
+      } else {
+        // Create CVM array with match results
+        // Convert native array to CVM array format
+        const cvmArray = {
+          type: 'array' as const,
+          elements: [...matchResult] // Copy all match results
+        };
+        
+        // Allocate array on heap
+        const arrayRef = state.heap.allocate('array', cvmArray);
+        
+        // Push array reference to stack
+        state.stack.push(arrayRef);
+      }
+      
+      return undefined; // Success
+      
+    } catch (error) {
+      return {
+        type: 'RuntimeError',
+        message: `String match failed: ${(error as Error).message}`,
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+  }
+};
+
+/**
  * Registry of all regex-related opcode handlers
  * Export this to be included in main handler registry
  */
 export const regexHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.LOAD_REGEX]: loadRegex,
   [OpCode.REGEX_TEST]: regexTest,
+  [OpCode.STRING_MATCH]: stringMatch,
 };
