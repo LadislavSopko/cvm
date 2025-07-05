@@ -245,6 +245,27 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       compileExpression(node.expression.expression);
       state.emit(OpCode.STRING_TRIM_END);
     }
+    else if (methodName === 'test') {
+      // RegExp.test(string) method
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        state.emit(OpCode.PUSH, '');
+      }
+      state.emit(OpCode.REGEX_TEST);
+    }
+    else if (methodName === 'match') {
+      // String.match(regex) method
+      compileExpression(node.expression.expression);
+      if (node.arguments.length > 0) {
+        compileExpression(node.arguments[0]);
+      } else {
+        reportError(node, 'match() requires a regex argument');
+        return;
+      }
+      state.emit(OpCode.STRING_MATCH);
+    }
     else if (methodName === 'replace') {
       compileExpression(node.expression.expression);
       if (node.arguments.length > 0) {
@@ -257,7 +278,15 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       } else {
         state.emit(OpCode.PUSH, '');
       }
-      state.emit(OpCode.STRING_REPLACE);
+      
+      // Check if first argument is a regex literal or could be a regex
+      if (node.arguments.length > 0 && ts.isRegularExpressionLiteral(node.arguments[0])) {
+        state.emit(OpCode.STRING_REPLACE_REGEX);
+      } else {
+        // For now, emit STRING_REPLACE_REGEX for all cases and let the VM handler
+        // check the type at runtime and fall back to string replace if needed
+        state.emit(OpCode.STRING_REPLACE_REGEX);
+      }
     }
     else if (methodName === 'replaceAll') {
       compileExpression(node.expression.expression);

@@ -160,7 +160,10 @@ echo -e "\n${YELLOW}=== 10-regex ===${NC}"
 run_test "../programs/10-regex/regex-literal-basic.ts"
 run_test "../programs/10-regex/regex-literal-comprehensive.ts"
 run_test "../programs/10-regex/regex-literal-errors.ts"
+run_test "../programs/10-regex/regex-pattern-matching-complete.ts"
+run_test "../programs/10-regex/regex-pattern-matching-errors.ts"
 run_test "../programs/10-regex/todo-file-processor.ts"
+run_test "../programs/10-regex/todo-log-analyzer.ts"
 
 # Summary
 echo -e "\n${YELLOW}======================================${NC}"
