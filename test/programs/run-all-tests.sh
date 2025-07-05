@@ -153,6 +153,8 @@ run_test "../programs/09-comprehensive/phase2-features.ts" "30" "secure123" "sec
 run_test "../programs/09-comprehensive/string-array-methods-all.ts" "  test.js  " "C:\\Users\\test\\file.txt" "42" "projects" "user@example.com" "INFO" "Application started"
 # test-new-language-features.ts: action, test choice
 run_test "../programs/09-comprehensive/test-new-language-features.ts" "start" "1"
+# complex-feature-combinations.ts: 3 commands for while loop cycles
+run_test "../programs/09-comprehensive/complex-feature-combinations.ts" "start" "status" "stop"
 
 # Summary
 echo -e "\n${YELLOW}======================================${NC}"
