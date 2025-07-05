@@ -23,8 +23,8 @@ function main() {
     // Common prompts
     var fileOpsBase = " " + contextPrompt + " Use Read, Write, Edit, MultiEdit tools for file operations. Use Bash tool for running commands. ";
     var submitDone = " Submit task with 'done' when complete.";
-    var submitTest = " Submit 'passed' if tests pass, 'failed' if they fail.";
-    var runTestBase = "Run tests using appropriate nx command based on project type with Bash tool. ";
+    var submitTest = " Submit 'passed' if tests AND typecheck both pass, 'failed' if either fail.";
+    var testingInstructions = "TESTING: Write unit/integration tests using Vitest in packages following existing patterns (see parser.spec.ts, compiler.spec.ts). Use 'npx nx test <package-name>' to run tests. Tests should be in src/lib/ alongside source files with .spec.ts extension. ALWAYS run typecheck with 'npx nx run <package-name>:typecheck' after tests. Both tests AND typecheck must pass. ";
     var findCode = "Use Grep and Read tools to search and analyze code. ";
     var rebuildNote = " Remember: After implementing parser/VM changes, rebuild affected packages before running tests. ";
     
@@ -120,25 +120,25 @@ function main() {
         console.log("Expectation: " + expectation);
         
         // ATOMIC TDD IMPLEMENTATION
-        var tddPrompt = "[ATOMIC TDD: " + blockName + "]: " + fileOpsBase + 
+        var tddPrompt = "[ATOMIC TDD: " + blockName + "]: " + fileOpsBase + testingInstructions +
             planReference + ". This is an ATOMIC TDD block - implement the COMPLETE feature: " + 
             blockDescription + ". Components to implement: " + components + ". " +
-            "IMPORTANT: This is atomic TDD - write failing tests FIRST, then implement ALL required components " +
+            "IMPORTANT: This is atomic TDD - write failing unit/integration tests FIRST using Vitest, then implement ALL required components " +
             "(lexer, parser, compiler, VM handlers) to make tests pass. Expected outcome: " + expectation + rebuildNote + submitDone;
         
         CC(tddPrompt);
         
         // TEST VALIDATION
         console.log("Testing: " + testCommand);
-        var testPrompt = fileOpsBase + testCommand + ". Verify the atomic TDD block works completely. " + submitTest;
+        var testPrompt = fileOpsBase + testingInstructions + testCommand + ". Run unit/integration tests with 'npx nx test parser' and 'npx nx test vm' as appropriate, then run typecheck with 'npx nx run parser:typecheck' and 'npx nx run vm:typecheck'. Verify the atomic TDD block works completely. " + submitTest;
         var testResult = CC(testPrompt);
         
         // Handle test results - stay in loop until fixed
         while (testResult === "failed") {
             console.log("❌ TDD block failed - entering fix mode...");
             
-            var fixPrompt = fileOpsBase + findCode + "Fix the implementation for " + blockName + ". " + 
-                planReference + ". Check all components: " + components + ". Make minimal changes to make tests pass." + rebuildNote + submitDone;
+            var fixPrompt = fileOpsBase + testingInstructions + findCode + "Fix the implementation for " + blockName + ". " + 
+                planReference + ". Check all components: " + components + ". Make minimal changes to make unit/integration tests AND typecheck pass." + rebuildNote + submitDone;
             CC(fixPrompt);
             
             console.log("Re-testing after fix...");
@@ -188,7 +188,7 @@ function main() {
         
         var e2ePrompt = "[E2E VALIDATION: " + taskName + "]: " + fileOpsBase + 
             (taskReference || "Create comprehensive E2E tests") + ". " + taskDescription + 
-            ". Focus on: " + taskValidation + ". Create test programs that demonstrate RegExp in real TODO orchestration scenarios." + submitDone;
+            ". Focus on: " + taskValidation + ". Create CVM test programs in test/programs/regex/ that can be executed via MCP client (npx tsx mcp-test-client.ts). These should demonstrate RegExp in real TODO orchestration scenarios." + submitDone;
         
         CC(e2ePrompt);
         
@@ -199,14 +199,14 @@ function main() {
     console.log("\n=== FINAL VALIDATION ===");
     
     // Run all tests
-    var finalTestPrompt = fileOpsBase + "Run comprehensive test suite: 'npx nx test parser' and 'npx nx test vm' to ensure " +
+    var finalTestPrompt = fileOpsBase + "Run comprehensive test suite: 'npx nx test parser' and 'npx nx test vm', then run typecheck: 'npx nx run parser:typecheck' and 'npx nx run vm:typecheck' to ensure " +
         "no regressions and all RegExp features work correctly. " + submitTest;
     var finalResult = CC(finalTestPrompt);
     
     if (finalResult === "passed") {
-        console.log("✓ All tests passing - RegExp implementation successful");
+        console.log("✓ All tests and typecheck passing - RegExp implementation successful");
     } else {
-        console.log("⚠ Some tests failing - may need final fixes");
+        console.log("⚠ Some tests or typecheck failing - may need final fixes");
     }
     
     // DOCUMENTATION AND COMPLETION
