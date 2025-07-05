@@ -15,6 +15,7 @@ test/programs/
 ├── 07-cc-integration/  # CC() (Cognitive Call) patterns
 ├── 08-examples/        # Real-world example programs
 ├── 09-comprehensive/   # Full integration tests
+├── 10-regex/           # Regular expression literals and patterns
 └── archive/            # Old/deprecated tests for reference
 ```
 
@@ -92,6 +93,12 @@ npx tsx mcp-test-client.ts ../programs/01-basics/variables.ts
 - Full feature integration tests
 - Stress tests
 - Performance tests
+
+### 10-regex
+- Regular expression literals (`/pattern/flags`)
+- Regex object properties (source, flags, global, ignoreCase, multiline)
+- Error handling for invalid patterns
+- Real-world TODO orchestration patterns
 
 ## Test Naming Convention
 

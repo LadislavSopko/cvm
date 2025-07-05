@@ -28,15 +28,16 @@ describe('Regex VM Handler', () => {
     const regexObj = result.heap.get((regexRef as any).id);
     expect(regexObj).toBeDefined();
     expect(regexObj!.type).toBe('object');
-    expect((regexObj!.data as any).type).toBe('regex');
-    expect((regexObj!.data as any).data).toBeInstanceOf(RegExp);
+    expect(regexObj!.data.type).toBe('object');
+    expect(regexObj!.data.properties!.source).toBe('hello');
+    expect(regexObj!.data.properties!.flags).toBe('gi');
     
-    // Verify RegExp object properties
-    const regex = (regexObj!.data as any).data as RegExp;
-    expect(regex.source).toBe('hello');
-    expect(regex.flags).toBe('gi');
-    expect(regex.global).toBe(true);
-    expect(regex.ignoreCase).toBe(true);
+    // Verify RegExp object properties (now stored directly as CVM properties)
+    const properties = regexObj!.data.properties!;
+    expect(properties.source).toBe('hello');
+    expect(properties.flags).toBe('gi');
+    expect(properties.global).toBe(true);
+    expect(properties.ignoreCase).toBe(true);
   });
 
   it('should handle regex without flags', () => {
@@ -51,12 +52,12 @@ describe('Regex VM Handler', () => {
     
     const regexRef = result.stack[0];
     const regexObj = result.heap.get((regexRef as any).id);
-    const regex = (regexObj!.data as any).data as RegExp;
+    const properties = regexObj!.data.properties!;
     
-    expect(regex.source).toBe('test');
-    expect(regex.flags).toBe('');
-    expect(regex.global).toBe(false);
-    expect(regex.ignoreCase).toBe(false);
+    expect(properties.source).toBe('test');
+    expect(properties.flags).toBe('');
+    expect(properties.global).toBe(false);
+    expect(properties.ignoreCase).toBe(false);
   });
 
   it('should handle complex regex patterns', () => {
@@ -71,11 +72,11 @@ describe('Regex VM Handler', () => {
     
     const regexRef = result.stack[0];
     const regexObj = result.heap.get((regexRef as any).id);
-    const regex = (regexObj!.data as any).data as RegExp;
+    const properties = regexObj!.data.properties!;
     
-    expect(regex.source).toBe('\\w+@\\w+\\.\\w+');
-    expect(regex.flags).toBe('i');
-    expect(regex.ignoreCase).toBe(true);
+    expect(properties.source).toBe('\\w+@\\w+\\.\\w+');
+    expect(properties.flags).toBe('i');
+    expect(properties.ignoreCase).toBe(true);
   });
 
   it('should handle all standard flags', () => {
@@ -99,11 +100,11 @@ describe('Regex VM Handler', () => {
       
       const regexRef = result.stack[0];
       const regexObj = result.heap.get((regexRef as any).id);
-      const regex = (regexObj!.data as any).data as RegExp;
+      const properties = regexObj!.data.properties!;
       
-      expect(regex.global).toBe(expected.global);
-      expect(regex.ignoreCase).toBe(expected.ignoreCase);
-      expect(regex.multiline).toBe(expected.multiline);
+      expect(properties.global).toBe(expected.global);
+      expect(properties.ignoreCase).toBe(expected.ignoreCase);
+      expect(properties.multiline).toBe(expected.multiline);
     });
   });
 

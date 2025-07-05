@@ -42,15 +42,21 @@ const loadRegex: OpcodeHandler = {
       // This may throw if pattern or flags are invalid
       const regex = new RegExp(payload.pattern, payload.flags);
       
-      // Wrap RegExp in a CVM object structure
-      // Since heap only supports 'array' and 'object' types, we store as object
-      const regexWrapper = {
-        type: 'regex' as const,
-        data: regex
+      // Create a proper CVM object with regex properties
+      // This allows property access like regex.source, regex.global, etc.
+      const regexObject = {
+        type: 'object' as const,
+        properties: {
+          source: regex.source,
+          flags: regex.flags,
+          global: regex.global,
+          ignoreCase: regex.ignoreCase,
+          multiline: regex.multiline
+        }
       };
       
-      // Allocate on heap as an object type (heap doesn't support 'regex' type)
-      const regexRef = state.heap.allocate('object', regexWrapper as any);
+      // Allocate on heap as a CVM object
+      const regexRef = state.heap.allocate('object', regexObject);
       
       // Push reference to stack
       state.stack.push(regexRef);

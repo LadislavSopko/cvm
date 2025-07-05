@@ -156,6 +156,12 @@ run_test "../programs/09-comprehensive/test-new-language-features.ts" "start" "1
 # complex-feature-combinations.ts: 3 commands for while loop cycles
 run_test "../programs/09-comprehensive/complex-feature-combinations.ts" "start" "status" "stop"
 
+echo -e "\n${YELLOW}=== 10-regex ===${NC}"
+run_test "../programs/10-regex/regex-literal-basic.ts"
+run_test "../programs/10-regex/regex-literal-comprehensive.ts"
+run_test "../programs/10-regex/regex-literal-errors.ts"
+run_test "../programs/10-regex/todo-file-processor.ts"
+
 # Summary
 echo -e "\n${YELLOW}======================================${NC}"
 echo -e "${YELLOW}Test Summary:${NC}"
