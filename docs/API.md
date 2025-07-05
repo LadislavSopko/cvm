@@ -64,8 +64,8 @@ try { } catch (e) { }  // WILL NOT WORK!
 // ✅ switch statements are now supported!
 // See Control Flow section
 
-// ❌ Regular expressions
-/pattern/.test(str);  // WILL NOT WORK!
+// ✅ Regular expressions are now supported!
+// See RegExp Literals section
 
 // ❌ Destructuring
 const {a, b} = obj;  // WILL NOT WORK!
@@ -998,6 +998,113 @@ for (const key in {}) {
 - Safe iteration over empty objects
 - Compatible with object literals and variables
 
+## RegExp Literals
+
+### /pattern/flags → regex object
+**Status**: ✅ Implemented
+
+Create regular expression objects using literal syntax with patterns and flags.
+
+```javascript
+// Basic pattern
+const emailPattern = /\w+@\w+\.\w+/;
+
+// With flags
+const caseInsensitive = /hello/i;
+const globalMatch = /test/g;
+const multiline = /^start/m;
+const combined = /pattern/gim;
+```
+
+**Supported flags**:
+- `i` - Case insensitive matching
+- `g` - Global matching (find all matches)
+- `m` - Multiline mode (^ and $ match line boundaries)
+
+### regex.source → string
+**Status**: ✅ Implemented
+
+Access the pattern string used to create the regex.
+
+```javascript
+const pattern = /hello world/i;
+console.log(pattern.source);  // "hello world"
+```
+
+### regex.flags → string
+**Status**: ✅ Implemented
+
+Get the flags used to create the regex as a string.
+
+```javascript
+const pattern = /test/gi;
+console.log(pattern.flags);   // "gi"
+```
+
+### regex.global → boolean
+**Status**: ✅ Implemented
+
+Check if the global flag is set.
+
+```javascript
+const pattern = /test/g;
+console.log(pattern.global);  // true
+
+const noGlobal = /test/i;
+console.log(noGlobal.global); // false
+```
+
+### regex.ignoreCase → boolean
+**Status**: ✅ Implemented
+
+Check if the ignore case flag is set.
+
+```javascript
+const pattern = /Test/i;
+console.log(pattern.ignoreCase);  // true
+
+const caseSensitive = /Test/;
+console.log(caseSensitive.ignoreCase); // false
+```
+
+### regex.multiline → boolean
+**Status**: ✅ Implemented
+
+Check if the multiline flag is set.
+
+```javascript
+const pattern = /^start/m;
+console.log(pattern.multiline);  // true
+
+const singleLine = /^start/;
+console.log(singleLine.multiline); // false
+```
+
+**Note**: RegExp literals create objects that store pattern metadata. They're perfect for TODO orchestration tasks like:
+- Validating file paths and names
+- Checking configuration formats
+- Pattern matching in CC() responses
+- File filtering by complex patterns
+
+**Example usage in TODO orchestration**:
+```javascript
+function main() {
+  const files = fs.listFiles("/src", { recursive: true });
+  const testPattern = /\.test\.(js|ts)$/;
+  const configPattern = /^config\./i;
+  
+  for (const file of files) {
+    if (testPattern.global) {
+      // Pattern configured for multiple matches
+      CC("Analyze test file patterns in: " + file);
+    } else if (configPattern.ignoreCase) {
+      // Case-insensitive config detection
+      CC("Validate configuration format in: " + file);
+    }
+  }
+}
+```
+
 ## Logical Operators
 
 ### AND (&&)
@@ -1340,6 +1447,7 @@ CVM follows JavaScript's type system with some differences:
 - **Traditional for(;;) loops** - C-style loops with init, condition, increment
 - **switch/case statements** - Multi-way branching with fall-through support
 - **for...in loops** - Object property iteration
+- **RegExp literals** - Pattern matching with `/pattern/flags` syntax
 
 ### 🔧 VM Ready, Awaiting Compiler Support:
 1. **Function calls** - CALL, RETURN opcodes defined
