@@ -1,5 +1,7 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { safePop, isVMError } from '../stack-utils.js';
+import { isCVMObjectRef, CVMObject } from '@cvm/types';
 
 /**
  * Payload interface for LOAD_REGEX instruction
@@ -78,9 +80,101 @@ const loadRegex: OpcodeHandler = {
 };
 
 /**
+ * Handler for REGEX_TEST opcode
+ * Executes regex.test(string) operation
+ * 
+ * Stack Effect: [regexRef, string] → [boolean]
+ * Heap Effect: None (reads existing regex object)
+ * 
+ * Error Cases:
+ * - First stack item is not a regex object reference
+ * - Second stack item is not a string
+ * - Stack underflow (less than 2 items)
+ */
+const regexTest: OpcodeHandler = {
+  stackIn: 2,     // Consumes regex reference and string
+  stackOut: 1,    // Produces boolean result
+  
+  execute: (state, instruction) => {
+    // Pop string argument
+    const testString = safePop(state, instruction.op);
+    if (isVMError(testString)) return testString;
+    
+    // Pop regex reference
+    const regexRef = safePop(state, instruction.op);
+    if (isVMError(regexRef)) return regexRef;
+    
+    // Validate string argument
+    if (typeof testString !== 'string') {
+      return {
+        type: 'TypeError',
+        message: `Expected string argument for regex test, got ${typeof testString}`,
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    // Validate regex reference
+    if (!isCVMObjectRef(regexRef)) {
+      return {
+        type: 'TypeError',
+        message: 'Expected regex object for regex test',
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    // Get regex object from heap
+    const regexObj = state.heap.get(regexRef.id);
+    if (!regexObj || regexObj.type !== 'object') {
+      return {
+        type: 'TypeError',
+        message: 'Invalid regex object reference',
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+    
+    try {
+      // Recreate JavaScript RegExp from stored properties
+      // The LOAD_REGEX handler stores the regex as an object with properties
+      const cvmObject = regexObj.data as CVMObject;
+      const pattern = cvmObject.properties.source;
+      const flags = cvmObject.properties.flags;
+      
+      if (typeof pattern !== 'string' || typeof flags !== 'string') {
+        return {
+          type: 'TypeError',
+          message: 'Invalid regex object structure',
+          pc: state.pc,
+          opcode: instruction.op
+        };
+      }
+      
+      const regex = new RegExp(pattern, flags);
+      const testResult = regex.test(testString);
+      
+      // Push boolean result to stack
+      state.stack.push(testResult);
+      
+      return undefined; // Success
+      
+    } catch (error) {
+      return {
+        type: 'RuntimeError',
+        message: `Regex test failed: ${(error as Error).message}`,
+        pc: state.pc,
+        opcode: instruction.op
+      };
+    }
+  }
+};
+
+/**
  * Registry of all regex-related opcode handlers
  * Export this to be included in main handler registry
  */
 export const regexHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.LOAD_REGEX]: loadRegex,
+  [OpCode.REGEX_TEST]: regexTest,
 };
