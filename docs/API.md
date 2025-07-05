@@ -1105,6 +1105,181 @@ function main() {
 }
 ```
 
+## RegExp Pattern Matching
+
+### regex.test(string) → boolean
+**Status**: ✅ Implemented
+
+Test if a string matches the regular expression pattern. Returns `true` if a match is found, `false` otherwise.
+
+```javascript
+const emailPattern = /\w+@\w+\.\w+/;
+const validEmail = "user@example.com";
+const invalidEmail = "not-an-email";
+
+console.log(emailPattern.test(validEmail));   // true
+console.log(emailPattern.test(invalidEmail)); // false
+
+// Case insensitive testing
+const casePattern = /hello/i;
+console.log(casePattern.test("Hello World")); // true
+console.log(casePattern.test("world"));       // false
+```
+
+**Error handling**:
+```javascript
+const pattern = /test/;
+pattern.test(42);  // Error: Expected string argument for regex test, got number
+```
+
+### string.match(regex) → array | null
+**Status**: ✅ Implemented
+
+Extract matches from a string using a regular expression. Returns an array of matches or `null` if no matches found.
+
+```javascript
+// Single match
+const text = "Contact user@example.com for help";
+const emailPattern = /\w+@\w+\.\w+/;
+const match = text.match(emailPattern);
+console.log(match);  // ["user@example.com"]
+
+// Global matches
+const logText = "2024-01-01 ERROR: Database connection failed";
+const numberPattern = /\d+/g;
+const numbers = logText.match(numberPattern);
+console.log(numbers);  // ["2024", "01", "01"]
+
+// Capture groups
+const urlText = "Visit https://example.com/docs for info";
+const urlPattern = /(https?):\/\/([^\/]+)(\/.*)?/;
+const urlMatch = urlText.match(urlPattern);
+console.log(urlMatch);  // ["https://example.com/docs", "https", "example.com", "/docs"]
+
+// No match
+const noMatch = "clean text".match(/error/i);
+console.log(noMatch);  // null
+```
+
+**Error handling**:
+```javascript
+const text = "test string";
+text.match("not-a-regex");  // Error: Expected regex object for match
+```
+
+### string.replace(regex, replacement) → string
+**Status**: ✅ Implemented
+
+Replace matches in a string using a regular expression. Returns a new string with replacements made.
+
+```javascript
+// Single replacement
+const text = "Hello world";
+const result = text.replace(/world/, "universe");
+console.log(result);  // "Hello universe"
+
+// Global replacement
+const logText = "test and test again test";
+const globalResult = logText.replace(/test/g, "check");
+console.log(globalResult);  // "check and check again check"
+
+// Case insensitive replacement
+const mixedCase = "Hello WORLD hello";
+const caseResult = mixedCase.replace(/hello/gi, "hi");
+console.log(caseResult);  // "hi WORLD hi"
+
+// Using capture groups
+const email = "user@example.com";
+const masked = email.replace(/(\w+)@(\w+)/, "$2@[HIDDEN]");
+console.log(masked);  // "example@[HIDDEN].com"
+
+// Special replacement patterns
+const fullMatch = "hello world".replace(/world/, "[$&]");
+console.log(fullMatch);  // "hello [world]"
+```
+
+**Replacement patterns**:
+- `$&` - The full match
+- `$1`, `$2`, etc. - Capture groups
+- `$$` - Literal dollar sign
+
+**Error handling**:
+```javascript
+const pattern = /test/;
+pattern.replace(42, "replacement");  // Error: Expected string input for replace
+pattern.replace("text", 42);         // Error: Expected string replacement
+```
+
+## RegExp Opcodes
+
+The following VM opcodes handle RegExp operations:
+
+- `LOAD_REGEX` - Create regex object from pattern and flags
+- `REGEX_TEST` - Execute regex.test(string) operation  
+- `STRING_MATCH` - Execute string.match(regex) operation
+- `STRING_REPLACE_REGEX` - Execute string.replace(regex, replacement) operation
+
+## RegExp in TODO Orchestration
+
+Regular expressions enable powerful pattern-based TODO orchestration workflows:
+
+```javascript
+function main() {
+  console.log("=== Log Analysis with RegExp ===");
+  
+  // Define analysis patterns
+  const errorPattern = /ERROR|FATAL|CRITICAL/i;
+  const timestampPattern = /\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}/;
+  const ipPattern = /\b(\d{1,3}\.){3}\d{1,3}\b/g;
+  
+  // Sample log entries
+  const logEntries = [
+    "2024-01-01 10:30:15 192.168.1.100 GET /api/users - OK",
+    "2024-01-01 10:31:22 10.0.0.5 POST /api/login - ERROR: Invalid credentials",
+    "2024-01-01 10:32:10 172.16.0.10 GET /health - OK"
+  ];
+  
+  var errorCount = 0;
+  
+  for (var i = 0; i < logEntries.length; i++) {
+    var entry = logEntries[i];
+    
+    // Check for errors
+    if (errorPattern.test(entry)) {
+      errorCount = errorCount + 1;
+      console.log("⚠ Error detected in entry " + (i + 1));
+    }
+    
+    // Extract timestamp
+    var timestampMatch = entry.match(timestampPattern);
+    if (timestampMatch !== null) {
+      console.log("📅 Timestamp: " + timestampMatch[0]);
+    }
+    
+    // Extract IP addresses
+    var ipMatches = entry.match(ipPattern);
+    if (ipMatches !== null) {
+      console.log("🌐 IP: " + ipMatches[0]);
+    }
+    
+    // Sanitize sensitive data
+    var sanitized = entry.replace(ipPattern, "[IP-HIDDEN]");
+    sanitized = sanitized.replace(timestampPattern, "[TIMESTAMP]");
+    console.log("🔒 Sanitized: " + sanitized);
+  }
+  
+  console.log("Total errors found: " + errorCount);
+}
+```
+
+**RegExp enables TODO workflows for**:
+- **Log parsing and analysis** - Extract structured data from unstructured logs
+- **Data validation** - Validate email addresses, URLs, file paths
+- **Content sanitization** - Replace sensitive information with placeholders  
+- **Pattern-based filtering** - Filter files, messages, or data by complex patterns
+- **Text processing** - Transform and clean text data for further processing
+- **Configuration validation** - Verify configuration file formats and values
+
 ## Logical Operators
 
 ### AND (&&)
