@@ -5,7 +5,8 @@ import {
   compileNumericLiteral, 
   compileTrue, 
   compileFalse, 
-  compileNull 
+  compileNull,
+  compileRegularExpressionLiteral
 } from './literals.js';
 import { compileIdentifier } from './identifier.js';
 import { compileArrayLiteral } from './array-literal.js';
@@ -26,6 +27,7 @@ export const expressionVisitors: Partial<Record<ts.SyntaxKind, ExpressionVisitor
   [ts.SyntaxKind.TrueKeyword]: compileTrue,
   [ts.SyntaxKind.FalseKeyword]: compileFalse,
   [ts.SyntaxKind.NullKeyword]: compileNull,
+  [ts.SyntaxKind.RegularExpressionLiteral]: compileRegularExpressionLiteral,
   [ts.SyntaxKind.Identifier]: compileIdentifier,
   [ts.SyntaxKind.ArrayLiteralExpression]: compileArrayLiteral,
   [ts.SyntaxKind.BinaryExpression]: compileBinaryExpression,

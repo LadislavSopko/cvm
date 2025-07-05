@@ -41,3 +41,17 @@ export const compileNull: ExpressionVisitor = (
 ) => {
   state.emit(OpCode.PUSH, null);
 };
+
+export const compileRegularExpressionLiteral: ExpressionVisitor<ts.RegularExpressionLiteral> = (
+  node,
+  state,
+  context
+) => {
+  // Extract pattern and flags from regex literal text
+  const text = node.text; // e.g., "/hello/gi"
+  const lastSlash = text.lastIndexOf('/');
+  const pattern = text.substring(1, lastSlash); // "hello"
+  const flags = text.substring(lastSlash + 1); // "gi"
+  
+  state.emit(OpCode.LOAD_REGEX, { pattern, flags });
+};
