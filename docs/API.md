@@ -1080,26 +1080,34 @@ const singleLine = /^start/;
 console.log(singleLine.multiline); // false
 ```
 
-**Note**: RegExp literals create objects that store pattern metadata. They're perfect for TODO orchestration tasks like:
-- Validating file paths and names
-- Checking configuration formats
-- Pattern matching in CC() responses
-- File filtering by complex patterns
+**Note**: RegExp literals create objects with complete pattern matching functionality. Perfect for TODO orchestration workflows requiring:
+- Pattern validation and testing with `.test()`
+- Data extraction with `.match()`
+- Content transformation with `.replace()`
+- Complex file filtering and analysis
 
-**Example usage in TODO orchestration**:
+**Complete TODO orchestration example**:
 ```javascript
 function main() {
-  const files = fs.listFiles("/src", { recursive: true });
-  const testPattern = /\.test\.(js|ts)$/;
-  const configPattern = /^config\./i;
+  const files = fs.listFiles("/logs", { recursive: true });
+  const errorPattern = /ERROR|FATAL|CRITICAL/i;
+  const emailPattern = /\w+@\w+\.\w+/g;
   
   for (const file of files) {
-    if (testPattern.global) {
-      // Pattern configured for multiple matches
-      CC("Analyze test file patterns in: " + file);
-    } else if (configPattern.ignoreCase) {
-      // Case-insensitive config detection
-      CC("Validate configuration format in: " + file);
+    const content = fs.readFile(file);
+    if (content !== null) {
+      // Test for error conditions
+      if (errorPattern.test(content)) {
+        CC("Analyze errors in: " + file);
+        
+        // Extract all email addresses
+        const emails = content.match(emailPattern);
+        if (emails !== null) {
+          // Sanitize content by masking emails
+          const sanitized = content.replace(emailPattern, "[EMAIL]");
+          fs.writeFile(file + ".sanitized", sanitized);
+        }
+      }
     }
   }
 }
@@ -1622,7 +1630,14 @@ CVM follows JavaScript's type system with some differences:
 - **Traditional for(;;) loops** - C-style loops with init, condition, increment
 - **switch/case statements** - Multi-way branching with fall-through support
 - **for...in loops** - Object property iteration
-- **RegExp literals** - Pattern matching with `/pattern/flags` syntax
+- **RegExp literals** - Complete pattern matching with `/pattern/flags` syntax
+- **RegExp pattern matching** - Full functionality including:
+  - **regex.test(string)** - Pattern testing returning boolean
+  - **string.match(regex)** - Match extraction returning array or null
+  - **string.replace(regex, replacement)** - Text replacement with global/case flags
+  - **All RegExp flags** - Global (g), case insensitive (i), multiline (m)
+  - **Capture groups** - Full support for $1, $2, etc. in replacements
+  - **Special patterns** - $& for full match, $$ for literal dollar sign
 
 ### 🔧 VM Ready, Awaiting Compiler Support:
 1. **Function calls** - CALL, RETURN opcodes defined
