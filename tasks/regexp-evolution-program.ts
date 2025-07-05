@@ -124,7 +124,10 @@ function main() {
             planReference + ". This is an ATOMIC TDD block - implement the COMPLETE feature: " + 
             blockDescription + ". Components to implement: " + components + ". " +
             "IMPORTANT: This is atomic TDD - write failing unit/integration tests FIRST using Vitest, then implement ALL required components " +
-            "(lexer, parser, compiler, VM handlers) to make tests pass. Expected outcome: " + expectation + rebuildNote + submitDone;
+            "(lexer, parser, compiler, VM handlers) to make tests pass. " +
+            "CRITICAL: EXTEND existing features by following existing code patterns exactly - examine existing files first with Read/Grep tools. " +
+            "DO NOT invent new directories or file structures. Follow the existing codebase structure strictly. " +
+            "Expected outcome: " + expectation + rebuildNote + submitDone;
         
         CC(tddPrompt);
         
