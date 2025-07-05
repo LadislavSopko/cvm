@@ -15,6 +15,7 @@ import { advancedHandlers } from './advanced.js';
 import { objectHandlers } from './objects.js';
 import { objectIteratorHandlers } from './object-iterators.js';
 import { unifiedHandlers } from './unified.js';
+import { regexHandlers } from './regex.js';
 
 // Export the combined handlers
 export const handlers: Partial<Record<OpCode, OpcodeHandler>> = {
@@ -33,6 +34,7 @@ export const handlers: Partial<Record<OpCode, OpcodeHandler>> = {
   ...objectHandlers,
   ...objectIteratorHandlers,
   ...unifiedHandlers,
+  ...regexHandlers,
 };
 
 // Export types for use in VM

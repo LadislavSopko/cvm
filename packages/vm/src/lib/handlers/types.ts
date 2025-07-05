@@ -5,7 +5,7 @@ import { VMState } from '../vm.js';
  * Error types that can occur during VM execution
  */
 export interface VMError {
-  type: 'StackUnderflow' | 'TypeError' | 'InvalidOpcode' | 'DivisionByZero' | 'OutOfBounds' | 'RuntimeError';
+  type: 'StackUnderflow' | 'TypeError' | 'InvalidOpcode' | 'DivisionByZero' | 'OutOfBounds' | 'RuntimeError' | 'SyntaxError';
   message: string;
   pc: number;
   opcode: OpCode;
