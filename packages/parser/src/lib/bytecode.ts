@@ -50,6 +50,11 @@ export enum OpCode {
   
   // RegExp operations
   LOAD_REGEX = 'LOAD_REGEX',
+  REGEX_TEST = 'REGEX_TEST',
+  
+  // String operations with RegExp
+  STRING_MATCH = 'STRING_MATCH',
+  STRING_REPLACE_REGEX = 'STRING_REPLACE_REGEX',
   
   // Universal operations
   LENGTH = 'LENGTH',
