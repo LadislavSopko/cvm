@@ -48,6 +48,9 @@ export enum OpCode {
   STRING_PAD_START = 'STRING_PAD_START',
   STRING_PAD_END = 'STRING_PAD_END',
   
+  // RegExp operations
+  LOAD_REGEX = 'LOAD_REGEX',
+  
   // Universal operations
   LENGTH = 'LENGTH',
   TO_STRING = 'TO_STRING',
