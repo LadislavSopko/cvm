@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { VM } from '../vm.js';
 import { OpCode } from '@cvm/parser';
-import { isCVMObjectRef } from '@cvm/types';
 
 describe('Object iterator handlers', () => {
   it('should start object iteration', () => {

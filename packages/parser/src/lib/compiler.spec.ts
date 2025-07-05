@@ -40,8 +40,8 @@ describe('compiler', () => {
     it('should collect multiple errors without crashing', () => {
       const source = `
         function main() {
-          switch(x) { case 1: break; }  // Error 1
-          try { } catch(e) { }          // Error 2
+          with(obj) { }                 // Error 1 - with statement
+          try { } catch(e) { }          // Error 2 - try statement
         }
       `;
       const result = compile(source);
@@ -56,12 +56,12 @@ describe('compiler', () => {
     it('should report unsupported syntax errors', () => {
       const source = `
         function main() {
-          switch(x) { case 1: break; }
+          try { } catch(e) { }
         }
       `;
       const result = compile(source);
       expect(result.success).toBe(false);
-      expect(result.errors[0].message).toContain('Unsupported statement: SwitchStatement');
+      expect(result.errors[0].message).toContain('Unsupported statement: TryStatement');
     });
 
     it('should report unsupported expression errors', () => {

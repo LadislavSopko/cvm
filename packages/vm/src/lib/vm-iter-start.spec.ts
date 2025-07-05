@@ -41,7 +41,7 @@ describe('VM - ITER_START opcode', () => {
     expect(state.status).toBe('complete');
     expect(state.error).toBeUndefined();
     expect(state.iterators).toHaveLength(1);
-    expect(state.iterators[0].array.elements).toHaveLength(0);
+    expect(state.iterators[0].array?.elements).toHaveLength(0);
     expect(state.iterators[0].index).toBe(0);
   });
 
@@ -157,7 +157,7 @@ describe('VM - ITER_START opcode', () => {
     
     // Modifying the original array should be reflected in the iterator's array reference
     array.elements.push('d');
-    expect(state.iterators[0].array.elements).toHaveLength(4);
+    expect(state.iterators[0].array?.elements).toHaveLength(4);
     
     // But the stored length remains the same (iteration will stop at original length)
     expect(state.iterators[0].length).toBe(3);
@@ -176,6 +176,6 @@ describe('VM - ITER_START opcode', () => {
     expect(state.status).toBe('complete');
     expect(state.error).toBeUndefined();
     expect(state.iterators).toHaveLength(1);
-    expect(state.iterators[0].array.elements).toHaveLength(6);
+    expect(state.iterators[0].array?.elements).toHaveLength(6);
   });
 });

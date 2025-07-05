@@ -151,6 +151,8 @@ run_test "../programs/09-comprehensive/all-features.ts" "Hello World!" "25" "85"
 run_test "../programs/09-comprehensive/phase2-features.ts" "30" "secure123" "secure123"
 # string-array-methods-all.ts: filename, windows path, invoice#, search pattern, email, log level, log message
 run_test "../programs/09-comprehensive/string-array-methods-all.ts" "  test.js  " "C:\\Users\\test\\file.txt" "42" "projects" "user@example.com" "INFO" "Application started"
+# test-new-language-features.ts: action, test choice
+run_test "../programs/09-comprehensive/test-new-language-features.ts" "start" "1"
 
 # Summary
 echo -e "\n${YELLOW}======================================${NC}"

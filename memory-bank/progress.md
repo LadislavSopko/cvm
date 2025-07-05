@@ -48,6 +48,17 @@
 - Fixed all TypeScript errors, builds clean
 - No regressions in existing functionality
 
+### New Language Features Implementation 🚀
+**Status**: ✅ COMPLETED (2025-07-03) - 4 new features implemented using TDD!
+- Implemented 4 new language features for CVM using TDD: Object.keys() method, traditional for(;;) loops, switch/case statements, for...in loops. All features are JavaScript-compliant and fully tested with unit, integration, and E2E tests.
+- Added Object.keys() method returning array of object property names
+- Implemented traditional for(;;) loops with C-style syntax (init; condition; increment)  
+- Added switch/case statements with fall-through behavior and default case support
+- Implemented for...in loops for object property iteration
+- All implementations follow JavaScript semantics
+- Comprehensive test coverage including E2E testing
+- Updated API documentation to reflect supported features
+
 ### Must Have Features (Core TODO Orchestration) 🎯
 **✅ COMPLETED - All 15 methods implemented:**
 
@@ -72,11 +83,13 @@
    ```
 
 ### Nice to Have Features (Quality of Life) 🔧
-1. **`string.startsWith()`** - Directory filtering
-2. **Switch statements** - Cleaner task routing
+1. ~~**`string.startsWith()`**~~ ✅ COMPLETED - Directory filtering
+2. ~~**Switch statements**~~ ✅ COMPLETED - Cleaner task routing  
 3. **`array.filter()` with simple predicates** - File list filtering
-4. **`Object.keys()`** - When working with config objects
-5. **Basic RegExp** - Validate CC() responses
+4. ~~**`Object.keys()`**~~ ✅ COMPLETED - When working with config objects
+5. **Traditional for(;;) loops** ✅ COMPLETED - Better iteration control
+6. **for...in loops** ✅ COMPLETED - Object property iteration
+7. **Basic RegExp** - Validate CC() responses
 
 ### Infrastructure (Future) 🏗️
 1. **CLI Tool** - Direct command-line usage
