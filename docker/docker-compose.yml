@@ -16,6 +16,7 @@ services:
       - ./init-mongo:/docker-entrypoint-initdb.d
     networks:
       - mongo-network
+      
   documents:
     image: nginx:alpine
     ports:

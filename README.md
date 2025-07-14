@@ -423,7 +423,43 @@ This allows you to monitor long-running tasks and verify progress without interr
 - Loop counters and conditions
 - Complete program state between pauses
 
+## Prerequisites
+
+CVM requires MongoDB to persist execution state and program data. The easiest way to set this up is using Docker.
+
+### Quick Start with Docker
+
+1. **start docker compose:**
+   ```bash
+   docker-compose -f docker/docker-compose.yml up -d
+   ```
+
+2. **Configure environment variables: (Optional)**
+   ```bash
+   cp apps/cvm-server/.env.example apps/cvm-server/.env
+   ```
+
+   The default MongoDB connection string is:
+   ```
+   MONGODB_URI=mongodb://root:example@localhost:27017/cvm?authSource=admin
+   ```
+
+3. **Verify MongoDB is running: (Optional)**
+   ```bash
+   docker ps
+   # Should show: prontuari-mongo container running on port 27017
+   ```
+
+### Alternative: Manual MongoDB Setup
+
+If you prefer to install MongoDB manually:
+- Install MongoDB Community Edition from [mongodb.com](https://www.mongodb.com/try/download/community)
+- Start MongoDB service
+- Update the `MONGODB_URI` in your `.env` file to match your MongoDB configuration
+
 ## Installation
+
+> **Note**: Ensure MongoDB is running before starting CVM. See [Prerequisites](#prerequisites) for setup instructions.
 
 Add to Claude's MCP settings:
 
@@ -438,6 +474,73 @@ Add to Claude's MCP settings:
 }
 ```
 
+## Docker Setup
+
+For a complete development environment, you can use the provided Docker Compose configuration:
+
+### Starting All Services
+
+```bash
+# Start MongoDB and documentation server
+docker-compose -f docker/docker-compose.yml up -d
+```
+
+### Docker Services
+
+The `docker/docker-compose.yml` file includes:
+
+- **MongoDB**: Database server on port 27017
+  - Username: `root`
+  - Password: `example`
+  - Database: `cvm`
+  - Container name: `prontuari-mongo`
+
+- **Documents Server**: Nginx server on port 8090
+  - Serves static files from `wwwroot/`
+  - Useful for serving documentation locally
+
+### Managing Docker Services
+
+```bash
+# Check running containers
+docker ps
+
+# Stop all services
+docker-compose -f docker/docker-compose.yml down
+
+# View logs
+docker-compose -f docker/docker-compose.yml logs mongodb
+
+# Reset database (removes all data)
+docker-compose -f docker/docker-compose.yml down -v
+```
+
+## Environment Configuration
+
+CVM uses environment variables for configuration. Copy the example file and customize as needed:
+
+```bash
+cp apps/cvm-server/.env.example apps/cvm-server/.env
+```
+
+Key configuration options:
+
+```bash
+# MongoDB Connection (required)
+MONGODB_URI=mongodb://root:example@localhost:27017/cvm?authSource=admin
+
+# Logging
+CVM_LOG_LEVEL=info  # Options: debug, info, warn, error
+
+# Execution Limits
+CVM_MAX_EXECUTION_TIME=300000     # 5 minutes in milliseconds
+CVM_MAX_STACK_SIZE=1000           # Maximum call stack depth
+CVM_MAX_OUTPUT_SIZE=1048576       # 1MB output buffer
+
+# Environment
+NODE_ENV=development              # Options: development, production
+```
+
 ## Use Cases
 
 Perfect for any workflow where Claude needs to process many items systematically:
@@ -448,6 +551,30 @@ Perfect for any workflow where Claude needs to process many items systematically
 - Any task requiring loops with AI processing
 
 [→ Full API Documentation](docs/API.md)
+
+## CVM Evolution: Self-Improving Development
+
+CVM's unique capability is that it can evolve itself through guided TypeScript programs. This meta-development approach transforms complex implementations into manageable, systematic workflows.
+
+[→ Complete CVM Evolution Tutorial](docs/CVM_EVOLUTION_TUTORIAL.md)
+
+### The Meta-Development Process
+
+1. **Plan**: Create detailed implementation plan with exact specifications
+2. **Generate**: Ask Claude to create evolution program using template prompt
+3. **Execute**: Run the TypeScript program with CVM to implement the feature
+4. **Verify**: TDD methodology ensures quality and correctness
+
+### Template Prompt for Claude
+
+```
+Read @docs/README_EVOLUTION_DOCS.md to understand CVM evolution methodology. 
+Study the pattern in docs/CVM_EVOLUTION_PATTERN_EXAMPLE.ts. 
+Create a CVM evolution program from the implementation plan in [plan-file.md]. 
+Follow TDD approach with proper error handling and debugging loops.
+```
+
+This approach has successfully added major language features like RegExp support, Object.keys(), switch statements, and for loops to CVM itself.
 
 ## The Key Insight
 
