@@ -304,6 +304,28 @@ You might wonder: "How can a TypeScript `while` loop be paused mid-execution?" T
 
 This is why CVM can pause anywhere - it's not running native JavaScript, but carefully interpreting your code instruction by instruction.
 
+## Built with CVM Itself
+
+CVM's own development is managed through CVM programs! This isn't just dogfooding - it's proof that CVM can handle complex, real-world development workflows:
+
+**🔧 Feature Evolution Programs**
+- [RegExp Implementation](tasks/done/RegExp/regexp-evolution-program-v3.ts) - Added pattern matching with TDD
+- [String & Array Methods](tasks/done/string-arrays/string-array-implementation-program.ts) - Implemented 15 methods systematically
+- [Object Keys & For-loops](tasks/done/obj%20key%20and%20for%20c%20style/object-keys-for-switch-evolution-program.ts) - Enhanced language features
+
+**🏗️ Architecture Refactoring**
+- [CVM Evolution Executor](tasks/done/references%20usage/cvm-evolution-executor.ts) - Fixed critical architectural flaws
+- [Test Coverage Analysis](tasks/done/references%20usage/test-coverage-executor.ts) - Systematic testing improvements
+
+These programs guide Claude through hundreds of coordinated changes:
+- Writing failing tests first (TDD)
+- Implementing features step-by-step
+- Running test suites between changes
+- Committing progress systematically
+- Updating documentation automatically
+
+Each program breaks down complex tasks into cognitive checkpoints where Claude provides implementation, reviews code, fixes issues, and verifies correctness - all while CVM maintains perfect state across the entire workflow.
+
 ## Language Features & Limitations
 
 Since CVM uses a custom interpreter, it supports a TypeScript-like subset designed for reliability and safety.
