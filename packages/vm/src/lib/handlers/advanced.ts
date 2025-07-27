@@ -634,8 +634,8 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      const searchStr = String(search);
       const replaceStr = String(replacement);
+      const searchStr = String(search);
       
       // Replace FIRST occurrence only
       const index = str.indexOf(searchStr);

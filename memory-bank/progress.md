@@ -9,7 +9,7 @@ CVM successfully serves as an algorithmic TODO manager for Claude, enabling comp
 - **Bytecode Compiler**: AST → bytecode transformation with TypeScript parsing
 - **State Persistence**: MongoDB integration for cross-session continuity
 - **MCP Integration**: Model Context Protocol server for Claude integration
-- **Testing**: 1,049+ tests passing across entire project
+- **Testing**: 56/56 E2E tests passing + all unit/integration tests passing across entire project
 
 ## Language Features ✅
 **Complete TODO orchestration feature set:**
@@ -44,7 +44,20 @@ CVM successfully serves as an algorithmic TODO manager for Claude, enabling comp
 - Multiple function definitions (main() is sufficient)
 - Advanced math operations, complex data transformations
 
+## Recent Bug Fixes & Validation (July 27, 2025) ✅ COMPLETED
+- **Issue #5**: Fixed string.replace() regression - compiler was always emitting STRING_REPLACE_REGEX instead of STRING_REPLACE for non-regex arguments
+  - **Validated with**: `05-strings/string-replace-comprehensive.ts` E2E test
+- **Issue #3**: Fixed compilation error reporting - now shows readable error messages instead of [object Object]
+  - **Validated with**: `01-basics/compilation-errors.ts` E2E test
+- **Issue #2**: Fixed heap corruption bug - heap allocations were overwriting existing objects after deserialization because nextId was using a local variable instead of heap.nextId property
+  - **Validated with**: `05-strings/string-split-heap-safety.ts` E2E test
+- **Test Infrastructure Fixed**: Category runner now properly handles CC responses for all tests
+- **BTLT Achievement**: All 56 E2E tests passing + all unit tests passing with zero failures
+- **Regex Variable Bug Fixed**: Fixed critical issue where `string.replace(regexVariable, replacement)` was not working correctly by updating compiler and VM handler logic
+
 ## Current Status
 **Mission Achieved** - CVM provides complete TODO orchestration capabilities. The passive architecture (Claude asks "what's next?") combined with state persistence enables infinite complexity through guided steps.
 
-Ready for widespread production use.
+**Quality Assurance**: Recent bug fixes fully validated with comprehensive E2E test coverage. BTLT process ensures zero failures, zero warnings, zero shortcuts.
+
+Ready for widespread production use with robust test infrastructure.

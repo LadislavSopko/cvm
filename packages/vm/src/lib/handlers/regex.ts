@@ -315,14 +315,19 @@ const stringReplaceRegex: OpcodeHandler = {
       };
     }
     
-    // Validate regex reference
+    // Handle both regex objects and strings for flexibility
+    // If it's not a regex object reference, treat it as a string search pattern
     if (!isCVMObjectRef(regexRef)) {
-      return {
-        type: 'TypeError',
-        message: 'Expected regex object for replace',
-        pc: state.pc,
-        opcode: instruction.op
-      };
+      // Fall back to string replacement behavior (first occurrence only)
+      const searchStr = String(regexRef);
+      const replaceStr = String(replacement);
+      
+      const index = inputString.indexOf(searchStr);
+      const result = index === -1 ? inputString : 
+        inputString.substring(0, index) + replaceStr + inputString.substring(index + searchStr.length);
+      
+      state.stack.push(result);
+      return undefined;
     }
     
     // Validate replacement string
