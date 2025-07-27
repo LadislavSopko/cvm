@@ -283,9 +283,8 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       if (node.arguments.length > 0 && ts.isRegularExpressionLiteral(node.arguments[0])) {
         state.emit(OpCode.STRING_REPLACE_REGEX);
       } else {
-        // For now, emit STRING_REPLACE_REGEX for all cases and let the VM handler
-        // check the type at runtime and fall back to string replace if needed
-        state.emit(OpCode.STRING_REPLACE_REGEX);
+        // Emit regular string replace for non-regex cases
+        state.emit(OpCode.STRING_REPLACE);
       }
     }
     else if (methodName === 'replaceAll') {
