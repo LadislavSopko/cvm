@@ -60,11 +60,14 @@ export const compileForInStatement: StatementVisitor<ts.ForInStatement> = (
   // Jump back to loop start (OBJECT_ITER_NEXT)
   state.emit(OpCode.JUMP, loopStart);
   
-  // Pop context and patch break jumps
+  // Pop context and patch jumps
   const context = state.popContext();
   if (context) {
     const endAddress = state.currentAddress();
     state.patchJumps(context.breakTargets || [], endAddress);
+    
+    // Patch continue targets to jump back to OBJECT_ITER_NEXT
+    state.patchJumps(context.continueTargets || [], loopStart);
     
     // Clean up iterator state
     state.emit(OpCode.ITER_END);

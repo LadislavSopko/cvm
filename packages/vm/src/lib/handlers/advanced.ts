@@ -59,10 +59,10 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       const target = instruction.arg;
-      if (target < 0) {
+      if (target < 0 || target === -1) {
         return {
           type: 'RuntimeError',
-          message: `Invalid continue target: ${target}`,
+          message: `Invalid continue target: ${target} (not patched properly during compilation)`,
           pc: state.pc,
           opcode: instruction.op
         };
@@ -634,8 +634,8 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         };
       }
       
-      const searchStr = String(search);
       const replaceStr = String(replacement);
+      const searchStr = String(search);
       
       // Replace FIRST occurrence only
       const index = str.indexOf(searchStr);

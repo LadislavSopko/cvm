@@ -279,14 +279,10 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
         state.emit(OpCode.PUSH, '');
       }
       
-      // Check if first argument is a regex literal or could be a regex
-      if (node.arguments.length > 0 && ts.isRegularExpressionLiteral(node.arguments[0])) {
-        state.emit(OpCode.STRING_REPLACE_REGEX);
-      } else {
-        // For now, emit STRING_REPLACE_REGEX for all cases and let the VM handler
-        // check the type at runtime and fall back to string replace if needed
-        state.emit(OpCode.STRING_REPLACE_REGEX);
-      }
+      // Always emit STRING_REPLACE_REGEX for replace() calls
+      // This matches the behavior of match() and test() methods which always assume regex arguments
+      // The STRING_REPLACE_REGEX handler will handle both regex objects and string arguments
+      state.emit(OpCode.STRING_REPLACE_REGEX);
     }
     else if (methodName === 'replaceAll') {
       compileExpression(node.expression.expression);

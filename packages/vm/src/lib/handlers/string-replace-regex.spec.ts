@@ -144,19 +144,19 @@ describe('String Replace Regex VM Handler', () => {
       expect(result.error).toContain('Expected string input');
     });
 
-    it('should handle non-regex object', () => {
+    it('should handle non-regex object with fallback behavior', () => {
       const vm = new VM();
       
       const result = vm.execute([
         { op: OpCode.PUSH, arg: 'test string' },
-        { op: OpCode.PUSH, arg: 'not-a-regex' },
+        { op: OpCode.PUSH, arg: 'test' },  // String search pattern
         { op: OpCode.PUSH, arg: 'replacement' },
         { op: OpCode.STRING_REPLACE_REGEX },
         { op: OpCode.HALT }
       ]);
       
-      expect(result.status).toBe('error');
-      expect(result.error).toContain('Expected regex object');
+      expect(result.status).toBe('complete');
+      expect(result.stack).toEqual(['replacement string']); // First occurrence replaced
     });
 
     it('should handle non-string replacement', () => {

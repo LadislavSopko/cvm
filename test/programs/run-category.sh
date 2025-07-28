@@ -54,6 +54,36 @@ TOTAL=0
 PASSED=0
 FAILED=0
 
+# Function to get CC responses for a test
+get_cc_responses() {
+    local test_name=$1
+    local category=$2
+    
+    case "$category/$test_name" in
+        "01-basics/return-types") echo "string" ;;
+        "02-operators/comparison-operators") echo "5" ;;
+        "02-operators/logical-operators") echo "25 yes secure123 secure123 75 yes 3 14" ;;
+        "02-operators/new-operators") echo "100 4 85" ;;
+        "02-operators/ternary-operator") echo "25" ;;
+        "02-operators/unary-operators") echo "42" ;;
+        "03-control-flow/if-else-while") echo "20 85 7 3" ;;
+        "04-data-structures/objects-complex") echo "John 30 Engineer Jane 25 Designer" ;;
+        "04-data-structures/objects-comprehensive") echo "Alice 28 Boston Hello World" ;;
+        "05-strings/string-length") echo "password123 John" ;;
+        "07-cc-integration/cc-multiple-calls") echo "Alice 30 Bob 25" ;;
+        "07-cc-integration/cc-with-objects") echo "42" ;;
+        "07-cc-integration/objects-with-cc") echo "CVM\ project\ summary Architecture\ design\ summary Features\ capabilities\ summary Final\ comprehensive\ report" ;;
+        "08-examples/execution-management") echo "Alice analyze\ code 8" ;;
+        "08-examples/password-validator") echo "mypass123 mypass123" ;;
+        "09-comprehensive/all-features") echo "Hello\ World! 25 85 92" ;;
+        "09-comprehensive/phase2-features") echo "30 secure123 secure123" ;;
+        "09-comprehensive/string-array-methods-all") echo "\ \ test.js\ \  C:\\Users\\test\\file.txt 42 projects user@example.com INFO Application\ started" ;;
+        "09-comprehensive/test-new-language-features") echo "start 1" ;;
+        "09-comprehensive/complex-feature-combinations") echo "start status stop" ;;
+        *) echo "" ;;
+    esac
+}
+
 # Run each test in the category
 for test_file in test/programs/$CATEGORY/*.ts; do
     if [ -f "$test_file" ]; then
@@ -64,18 +94,33 @@ for test_file in test/programs/$CATEGORY/*.ts; do
         # Change to integration directory
         cd test/integration
         
-        # Determine if test needs CC responses based on common patterns
+        # Get CC responses for this test
+        cc_responses=$(get_cc_responses "$test_name" "$CATEGORY")
         relative_path="../programs/$CATEGORY/$(basename "$test_file")"
         
-        # Default: no CC responses
-        if npx tsx mcp-test-client.ts "$relative_path" > /tmp/test-output.log 2>&1; then
-            echo -e "${GREEN}✓ PASSED${NC}"
-            PASSED=$((PASSED + 1))
+        # Run test with or without CC responses
+        if [ -z "$cc_responses" ]; then
+            # No CC responses needed
+            if npx tsx mcp-test-client.ts "$relative_path" > /tmp/test-output.log 2>&1; then
+                echo -e "${GREEN}✓ PASSED${NC}"
+                PASSED=$((PASSED + 1))
+            else
+                echo -e "${RED}✗ FAILED${NC}"
+                echo "Output:"
+                cat /tmp/test-output.log
+                FAILED=$((FAILED + 1))
+            fi
         else
-            echo -e "${RED}✗ FAILED${NC}"
-            echo "Output:"
-            cat /tmp/test-output.log
-            FAILED=$((FAILED + 1))
+            # CC responses needed
+            if npx tsx mcp-test-client.ts "$relative_path" $cc_responses > /tmp/test-output.log 2>&1; then
+                echo -e "${GREEN}✓ PASSED${NC}"
+                PASSED=$((PASSED + 1))
+            else
+                echo -e "${RED}✗ FAILED${NC}"
+                echo "Output:"
+                cat /tmp/test-output.log
+                FAILED=$((FAILED + 1))
+            fi
         fi
         
         # Return to root

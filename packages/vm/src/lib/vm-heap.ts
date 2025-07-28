@@ -35,14 +35,13 @@ export interface VMHeap {
  */
 export function createVMHeap(): VMHeap {
   const objects = new Map<number, HeapObject>();
-  let nextId = 1;
 
-  return {
+  const heap: VMHeap = {
     objects,
-    nextId,
+    nextId: 1,
     
     allocate(type: 'array' | 'object', data: CVMArray | CVMObject): any {
-      const id = nextId++;
+      const id = heap.nextId++;
       const heapObject: HeapObject = { id, type, data };
       objects.set(id, heapObject);
       
@@ -62,4 +61,6 @@ export function createVMHeap(): VMHeap {
       return obj;
     }
   };
+  
+  return heap;
 }

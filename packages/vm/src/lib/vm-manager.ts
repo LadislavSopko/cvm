@@ -61,7 +61,10 @@ export class VMManager {
     const compileResult = compile(source);
     
     if (!compileResult.success) {
-      throw new Error(`Compilation failed: ${compileResult.errors.join(', ')}`);
+      const errorMessages = compileResult.errors.map(err => 
+        `${err.message} at line ${err.line}, column ${err.character}`
+      );
+      throw new Error(`Compilation failed: ${errorMessages.join('; ')}`);
     }
 
     const program: Program = {

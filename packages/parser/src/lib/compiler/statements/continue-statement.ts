@@ -10,9 +10,10 @@ export const compileContinueStatement: StatementVisitor<ts.ContinueStatement> = 
   // Find the nearest loop context
   const loopContext = state.findLoopContext();
   if (loopContext && loopContext.startAddress !== undefined) {
-    // For foreach loops, jump back to ITER_NEXT
-    // For regular loops, jump back to loop start
-    const continueIndex = state.emit(OpCode.CONTINUE, loopContext.startAddress);
+    // Emit CONTINUE with placeholder that will be patched later
+    // For for-loops: will be patched to jump to update expression
+    // For while/for-of loops: will be patched to jump to loop start
+    const continueIndex = state.emit(OpCode.CONTINUE, -1);
     loopContext.continueTargets = loopContext.continueTargets || [];
     loopContext.continueTargets.push(continueIndex);
   } else {

@@ -209,3 +209,9 @@ Always check the project's README for localized information before working on it
 - `mcp` - Check MCP server status
 - `ACT` - Switch to ACT mode for code changes
 - `PLAN` - Return to PLAN mode (default)
+
+## Common Abbreviations
+
+- **TDDAB** - Test Driven Development Atomic Block (a self-contained unit of functionality with tests)
+- **BTLT** - Build, TypeCheck, Lint, Test (the four verification steps for code quality)
+- NEVER USE SYNC TEST tool in vs-mcp
