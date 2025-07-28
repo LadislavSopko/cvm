@@ -30,12 +30,14 @@
 - **Issue #3 Fixed**: Compilation error reporting now shows readable messages like "message at line X, column Y" instead of "[object Object]"
 - **Issue #2 Fixed**: Heap corruption with string.split() - Fixed critical bug where heap's nextId was using a closure-captured local variable instead of the heap object's property, causing new allocations to overwrite existing objects after deserialization
 - **Regex Variable Bug Fixed**: Fixed regex variable replacement issue where `string.replace(regexVariable, replacement)` was not working correctly - updated compiler to always emit STRING_REPLACE_REGEX for replace() calls and enhanced STRING_REPLACE_REGEX handler to gracefully handle both regex objects and string arguments
-- **Issue #4**: Memory leak in file operations - needs investigation
-- **Issue #1 Fixed**: C-style for loops with continue - The real issue was that continue statements in for(;;) loops were jumping to the loop start instead of the update expression, causing infinite loops. Fixed by:
+- **Issue #1 Fixed (July 28, 2025)**: C-style for loops with continue - The real issue was that continue statements in for(;;) loops were jumping to the loop start instead of the update expression, causing infinite loops. Fixed by:
   - Modifying for-statement compiler to patch continue targets to jump to update expression
-  - Changing continue-statement to emit with -1 placeholder (like other jumps)
+  - Changing continue-statement to emit with -1 placeholder (like other jumps)  
   - Updating all loop types (while, for-of, for-in) to properly patch continue targets
   - Added comprehensive unit tests and E2E tests for all for-loop variants
+  - Root cause: Empty test placeholders in for-statement.spec.ts revealed lack of test coverage
+  - **BTLT Verified**: Build ✅ TypeCheck ✅ Lint ✅ Test ✅ (57 E2E tests + all unit tests passing)
+- **Issue #4**: Memory leak in file operations - needs investigation
 
 ### RegExp Literals Implementation (July 5, 2025) ✅ COMPLETED
 - Implemented complete RegExp literal support using atomic TDD methodology
@@ -47,12 +49,12 @@
 - Fixed all TypeScript compilation errors and achieved 100% test coverage
 - All 1,049+ tests passing across entire CVM project
 
-### Test Suite Organization (Completed) - Updated July 27, 2025
-- Reorganized 60+ tests into 58 tests across 10 categories including regex
-- Added 3 new E2E tests for bug fix validation
+### Test Suite Organization (Completed) - Updated July 28, 2025
+- Reorganized 60+ tests into 57 tests across 10 categories including regex
+- Added 4 new E2E tests for bug fix validation (3 on July 27 + for-loops.ts on July 28)
 - Fixed test infrastructure to properly handle CC responses in category runner
 - Set up test artifacts to write to tmp/ directory
-- **Current Status**: E2E tests (56/56) passing, unit tests all passing - BTLT complete ✅
+- **Current Status**: E2E tests (57/57) passing, unit tests all passing - BTLT complete ✅
 - Updated API.md with current implementation status
 
 ### String & Array Methods Implementation (Completed July 2, 2025)

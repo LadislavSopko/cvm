@@ -53,7 +53,10 @@ CVM successfully serves as an algorithmic TODO manager for Claude, enabling comp
   - **Validated with**: `05-strings/string-split-heap-safety.ts` E2E test
 - **Issue #1**: Fixed C-style for loops with continue - continue statements were jumping to loop start instead of update expression, causing infinite loops
   - **Root cause**: Missing test coverage - unit tests had empty placeholders for for-loop continue tests
+  - **Solution**: Modified compiler to patch continue targets to update expression, not loop start
   - **Validated with**: `03-control-flow/for-loops.ts` comprehensive E2E test + filled unit tests
+  - **Files Modified**: for-statement.ts, continue-statement.ts, while-statement.ts, for-of-statement.ts, for-in-statement.ts
+  - **Tests Added**: 10 comprehensive for-loop tests in E2E + 6 unit tests in for-statement.spec.ts
 - **Test Infrastructure Fixed**: Category runner now properly handles CC responses for all tests
 - **BTLT Achievement**: All 57 E2E tests passing (added for-loops.ts) + all unit tests passing with zero failures
 - **Regex Variable Bug Fixed**: Fixed critical issue where `string.replace(regexVariable, replacement)` was not working correctly by updating compiler and VM handler logic
