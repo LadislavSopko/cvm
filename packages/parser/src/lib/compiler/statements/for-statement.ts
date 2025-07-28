@@ -47,21 +47,27 @@ export const compileForStatement: StatementVisitor<ts.ForStatement> = (
   // 5. Compile body
   compileStatement(node.statement);
   
-  // 6. Compile update
+  // 6. Mark update position (where continue should jump to)
+  const updateAddress = state.currentAddress();
+  
+  // 7. Compile update
   if (node.incrementor) {
     compileExpression(node.incrementor);
     state.emit(OpCode.POP); // Discard update expression result
   }
   
-  // 7. Jump back to start
+  // 8. Jump back to start
   state.emit(OpCode.JUMP, loopStart);
   
-  // 8. Pop context and patch jumps
+  // 9. Pop context and patch jumps
   const context = state.popContext();
   if (context) {
     const endAddress = state.currentAddress();
     
     // Patch all break targets to jump to end
     state.patchJumps(context.breakTargets || [], endAddress);
+    
+    // Patch all continue targets to jump to update
+    state.patchJumps(context.continueTargets || [], updateAddress);
   }
 };

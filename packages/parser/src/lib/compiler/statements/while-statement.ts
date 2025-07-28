@@ -41,7 +41,7 @@ export const compileWhileStatement: StatementVisitor<ts.WhileStatement> = (
     // Patch all break targets to jump to end
     state.patchJumps(context.breakTargets || [], endAddress);
     
-    // Continue targets would jump to loopStart, but we don't need to patch
-    // them because continue statements directly emit JUMP to startAddress
+    // Patch all continue targets to jump back to loop start
+    state.patchJumps(context.continueTargets || [], loopStart);
   }
 };

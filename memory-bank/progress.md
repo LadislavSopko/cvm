@@ -44,15 +44,18 @@ CVM successfully serves as an algorithmic TODO manager for Claude, enabling comp
 - Multiple function definitions (main() is sufficient)
 - Advanced math operations, complex data transformations
 
-## Recent Bug Fixes & Validation (July 27, 2025) ✅ COMPLETED
+## Recent Bug Fixes & Validation (July 28, 2025) ✅ COMPLETED
 - **Issue #5**: Fixed string.replace() regression - compiler was always emitting STRING_REPLACE_REGEX instead of STRING_REPLACE for non-regex arguments
   - **Validated with**: `05-strings/string-replace-comprehensive.ts` E2E test
 - **Issue #3**: Fixed compilation error reporting - now shows readable error messages instead of [object Object]
   - **Validated with**: `01-basics/compilation-errors.ts` E2E test
 - **Issue #2**: Fixed heap corruption bug - heap allocations were overwriting existing objects after deserialization because nextId was using a local variable instead of heap.nextId property
   - **Validated with**: `05-strings/string-split-heap-safety.ts` E2E test
+- **Issue #1**: Fixed C-style for loops with continue - continue statements were jumping to loop start instead of update expression, causing infinite loops
+  - **Root cause**: Missing test coverage - unit tests had empty placeholders for for-loop continue tests
+  - **Validated with**: `03-control-flow/for-loops.ts` comprehensive E2E test + filled unit tests
 - **Test Infrastructure Fixed**: Category runner now properly handles CC responses for all tests
-- **BTLT Achievement**: All 56 E2E tests passing + all unit tests passing with zero failures
+- **BTLT Achievement**: All 57 E2E tests passing (added for-loops.ts) + all unit tests passing with zero failures
 - **Regex Variable Bug Fixed**: Fixed critical issue where `string.replace(regexVariable, replacement)` was not working correctly by updating compiler and VM handler logic
 
 ## Current Status

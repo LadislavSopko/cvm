@@ -31,7 +31,11 @@
 - **Issue #2 Fixed**: Heap corruption with string.split() - Fixed critical bug where heap's nextId was using a closure-captured local variable instead of the heap object's property, causing new allocations to overwrite existing objects after deserialization
 - **Regex Variable Bug Fixed**: Fixed regex variable replacement issue where `string.replace(regexVariable, replacement)` was not working correctly - updated compiler to always emit STRING_REPLACE_REGEX for replace() calls and enhanced STRING_REPLACE_REGEX handler to gracefully handle both regex objects and string arguments
 - **Issue #4**: Memory leak in file operations - needs investigation
-- **Issue #1**: Nested loops JUMP_IF_FALSE with -1 argument - needs investigation
+- **Issue #1 Fixed**: C-style for loops with continue - The real issue was that continue statements in for(;;) loops were jumping to the loop start instead of the update expression, causing infinite loops. Fixed by:
+  - Modifying for-statement compiler to patch continue targets to jump to update expression
+  - Changing continue-statement to emit with -1 placeholder (like other jumps)
+  - Updating all loop types (while, for-of, for-in) to properly patch continue targets
+  - Added comprehensive unit tests and E2E tests for all for-loop variants
 
 ### RegExp Literals Implementation (July 5, 2025) ✅ COMPLETED
 - Implemented complete RegExp literal support using atomic TDD methodology

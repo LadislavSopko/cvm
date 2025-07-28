@@ -210,4 +210,57 @@ describe('Compiler Break/Continue Statements', () => {
     expect(typeof continueInstr!.arg).toBe('number');
     expect(continueInstr!.arg).toBeGreaterThan(0);
   });
+
+  it('should compile continue in for loop to jump to update expression', () => {
+    const source = `
+      function main() {
+        for (let i = 0; i < 5; i++) {
+          if (i === 2) {
+            continue;
+          }
+          console.log(i);
+        }
+      }
+      main();
+    `;
+    
+    const result = compile(source);
+    expect(result.success).toBe(true);
+    
+    // Find the CONTINUE instruction
+    const continueInstr = result.bytecode.find(instr => instr.op === OpCode.CONTINUE);
+    expect(continueInstr).toBeDefined();
+    
+    // Continue should jump to a location that's before the JUMP back to loop start
+    // but after the loop body
+    const jumpBackIndex = result.bytecode.findIndex(instr => 
+      instr.op === OpCode.JUMP && instr.arg !== undefined && instr.arg < 10
+    );
+    expect(jumpBackIndex).toBeGreaterThan(0);
+    expect(continueInstr!.arg).toBeLessThan(jumpBackIndex);
+    expect(continueInstr!.arg).toBeGreaterThan(0);
+  });
+
+  it('should handle nested for loops with continue correctly', () => {
+    const source = `
+      function main() {
+        for (let i = 0; i < 3; i++) {
+          for (let j = 0; j < 3; j++) {
+            if (j === 1) {
+              continue;
+            }
+            console.log(i.toString() + "," + j.toString());
+          }
+        }
+      }
+      main();
+    `;
+    
+    const result = compile(source);
+    expect(result.success).toBe(true);
+    
+    // Should have CONTINUE opcode
+    const continueCount = result.bytecode.filter(instr => instr.op === OpCode.CONTINUE).length;
+    expect(continueCount).toBe(1);
+  });
 });

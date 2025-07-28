@@ -6,7 +6,7 @@
 
 Tell Claude exactly this:
 ```
-Load /tmp/cvm-demo.ts into CVM (DO NOT READ IT!) and execute to completion
+Load cvm-demo.ts into CVM (DO NOT READ IT!) and execute to completion
 ```
 
 Claude will know to:
@@ -18,14 +18,14 @@ Claude will know to:
 
 Now read the program you just executed:
 ```
-Read /tmp/cvm-demo.ts
+Read cvm-demo.ts
 ```
 
 ## Step 3: NOW Read the Full Explanation
 
 Only after completing steps 1-2, read:
 ```
-Read /tmp/CVM-PARADIGM-EXPLAINED.md
+Read CVM-PARADIGM-EXPLAINED.md
 ```
 
 ---

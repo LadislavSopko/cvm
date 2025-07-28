@@ -102,6 +102,7 @@ run_test "../programs/02-operators/undefined-handling.ts"
 
 echo -e "\n${YELLOW}=== 03-control-flow ===${NC}"
 run_test "../programs/03-control-flow/block-scoping.ts"
+run_test "../programs/03-control-flow/for-loops.ts"
 run_test "../programs/03-control-flow/for-of-loops.ts"
 run_test "../programs/03-control-flow/for-of-with-files.ts"
 run_test "../programs/03-control-flow/if-else-while.ts" "20" "85" "7" "3"
