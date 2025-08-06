@@ -83,8 +83,18 @@ export class VM {
       ...initialState
     };
 
+    logger.trace({ bytecodeLength: bytecode.length, initialPC: state.pc }, 'VM execution starting');
+
     while (state.status === 'running' && state.pc < bytecode.length) {
       const instruction = bytecode[state.pc];
+      
+      logger.trace({ 
+        pc: state.pc, 
+        opcode: OpCode[instruction.op], 
+        arg: instruction.arg,
+        stackSize: state.stack.length,
+        variablesCount: state.variables.size
+      }, 'Executing instruction');
       
       // Trace instruction execution
       this.vmLogger.trace({ 
@@ -122,18 +132,6 @@ export class VM {
           }, 'Jump validation check');
           
           if (instruction.arg < 0 || instruction.arg >= bytecode.length) {
-            // CRITICAL: Log detailed context for "Invalid jump target: -1" debugging
-            this.vmLogger.error({ 
-              pc: state.pc, 
-              jumpTarget: instruction.arg, 
-              instructionCount: bytecode.length,
-              opcode: OpCode[instruction.op],
-              opcodeNum: instruction.op,
-              stackSize: state.stack.length,
-              variables: Array.from(state.variables.keys()),
-              iterators: state.iterators.length
-            }, 'Invalid jump target detected');
-            
             state.status = 'error';
             const opName = instruction.op === OpCode.JUMP ? 'jump' : 
                           instruction.op === OpCode.JUMP_IF_FALSE ? 'jump' :
@@ -141,9 +139,8 @@ export class VM {
                           instruction.op === OpCode.JUMP_IF_TRUE ? 'jump' :
                           instruction.op === OpCode.BREAK ? 'break' : 'continue';
             
-            // Add specific context for negative jump targets on CONTINUE only (matching test expectations)
-            const errorSuffix = (instruction.arg < 0 && instruction.op === OpCode.CONTINUE) ? ' (not patched properly during compilation)' : '';
-            state.error = `Invalid ${opName} target: ${instruction.arg}${errorSuffix}`;
+            // Consistent error format for all jump operations
+            state.error = `Invalid ${opName} target: ${instruction.arg}`;
             break;
           }
         }
@@ -170,6 +167,14 @@ export class VM {
         if (!handler.controlsPC) {
           state.pc++;
         }
+        
+        logger.trace({ 
+          pc: state.pc, 
+          opcode: OpCode[instruction.op], 
+          stackSize: state.stack.length,
+          status: state.status
+        }, 'Instruction completed successfully');
+        
         continue;
       }
 

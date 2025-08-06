@@ -15,11 +15,7 @@
   "include": [
     "src/**/*.ts"
   ],
-  "references": [
-    {
-      "path": "../parser/tsconfig.lib.json"
-    }
-  ],
+  "references": [],
   "exclude": [
     "vite.config.ts",
     "vite.config.mts",

@@ -818,10 +818,52 @@ Example log entry:
 
 ---
 
+## CRITICAL: CVM Logging Standards - UNDERSTAND THIS CONCEPT
+
+**FORBIDDEN**: `console.log`, `console.error`, `console.warn`, `console.debug`
+**REQUIRED**: Use ONLY the logger from `@cvm/types`
+
+### FUNDAMENTAL CONCEPT - LOGGER WRITES TO FILES ONLY
+- **Logger output**: Goes to `.cvm/cvm-debug.log` file ONLY
+- **NOT** to console, stdout, stderr, or any system output
+- **To see debug logs**: Read the log file: `cat .cvm/cvm-debug.log`
+- **To capture logs**: DON'T redirect stdout/stderr - read the log file!
+
+### Log Level Usage:
+- **info**: Production messages (3-4 max): "Server starting", "Server stopping" 
+- **debug**: Development debugging information → **WRITES TO FILE**
+- **trace**: Detailed execution tracing (most verbose) → **WRITES TO FILE**
+
+### Examples:
+```typescript
+// ❌ WRONG - NEVER USE
+console.log("Debug info");
+console.error("Error occurred");
+
+// ✅ CORRECT - WRITES TO .cvm/cvm-debug.log FILE
+import { logger } from '@cvm/types';
+logger.info("CVM Server starting");
+logger.debug("Compiling statement", { kind: nodeName, line: line + 1 });
+logger.trace("VM executing", { pc, opcode, stackSize: state.stack.length });
+```
+
+### How to See Logger Output:
+```bash
+# Run CVM operation
+CVM_LOG_LEVEL=debug ./test/programs/run-test.sh program.ts
+
+# View logger output from FILE (not console!)
+cat .cvm/cvm-debug.log
+tail -50 .cvm/cvm-debug.log  
+grep "debug" .cvm/cvm-debug.log
+```
+
+**Why this matters**: Logger uses Pino file-based structured JSON logging. Console methods go to stdout/stderr. Logger goes to FILES. They are completely separate systems!
+
 ## Golden Rules for CVM Debugging
 
 1. **Trust the State Files** - They contain absolute truth about VM execution
-2. **Add Strategic Logging** - console.log at key decision points
+2. **Use ONLY logger** - Never use console.log/error - use logger.debug/trace
 3. **Use Pino Structured Logs** - Leverage JSON logs for execution flow analysis
 4. **Step Through Interactively** - Use getTask/submitTask for complex programs
 5. **Check Stack Depth** - Verify handler requirements match actual stack

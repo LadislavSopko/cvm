@@ -95,7 +95,7 @@ describe('VM Break/Continue Operations', () => {
     const result = vm.execute(bytecode);
 
     expect(result.status).toBe('error');
-    expect(result.error).toBe('Invalid continue target: -1 (not patched properly during compilation)');
+    expect(result.error).toBe('Invalid continue target: -1');
   });
 
   it('should error on CONTINUE with invalid target (out of bounds)', () => {

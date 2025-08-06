@@ -2,16 +2,15 @@
 
 ## Current Work Focus
 
-### Production Logging System Implementation ✅ COMPLETED (August 2025)
-- **Status**: PINO LOGGING SYSTEM FULLY INTEGRATED
-- **Achievement**: TDDAB-1 & TDDAB-2 complete - Core foundation and E2E verification working
-- **Configuration**: 
-  - Default log file: `.cvm/cvm-debug.log` (overridable with `CVM_LOG_FILE`)
-  - Default level: `info` (overridable with `CVM_LOG_LEVEL`)
-  - Structured JSON format with timestamps and context
-- **E2E Verified**: File logging works correctly, MCP compatible, environment configurable
-- **Next Phase**: TDDAB-3 - Add VM execution logging for "Invalid jump target: -1" debugging
-- **Documentation**: Updated CVM-INTERNALS-AND-DEBUGGING.md and RUNNING_TESTS.md with Pino details
+### VM Execution Logging & Testing Issue Resolution ⚠️ IN PROGRESS (August 2025)
+- **Status**: TDDAB-3 VM LOGGING COMPLETE ✅, DISCOVERED TESTING ANTI-PATTERN ⚠️
+- **Achievement**: 
+  - VM execution logging implemented with jump target validation
+  - Critical issue discovered: tests validate implementation details, not behavior
+  - Root cause: BREAK/CONTINUE error messages inconsistent, tests expect hardcoded strings
+- **Current Problem**: Adding logging broke tests because they test exact error strings instead of behavior
+- **Next Phase**: Fix inconsistent BREAK/CONTINUE error handling (simple 2-line fix)
+- **Learning**: Tests should verify behavior, not implementation artifacts
 
 ### Previous Work: RegExp Literals Implementation Complete ✅
 - **Status**: FULLY IMPLEMENTED (2025-07-05)
@@ -23,6 +22,14 @@
 - Perfect for TODO orchestration: pattern validation, file filtering, config checking
 
 ## Recent Changes
+
+### VM Execution Logging Implementation (August 2025) ✅ COMPLETED
+- **TDDAB-3 Complete**: VM execution logging with jump target validation
+- **Implementation**: Added Pino logger to VM with instruction tracing and error context
+- **Critical Discovery**: Tests are implementation-dependent, not behavior-driven
+- **Problem Revealed**: BREAK/CONTINUE have inconsistent error formats, tests expect hardcoded strings
+- **Technical Debt Found**: Adding logging broke tests because they validate exact error messages
+- **Solution Identified**: Simple fix - make error messages consistent, update test expectations
 
 ### Console.log Debugging Investigation (August 2025) ✅ COMPLETED  
 - **Problem**: console.log from CVM server process not visible during testing
@@ -109,6 +116,13 @@
 - Memory Bank is source of truth
 
 ## Learnings and Project Insights
+
+### Critical Testing Anti-Pattern Discovered (August 2025)
+1. **Problem**: Tests validate implementation details (exact error strings) instead of behavior
+2. **Root Cause**: I wrote tests to match whatever the code happened to output, creating inconsistencies
+3. **Evidence**: BREAK and CONTINUE have different error message formats for no logical reason
+4. **Impact**: Adding logging (pure observability) broke tests because they expect hardcoded strings
+5. **Solution**: Make error handling consistent, test behavior patterns instead of exact strings
 
 ### Key Insights from Documentation Work
 1. Package dependency order matters for understanding
