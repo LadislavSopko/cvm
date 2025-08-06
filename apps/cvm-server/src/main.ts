@@ -24,8 +24,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function main() {
-  console.log("DEBUGGING: main() function started (console.log)");
-  console.error("DEBUGGING: main() function started (console.error)");
+  logger.info("CVM Server main() function started");
+  logger.debug("Debugging: main() function entry point");
   let cvmServer: CVMMcpServer | undefined;
   
   try {
@@ -91,8 +91,7 @@ async function main() {
     // The server is now running and handling MCP requests via stdio
     
   } catch (error) {
-    // Use console.error in case logger isn't initialized yet
-    console.error('Fatal error starting CVM Server:', error);
+    logger.error({ err: error }, 'Fatal error starting CVM Server');
     process.exit(1);
   }
   
@@ -115,6 +114,6 @@ async function main() {
 
 // Start the server
 main().catch((error) => {
-  console.error('Unhandled error:', error);
+  logger.error({ err: error }, 'Unhandled error in main()');
   process.exit(1);
 });

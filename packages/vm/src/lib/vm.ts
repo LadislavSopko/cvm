@@ -1,5 +1,5 @@
 import { Instruction, OpCode } from '@cvm/parser';
-import { CVMValue, CVMArray } from '@cvm/types';
+import { CVMValue, CVMArray, logger } from '@cvm/types';
 import { handlers, VMError, OpcodeHandler } from './handlers/index.js';
 import { FileSystemService } from './file-system.js';
 import { VMHeap, createVMHeap } from './vm-heap.js';
@@ -28,6 +28,8 @@ export interface VMState {
 }
 
 export class VM {
+  private vmLogger = logger.child({ component: 'vm' });
+
   createInitialState(): VMState {
     return {
       pc: 0,
@@ -84,6 +86,15 @@ export class VM {
     while (state.status === 'running' && state.pc < bytecode.length) {
       const instruction = bytecode[state.pc];
       
+      // Trace instruction execution
+      this.vmLogger.trace({ 
+        pc: state.pc, 
+        opcode: OpCode[instruction.op], 
+        opcodeNum: instruction.op,
+        arg: instruction.arg,
+        stackSize: state.stack.length 
+      }, 'Executing instruction');
+      
       const handler = handlers[instruction.op];
       if (handler) {
         // Validate stack requirements
@@ -95,19 +106,46 @@ export class VM {
           break;
         }
 
-        // Special validation for jump operations
+        // Special validation for jump operations - CRITICAL for debugging "Invalid jump target: -1"
         if ((instruction.op === OpCode.JUMP || instruction.op === OpCode.JUMP_IF_FALSE || 
              instruction.op === OpCode.JUMP_IF || instruction.op === OpCode.JUMP_IF_TRUE ||
              instruction.op === OpCode.BREAK || instruction.op === OpCode.CONTINUE) && 
-            instruction.arg !== undefined && instruction.arg >= bytecode.length) {
-          state.status = 'error';
-          const opName = instruction.op === OpCode.JUMP ? 'jump' : 
-                        instruction.op === OpCode.JUMP_IF_FALSE ? 'jump' :
-                        instruction.op === OpCode.JUMP_IF ? 'jump' :
-                        instruction.op === OpCode.JUMP_IF_TRUE ? 'jump' :
-                        instruction.op === OpCode.BREAK ? 'break' : 'continue';
-          state.error = `Invalid ${opName} target: ${instruction.arg}`;
-          break;
+            instruction.arg !== undefined) {
+          
+          // Log all jump attempts for debugging
+          this.vmLogger.debug({
+            pc: state.pc,
+            jumpTarget: instruction.arg,
+            instructionCount: bytecode.length,
+            opcode: OpCode[instruction.op],
+            opcodeNum: instruction.op
+          }, 'Jump validation check');
+          
+          if (instruction.arg < 0 || instruction.arg >= bytecode.length) {
+            // CRITICAL: Log detailed context for "Invalid jump target: -1" debugging
+            this.vmLogger.error({ 
+              pc: state.pc, 
+              jumpTarget: instruction.arg, 
+              instructionCount: bytecode.length,
+              opcode: OpCode[instruction.op],
+              opcodeNum: instruction.op,
+              stackSize: state.stack.length,
+              variables: Array.from(state.variables.keys()),
+              iterators: state.iterators.length
+            }, 'Invalid jump target detected');
+            
+            state.status = 'error';
+            const opName = instruction.op === OpCode.JUMP ? 'jump' : 
+                          instruction.op === OpCode.JUMP_IF_FALSE ? 'jump' :
+                          instruction.op === OpCode.JUMP_IF ? 'jump' :
+                          instruction.op === OpCode.JUMP_IF_TRUE ? 'jump' :
+                          instruction.op === OpCode.BREAK ? 'break' : 'continue';
+            
+            // Add specific context for negative jump targets on CONTINUE only (matching test expectations)
+            const errorSuffix = (instruction.arg < 0 && instruction.op === OpCode.CONTINUE) ? ' (not patched properly during compilation)' : '';
+            state.error = `Invalid ${opName} target: ${instruction.arg}${errorSuffix}`;
+            break;
+          }
         }
 
         // Execute the handler

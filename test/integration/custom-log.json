@@ -1,0 +1,8 @@
+{"level":30,"time":1754479745017,"pid":194322,"hostname":"LACOWIN11","msg":"CVM Server main() function started"}
+{"level":30,"time":1754479745018,"pid":194322,"hostname":"LACOWIN11","msg":"Starting CVM Server..."}
+{"level":30,"time":1754479745018,"pid":194322,"hostname":"LACOWIN11","msg":"[CVM] Initializing file storage in: /home/laco/cvm/test/integration/.cvm"}
+{"level":40,"time":1754479745018,"pid":194322,"hostname":"LACOWIN11","msg":"[CVM] ⚠️  Remember to add '.cvm/' to your .gitignore file!"}
+{"level":30,"time":1754479745020,"pid":194322,"hostname":"LACOWIN11","msg":"CVM Server is running and ready to accept MCP connections"}
+{"level":30,"time":1754479745540,"pid":194322,"hostname":"LACOWIN11","msg":"Received SIGTERM, shutting down gracefully..."}
+{"level":30,"time":1754479745540,"pid":194322,"hostname":"LACOWIN11","msg":"Closing connections..."}
+{"level":30,"time":1754479745540,"pid":194322,"hostname":"LACOWIN11","msg":"Shutdown complete"}

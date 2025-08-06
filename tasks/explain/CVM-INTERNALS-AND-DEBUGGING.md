@@ -750,14 +750,83 @@ function main() {
 
 ---
 
+## 11. Pino Logging System
+
+CVM uses Pino for structured JSON logging to enable debugging of complex execution flows, particularly for investigating issues like "Invalid jump target: -1" bugs.
+
+### 11.1 Configuration
+
+- **Default log file**: `.cvm/cvm-debug.log`
+- **Default log level**: `info`
+- **Overrides**: 
+  - `CVM_LOG_FILE`: Custom log file path
+  - `CVM_LOG_LEVEL`: Custom log level (trace, debug, info, warn, error, fatal)
+
+### 11.2 Log Levels
+
+- **trace (10)**: Most verbose, includes all execution details
+- **debug (20)**: Debug information for development
+- **info (30)**: Standard operational messages (default)
+- **warn (40)**: Warning messages
+- **error (50)**: Error conditions
+- **fatal (60)**: Fatal errors causing shutdown
+
+### 11.3 Usage Examples
+
+```bash
+# Default logging (info level to .cvm/cvm-debug.log)
+npx tsx mcp-test-client.ts "../programs/01-basics/variables-and-output.ts"
+
+# Debug logging
+CVM_LOG_LEVEL=debug npx tsx mcp-test-client.ts "../programs/test.ts"
+
+# Custom log file
+CVM_LOG_FILE=./custom-debug.log npx tsx mcp-test-client.ts "../programs/test.ts"
+
+# Combined
+CVM_LOG_LEVEL=debug CVM_LOG_FILE=./trace.log npx tsx mcp-test-client.ts "../programs/test.ts"
+```
+
+### 11.4 Log Format
+
+Structured JSON format with:
+- `level`: Numeric log level (20=debug, 30=info, 40=warn, 50=error)
+- `time`: Unix timestamp in milliseconds
+- `pid`: Process ID
+- `hostname`: Server hostname
+- `msg`: Log message
+- Additional structured data fields for context
+
+Example log entry:
+```json
+{"level":30,"time":1754479731962,"pid":194041,"hostname":"LACOWIN11","msg":"CVM Server main() function started"}
+```
+
+### 11.5 Implementation Details
+
+- **Location**: `packages/types/src/lib/logger.ts`
+- **Import**: `import { logger } from '@cvm/types'`
+- **File Destination**: Uses `pino.destination()` for async file I/O
+- **MCP Compatibility**: Logs to files since stdout is used for MCP protocol
+
+### 11.6 Debugging Workflow with Pino
+
+1. Set appropriate log level based on issue complexity
+2. Run CVM operation that reproduces the issue
+3. Analyze structured logs in the designated log file
+4. Use log data to trace execution flow and identify problems
+
+---
+
 ## Golden Rules for CVM Debugging
 
 1. **Trust the State Files** - They contain absolute truth about VM execution
 2. **Add Strategic Logging** - console.log at key decision points
-3. **Step Through Interactively** - Use getTask/submitTask for complex programs
-4. **Check Stack Depth** - Verify handler requirements match actual stack
-5. **Trace PC Movement** - Ensure program counter advances correctly
-6. **Validate References** - Ensure heap object IDs are valid
-7. **Monitor Variable Evolution** - Track how variables change over iterations
+3. **Use Pino Structured Logs** - Leverage JSON logs for execution flow analysis
+4. **Step Through Interactively** - Use getTask/submitTask for complex programs
+5. **Check Stack Depth** - Verify handler requirements match actual stack
+6. **Trace PC Movement** - Ensure program counter advances correctly
+7. **Validate References** - Ensure heap object IDs are valid
+8. **Monitor Variable Evolution** - Track how variables change over iterations
 
 The CVM implementation is deterministic and traceable. Every aspect of execution is captured in the state files. Debug by following the evidence, not assumptions.
