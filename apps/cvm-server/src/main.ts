@@ -14,7 +14,7 @@
 
 import { CVMMcpServer } from '@cvm/mcp-server';
 import { loadConfig } from './config.js';
-import { initLogger, getLogger } from './logger.js';
+import { logger } from '@cvm/types';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -32,9 +32,7 @@ async function main() {
     // Load configuration
     const config = loadConfig();
     
-    // Initialize logger
-    initLogger(config.logging.level);
-    const logger = getLogger();
+    // Logger is already initialized in types package
     
     // Get version - try multiple locations for different deployment scenarios
     let version = '0.4.3'; // Fallback version
@@ -99,7 +97,6 @@ async function main() {
   }
   
   async function shutdown() {
-    const logger = getLogger();
     try {
       logger.info('Closing connections...');
       

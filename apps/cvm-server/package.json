@@ -39,10 +39,12 @@
   },
   "dependencies": {
     "@modelcontextprotocol/sdk": "^1.12.2",
+    "@types/pino": "^7.0.4",
     "dotenv": "^16.0.0",
     "mongodb": "^6.17.0",
+    "pino": "^9.7.0",
+    "pino-pretty": "^13.1.1",
     "typescript": "^5.7.3",
-    "winston": "^3.17.0",
     "zod": "^3.25.64"
   },
   "type": "module",
