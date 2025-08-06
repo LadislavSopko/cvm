@@ -1,6 +1,6 @@
 {
   "name": "cvm-server",
-  "version": "0.15.1",
+  "version": "0.15.2",
   "description": "Cognitive Virtual Machine (CVM) - A deterministic bytecode VM with AI cognitive operations",
   "keywords": [
     "mcp",
@@ -42,6 +42,7 @@
     "dotenv": "^16.0.0",
     "mongodb": "^6.17.0",
     "typescript": "^5.7.3",
+    "winston": "^3.17.0",
     "zod": "^3.25.64"
   },
   "type": "module",

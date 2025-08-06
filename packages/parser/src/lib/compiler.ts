@@ -17,6 +17,7 @@ export interface CompileResult {
 }
 
 export function compile(source: string): CompileResult {
+  console.log("DEBUGGING: compile() function called with source length:", source.length);
   const errors: CompilationError[] = [];
   const parseResult = parseProgram(source);
   

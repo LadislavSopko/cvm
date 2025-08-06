@@ -63,13 +63,21 @@ export const compileForOfStatement: StatementVisitor<ts.ForOfStatement> = (
   // Pop context and patch jumps
   const context = state.popContext();
   if (context) {
+    // Get end address BEFORE emitting ITER_END
+    // This ensures JUMP_IF_FALSE points TO ITER_END, not AFTER it
     const endAddress = state.currentAddress();
-    state.patchJumps(context.breakTargets || [], endAddress);
-    
-    // Patch continue targets to jump back to ITER_NEXT
-    state.patchJumps(context.continueTargets || [], loopStart);
+    console.log(`DEBUG: For-of patching - endAddress=${endAddress}, breakTargets=${JSON.stringify(context.breakTargets)}`);
     
     // Clean up iterator state
     state.emit(OpCode.ITER_END);
+    
+    // Patch break targets (including JUMP_IF_FALSE) to jump to ITER_END
+    state.patchJumps(context.breakTargets || [], endAddress);
+    console.log(`DEBUG: Patched ${context.breakTargets?.length || 0} break targets to ${endAddress}`);
+    
+    // Patch continue targets to jump back to ITER_NEXT
+    state.patchJumps(context.continueTargets || [], loopStart);
+  } else {
+    console.log(`DEBUG: No context to patch in for-of statement`);
   }
 };

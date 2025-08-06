@@ -24,6 +24,8 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function main() {
+  console.log("DEBUGGING: main() function started (console.log)");
+  console.error("DEBUGGING: main() function started (console.error)");
   let cvmServer: CVMMcpServer | undefined;
   
   try {

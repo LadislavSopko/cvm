@@ -29,8 +29,8 @@
       ]
     },
     "cvm": {
-      "command": "node",
-      "args": ["/home/laco/cvm/apps/cvm-server/dist/main.cjs"],      
+     "command": "npx",
+      "args": ["-y", "cvm-server@latest"],
       "env": {
         "CVM_STORAGE_TYPE": "file",
         "CVM_DATA_DIR": ".cvm",
