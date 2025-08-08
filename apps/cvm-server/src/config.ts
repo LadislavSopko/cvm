@@ -25,7 +25,7 @@ export interface Config {
     dataDir?: string;
   };
   logging: {
-    level: 'debug' | 'info' | 'warn' | 'error';
+    level: 'trace' | 'debug' | 'info' | 'warn' | 'error';
   };
   execution: {
     maxExecutionTime: number;
@@ -55,7 +55,7 @@ export function loadConfig(): Config {
 
   // Optional with defaults
   const logLevel = (process.env.CVM_LOG_LEVEL || 'info') as Config['logging']['level'];
-  const validLogLevels = ['debug', 'info', 'warn', 'error'];
+  const validLogLevels = ['trace', 'debug', 'info', 'warn', 'error'];
   if (!validLogLevels.includes(logLevel)) {
     throw new Error(`Invalid CVM_LOG_LEVEL: ${logLevel}. Must be one of: ${validLogLevels.join(', ')}`);
   }
