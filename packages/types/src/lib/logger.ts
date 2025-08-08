@@ -35,10 +35,10 @@ function getLogger() {
 }
 
 // Proxy object that forwards all calls to the lazy-initialized logger
-const logger = new Proxy({}, {
+const logger = new Proxy({} as any, {
   get(_target, prop) {
     return getLogger()[prop];
   }
-});
+}) as any;
 
 export default logger;

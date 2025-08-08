@@ -1,6 +1,6 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber } from '@cvm/types';
+import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber, isCVMObjectRef, CVMObjectRef, CVMObject } from '@cvm/types';
 
 export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.RETURN]: {
@@ -92,7 +92,24 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
 
       // Check if top of stack is an object (options)
       const top = state.stack[state.stack.length - 1];
-      if (state.stack.length >= 2 && typeof top === 'object' && top !== null && !isCVMArray(top)) {
+      
+      // Check for CVMObjectRef (from compiled code)
+      if (state.stack.length >= 2 && isCVMObjectRef(top)) {
+        const objRef = state.stack.pop()! as CVMObjectRef;
+        path = state.stack.pop()!;
+        
+        // Extract properties from heap object
+        const heapObj = state.heap.get(objRef.id);
+        if (heapObj && heapObj.type === 'object') {
+          const obj = heapObj.data as CVMObject;
+          options = {
+            recursive: !!obj.properties['recursive'],
+            filter: obj.properties['filter'] as string | undefined
+          };
+        }
+      }
+      // Check for plain JS object (from test code)
+      else if (state.stack.length >= 2 && typeof top === 'object' && top !== null && !isCVMArray(top)) {
         // Two arguments: path and options
         options = state.stack.pop();
         path = state.stack.pop()!;

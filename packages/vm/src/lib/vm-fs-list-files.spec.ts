@@ -201,4 +201,61 @@ describe('VM - FS_LIST_FILES opcode', () => {
     const array = heapObj!.data as CVMArray;
     expect(array.elements).toEqual(['/docs/readme.md', '/docs/guide.md']);
   });
+
+  // CRITICAL TEST: This is what actually happens when CVM compiles { recursive: true }
+  it('should handle CVMObjectRef from compiled code (the actual bug)', () => {
+    const vm = new VM();
+    const fileSystem = new MockFileSystemService();
+    
+    let capturedOptions: any;
+    fileSystem.listFiles = (path: string, options?: any) => {
+      capturedOptions = options;
+      return createCVMArray(['/test/file1.txt', '/test/dir/file2.txt']);
+    };
+    
+    // This is what the compiler generates for { recursive: true }
+    const bytecode = [
+      { op: OpCode.PUSH, arg: '/test' },
+      { op: OpCode.OBJECT_CREATE },           // Creates empty CVMObjectRef on heap
+      { op: OpCode.PUSH, arg: 'recursive' },
+      { op: OpCode.PUSH, arg: true },
+      { op: OpCode.PROPERTY_SET },            // Sets recursive: true on the object
+      { op: OpCode.FS_LIST_FILES },
+      { op: OpCode.HALT }
+    ];
+    
+    const state = vm.execute(bytecode, {}, fileSystem);
+    
+    expect(state.status).toBe('complete');
+    expect(capturedOptions).toEqual({ recursive: true });
+  });
+
+  it('should handle CVMObjectRef with both recursive and filter', () => {
+    const vm = new VM();
+    const fileSystem = new MockFileSystemService();
+    
+    let capturedOptions: any;
+    fileSystem.listFiles = (path: string, options?: any) => {
+      capturedOptions = options;
+      return createCVMArray(['/test/file1.txt']);
+    };
+    
+    const bytecode = [
+      { op: OpCode.PUSH, arg: '/test' },
+      { op: OpCode.OBJECT_CREATE },
+      { op: OpCode.PUSH, arg: 'recursive' },
+      { op: OpCode.PUSH, arg: true },
+      { op: OpCode.PROPERTY_SET },
+      { op: OpCode.PUSH, arg: 'filter' },
+      { op: OpCode.PUSH, arg: '*.txt' },
+      { op: OpCode.PROPERTY_SET },
+      { op: OpCode.FS_LIST_FILES },
+      { op: OpCode.HALT }
+    ];
+    
+    const state = vm.execute(bytecode, {}, fileSystem);
+    
+    expect(state.status).toBe('complete');
+    expect(capturedOptions).toEqual({ recursive: true, filter: '*.txt' });
+  });
 });
