@@ -54,4 +54,8 @@ CVM successfully serves as an algorithmic TODO manager for Claude, enabling comp
 
 **Quality Assurance**: Recent bug fixes fully validated with comprehensive E2E test coverage. BTLT process ensures zero failures, zero warnings, zero shortcuts.
 
+**Testing Issue Discovered**: VM execution logging revealed implementation-dependent tests that break when non-functional changes are made. Simple fix identified: make BREAK/CONTINUE error handling consistent.
+
+**Next**: Execute simple control flow fix to resolve testing anti-pattern and restore clean BTLT status.
+
 Ready for widespread production use with robust test infrastructure.

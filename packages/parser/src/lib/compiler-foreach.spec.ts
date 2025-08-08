@@ -164,4 +164,63 @@ describe('Compiler - for-of loops', () => {
     
     expect(jumpInstructions.length).toBeGreaterThan(0);
   });
+
+  it('should handle for-of loop with multiple continue statements (bug fix)', () => {
+    const source = `
+      function main() {
+        const items = ["item1", "item2", "item3"];
+        
+        for (const item of items) {
+          if (item === "item1") {
+            continue;
+          }
+          
+          if (item === "item2") {
+            continue;
+          }
+          
+          if (item === "item3") {
+            continue;
+          }
+          
+          console.log(item);
+        }
+      }
+      main();
+    `;
+    
+    const result = compile(source);
+    expect(result.success).toBe(true);
+    
+    // Find JUMP_IF_FALSE and ITER_END instructions
+    let jumpIfFalse = null;
+    let iterEndIndex = -1;
+    
+    for (let i = 0; i < result.bytecode.length; i++) {
+      const instr = result.bytecode[i];
+      
+      // Find the JUMP_IF_FALSE that exits the for-of loop
+      if (instr.op === OpCode.JUMP_IF_FALSE && !jumpIfFalse) {
+        jumpIfFalse = { index: i, target: instr.arg };
+      }
+      
+      if (instr.op === OpCode.ITER_END) {
+        iterEndIndex = i;
+      }
+    }
+    
+    // Verify the fix: JUMP_IF_FALSE should point to ITER_END, not -1
+    expect(jumpIfFalse).not.toBeNull();
+    expect(jumpIfFalse?.target).toBe(iterEndIndex);
+    expect(jumpIfFalse?.target).not.toBe(-1); // Bug was: invalid jump target -1
+    
+    // Verify we have proper loop structure
+    expect(result.bytecode).toContainEqual({ op: OpCode.ITER_START });
+    expect(result.bytecode).toContainEqual({ op: OpCode.ITER_NEXT });
+    expect(result.bytecode).toContainEqual({ op: OpCode.ITER_END });
+    
+    // Verify continue statements are present
+    const continueInstructions = result.bytecode.filter(instr => instr.op === OpCode.CONTINUE);
+    expect(continueInstructions.length).toBe(3); // Should have 3 continue statements
+  });
 });

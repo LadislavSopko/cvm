@@ -27,7 +27,7 @@ class CVMMcpTestClient {
         ...process.env,
         CVM_STORAGE: 'file',
         CVM_DATA_DIR: '.cvm',
-        CVM_LOG_LEVEL: 'info',
+        CVM_LOG_LEVEL: process.env.CVM_LOG_LEVEL || 'info',
         CVM_SANDBOX_PATHS: process.env.CVM_SANDBOX_PATHS || '/home/laco/cvm/test/integration'
       }
     });

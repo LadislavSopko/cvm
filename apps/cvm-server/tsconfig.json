@@ -4,6 +4,9 @@
   "include": [],
   "references": [
     {
+      "path": "../../packages/types"
+    },
+    {
       "path": "../../packages/mcp-server"
     },
     {

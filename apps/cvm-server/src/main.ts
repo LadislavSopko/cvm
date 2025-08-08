@@ -14,7 +14,7 @@
 
 import { CVMMcpServer } from '@cvm/mcp-server';
 import { loadConfig } from './config.js';
-import { initLogger, getLogger } from './logger.js';
+import { logger } from '@cvm/types';
 import { resolve } from 'path';
 import { readFileSync } from 'fs';
 import { fileURLToPath } from 'url';
@@ -24,15 +24,15 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 async function main() {
+  logger.info("CVM Server main() function started");
+  logger.debug("Debugging: main() function entry point");
   let cvmServer: CVMMcpServer | undefined;
   
   try {
     // Load configuration
     const config = loadConfig();
     
-    // Initialize logger
-    initLogger(config.logging.level);
-    const logger = getLogger();
+    // Logger is already initialized in types package
     
     // Get version - try multiple locations for different deployment scenarios
     let version = '0.4.3'; // Fallback version
@@ -91,13 +91,11 @@ async function main() {
     // The server is now running and handling MCP requests via stdio
     
   } catch (error) {
-    // Use console.error in case logger isn't initialized yet
-    console.error('Fatal error starting CVM Server:', error);
+    logger.error({ err: error }, 'Fatal error starting CVM Server');
     process.exit(1);
   }
   
   async function shutdown() {
-    const logger = getLogger();
     try {
       logger.info('Closing connections...');
       
@@ -116,6 +114,6 @@ async function main() {
 
 // Start the server
 main().catch((error) => {
-  console.error('Unhandled error:', error);
+  logger.error({ err: error }, 'Unhandled error in main()');
   process.exit(1);
 });

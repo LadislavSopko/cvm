@@ -19,14 +19,37 @@ Examples:
   - `mcp__cvm__getTask` + `mcp__cvm__submitTask` for interactive debugging
   - `mcp__cvm__status` to check execution state
 
-### 2. Empirical Evidence Policy
-- **0 assumptions = 0 exceptions** - NO GUESSING
-- **ADD CONSOLE.LOG** to trace execution paths:
+### 2. CRITICAL: CVM Logging Standards - LOGGER WRITES TO FILES ONLY
+- **FORBIDDEN**: `console.log`, `console.error`, `console.warn`, `console.debug`  
+- **REQUIRED**: Use ONLY logger from `@cvm/types`
+- **FUNDAMENTAL CONCEPT**: Logger output goes to `.cvm/cvm-debug.log` FILE, NOT console!
+
+### How Logger Works:
+- **Logger output**: `.cvm/cvm-debug.log` file ONLY
+- **NOT** stdout, stderr, console, or any system output
+- **To see logs**: `cat .cvm/cvm-debug.log` - read the FILE
+- **DON'T** redirect stdout/stderr to capture logger - it goes to FILES!
+
   ```typescript
-  // Add debug logging at key points
-  console.log("DEBUG: Entering loop iteration " + i);
-  console.log("DEBUG: Variable state - counter: " + counter);
-  console.log("DEBUG: About to call CC() with: " + prompt);
+  // ❌ WRONG - NEVER USE
+  console.log("Debug info");
+  
+  // ✅ CORRECT - WRITES TO .cvm/cvm-debug.log FILE
+  import { logger } from '@cvm/types';
+  logger.debug("Entering loop iteration", { iteration: i });
+  logger.trace("Variable state", { counter, result });
+  logger.debug("About to call CC", { prompt });
+  ```
+
+### To See Debug Output:
+  ```bash
+  # Run test with debug logging
+  CVM_LOG_LEVEL=debug ./test/programs/run-test.sh program.ts
+  
+  # View logger output from FILE (not console!)
+  cat .cvm/cvm-debug.log
+  tail -50 .cvm/cvm-debug.log
+  grep "Compiling" .cvm/cvm-debug.log
   ```
 
 ### 3. STATE INSPECTION IS SACRED
@@ -66,14 +89,15 @@ Read(".cvm/executions/" + executionId + ".json");
 Read(".cvm/outputs/" + executionId + ".output");
 ```
 
-### Phase 3: Add Diagnostic Logging
+### Phase 3: Add Diagnostic Logging  
 ```typescript
-// If issue found, ADD console.log statements to program:
-console.log("DEBUG: Current task index: " + currentTaskIndex);
-console.log("DEBUG: Variable values: ", JSON.stringify(variables));
-console.log("DEBUG: About to execute: " + nextAction);
+// If issue found, ADD logger statements to CVM source code:
+import { logger } from '@cvm/types';
+logger.debug("Current task index", { currentTaskIndex });
+logger.trace("Variable values", { variables });
+logger.debug("About to execute", { nextAction });
 
-// Reload modified program and test again
+// Rebuild CVM packages and test again
 ```
 
 ### Phase 4: Root Cause Analysis
@@ -89,11 +113,11 @@ console.log("DEBUG: About to execute: " + nextAction);
 
 ## DEBUGGING PATTERNS - Follow These
 
-### For Large Programs (50+ CC() calls)
+### For Large Programs (50+ CC() calls)  
 ```typescript
-// Strategy: Skip to problem area
+// Strategy: Add trace logging in CVM program (still uses console.log in CVM programs)
 function main() {
-  // Add skip logic for debugging
+  // CVM programs can still use console.log (they're user programs)
   var debugSkipTo = 25; // Skip to task 25
   
   for (var i = 0; i < tasks.length; i++) {
