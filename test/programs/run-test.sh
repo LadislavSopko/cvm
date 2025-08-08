@@ -43,6 +43,18 @@ CATEGORY=$(dirname "$TEST_PATH")
 echo -e "${YELLOW}Running test: [$CATEGORY] $TEST_NAME${NC}"
 echo "========================================"
 
+# Check for .responses file if no CC responses provided
+if [ ${#CC_RESPONSES[@]} -eq 0 ]; then
+    RESPONSE_FILE="test/programs/${TEST_PATH%.ts}.responses"
+    if [ -f "$RESPONSE_FILE" ]; then
+        # Read responses from file (one per line)
+        while IFS= read -r line; do
+            CC_RESPONSES+=("$line")
+        done < "$RESPONSE_FILE"
+        echo "Loaded ${#CC_RESPONSES[@]} responses from $RESPONSE_FILE"
+    fi
+fi
+
 # Show CC responses if any
 if [ ${#CC_RESPONSES[@]} -gt 0 ]; then
     echo "CC Responses:"
@@ -52,8 +64,21 @@ if [ ${#CC_RESPONSES[@]} -gt 0 ]; then
     echo ""
 fi
 
-# Change to integration directory
+# Change to integration directory first
 cd test/integration
+
+# Set CVM environment variables (after cd so pwd is correct)
+export CVM_SANDBOX_PATHS="$(pwd)"  # Absolute path to test/integration
+export CVM_LOG_LEVEL="trace"  # Set to trace for maximum debugging
+export CVM_LOG_FILE=".cvm/cvm-debug.log"  # Relative to current directory
+export CVM_STORAGE="file"
+export CVM_DATA_DIR=".cvm"
+
+# Create .cvm directory if it doesn't exist
+mkdir -p .cvm
+
+echo "Debug log: test/integration/.cvm/cvm-debug.log"
+echo ""
 
 # Run the test
 echo "Output:"

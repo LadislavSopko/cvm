@@ -20,6 +20,28 @@ function main() {
     console.log("  File " + i + ": " + files[i]);
   }
   
+  // Test 4: Test recursive option with object literal (CVMObjectRef)
+  console.log("\n=== Testing recursive option (CVMObjectRef bug fix) ===");
+  let nonRecursive = fs.listFiles("/home/laco/cvm/test/integration");
+  console.log("Non-recursive count: " + nonRecursive.length);
+  
+  let recursive = fs.listFiles("/home/laco/cvm/test/integration", { recursive: true });
+  console.log("Recursive count: " + recursive.length);
+  
+  if (recursive.length > nonRecursive.length) {
+    console.log("✓ Recursive option works! (CVMObjectRef handling is fixed)");
+  } else {
+    console.log("✗ ERROR: Recursive option NOT working!");
+  }
+  
+  // Test 5: Test with filter
+  let filtered = fs.listFiles("/home/laco/cvm/test/integration", { filter: "*.ts" });
+  console.log("\nFiltered (*.ts) count: " + filtered.length);
+  
+  // Test 6: Test recursive with filter
+  let recursiveFiltered = fs.listFiles("/home/laco/cvm/test/integration", { recursive: true, filter: "*.ts" });
+  console.log("Recursive filtered count: " + recursiveFiltered.length);
+  
   return "Basic test complete";
 }
 

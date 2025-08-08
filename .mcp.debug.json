@@ -34,8 +34,9 @@
       "env": {
         "CVM_STORAGE_TYPE": "file",
         "CVM_DATA_DIR": ".cvm",
-        "CVM_LOG_LEVEL": "info",
-        "CVM_SANDBOX_PATHS":"/home/laco/cvm"
+        "CVM_LOG_LEVEL": "trace",
+        "CVM_SANDBOX_PATHS":"/home/laco/cvm",
+        "CVM_LOG_FILE":".cvm/cvm-debug.log"
       }
     }
   }

@@ -1,4 +1,5 @@
 import { Instruction, OpCode } from './bytecode.js';
+import { logger } from '@cvm/types';
 
 export interface JumpContext {
   type: 'if' | 'loop' | 'foreach';
@@ -51,6 +52,7 @@ export class CompilerState {
    * Push a new jump context onto the stack
    */
   pushContext(context: JumpContext): void {
+    logger.trace(`CONTEXT: Pushing context type=${context.type}`);
     this.contextStack.push(context);
   }
 
@@ -58,7 +60,11 @@ export class CompilerState {
    * Pop the current jump context from the stack
    */
   popContext(): JumpContext | null {
-    return this.contextStack.pop() || null;
+    const context = this.contextStack.pop() || null;
+    if (context) {
+      logger.trace(`CONTEXT: Popped context type=${context.type}, breakTargets=${JSON.stringify(context.breakTargets)}`);
+    }
+    return context;
   }
 
   /**

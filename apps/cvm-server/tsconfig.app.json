@@ -14,6 +14,9 @@
   "exclude": [],
   "references": [
     {
+      "path": "../../packages/types/tsconfig.lib.json"
+    },
+    {
       "path": "../../packages/mcp-server/tsconfig.lib.json"
     }
   ]

@@ -105,6 +105,42 @@ Some tests require specific CC responses:
    ./test/programs/run-test.sh 01-basics/variables-and-output.ts
    ```
 
+### Pino Logging for Debugging
+
+CVM uses Pino structured logging for detailed execution analysis:
+
+- **Default log file**: `.cvm/cvm-debug.log`
+- **Default log level**: `info` 
+- **Environment variables**:
+  - `CVM_LOG_LEVEL`: Set logging verbosity (trace, debug, info, warn, error, fatal)
+  - `CVM_LOG_FILE`: Override default log file location
+
+#### Debug Examples:
+
+```bash
+# Standard info logging (default)
+./test/programs/run-test.sh 01-basics/variables-and-output.ts
+cat .cvm/cvm-debug.log
+
+# Verbose debug logging
+CVM_LOG_LEVEL=debug ./test/programs/run-test.sh 01-basics/variables-and-output.ts
+cat .cvm/cvm-debug.log
+
+# Custom log location
+CVM_LOG_FILE=./debug-trace.log ./test/programs/run-test.sh 01-basics/variables-and-output.ts
+cat debug-trace.log
+
+# Combined: debug level to custom file
+CVM_LOG_LEVEL=debug CVM_LOG_FILE=./custom-debug.log ./test/programs/run-test.sh 01-basics/variables-and-output.ts
+```
+
+#### Log Format:
+Structured JSON with timestamps, process info, and detailed messages:
+```json
+{"level":30,"time":1754479731962,"pid":194041,"hostname":"LACOWIN11","msg":"CVM Server main() function started"}
+{"level":20,"time":1754479731962,"pid":194041,"hostname":"LACOWIN11","msg":"Debugging: main() function entry point"}
+```
+
 ## Adding New Tests
 
 1. Create test file in appropriate category directory

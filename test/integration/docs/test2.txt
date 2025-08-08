@@ -1,0 +1,2 @@
+This is another test document.
+It explains how fs.listFiles works.

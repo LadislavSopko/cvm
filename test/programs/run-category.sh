@@ -59,6 +59,23 @@ get_cc_responses() {
     local test_name=$1
     local category=$2
     
+    # First check for .responses file
+    local response_file="test/programs/$category/${test_name}.responses"
+    if [ -f "$response_file" ]; then
+        # Read all lines from file and join with spaces
+        local responses=""
+        while IFS= read -r line; do
+            if [ -z "$responses" ]; then
+                responses="$line"
+            else
+                responses="$responses $line"
+            fi
+        done < "$response_file"
+        echo "$responses"
+        return
+    fi
+    
+    # Fall back to hardcoded responses
     case "$category/$test_name" in
         "01-basics/return-types") echo "string" ;;
         "02-operators/comparison-operators") echo "5" ;;
@@ -94,14 +111,19 @@ for test_file in test/programs/$CATEGORY/*.ts; do
         # Change to integration directory
         cd test/integration
         
-        # Get CC responses for this test
-        cc_responses=$(get_cc_responses "$test_name" "$CATEGORY")
         relative_path="../programs/$CATEGORY/$(basename "$test_file")"
         
-        # Run test with or without CC responses
-        if [ -z "$cc_responses" ]; then
-            # No CC responses needed
-            if npx tsx mcp-test-client.ts "$relative_path" > /tmp/test-output.log 2>&1; then
+        # Check for .responses file first
+        response_file="../programs/$CATEGORY/${test_name}.responses"
+        if [ -f "$response_file" ]; then
+            # Read responses into an array
+            CC_RESPONSES=()
+            while IFS= read -r line; do
+                CC_RESPONSES+=("$line")
+            done < "$response_file"
+            
+            # Run with responses from file
+            if npx tsx mcp-test-client.ts "$relative_path" "${CC_RESPONSES[@]}" > /tmp/test-output.log 2>&1; then
                 echo -e "${GREEN}✓ PASSED${NC}"
                 PASSED=$((PASSED + 1))
             else
@@ -111,15 +133,32 @@ for test_file in test/programs/$CATEGORY/*.ts; do
                 FAILED=$((FAILED + 1))
             fi
         else
-            # CC responses needed
-            if npx tsx mcp-test-client.ts "$relative_path" $cc_responses > /tmp/test-output.log 2>&1; then
-                echo -e "${GREEN}✓ PASSED${NC}"
-                PASSED=$((PASSED + 1))
+            # Get hardcoded CC responses for this test
+            cc_responses=$(get_cc_responses "$test_name" "$CATEGORY")
+            
+            # Run test with or without CC responses
+            if [ -z "$cc_responses" ]; then
+                # No CC responses needed
+                if npx tsx mcp-test-client.ts "$relative_path" > /tmp/test-output.log 2>&1; then
+                    echo -e "${GREEN}✓ PASSED${NC}"
+                    PASSED=$((PASSED + 1))
+                else
+                    echo -e "${RED}✗ FAILED${NC}"
+                    echo "Output:"
+                    cat /tmp/test-output.log
+                    FAILED=$((FAILED + 1))
+                fi
             else
-                echo -e "${RED}✗ FAILED${NC}"
-                echo "Output:"
-                cat /tmp/test-output.log
-                FAILED=$((FAILED + 1))
+                # CC responses needed
+                if npx tsx mcp-test-client.ts "$relative_path" $cc_responses > /tmp/test-output.log 2>&1; then
+                    echo -e "${GREEN}✓ PASSED${NC}"
+                    PASSED=$((PASSED + 1))
+                else
+                    echo -e "${RED}✗ FAILED${NC}"
+                    echo "Output:"
+                    cat /tmp/test-output.log
+                    FAILED=$((FAILED + 1))
+                fi
             fi
         fi
         
