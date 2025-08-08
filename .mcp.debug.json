@@ -29,13 +29,14 @@
       ]
     },
     "cvm": {
-     "command": "npx",
-      "args": ["-y", "cvm-server@latest"],
+      "command": "node",
+      "args": ["/home/laco/cvm/apps/cvm-server/dist/main.cjs"],      
       "env": {
         "CVM_STORAGE_TYPE": "file",
         "CVM_DATA_DIR": ".cvm",
-        "CVM_LOG_LEVEL": "info",
-        "CVM_SANDBOX_PATHS":"/home/laco/cvm"
+        "CVM_LOG_LEVEL": "trace",
+        "CVM_SANDBOX_PATHS":"/home/laco/cvm",
+        "CVM_LOG_FILE":".cvm/cvm-debug.log"
       }
     }
   }
