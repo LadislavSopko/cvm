@@ -273,9 +273,16 @@ When tests fail:
 - Complete one TDDAB before starting next
 - BTLT must pass after each TDDAB
 
+## E2E Test Structure - MANDATORY KNOWLEDGE
+- **FIXED CATEGORIES**: 01-basics, 02-operators, 03-built-ins, 04-data-structures, 05-strings, 06-file-system, 07-cc-integration, 08-examples, 09-comprehensive, 10-regex, 98-99 for issues
+- **NO NEW CATEGORIES** - Use existing structure
+- **Built-in functions go in 03-built-ins/**
+- **Integration = modify existing programs, don't create redundant tests**
+- **Always check /test/programs/RUNNING_TESTS.md for current structure**
+
 ## Current Work Rules
 - Branch: cycles-issue (for parseInt implementation)
 - Follow existing patterns from JSON.parse
 - Operations return null on error, never throw
-- Add comprehensive E2E tests in /test/programs/
+- Use existing E2E test categories (03-built-ins for parseInt)
 - Update Memory Bank when feature complete

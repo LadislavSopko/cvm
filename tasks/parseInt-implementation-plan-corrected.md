@@ -1,13 +1,13 @@
 # parseInt() Implementation Plan for CVM
 
 ## Overview
-Add native `parseInt()` support to CVM to replace the workaround of using unary `+` operator.
+Add native `parseInt()` support to CVM as an additional built-in function alongside existing operators.
 
 ## Why This Matters
-- `parseInt()` is natural JavaScript syntax that developers expect
-- Current workaround (`+` operator) is not intuitive
-- README.md has examples using parseInt() that don't actually work
-- API.md documents this as a limitation we can remove
+- `parseInt()` is standard JavaScript syntax that developers expect
+- Provides radix-based number parsing (hex, binary, octal) that `+` operator cannot do
+- README.md has examples using parseInt() that don't currently work
+- API.md documents this as missing functionality we can add
 
 ## Implementation Strategy: TDDAB (Test-Driven Development Atomic Blocks)
 
@@ -26,7 +26,7 @@ describe('OpCode enum', () => {
 ```
 
 #### Implementation
-1. Edit `/packages/types/src/lib/types.ts`:
+1. Edit `packages/types/src/lib/types.ts`:
    - Add `PARSE_INT = 'PARSE_INT'` after line 73 (after TYPEOF)
    
 #### Verification
@@ -47,6 +47,7 @@ describe('parseInt compilation', () => {
     const bytecode = compile(ast);
     
     expect(bytecode).toContainEqual({ op: OpCode.PUSH, arg: "42" });
+    expect(bytecode).toContainEqual({ op: OpCode.PUSH, arg: 10 });
     expect(bytecode).toContainEqual({ op: OpCode.PARSE_INT });
     expect(bytecode).toContainEqual({ op: OpCode.STORE, arg: 'x' });
   });
@@ -66,13 +67,14 @@ describe('parseInt compilation', () => {
     const bytecode = compile(ast);
     
     expect(bytecode).toContainEqual({ op: OpCode.LOAD, arg: "userInput" });
+    expect(bytecode).toContainEqual({ op: OpCode.PUSH, arg: 10 });
     expect(bytecode).toContainEqual({ op: OpCode.PARSE_INT });
   });
 });
 ```
 
 #### Implementation
-1. Edit `/packages/parser/src/lib/compiler/expressions/call-expression.ts`:
+1. Edit `packages/parser/src/lib/compiler/expressions/call-expression.ts`:
    ```typescript
    // Add after CC() handler (around line 96)
    else if (ts.isIdentifier(node.expression) && node.expression.text === 'parseInt') {
@@ -169,23 +171,27 @@ describe('PARSE_INT handler', () => {
 ```
 
 #### Implementation
-1. Create `/packages/vm/src/lib/handlers/parse-int.ts`:
+1. Create `packages/vm/src/lib/handlers/parse-int.ts`:
    ```typescript
    import { OpCode } from '@cvm/types';
    import { HandlerDefinition } from '../handler-registry';
+   import { safePop, isVMError } from '../vm-utils';
    
    export const parseIntHandler: Record<OpCode, HandlerDefinition> = {
      [OpCode.PARSE_INT]: {
        stackIn: 2,  // Takes string and radix
        stackOut: 1, // Returns number or null
-       execute: (state) => {
-         const radix = state.stack.pop()!;
-         const str = state.stack.pop()!;
+       execute: (state, instruction) => {
+         const radix = safePop(state, instruction.op);
+         if (isVMError(radix)) return radix;
+         
+         const str = safePop(state, instruction.op);
+         if (isVMError(str)) return str;
          
          // Handle null/undefined
          if (str === null || str === undefined) {
            state.stack.push(null);
-           return { success: true };
+           return undefined;
          }
          
          // Convert to string if needed
@@ -202,13 +208,13 @@ describe('PARSE_INT handler', () => {
            state.stack.push(result);
          }
          
-         return { success: true };
+         return undefined;
        }
      }
    };
    ```
 
-2. Register handler in `/packages/vm/src/lib/handler-registry.ts`:
+2. Register handler in `packages/vm/src/lib/handler-registry.ts`:
    ```typescript
    import { parseIntHandler } from './handlers/parse-int';
    
@@ -222,11 +228,11 @@ describe('PARSE_INT handler', () => {
 
 ---
 
-### TDDAB-4: E2E Test Programs  
+### TDDAB-4: E2E Test Programs
 **Goal**: Validate parseInt() works in real CVM programs
 
 #### Tests First
-Add to existing `/test/programs/03-built-ins/`:
+Add to existing `test/programs/03-built-ins/`:
 
 1. `parseInt-basic.ts`:
    ```typescript
@@ -280,14 +286,14 @@ Add to existing `/test/programs/03-built-ins/`:
 
 ---
 
-### TDDAB-5: Fix Documentation
+### TDDAB-5: Update Documentation
 **Goal**: Update docs to reflect parseInt() support
 
 #### Implementation
-1. Fix `/README.md` line 399:
+1. Fix `README.md` line 399:
    - The example now works correctly!
    
-2. Update `/docs/API.md`:
+2. Update `docs/API.md`:
    - Remove parseInt from "NOT Supported" section
    - Add to supported built-in functions
    - Document behavior (returns null on failure)
@@ -302,14 +308,42 @@ Add to existing `/test/programs/03-built-ins/`:
 
 ---
 
-### TDDAB-6: Integration Testing  
+### TDDAB-6: Integration Testing
 **Goal**: Verify parseInt() integrates properly with existing CVM functionality
 
 #### Implementation
-1. **Create integration test program** in `/test/programs/03-built-ins/`:
-   - Test both `+` operator and `parseInt()` in same program
-   - Verify no conflicts between type coercion and parsing
-   - Test parseInt() with existing built-ins (JSON.parse, console.log, CC())
+1. **Create integration test program** in `test/programs/03-built-ins/parseInt-integration.ts`:
+   ```typescript
+   function main() {
+     // Test both + operator and parseInt() work together
+     var str = "42";
+     var viaPlus = +str;           // Unary + (type coercion)
+     var viaParseInt = parseInt(str); // parseInt (parsing)
+     
+     console.log("Using +: " + viaPlus);
+     console.log("Using parseInt: " + viaParseInt);
+     
+     // Test parseInt with other built-ins
+     var jsonStr = '{"num": "123"}';
+     var obj = JSON.parse(jsonStr);
+     var parsedNum = parseInt(obj.num);
+     console.log("parseInt from JSON: " + parsedNum);
+     
+     // Test parseInt with CC()
+     var userInput = CC("Enter hex number:");
+     var hexValue = parseInt(userInput, 16);
+     console.log("Hex value: " + hexValue);
+     
+     // Test parseInt in control flow
+     var numbers = ["10", "20", "30"];
+     for (var i = 0; i < numbers.length; i++) {
+       var num = parseInt(numbers[i]);
+       if (num > 15) {
+         console.log("Number " + num + " is greater than 15");
+       }
+     }
+   }
+   ```
    
 2. **Verify README.md example works**: Line 399 currently has non-working parseInt()
    - Test that documented examples now execute correctly
@@ -334,15 +368,16 @@ Add to existing `/test/programs/03-built-ins/`:
 3. **TDDAB-3**: VM handler (20 min)  
 4. **TDDAB-4**: E2E tests (15 min)
 5. **TDDAB-5**: Documentation (10 min)
-6. **TDDAB-6**: Fix existing programs (20 min)
+6. **TDDAB-6**: Integration testing (20 min)
 
 **Total estimated time**: ~85 minutes
 
 ## Success Criteria
 
 - [ ] parseInt(string) works
-- [ ] parseInt(string, radix) works
+- [ ] parseInt(string, radix) works  
 - [ ] Returns null for invalid input (no exceptions)
+- [ ] Works alongside existing + operator (no conflicts)
 - [ ] All existing tests still pass
 - [ ] E2E test programs work
 - [ ] Documentation updated
@@ -356,3 +391,4 @@ Add to existing `/test/programs/03-built-ins/`:
 - Default radix is 10 (JavaScript standard)
 - Handle edge cases gracefully
 - Maintain backward compatibility
+- parseInt() is ADDITIONAL to + operator, not a replacement
