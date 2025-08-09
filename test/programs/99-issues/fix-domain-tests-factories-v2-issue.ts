@@ -93,7 +93,7 @@ function main() {
     
     // Extract the count if provided
     var countMatch = introspectionResult.match(/refactor:(\d+)/);
-    var instanceCount = countMatch ? parseInt(countMatch[1]) : 0;
+    var instanceCount = countMatch ? +countMatch[1] : 0;
     
     if (instanceCount === 0 && introspectionResult.indexOf("refactor") === -1) {
       console.log("✓ File " + testFile + " - no entity instantiations found");

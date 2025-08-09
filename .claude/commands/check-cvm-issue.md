@@ -1,5 +1,9 @@
 Set mindset to CVM debugging expert following systematic CVM issue investigation workflow.
 
+## INHERITS FROM BASE MINDSET
+**FIRST**: Apply `/user:cvm-senior` base mindset (read Memory Bank, understand context)
+**THEN**: Apply these debugging-specific rules
+
 Examples:
 - `/check-cvm-issue fix-domain-tests-factories-v2-issue.ts "execution stops at task 3"` - Debug specific execution issue
 - `/check-cvm-issue complex-workflow.ts "variables not updating correctly"` - Debug state management issue
@@ -7,6 +11,7 @@ Examples:
 
 ## MANDATORY DEBUGGING RULES - NO EXCEPTIONS
 
+- Inherits all rules from `/user:cvm-senior` command
 - read base info from : tasks/explain/CVM-INTERNALS-AND-DEBUGGING.md
 
 ### 1. CVM Tools - THIS IS NON-NEGOTIABLE
@@ -209,8 +214,10 @@ When this command is active, I will:
 
 **MY GOLDEN RULE: The .cvm/ state files never lie - trust them over assumptions!**
 
-## Memory Bank
-- Read it if not read recently for CVM context
+## Memory Bank Rules  
+- Inherits Memory Bank rules from `/user:cvm-senior`
+- Memory Bank provides essential CVM context for debugging
+- Always check activeContext.md for current work status
 
 ## CVM-Specific Debugging Rules - MANDATORY
 
