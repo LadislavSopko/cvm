@@ -311,6 +311,37 @@
     </p>
   </div>
 
+  <div class="reveal-section">
+    <h3>Get Started in 2 Minutes</h3>
+    <p><strong style="color:var(--text);">1. Add CVM to Claude's MCP settings:</strong></p>
+    <div class="code-reveal" style="margin-top:0.5rem;margin-bottom:1rem;white-space:pre;font-size:0.78rem;">{
+  <span class="str">"mcpServers"</span>: {
+    <span class="str">"cvm"</span>: {
+      <span class="str">"command"</span>: <span class="str">"npx"</span>,
+      <span class="str">"args"</span>: [<span class="str">"cvm-server@latest"</span>]
+    }
+  }
+}</div>
+    <p><strong style="color:var(--text);">2. Write a program</strong> (save as <span class="highlight">my-task.ts</span>):</p>
+    <div class="code-reveal" style="margin-top:0.5rem;margin-bottom:1rem;white-space:pre;font-size:0.78rem;"><span class="kw">function</span> <span class="fn">main</span>() {
+  <span class="kw">var</span> files = fs.listFiles(<span class="str">"./docs"</span>);
+  <span class="kw">var</span> summaries = [];
+
+  <span class="kw">for</span> (<span class="kw">const</span> file <span class="kw">of</span> files) {
+    <span class="kw">var</span> content = <span class="cc">CC</span>(<span class="str">"Read and summarize: "</span> + file);
+    summaries.push({ filename: file, summary: content });
+  }
+
+  <span class="kw">var</span> report = <span class="cc">CC</span>(<span class="str">"Create report from: "</span> + JSON.stringify(summaries));
+  <span class="kw">return</span> report;
+}</div>
+    <p><strong style="color:var(--text);">3. Tell Claude:</strong> <span class="highlight">"Run my-task.ts with CVM"</span></p>
+    <p style="margin-top:0.8rem;color:var(--text-dim);font-size:0.78rem;">
+      That's it. No API keys, no SDK, no build step. CVM runs as an MCP server &mdash; Claude handles the rest.
+      If it crashes on file 500 of 1000, the first 499 summaries are safely stored. Just restart.
+    </p>
+  </div>
+
   <div class="final-msg">
     You couldn't have understood this by reading a README.<br>
     You had to <em>be</em> the CPU to get it.<br><br>
