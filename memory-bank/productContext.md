@@ -59,6 +59,37 @@ CVM is like a GPS navigation system:
 
 CVM makes Claude SYSTEMATIC - turning brilliant but chaotic into brilliant and methodical.
 
+## Website: cvm.example4.ai
+
+CVM has a public-facing website in `wwwroot/` with two pages:
+
+### Landing Page (index.html) — "Experience CVM"
+An interactive demo where the human becomes the CPU to understand CVM experientially.
+- **Framing**: "I'm Your Task Manager" — friendly/challenging intro (CPU reveal comes at end)
+- **4 rounds**: counting → patterns → discipline (no-escape loop) → TDDAB code cycle
+- **Key moment**: Round 3 traps user in a loop — they can't skip, can't argue (mirrors CVM's no-escape loops)
+- **Reveal section**: Shows program source, stats, CVM explanation, link to study page
+- **Skip button**: Hidden on first visit (opacity 0.15), visible after completing once (localStorage)
+
+### Study Page (study.html) — "CVM: The Third Paradigm"
+Research report comparing CVM vs Claude Code vs LangGraph/frameworks.
+- **CVM section (top)**: Paradigm comparison boxes, code example, unique features grid, 3-way radar chart, feature matrix table, "Nothing Comparable Exists" box with 6 closest alternatives, paradigm spectrum scatter chart
+- **Market Research section (below)**: Stats, 4 Chart.js charts, timeline, verdict boxes
+- **Research finding**: No existing framework inverts control the way CVM does
+
+### Shared Features
+- Dark/light theme toggle (localStorage key: `cvm-theme`, shared across pages)
+- Footer: CVM + example4.ai + projects.0ics.ai + Author (Ladislav Sopko) + Apache 2.0
+- Chart.js for data visualization, CSS custom properties for theming
+- Pure HTML/CSS/JS — zero build step, zero dependencies (except Chart.js CDN)
+
+## Ecosystem
+
+- **example4.ai** — Real code examples for AI agents (MCP)
+- **projects.0ics.ai** — AI-Powered Development Showcase
+- **vs-mcp.example4.ai** — VS Extension + MCP
+- **Author**: Ladislav Sopko — Senior Developer & AI Mentor
+
 ## Mission
 
 **CVM's mission**: Be an algorithmic TODO manager that helps Claude work through complex tasks without losing context.

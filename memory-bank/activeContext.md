@@ -67,12 +67,21 @@
 - Added comprehensive test coverage and E2E validation
 - All methods JavaScript-compliant and fully tested
 
+### Website: cvm.example4.ai (March 2026) ✅ COMPLETED
+- Created interactive landing page (`wwwroot/index.html`) — human becomes the CPU
+- Created research study page (`wwwroot/study.html`) — CVM vs Claude Code vs LangGraph
+- Dark/light theme with shared localStorage, calmer color palette
+- Skip button visible after first completion, Chart.js radar grids theme-aware
+- Single scrollable study page (no tabs) — CVM on top, market research below
+- Footer with CVM, example4.ai, projects.0ics.ai, author, Apache 2.0
+
 ## Next Steps
 
 ### Immediate
 1. **CVM is now feature-complete for TODO orchestration** ✅
 2. All core language features implemented and tested
 3. Ready for production use in complex multi-step task management
+4. **Website ready** — deploy wwwroot/ to cvm.example4.ai
 
 ### Future Enhancements (Optional)
 1. RegExp pattern matching methods (.test(), .match(), .replace() with patterns)
@@ -81,7 +90,7 @@
 
 ### Medium Term (All Core Features Complete)
 1. ✅ Traditional for(;;) loops - IMPLEMENTED
-2. ✅ Function declarations (main only) - IMPLEMENTED  
+2. ✅ Function declarations (main only) - IMPLEMENTED
 3. ✅ Better error recovery mechanisms - Implemented via null returns
 4. Performance optimizations (optional)
 

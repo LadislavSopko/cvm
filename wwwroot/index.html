@@ -1,5 +1,518 @@
 <!DOCTYPE html>
-<html lang="en">
-<head></head>
-<body>It works</body>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Task Manager Challenge</title>
+<style>
+  :root[data-theme="dark"] {
+    --bg: #1a1d2e;
+    --text: #d4d4dc;
+    --text-muted: #9a9ab0;
+    --text-dim: #7a7a90;
+    --text-dimmer: #5a5a70;
+    --text-dimmest: #4a4a5e;
+    --surface: #222538;
+    --surface2: rgba(255,255,255,0.04);
+    --border: rgba(255,255,255,0.1);
+    --border-soft: rgba(255,255,255,0.06);
+    --border-softer: rgba(255,255,255,0.08);
+    --input-bg: rgba(255,255,255,0.06);
+    --input-text: #e8e8f0;
+    --bar-bg: #252840;
+    --code-bg: rgba(0,0,0,0.25);
+    --scroll-thumb: #3a3a50;
+    --log-output: #c8c8d4;
+    --log-system: #6b7f8d;
+    --kw: #c792ea; --fn: #82aaff; --str: #c3e88d; --cmt: #6b7f8d; --num: #f78c6c;
+  }
+  :root[data-theme="light"] {
+    --bg: #f8f8fc;
+    --text: #2a2a3e;
+    --text-muted: #4a4a60;
+    --text-dim: #5a5a72;
+    --text-dimmer: #7a7a90;
+    --text-dimmest: #9a9aae;
+    --surface: #ffffff;
+    --surface2: rgba(0,0,0,0.03);
+    --border: rgba(0,0,0,0.12);
+    --border-soft: rgba(0,0,0,0.07);
+    --border-softer: rgba(0,0,0,0.09);
+    --input-bg: rgba(0,0,0,0.04);
+    --input-text: #2a2a3e;
+    --bar-bg: #ededf4;
+    --code-bg: #f0f0f6;
+    --scroll-thumb: #c0c0cc;
+    --log-output: #2a2a3e;
+    --log-system: #6b7f8d;
+    --kw: #7c3aed; --fn: #2563eb; --str: #16a34a; --cmt: #8899a6; --num: #ea580c;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Courier New', monospace;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.3s, color 0.3s;
+  }
+
+  /* Theme toggle */
+  .theme-toggle {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    background: var(--surface);
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    padding: 0.4rem 0.7rem;
+    cursor: pointer;
+    font-size: 1.2rem;
+    z-index: 100;
+    transition: background 0.3s, border 0.3s;
+    line-height: 1;
+    color: var(--text);
+    backdrop-filter: blur(10px);
+  }
+  .theme-toggle:hover { border-color: #ff6b6b; }
+
+  .screen { display: none; max-width: 700px; width: 90%; }
+  .screen.active { display: block; }
+
+  #intro { text-align: center; animation: fadeIn 1s; }
+  #intro h1 { font-size: 2rem; margin-bottom: 1rem; color: #ff6b6b; }
+  #intro p { color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem; }
+  #intro .warning {
+    color: #ffa500;
+    font-size: 0.85rem;
+    margin-bottom: 2rem;
+    padding: 1rem;
+    border: 1px dashed rgba(255,165,0,0.3);
+    border-radius: 8px;
+  }
+
+  #terminal-screen { animation: fadeIn 0.5s; }
+  .terminal { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+  .terminal-bar {
+    background: var(--bar-bg);
+    padding: 0.6rem 1rem;
+    display: flex; align-items: center; gap: 0.5rem;
+    border-bottom: 1px solid var(--border-soft);
+  }
+  .terminal-dot { width: 10px; height: 10px; border-radius: 50%; }
+  .terminal-dot.r { background: #ff5f56; }
+  .terminal-dot.y { background: #ffbd2e; }
+  .terminal-dot.g { background: #27c93f; }
+  .terminal-title { color: var(--text-dim); font-size: 0.75rem; margin-left: 0.5rem; }
+  .terminal-body { padding: 1.2rem; min-height: 300px; max-height: 500px; overflow-y: auto; }
+  .terminal-body::-webkit-scrollbar { width: 6px; }
+  .terminal-body::-webkit-scrollbar-thumb { background: var(--scroll-thumb); border-radius: 3px; }
+
+  .log-line { font-size: 0.82rem; line-height: 1.6; animation: fadeIn 0.3s; }
+  .log-system { color: var(--log-system); }
+  .log-program { color: var(--kw); }
+  .log-task { color: #ff6b6b; font-weight: 700; }
+  .log-success { color: #4ade80; }
+  .log-warn { color: #fbbf24; }
+  .log-info { color: var(--fn); }
+  .log-output { color: var(--log-output); }
+
+  .input-area { margin-top: 1rem; display: flex; gap: 0.5rem; align-items: center; animation: fadeIn 0.3s; }
+  .input-area.hidden { display: none; }
+  .prompt-symbol { color: #ff6b6b; font-weight: 700; font-size: 1rem; }
+  .input-area input {
+    flex: 1; background: var(--input-bg); border: 1px solid rgba(255,107,107,0.3);
+    border-radius: 6px; padding: 0.6rem 0.8rem; color: var(--input-text);
+    font-family: 'Courier New', monospace; font-size: 0.9rem; outline: none;
+  }
+  .input-area input:focus { border-color: #ff6b6b; }
+  .input-area input::placeholder { color: var(--text-dimmest); }
+
+  .btn {
+    background: rgba(255,107,107,0.15); border: 1px solid rgba(255,107,107,0.4);
+    color: #ff6b6b; padding: 0.7rem 2rem; border-radius: 8px;
+    font-family: 'Courier New', monospace; font-size: 0.95rem; cursor: pointer; transition: all 0.2s;
+  }
+  .btn:hover { background: rgba(255,107,107,0.25); border-color: #ff6b6b; }
+
+  .progress-bar { margin-top: 1rem; background: var(--input-bg); border-radius: 4px; height: 6px; overflow: hidden; }
+  .progress-fill { height: 100%; background: linear-gradient(90deg, #ff6b6b, #ffa500); border-radius: 4px; transition: width 0.5s ease; }
+  .progress-label { font-size: 0.7rem; color: var(--text-dimmer); margin-top: 0.3rem; text-align: right; }
+
+  #reveal { text-align: center; animation: fadeIn 1s; }
+  #reveal h1 { font-size: 1.8rem; color: #ff6b6b; margin-bottom: 1.5rem; }
+  .reveal-section {
+    text-align: left; background: var(--surface2); border: 1px solid var(--border-softer);
+    border-radius: 12px; padding: 1.5rem; margin-bottom: 1.2rem;
+  }
+  .reveal-section h3 { color: #ff6b6b; font-size: 0.95rem; margin-bottom: 0.6rem; }
+  .reveal-section p { color: var(--text-muted); font-size: 0.82rem; line-height: 1.6; }
+  .reveal-section .highlight { color: #ffa500; font-weight: 700; }
+  .code-reveal {
+    background: var(--code-bg); border: 1px solid var(--border-softer);
+    border-radius: 8px; padding: 1rem 1.2rem; font-size: 0.78rem; line-height: 1.7;
+    margin-top: 0.8rem; overflow-x: auto; color: var(--log-output);
+    white-space: pre; font-family: 'Courier New', monospace;
+  }
+  .code-reveal .kw { color: var(--kw); }
+  .code-reveal .fn { color: var(--fn); }
+  .code-reveal .str { color: var(--str); }
+  .code-reveal .cmt { color: var(--cmt); }
+  .code-reveal .cc { color: #ff6b6b; font-weight: 700; }
+
+  .stats-row { display: flex; gap: 1rem; margin: 1.5rem 0; justify-content: center; flex-wrap: wrap; }
+  .stat-box {
+    background: rgba(255,107,107,0.08); border: 1px solid rgba(255,107,107,0.2);
+    border-radius: 10px; padding: 0.8rem 1.2rem; text-align: center;
+  }
+  .stat-box .val { font-size: 1.5rem; font-weight: 700; color: #ff6b6b; }
+  .stat-box .lbl { font-size: 0.7rem; color: var(--text-dim); margin-top: 0.2rem; }
+
+  .final-msg {
+    color: var(--text-muted); font-size: 0.82rem; line-height: 1.6;
+    margin-top: 1.5rem; padding: 1rem;
+    border: 1px dashed rgba(255,107,107,0.2); border-radius: 8px;
+  }
+  .final-msg a { color: #ff6b6b; }
+
+  .study-link {
+    display: inline-block; margin-top: 1rem;
+    color: var(--fn); font-size: 0.82rem; text-decoration: none;
+    border: 1px solid var(--border); border-radius: 6px; padding: 0.5rem 1rem;
+    transition: all 0.2s;
+  }
+  .study-link:hover { border-color: var(--fn); background: var(--surface2); }
+
+  .footer {
+    margin-top: 3rem; border-top: 1px solid var(--border-softer); padding-top: 2rem;
+  }
+  .footer-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 2rem; margin-bottom: 1.5rem; }
+  .footer-col h4 { color: #ff6b6b; font-size: 0.85rem; margin-bottom: 0.5rem; }
+  .footer-col p { color: var(--text-dim); font-size: 0.78rem; line-height: 1.5; }
+  .footer-col a { color: var(--text-muted); text-decoration: none; transition: color 0.2s; }
+  .footer-col a:hover { color: #ff6b6b; }
+  .footer-bottom {
+    display: flex; justify-content: space-between; padding-top: 1rem;
+    border-top: 1px solid var(--border-soft); font-size: 0.7rem; color: var(--text-dimmest);
+  }
+  @media (max-width: 600px) {
+    .footer-grid { grid-template-columns: 1fr; gap: 1rem; }
+  }
+
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+  .cursor-blink::after { content: '_'; animation: blink 1s infinite; color: #ff6b6b; }
+</style>
+</head>
+<body>
+
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+  <span id="themeIcon">&#9790;</span>
+</button>
+
+<!-- INTRO -->
+<div id="intro" class="screen active">
+  <h1>Hey! I'm Your Task Manager.</h1>
+  <p>
+    I have a few tasks lined up for you.<br>
+    Some easy, some tricky. Let's see how you handle them.<br>
+    Just follow my instructions and answer when I ask.
+  </p>
+  <div class="warning">
+    Fair warning: I can be a bit... strict.<br>
+    Don't overthink it. Ready?
+  </div>
+  <button class="btn" onclick="startExecution()">Let's Go</button>
+  <button id="skipBtn" class="btn" style="margin-top:0.5rem;opacity:0.15;font-size:0.7rem;padding:0.4rem 1rem;" onclick="skipToReveal()" onmouseenter="this.style.opacity='0.6'" onmouseleave="this.style.opacity=this.dataset.baseOpacity">skip</button>
+</div>
+
+<!-- TERMINAL -->
+<div id="terminal-screen" class="screen">
+  <div class="terminal">
+    <div class="terminal-bar">
+      <div class="terminal-dot r"></div>
+      <div class="terminal-dot y"></div>
+      <div class="terminal-dot g"></div>
+      <span class="terminal-title">task-manager &mdash; session active</span>
+    </div>
+    <div class="terminal-body" id="termBody"></div>
+  </div>
+  <div class="input-area hidden" id="inputArea">
+    <span class="prompt-symbol">CC&gt;</span>
+    <input type="text" id="userInput" placeholder="" autocomplete="off">
+  </div>
+  <div class="progress-bar"><div class="progress-fill" id="progFill" style="width:0%"></div></div>
+  <div class="progress-label" id="progLabel"></div>
+</div>
+
+<!-- REVEAL -->
+<div id="reveal" class="screen">
+  <h1>Wait. What just happened?</h1>
+  <div class="stats-row">
+    <div class="stat-box"><div class="val" id="statTasks">0</div><div class="lbl">Tasks You Executed</div></div>
+    <div class="stat-box"><div class="val" id="statCorrect">0</div><div class="lbl">Correct Answers</div></div>
+    <div class="stat-box"><div class="val" id="statLoops">0</div><div class="lbl">Times Stuck in Loop</div></div>
+    <div class="stat-box"><div class="val" id="statTime">0s</div><div class="lbl">Total Time</div></div>
+  </div>
+
+  <div class="reveal-section">
+    <h3>That "task manager" was a program. You were its CPU.</h3>
+    <p>
+      There was no intelligence on the other side. Just a simple script with loops and conditions.
+      It decided <span class="highlight">what</span> to ask and <span class="highlight">in what order</span>.
+      You provided <span class="highlight">all the thinking</span>.
+    </p>
+    <p style="margin-top:0.5rem">
+      When you got something wrong, the program <span class="highlight">refused to continue</span>.
+      It trapped you in a loop. You couldn't skip ahead, couldn't argue, couldn't negotiate.
+      A few lines of code controlled a human brain &mdash; deciding when it was satisfied with your output.
+    </p>
+  </div>
+
+  <div class="reveal-section">
+    <h3>Here's the entire "task manager" that just bossed you around</h3>
+    <div class="code-reveal" id="codeReveal"></div>
+    <p style="margin-top:0.8rem;color:var(--text-dim);font-size:0.78rem;">
+      That's it. A while loop and a few CC() calls. This controlled you for <span id="revealTime" style="color:#ff6b6b;"></span>.
+    </p>
+  </div>
+
+  <div class="reveal-section">
+    <h3>Now replace "you" with an AI. That's CVM.</h3>
+    <p>
+      <span class="highlight">Cognitive Virtual Machine</span> does exactly what you just experienced, but with an AI as the CPU.
+      A program defines the workflow &mdash; implement this feature, run the tests, fix if broken, commit, next task.
+      The AI provides all the intelligence. The program provides all the discipline.
+    </p>
+    <p style="margin-top:0.5rem">
+      Every <span class="cc">CC()</span> call is a moment where the program stops and waits &mdash; forever if needed &mdash;
+      for the AI to do its job. Just like it waited for you. The AI can't skip tests (no-escape loop),
+      can't drift from the plan, and the human user can step in between any task to discuss or redirect.
+    </p>
+    <p style="margin-top:0.5rem">
+      This inverts decades of programming. Normally, programs execute logic and call AI as a tool.
+      In CVM, <span class="highlight">the program orchestrates the AI</span>.
+      We searched every AI framework &mdash; LangGraph, DSPy, ControlFlow, Azure Durable Functions,
+      OpenAI Agent Runtime &mdash; <span class="highlight">nothing else works this way</span>.
+    </p>
+  </div>
+
+  <div class="reveal-section">
+    <h3>Why It Matters</h3>
+    <p>
+      When an AI runs inside CVM, it can't skip tests (no-escape loops), can't drift from the plan
+      (mandatory back-references), and the user can intervene between any step. The program imposes
+      <span class="highlight">structure and discipline</span> on an AI that would otherwise just freestyle.
+      It's how you get reliable, auditable, plan-driven AI execution.
+    </p>
+  </div>
+
+  <div class="final-msg">
+    You couldn't have understood this by reading a README.<br>
+    You had to <em>be</em> the CPU to get it.<br><br>
+    <a href="https://github.com/LadislavSopko/cvm" target="_blank">github.com/LadislavSopko/cvm</a><br>
+    <a href="study.html" class="study-link">Read the full research: CVM vs LangGraph vs Claude Code &rarr;</a>
+  </div>
+
+  <!-- Footer -->
+  <div class="footer">
+    <div class="footer-grid">
+      <div class="footer-col">
+        <h4>CVM</h4>
+        <p>Cognitive Virtual Machine &mdash; the paradigm where programs orchestrate AI.</p>
+        <p style="margin-top:0.5rem"><a href="https://github.com/LadislavSopko/cvm">GitHub</a></p>
+      </div>
+      <div class="footer-col">
+        <h4>More Projects</h4>
+        <p><a href="https://example4.ai">example4.ai</a> &mdash; Real code examples for AI agents (MCP)</p>
+        <p><a href="https://projects.0ics.ai">projects.0ics.ai</a> &mdash; AI-Powered Development Showcase</p>
+      </div>
+      <div class="footer-col">
+        <h4>Author</h4>
+        <p><strong>Ladislav Sopko</strong></p>
+        <p>Senior Developer &amp; AI Mentor</p>
+        <p style="margin-top:0.3rem"><a href="https://github.com/LadislavSopko">GitHub</a></p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>Apache 2.0 License</span>
+      <span>&copy; 2025&ndash;2026 Ladislav Sopko</span>
+    </div>
+  </div>
+</div>
+
+<script>
+// Theme toggle
+function toggleTheme() {
+  const html = document.documentElement;
+  const current = html.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeIcon').innerHTML = next === 'dark' ? '&#9790;' : '&#9728;';
+  localStorage.setItem('cvm-theme', next);
+}
+(function() {
+  const saved = localStorage.getItem('cvm-theme');
+  if (saved) {
+    document.documentElement.setAttribute('data-theme', saved);
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('themeIcon').innerHTML = saved === 'dark' ? '&#9790;' : '&#9728;';
+    });
+  }
+})();
+
+// Skip button: more visible if user already completed the experience
+(function() {
+  const btn = document.getElementById('skipBtn');
+  if (btn) {
+    const done = localStorage.getItem('cvm-experienced');
+    const base = done ? '0.5' : '0.15';
+    btn.dataset.baseOpacity = base;
+    btn.style.opacity = base;
+    if (done) btn.style.fontSize = '0.8rem';
+  }
+})();
+
+// Program
+const startTime = Date.now();
+let totalTasks = 0, correctAnswers = 0, loopCount = 0;
+
+const program = [
+  { type: 'log', cls: 'log-system', text: '> Alright, let me set things up...' },
+  { type: 'log', cls: 'log-system', text: '> Here we go!' },
+  { type: 'log', cls: 'log-program', text: 'Round 1: Let\'s start easy' },
+  { type: 'delay', ms: 600 },
+  { type: 'task', prompt: 'Current number is 1. What comes next?', validate: v => v.trim() === '2', errorHint: 'Think simpler. Just counting: 1, then...?', successLog: 'counter = 2' },
+  { type: 'task', prompt: 'Current number is 2. What comes next?', validate: v => v.trim() === '3', errorHint: 'Just the next number after 2.', successLog: 'counter = 3' },
+  { type: 'log', cls: 'log-success', text: '  Nice! Easy stuff done.' },
+  { type: 'delay', ms: 400 },
+  { type: 'log', cls: 'log-program', text: 'Round 2: Now let\'s see if you can think' },
+  { type: 'task', prompt: 'Sequence: 2, 4, 8, 16, ___. Fill in the blank.', validate: v => v.trim() === '32', errorHint: 'Each number doubles. 16 * 2 = ?', successLog: 'result = 32 (correct)' },
+  { type: 'task', prompt: 'Sequence: 1, 1, 2, 3, 5, 8, ___. Fill in the blank.', validate: v => v.trim() === '13', errorHint: 'Fibonacci: each number is the sum of the previous two. 5 + 8 = ?', successLog: 'result = 13 (correct)' },
+  { type: 'log', cls: 'log-success', text: '  Not bad! You can spot patterns.' },
+  { type: 'delay', ms: 400 },
+  { type: 'log', cls: 'log-program', text: 'Round 3: Follow my instructions precisely' },
+  { type: 'log', cls: 'log-info', text: '  I need an exact answer this time.' },
+  { type: 'task', prompt: 'To continue, type the word that means "the opposite of no".', validate: v => v.trim().toLowerCase() === 'yes', errorHint: 'The opposite of "no" is a 3-letter word starting with Y.', successLog: 'access_granted = true' },
+  { type: 'log', cls: 'log-success', text: '  Good, you can follow orders.' },
+  { type: 'delay', ms: 400 },
+  { type: 'log', cls: 'log-program', text: 'Round 4: Real work \u2014 write some code for me' },
+  { type: 'log', cls: 'log-info', text: '  Spec says: "Create a function that adds two numbers"' },
+  { type: 'log', cls: 'log-info', text: '  I need you to implement it, test it, and commit it.' },
+  { type: 'task', prompt: 'Write a function that adds a and b. e.g.: function add(a, b) { return a + b; }', validate: v => { const s = v.toLowerCase().replace(/\s+/g,''); return (s.includes('add') || s.includes('+')) && (s.includes('return') || s.includes('=>')); }, errorHint: 'Write something like: function add(a, b) { return a + b; }', successLog: 'file written: add.js' },
+  { type: 'log', cls: 'log-info', text: '  Now let me test your code...' },
+  { type: 'task', prompt: 'TEST: add(3, 7) should return 10. What does it return? (type the number)', validate: v => v.trim() === '10', errorHint: '3 + 7 = ?', successLog: 'tests PASSED' },
+  { type: 'log', cls: 'log-info', text: '  Tests passed! Now commit your work.' },
+  { type: 'task', prompt: 'Write a short commit message for: "added add function" (just type it)', validate: v => v.trim().length > 2, errorHint: 'Just type any commit message, e.g.: "feat: add function"', successLog: '' },
+  { type: 'log', cls: 'log-success', text: '  Done! Code written, tested, committed. Good job.' },
+  { type: 'delay', ms: 400 },
+  { type: 'log', cls: 'log-program', text: '================================' },
+  { type: 'log', cls: 'log-success', text: '  Execution complete.' },
+  { type: 'log', cls: 'log-program', text: '================================' },
+  { type: 'delay', ms: 1000 },
+  { type: 'end' }
+];
+
+let lastCommitMsg = '';
+const termBody = document.getElementById('termBody');
+const inputArea = document.getElementById('inputArea');
+const userInput = document.getElementById('userInput');
+const progFill = document.getElementById('progFill');
+const progLabel = document.getElementById('progLabel');
+const totalSteps = program.filter(s => s.type === 'task').length;
+
+function show(id) { document.querySelectorAll('.screen').forEach(s => s.classList.remove('active')); document.getElementById(id).classList.add('active'); }
+function log(text, cls) { const d = document.createElement('div'); d.className = 'log-line ' + (cls||''); d.textContent = text; termBody.appendChild(d); termBody.scrollTop = termBody.scrollHeight; }
+function updateProgress() { const p = Math.round((totalTasks/totalSteps)*100); progFill.style.width = p+'%'; progLabel.textContent = 'Task '+totalTasks+'/'+totalSteps; }
+
+function skipToReveal() { totalTasks = 7; correctAnswers = 7; loopCount = 1; showReveal(); }
+function startExecution() { show('terminal-screen'); runStep(0); }
+
+function runStep(i) {
+  if (i >= program.length) return;
+  const step = program[i];
+  if (step.type === 'log') {
+    if (step.text === '' && lastCommitMsg) log('  git commit -m "'+lastCommitMsg+'"', step.cls||'log-output');
+    else log(step.text, step.cls);
+    runStep(i+1);
+  } else if (step.type === 'delay') { setTimeout(() => runStep(i+1), step.ms);
+  } else if (step.type === 'task') { showTask(step, () => runStep(i+1));
+  } else if (step.type === 'end') { inputArea.classList.add('hidden'); setTimeout(showReveal, 500); }
+}
+
+function showTask(task, onComplete) {
+  log('', ''); log('CC> ' + task.prompt, 'log-task');
+  inputArea.classList.remove('hidden'); userInput.value = ''; userInput.placeholder = 'Your response...'; userInput.focus();
+  let retries = 0;
+  function handleSubmit(e) {
+    if (e.key !== 'Enter') return;
+    const val = userInput.value; if (!val.trim()) return;
+    userInput.removeEventListener('keydown', handleSubmit);
+    log('  you> ' + val, 'log-output');
+    if (task.validate(val)) {
+      totalTasks++; correctAnswers++;
+      if (task.successLog === '') { lastCommitMsg = val.trim(); log('  git commit -m "'+lastCommitMsg+'"', 'log-success'); }
+      else log('  ' + task.successLog, 'log-success');
+      updateProgress(); inputArea.classList.add('hidden'); setTimeout(onComplete, 300);
+    } else {
+      retries++; if (retries === 1) loopCount++;
+      log('  Nope. ' + task.errorHint, 'log-warn');
+      log('  I\'m not moving on until you get this right.', 'log-system');
+      log('', ''); log('CC> ' + task.prompt, 'log-task');
+      userInput.value = ''; userInput.focus(); userInput.addEventListener('keydown', handleSubmit);
+    }
+  }
+  userInput.addEventListener('keydown', handleSubmit);
+}
+
+function showReveal() {
+  localStorage.setItem('cvm-experienced', '1');
+  const elapsed = Math.round((Date.now() - startTime) / 1000);
+  document.getElementById('statTasks').textContent = totalTasks;
+  document.getElementById('statCorrect').textContent = correctAnswers;
+  document.getElementById('statLoops').textContent = loopCount;
+  document.getElementById('statTime').textContent = elapsed + 's';
+  document.getElementById('revealTime').textContent = elapsed + ' seconds';
+  const codeLines = [
+    '<span class="kw">function</span> <span class="fn">main</span>() {',
+    '',
+    '  <span class="cmt">// Round 1: Warm-up counting</span>',
+    '  <span class="kw">var</span> counter = <span style="color:var(--num)">1</span>;',
+    '  <span class="kw">while</span> (counter &lt; <span style="color:var(--num)">4</span>) {',
+    '    <span class="kw">var</span> next = <span class="cc">CC</span>(<span class="str">"Current number is "</span> + counter + <span class="str">". What comes next?"</span>);',
+    '    counter = +next;',
+    '  }',
+    '',
+    '  <span class="cmt">// Round 2: Pattern recognition</span>',
+    '  <span class="cc">CC</span>(<span class="str">"Sequence: 2, 4, 8, 16, ___"</span>);',
+    '  <span class="cc">CC</span>(<span class="str">"Sequence: 1, 1, 2, 3, 5, 8, ___"</span>);',
+    '',
+    '  <span class="cmt">// Round 3: Discipline \u2014 NO ESCAPE until correct</span>',
+    '  <span class="kw">var</span> answer = <span class="cc">CC</span>(<span class="str">"Type the opposite of no"</span>);',
+    '  <span class="kw">while</span> (answer !== <span class="str">"yes"</span>) {',
+    '    answer = <span class="cc">CC</span>(<span class="str">"Try again."</span>);  <span class="cmt">// YOU WERE TRAPPED HERE</span>',
+    '  }',
+    '',
+    '  <span class="cmt">// Round 4: Full cycle \u2014 implement, test, commit</span>',
+    '  <span class="cc">CC</span>(<span class="str">"Write a function that adds a and b"</span>);  <span class="cmt">// implement</span>',
+    '',
+    '  <span class="kw">var</span> test = <span class="cc">CC</span>(<span class="str">"add(3,7) should return 10"</span>);  <span class="cmt">// test</span>',
+    '  <span class="kw">while</span> (test !== <span class="str">"10"</span>) {',
+    '    <span class="cc">CC</span>(<span class="str">"Fix it"</span>);                         <span class="cmt">// no escape!</span>',
+    '    test = <span class="cc">CC</span>(<span class="str">"Test again: add(3,7) = ?"</span>);',
+    '  }',
+    '',
+    '  <span class="cc">CC</span>(<span class="str">"Write commit message"</span>);              <span class="cmt">// commit</span>',
+    '}',
+  ];
+  document.getElementById('codeReveal').innerHTML = codeLines.join('\n');
+  show('reveal');
+}
+</script>
+
+</body>
 </html>

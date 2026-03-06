@@ -58,4 +58,12 @@ CVM successfully serves as an algorithmic TODO manager for Claude, enabling comp
 
 **Next**: Execute simple control flow fix to resolve testing anti-pattern and restore clean BTLT status.
 
+## Website: cvm.example4.ai ✅
+- **wwwroot/index.html** — Interactive landing page (human becomes CPU, 4 rounds, reveal)
+- **wwwroot/study.html** — Research report (CVM paradigm + market research, Chart.js charts)
+- **Stack**: Pure HTML/CSS/JS, Chart.js CDN, zero build step
+- **Theme**: Dark/light toggle, shared localStorage (`cvm-theme`), calmer navy palette
+- **Key research conclusion**: No existing framework inverts control the way CVM does
+- **Domain**: cvm.example4.ai (to be deployed on user's cluster)
+
 Ready for widespread production use with robust test infrastructure.
