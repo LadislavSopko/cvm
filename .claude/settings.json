@@ -1,0 +1,28 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|MultiEdit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "printf '%s' '{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"additionalContext\":\"IF this edit is to fix a bug, error, or unexpected behavior:\\n- What is the EXACT error message? (copy-paste, not paraphrased)\\n- What file:line produces it?\\n- What ONE change will fix it and how will you verify?\\nNo evidence = no edit. Read the error first.\\nIf this is a planned feature, refactor, or docs update — proceed.\"}}'",
+            "statusMessage": "Protocol-D checkpoint..."
+          }
+        ]
+      }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/support/hooks/run-stop-hook.sh\"",
+            "statusMessage": "Protocol-D stop hook..."
+          }
+        ]
+      }
+    ]
+  }
+}
