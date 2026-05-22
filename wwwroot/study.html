@@ -1,0 +1,966 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Claude Code vs AI Orchestration Frameworks vs CVM - 2025/2026 Evolution</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<style>
+  :root[data-theme="dark"] {
+    --bg: linear-gradient(135deg, #1a1d2e, #252840, #1e2035);
+    --text: #d4d4dc;
+    --text-muted: #9a9ab0;
+    --text-dim: #b0b0c0;
+    --text-dimmer: #6a6a80;
+    --text-dimmest: #5a5a6e;
+    --surface: rgba(255,255,255,0.06);
+    --border: rgba(255,255,255,0.1);
+    --border-soft: rgba(255,255,255,0.05);
+    --chart-font: #b0b0c0;
+    --chart-grid: rgba(255,255,255,0.08);
+    --table-border: rgba(255,255,255,0.05);
+  }
+  :root[data-theme="light"] {
+    --bg: linear-gradient(135deg, #f8f8fc, #f2f2f8, #f8f8fc);
+    --text: #2a2a3e;
+    --text-muted: #4a4a60;
+    --text-dim: #3a3a52;
+    --text-dimmer: #7a7a90;
+    --text-dimmest: #9a9aae;
+    --surface: rgba(0,0,0,0.04);
+    --border: rgba(0,0,0,0.12);
+    --border-soft: rgba(0,0,0,0.06);
+    --chart-font: #4a4a60;
+    --chart-grid: rgba(0,0,0,0.08);
+    --table-border: rgba(0,0,0,0.1);
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    padding: 2rem;
+    transition: background 0.3s, color 0.3s;
+  }
+  .theme-toggle {
+    position: fixed; top: 1rem; right: 1rem;
+    background: var(--surface); border: 2px solid var(--border); border-radius: 8px;
+    padding: 0.4rem 0.7rem; cursor: pointer; font-size: 1.2rem; z-index: 100; line-height: 1;
+    transition: background 0.3s, border 0.3s; color: var(--text);
+    backdrop-filter: blur(10px);
+  }
+  .theme-toggle:hover { border-color: #ff6b6b; }
+  .back-link {
+    position: fixed; top: 1rem; left: 1rem; z-index: 100;
+    color: var(--text-muted); text-decoration: none; font-size: 0.8rem;
+    background: var(--surface); border: 1px solid var(--border); border-radius: 8px;
+    padding: 0.4rem 0.8rem; transition: all 0.2s;
+  }
+  .back-link:hover { border-color: #ff6b6b; color: #ff6b6b; }
+  .section-break {
+    max-width: 1400px; margin: 3rem auto; padding-top: 3rem;
+    border-top: 1px solid var(--border);
+  }
+  h1 {
+    text-align: center;
+    font-size: 2.2rem;
+    margin-bottom: 0.3rem;
+    background: linear-gradient(90deg, #00d2ff, #7b2ff7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .subtitle {
+    text-align: center;
+    color: var(--text-muted);
+    font-size: 0.95rem;
+    margin-bottom: 2.5rem;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+  }
+  .card h2 {
+    font-size: 1.1rem;
+    margin-bottom: 1rem;
+    color: var(--text-dim);
+    font-weight: 500;
+  }
+  .card canvas { width: 100% !important; }
+  .full-width { grid-column: 1 / -1; }
+
+  /* Timeline */
+  .timeline {
+    position: relative;
+    padding: 1rem 0;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 0; bottom: 0;
+    width: 3px;
+    background: linear-gradient(to bottom, #00d2ff, #7b2ff7, #ff6b6b);
+    border-radius: 2px;
+  }
+  .tl-item {
+    display: flex;
+    align-items: center;
+    margin-bottom: 1.2rem;
+    position: relative;
+  }
+  .tl-item:nth-child(odd) { flex-direction: row; }
+  .tl-item:nth-child(even) { flex-direction: row-reverse; }
+  .tl-content {
+    width: 45%;
+    padding: 0.8rem 1rem;
+    border-radius: 10px;
+    font-size: 0.85rem;
+    line-height: 1.4;
+  }
+  .tl-item:nth-child(odd) .tl-content { margin-right: auto; text-align: right; }
+  .tl-item:nth-child(even) .tl-content { margin-left: auto; text-align: left; }
+  .tl-dot {
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    border: 3px solid #7b2ff7;
+    background: #1a1d2e;
+    z-index: 1;
+  }
+  .tl-dot.cvm-dot { border-color: #ff6b6b; }
+  .tl-date { font-weight: 700; color: #00d2ff; display: block; margin-bottom: 0.2rem; }
+  .claude-bg { background: rgba(0,210,255,0.1); border: 1px solid rgba(0,210,255,0.25); }
+  .lang-bg { background: rgba(123,47,247,0.1); border: 1px solid rgba(123,47,247,0.25); }
+  .cvm-bg { background: rgba(255,107,107,0.1); border: 1px solid rgba(255,107,107,0.25); }
+  .cvm-bg .tl-date { color: #ff6b6b; }
+
+  /* Verdict section */
+  .verdict {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .verdict-box {
+    padding: 1.2rem;
+    border-radius: 12px;
+    text-align: center;
+  }
+  .verdict-box h3 { font-size: 0.95rem; margin-bottom: 0.5rem; }
+  .verdict-box p { font-size: 0.8rem; line-height: 1.4; color: var(--text-dim); }
+  .v-claude { background: rgba(0,210,255,0.12); border: 1px solid rgba(0,210,255,0.3); }
+  .v-claude h3 { color: #00d2ff; }
+  .v-both { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); }
+  .v-both h3 { color: #eee; }
+  .v-lang { background: rgba(123,47,247,0.12); border: 1px solid rgba(123,47,247,0.3); }
+  .v-lang h3 { color: #b57bff; }
+
+  /* Stats row */
+  .stats {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+    margin-bottom: 2rem;
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.5rem;
+    text-align: center;
+    min-width: 160px;
+  }
+  .stat .num {
+    font-size: 1.8rem;
+    font-weight: 700;
+    background: linear-gradient(90deg, #00d2ff, #7b2ff7);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .stat .label { font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem; }
+
+  .legend-inline {
+    display: flex;
+    gap: 1.5rem;
+    justify-content: center;
+    margin-bottom: 0.5rem;
+    font-size: 0.8rem;
+  }
+  .legend-inline span::before {
+    content: '';
+    display: inline-block;
+    width: 12px; height: 12px;
+    border-radius: 3px;
+    margin-right: 5px;
+    vertical-align: middle;
+  }
+  .legend-inline .l-claude::before { background: #00d2ff; }
+  .legend-inline .l-lang::before { background: #7b2ff7; }
+  .legend-inline .l-cvm::before { background: #ff6b6b; }
+
+  .source {
+    text-align: center;
+    margin-top: 2rem;
+    font-size: 0.72rem;
+    color: var(--text-dimmest);
+  }
+  .source a { color: var(--text-dimmer); }
+
+  /* CVM Section */
+  .section-divider {
+    max-width: 1400px;
+    margin: 3rem auto 1.5rem;
+    text-align: center;
+  }
+  .section-divider h1 {
+    font-size: 1.8rem;
+    background: linear-gradient(90deg, #ff6b6b, #ffa500);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .section-divider .subtitle { margin-bottom: 1.5rem; }
+
+  /* Paradigm comparison diagram */
+  .paradigm-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    gap: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto 1.5rem;
+  }
+  .paradigm-box {
+    border-radius: 16px;
+    padding: 1.5rem;
+    backdrop-filter: blur(10px);
+  }
+  .paradigm-box h3 {
+    font-size: 1rem;
+    margin-bottom: 0.8rem;
+    text-align: center;
+  }
+  .paradigm-box .flow {
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    line-height: 1.8;
+    color: var(--text-dim);
+  }
+  .paradigm-box .flow .highlight { font-weight: 700; }
+  .p-traditional {
+    background: rgba(150,150,150,0.08);
+    border: 1px solid rgba(150,150,150,0.2);
+  }
+  .p-traditional h3 { color: #999; }
+  .p-traditional .highlight { color: #999; }
+  .p-frameworks {
+    background: rgba(123,47,247,0.08);
+    border: 1px solid rgba(123,47,247,0.25);
+  }
+  .p-frameworks h3 { color: #b57bff; }
+  .p-frameworks .highlight { color: #b57bff; }
+  .p-cvm {
+    background: rgba(255,107,107,0.08);
+    border: 1px solid rgba(255,107,107,0.25);
+  }
+  .p-cvm h3 { color: #ff6b6b; }
+  .p-cvm .highlight { color: #ff6b6b; }
+
+  /* Unique features */
+  .unique-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin-top: 0.5rem;
+  }
+  .unique-item {
+    padding: 1rem;
+    border-radius: 10px;
+    background: rgba(255,107,107,0.06);
+    border: 1px solid rgba(255,107,107,0.15);
+    text-align: center;
+  }
+  .unique-item .icon { font-size: 1.5rem; margin-bottom: 0.4rem; }
+  .unique-item h4 { font-size: 0.85rem; color: #ff6b6b; margin-bottom: 0.3rem; }
+  .unique-item p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
+
+  /* Comparison table */
+  .cmp-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+  }
+  .cmp-table th {
+    text-align: left;
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--border);
+    color: var(--text-muted);
+    font-weight: 500;
+  }
+  .cmp-table td {
+    padding: 0.6rem 0.8rem;
+    border-bottom: 1px solid var(--table-border);
+    color: var(--text-dim);
+  }
+  .cmp-table tr:last-child td { border-bottom: none; }
+  .cmp-table .col-claude { color: #00d2ff; }
+  .cmp-table .col-lang { color: #b57bff; }
+  .cmp-table .col-cvm { color: #ff6b6b; }
+  .check { color: #4ade80; }
+  .cross { color: var(--text-dimmer); }
+  .partial { color: #fbbf24; }
+
+  /* Code block */
+  .code-block {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1rem 1.2rem;
+    font-family: 'Courier New', monospace;
+    font-size: 0.78rem;
+    line-height: 1.6;
+    overflow-x: auto;
+    color: var(--text-dim);
+    margin-top: 0.8rem;
+  }
+  .code-block .kw { color: #c792ea; }
+  .code-block .fn { color: #82aaff; }
+  .code-block .str { color: #c3e88d; }
+  .code-block .cmt { color: #546e7a; }
+  .code-block .cc { color: #ff6b6b; font-weight: 700; }
+  .code-block .num { color: #f78c6c; }
+
+  /* No-match box */
+  .no-match-box {
+    background: rgba(255,107,107,0.05);
+    border: 2px dashed rgba(255,107,107,0.3);
+    border-radius: 16px;
+    padding: 2rem;
+    text-align: center;
+    max-width: 1400px;
+    margin: 1.5rem auto;
+  }
+  .no-match-box h2 {
+    color: #ff6b6b;
+    font-size: 1.3rem;
+    margin-bottom: 1rem;
+  }
+  .no-match-box .closest {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    margin-top: 1.5rem;
+    text-align: left;
+  }
+  .closest-item {
+    padding: 1rem;
+    border-radius: 10px;
+    background: var(--surface);
+    border: 1px solid var(--border-soft);
+  }
+  .closest-item h4 { font-size: 0.85rem; color: var(--text); margin-bottom: 0.4rem; }
+  .closest-item p { font-size: 0.75rem; color: var(--text-muted); line-height: 1.3; }
+  .closest-item .diff { color: #ff6b6b; font-weight: 600; font-size: 0.72rem; margin-top: 0.4rem; }
+
+  @media (max-width: 900px) {
+    .grid { grid-template-columns: 1fr; }
+    .verdict { grid-template-columns: 1fr; }
+    .paradigm-grid { grid-template-columns: 1fr; }
+    .unique-grid { grid-template-columns: 1fr 1fr; }
+    .no-match-box .closest { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<a href="index.html" class="back-link">&larr; Experience CVM</a>
+<button class="theme-toggle" onclick="toggleTheme()" title="Toggle light/dark mode">
+  <span id="themeIcon">&#9790;</span>
+</button>
+
+<!-- ===== CVM SECTION ===== -->
+<div class="section-divider">
+  <h1>Enter CVM: The Third Paradigm</h1>
+  <p class="subtitle">A fundamentally different approach &mdash; nothing else like it exists</p>
+</div>
+
+<div class="paradigm-grid">
+  <div class="paradigm-box p-traditional">
+    <h3>Traditional Execution</h3>
+    <div class="flow">
+      <span class="highlight">Program</span> runs code<br>
+      &darr;<br>
+      Calls <span class="highlight">function</span><br>
+      &darr;<br>
+      Gets result instantly<br>
+      &darr;<br>
+      Continues execution<br>
+      <br>
+      <em style="color:#666">AI is a tool called by code</em>
+    </div>
+  </div>
+  <div class="paradigm-box p-frameworks">
+    <h3>LangGraph / Frameworks</h3>
+    <div class="flow">
+      <span class="highlight">LLM</span> is the brain<br>
+      &darr;<br>
+      Framework <span class="highlight">orchestrates</span> LLM<br>
+      &darr;<br>
+      Graph nodes = LLM calls<br>
+      &darr;<br>
+      State flows through edges<br>
+      <br>
+      <em style="color:#7b4bbf">Framework controls the LLM</em>
+    </div>
+  </div>
+  <div class="paradigm-box p-cvm">
+    <h3>CVM Paradigm</h3>
+    <div class="flow">
+      <span class="highlight">Program</span> defines structure<br>
+      &darr;<br>
+      <span class="highlight">CC()</span> &mdash; execution STOPS<br>
+      &darr;<br>
+      <span class="highlight">Claude</span> becomes the CPU<br>
+      &darr;<br>
+      Waits forever for response<br>
+      <br>
+      <em style="color:#ff6b6b">Program orchestrates the AI</em>
+    </div>
+  </div>
+</div>
+
+<div class="grid" style="max-width:1400px;margin:0 auto;">
+
+  <!-- CVM code example -->
+  <div class="card">
+    <h2>CVM in Action: AI as Processor</h2>
+    <div class="code-block">
+      <span class="kw">function</span> <span class="fn">main</span>() {<br>
+      &nbsp;&nbsp;<span class="kw">var</span> tasks = [<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ name: <span class="str">"TDDAB-1"</span>, plan: <span class="str">"plan.md:10-50"</span> },<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;{ name: <span class="str">"TDDAB-2"</span>, plan: <span class="str">"plan.md:51-75"</span> }<br>
+      &nbsp;&nbsp;];<br><br>
+      &nbsp;&nbsp;<span class="kw">for</span> (<span class="kw">var</span> i = <span class="num">0</span>; i &lt; tasks.length; i++) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// Program STOPS. Claude thinks. User can discuss.</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="cc">CC</span>(<span class="str">"Implement "</span> + tasks[i].name);<br><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="cmt">// NO ESCAPE: tests must pass!</span><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">var</span> result = <span class="cc">CC</span>(<span class="str">"Run tests"</span>);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="kw">while</span> (result === <span class="str">"failed"</span>) {<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class="cc">CC</span>(<span class="str">"Fix failing tests"</span>);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;result = <span class="cc">CC</span>(<span class="str">"Run tests again"</span>);<br>
+      &nbsp;&nbsp;&nbsp;&nbsp;}<br><br>
+      &nbsp;&nbsp;&nbsp;&nbsp;<span class="cc">CC</span>(<span class="str">"Commit: "</span> + tasks[i].name);<br>
+      &nbsp;&nbsp;}<br>
+      }
+    </div>
+  </div>
+
+  <!-- Unique features -->
+  <div class="card">
+    <h2>What Makes CVM Unique</h2>
+    <div class="unique-grid">
+      <div class="unique-item">
+        <div class="icon">&#x23F8;</div>
+        <h4>Infinite Patience</h4>
+        <p>CVM waits forever. Close terminal, take a break, come back tomorrow.</p>
+      </div>
+      <div class="unique-item">
+        <div class="icon">&#x1F9E0;</div>
+        <h4>AI = CPU</h4>
+        <p>The LLM is the processor, not a tool. Program structure drives execution.</p>
+      </div>
+      <div class="unique-item">
+        <div class="icon">&#x1F512;</div>
+        <h4>No Escape Loops</h4>
+        <p>while(tests fail) { fix } &mdash; Claude cannot skip or fake results.</p>
+      </div>
+      <div class="unique-item">
+        <div class="icon">&#x1F4AC;</div>
+        <h4>Human Intervenes</h4>
+        <p>Between any CC() call, the user can discuss, redirect, or debug.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 3-way radar -->
+  <div class="card">
+    <h2>Three-Way Comparison</h2>
+    <canvas id="triRadarChart"></canvas>
+  </div>
+
+  <!-- Feature comparison table -->
+  <div class="card">
+    <h2>Feature Matrix: CVM vs The World</h2>
+    <table class="cmp-table">
+      <tr>
+        <th>Capability</th>
+        <th class="col-claude">Claude Code</th>
+        <th class="col-lang">LangGraph</th>
+        <th class="col-cvm">CVM</th>
+      </tr>
+      <tr>
+        <td>AI executes autonomously</td>
+        <td class="check">&#10003;</td>
+        <td class="check">&#10003;</td>
+        <td class="check">&#10003;</td>
+      </tr>
+      <tr>
+        <td>Program enforces discipline</td>
+        <td class="cross">&#10005;</td>
+        <td class="partial">~</td>
+        <td class="check">&#10003;</td>
+      </tr>
+      <tr>
+        <td>Infinite pause/resume</td>
+        <td class="cross">&#10005;</td>
+        <td class="partial">~</td>
+        <td class="check">&#10003;</td>
+      </tr>
+      <tr>
+        <td>User intervenes mid-flow</td>
+        <td class="check">&#10003;</td>
+        <td class="partial">~</td>
+        <td class="check">&#10003;</td>
+      </tr>
+      <tr>
+        <td>Stateless between steps</td>
+        <td class="cross">&#10005;</td>
+        <td class="cross">&#10005;</td>
+        <td class="check">&#10003;</td>
+      </tr>
+      <tr>
+        <td>Custom interpreter (AST)</td>
+        <td class="cross">&#10005;</td>
+        <td class="cross">&#10005;</td>
+        <td class="check">&#10003;</td>
+      </tr>
+      <tr>
+        <td>No-escape test loops</td>
+        <td class="cross">&#10005;</td>
+        <td class="cross">&#10005;</td>
+        <td class="check">&#10003;</td>
+      </tr>
+      <tr>
+        <td>Multi-model support</td>
+        <td class="cross">&#10005;</td>
+        <td class="check">&#10003;</td>
+        <td class="partial">~</td>
+      </tr>
+      <tr>
+        <td>Plan traceability built-in</td>
+        <td class="cross">&#10005;</td>
+        <td class="cross">&#10005;</td>
+        <td class="check">&#10003;</td>
+      </tr>
+      <tr>
+        <td>Zero dependencies</td>
+        <td class="cross">&#10005;</td>
+        <td class="cross">&#10005;</td>
+        <td class="check">&#10003;</td>
+      </tr>
+    </table>
+  </div>
+
+</div>
+
+<!-- Nothing like it -->
+<div class="no-match-box">
+  <h2>Research Result: Nothing Comparable Exists</h2>
+  <p style="color:var(--text-muted);font-size:0.9rem;max-width:800px;margin:0 auto;">
+    After searching across all major AI agent frameworks, orchestration tools, and academic research,
+    <strong style="color:#ff6b6b">no existing system inverts control the way CVM does</strong> &mdash;
+    making the program the orchestrator and the AI the execution engine (CPU).
+  </p>
+
+  <div class="closest">
+    <div class="closest-item">
+      <h4>Azure Durable Functions</h4>
+      <p>Uses yield/checkpoint patterns for long-running workflows. Supports human-in-the-loop via signals.</p>
+      <p class="diff">Missing: AI is not the CPU. The function executes logic; AI is called as a tool. No discipline enforcement.</p>
+    </div>
+    <div class="closest-item">
+      <h4>DSPy (Stanford)</h4>
+      <p>"Programming, not prompting." Declarative modules that compose LLM calls like neural network layers.</p>
+      <p class="diff">Missing: No pause/resume. No human intervention. Focused on optimization, not interactive execution.</p>
+    </div>
+    <div class="closest-item">
+      <h4>ControlFlow (Prefect)</h4>
+      <p>Task-centric AI orchestration. Structured workflows with type-safe outputs and multi-agent support.</p>
+      <p class="diff">Missing: AI still executes autonomously. No "no-escape" enforcement. No infinite patience model.</p>
+    </div>
+    <div class="closest-item">
+      <h4>LangGraph Checkpoints</h4>
+      <p>Pause at nodes, save state, resume later. Human-in-the-loop at graph edges.</p>
+      <p class="diff">Missing: The graph orchestrates AI, not the other way around. No custom interpreter. No plan back-references.</p>
+    </div>
+    <div class="closest-item">
+      <h4>OpenAI Agent Runtime</h4>
+      <p>Checkpoint after every tool execution. Hot resume from crash. State persistence.</p>
+      <p class="diff">Missing: Agent drives execution. No program-as-structure paradigm. No discipline enforcement loops.</p>
+    </div>
+    <div class="closest-item">
+      <h4>Temporal / Durable Workflows</h4>
+      <p>Long-running workflows with pause/resume. Activity-based task execution with retry logic.</p>
+      <p class="diff">Missing: General workflow engine, not AI-specific. No concept of AI as the processor. No CC() equivalent.</p>
+    </div>
+  </div>
+</div>
+
+<div class="grid" style="max-width:1400px;margin:1.5rem auto 0;">
+  <div class="card full-width">
+    <h2>The Paradigm Spectrum: Where CVM Sits</h2>
+    <canvas id="spectrumChart" style="max-height:300px"></canvas>
+  </div>
+</div>
+
+<!-- ===== MARKET RESEARCH SECTION ===== -->
+<div class="section-break"></div>
+
+<h1>Claude Code vs AI Orchestration Frameworks</h1>
+<p class="subtitle">How native model capabilities reshaped the agentic landscape &mdash; Feb 2025 to Mar 2026</p>
+
+<div class="stats">
+  <div class="stat"><div class="num">4%</div><div class="label">GitHub commits by Claude Code (now)</div></div>
+  <div class="stat"><div class="num">~$2B</div><div class="label">Claude Code annualized revenue</div></div>
+  <div class="stat"><div class="num">45 min</div><div class="label">Max autonomous turn (up from 25)</div></div>
+  <div class="stat"><div class="num">99.9%</div><div class="label">Accuracy on 12.5M-line codebase</div></div>
+  <div class="stat"><div class="num">40%+</div><div class="label">Agentic projects at risk (Gartner)</div></div>
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h2>Claude Code: Capability Growth Over Time</h2>
+    <canvas id="capabilityChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>When Do You Still Need a Framework?</h2>
+    <canvas id="radarChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>AI Agent Framework Adoption (2026)</h2>
+    <canvas id="adoptionChart"></canvas>
+  </div>
+  <div class="card">
+    <h2>Developer AI Usage Patterns</h2>
+    <canvas id="delegationChart"></canvas>
+  </div>
+
+  <div class="card full-width">
+    <h2>Key Milestones Timeline</h2>
+    <div class="legend-inline">
+      <span class="l-claude">Claude Code / Anthropic</span>
+      <span class="l-lang">LangGraph / LangChain</span>
+      <span class="l-cvm">CVM (new paradigm)</span>
+    </div>
+    <div class="timeline">
+      <div class="tl-item">
+        <div class="tl-content claude-bg"><span class="tl-date">Feb 2025</span>Claude Code launches as limited research preview</div>
+        <div class="tl-dot"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-content lang-bg"><span class="tl-date">Mar 2025</span>LangGraph 1.0 stable release; production-ready</div>
+        <div class="tl-dot"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-content claude-bg"><span class="tl-date">May 2025</span>Claude Code reaches General Availability</div>
+        <div class="tl-dot"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-content lang-bg"><span class="tl-date">Jul 2025</span>LangChain ecosystem: Uber, LinkedIn, JP Morgan in production</div>
+        <div class="tl-dot"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-content claude-bg"><span class="tl-date">Sep 2025</span>Claude Agent SDK released (formerly Code SDK)</div>
+        <div class="tl-dot"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-content claude-bg"><span class="tl-date">Nov 2025</span>Claude Code hits $1B annualized revenue</div>
+        <div class="tl-dot"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-content claude-bg"><span class="tl-date">Jan 2026</span>Opus 4.6 launch &mdash; best-in-class multi-step agentic search</div>
+        <div class="tl-dot"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-content cvm-bg"><span class="tl-date">2025&ndash;2026</span>CVM paradigm created &mdash; program-as-orchestrator, AI-as-CPU</div>
+        <div class="tl-dot cvm-dot"></div>
+      </div>
+      <div class="tl-item">
+        <div class="tl-content lang-bg"><span class="tl-date">Mar 2026</span>LangChain Skills for Claude Code: success rate 29% &rarr; 95%</div>
+        <div class="tl-dot"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card full-width">
+    <h2>The Verdict: Who Wins Where?</h2>
+    <div class="verdict">
+      <div class="verdict-box v-claude">
+        <h3>Claude Code Wins</h3>
+        <p>Agentic coding &amp; automation. Single-agent complex tasks. File I/O, git, CLI workflows. Session continuity &amp; governance. Claude-native projects.</p>
+      </div>
+      <div class="verdict-box v-both">
+        <h3>Use Both Together</h3>
+        <p>Domain-specific coding agents. Claude Agent SDK inside LangGraph nodes. LangChain Skills boosting Claude Code. Complex workflows with Claude as executor.</p>
+      </div>
+      <div class="verdict-box v-lang">
+        <h3>LangGraph Still Needed</h3>
+        <p>Multi-model orchestration. Persistent state &amp; checkpoints. Human-in-the-loop approval flows. Enterprise workflows with branching, retries, cycles.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:1400px;margin:2rem auto 0;border-top:1px solid var(--border-soft);padding-top:2rem;">
+  <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:2rem;margin-bottom:1.5rem;font-size:0.78rem;">
+    <div>
+      <h4 style="color:#ff6b6b;font-size:0.85rem;margin-bottom:0.5rem;">CVM</h4>
+      <p style="color:var(--text-dimmer);line-height:1.5;">Cognitive Virtual Machine &mdash; the paradigm where programs orchestrate AI.</p>
+      <p style="margin-top:0.5rem;"><a href="https://github.com/LadislavSopko/cvm" style="color:var(--text-muted);text-decoration:none;">GitHub</a></p>
+    </div>
+    <div>
+      <h4 style="color:#ff6b6b;font-size:0.85rem;margin-bottom:0.5rem;">More Projects</h4>
+      <p style="color:var(--text-dimmer);line-height:1.5;"><a href="https://example4.ai" style="color:var(--text-muted);text-decoration:none;">example4.ai</a> &mdash; Real code examples for AI agents (MCP)</p>
+      <p style="color:var(--text-dimmer);line-height:1.5;"><a href="https://projects.0ics.ai" style="color:var(--text-muted);text-decoration:none;">projects.0ics.ai</a> &mdash; AI-Powered Development Showcase</p>
+    </div>
+    <div>
+      <h4 style="color:#ff6b6b;font-size:0.85rem;margin-bottom:0.5rem;">Author</h4>
+      <p style="color:var(--text-dimmer);line-height:1.5;"><strong style="color:var(--text-dim);">Ladislav Sopko</strong><br>Senior Developer &amp; AI Mentor</p>
+      <p style="margin-top:0.3rem;"><a href="https://github.com/LadislavSopko" style="color:var(--text-muted);text-decoration:none;">GitHub</a></p>
+    </div>
+  </div>
+  <div style="display:flex;justify-content:space-between;padding-top:1rem;border-top:1px solid var(--border-soft);font-size:0.7rem;color:var(--text-dimmest);">
+    <span>Apache 2.0 License</span>
+    <span>Data: Anthropic, SemiAnalysis, Gartner, LangChain, DSPy, PrefectHQ, Microsoft, Temporal.io</span>
+    <span>&copy; 2025&ndash;2026 Ladislav Sopko</span>
+  </div>
+</div>
+
+<script>
+// Theme toggle
+function toggleTheme() {
+  const html = document.documentElement;
+  const next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  document.getElementById('themeIcon').innerHTML = next === 'dark' ? '&#9790;' : '&#9728;';
+  localStorage.setItem('cvm-theme', next);
+  location.reload();
+}
+(function() {
+  const saved = localStorage.getItem('cvm-theme');
+  if (saved) document.documentElement.setAttribute('data-theme', saved);
+})();
+document.addEventListener('DOMContentLoaded', () => {
+  const t = document.documentElement.getAttribute('data-theme');
+  document.getElementById('themeIcon').innerHTML = t === 'dark' ? '&#9790;' : '&#9728;';
+});
+
+const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+const fontColor = isDark ? '#b0b0c0' : '#4a4a60';
+const gridColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.1)';
+Chart.defaults.color = fontColor;
+Chart.defaults.borderColor = gridColor;
+
+// Chart 1: Capability Growth
+new Chart(document.getElementById('capabilityChart'), {
+  type: 'line',
+  data: {
+    labels: ['Feb 25', 'May 25', 'Aug 25', 'Nov 25', 'Jan 26', 'Mar 26'],
+    datasets: [
+      { label: 'Multi-step Task Handling', data: [25, 45, 60, 75, 88, 95], borderColor: '#00d2ff', backgroundColor: 'rgba(0,210,255,0.1)', fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#00d2ff' },
+      { label: 'Autonomous Duration (normalized)', data: [15, 30, 45, 55, 78, 90], borderColor: '#7b2ff7', backgroundColor: 'rgba(123,47,247,0.1)', fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#7b2ff7' },
+      { label: 'Multi-Agent Coordination', data: [0, 10, 25, 40, 65, 82], borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)', fill: true, tension: 0.4, pointRadius: 5, pointBackgroundColor: '#ff6b6b' }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' } } },
+    scales: {
+      y: { min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: gridColor } },
+      x: { grid: { color: gridColor } }
+    }
+  }
+});
+
+// Chart 2: Radar (2-way)
+new Chart(document.getElementById('radarChart'), {
+  type: 'radar',
+  data: {
+    labels: ['Single-Agent Coding', 'Multi-Model Orchestration', 'State Management', 'Human-in-the-Loop', 'Production Observability', 'Ease of Setup', 'Enterprise Workflows', 'Agentic Autonomy'],
+    datasets: [
+      { label: 'Claude Code / Agent SDK', data: [95, 30, 60, 50, 65, 92, 45, 95], borderColor: '#00d2ff', backgroundColor: 'rgba(0,210,255,0.15)', pointBackgroundColor: '#00d2ff' },
+      { label: 'LangGraph', data: [40, 90, 92, 88, 55, 45, 85, 50], borderColor: '#7b2ff7', backgroundColor: 'rgba(123,47,247,0.15)', pointBackgroundColor: '#7b2ff7' }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' } } },
+    scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: gridColor }, angleLines: { color: gridColor }, pointLabels: { font: { size: 10 }, color: fontColor } } }
+  }
+});
+
+// Chart 3: Horizontal bar
+new Chart(document.getElementById('adoptionChart'), {
+  type: 'bar',
+  data: {
+    labels: ['LangChain/LangGraph', 'Claude Code/Agent SDK', 'OpenAI Agents SDK', 'CrewAI', 'MS Agent Framework', 'Google ADK', 'CVM', 'Other'],
+    datasets: [{
+      label: 'Relative Market Presence',
+      data: [85, 78, 60, 35, 28, 22, 1, 15],
+      backgroundColor: ['rgba(123,47,247,0.7)', 'rgba(0,210,255,0.7)', 'rgba(16,163,127,0.7)', 'rgba(255,165,0,0.7)', 'rgba(0,120,215,0.7)', 'rgba(234,67,53,0.7)', 'rgba(255,107,107,0.7)', 'rgba(150,150,150,0.5)'],
+      borderColor: ['#7b2ff7', '#00d2ff', '#10a37f', '#ffa500', '#0078d7', '#ea4335', '#ff6b6b', '#999'],
+      borderWidth: 1, borderRadius: 6
+    }]
+  },
+  options: {
+    indexAxis: 'y', responsive: true,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { min: 0, max: 100, ticks: { callback: v => v + '%' }, grid: { color: gridColor } },
+      y: { grid: { display: false } }
+    }
+  }
+});
+
+// Chart 4: Doughnut
+new Chart(document.getElementById('delegationChart'), {
+  type: 'doughnut',
+  data: {
+    labels: ['AI-assisted (human validates)', 'Fully delegated to AI', 'Manual (no AI)'],
+    datasets: [{ data: [48, 12, 40], backgroundColor: ['rgba(0,210,255,0.7)', 'rgba(123,47,247,0.7)', 'rgba(100,100,100,0.5)'], borderColor: ['#00d2ff', '#7b2ff7', '#666'], borderWidth: 2, hoverOffset: 8 }]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 11 }, usePointStyle: true, pointStyle: 'circle', padding: 16 } },
+      tooltip: { callbacks: { label: ctx => ` ${ctx.label}: ${ctx.parsed}% of dev work` } }
+    }
+  }
+});
+
+// Chart 5: 3-way Radar (CVM section)
+new Chart(document.getElementById('triRadarChart'), {
+  type: 'radar',
+  data: {
+    labels: [
+      'Discipline Enforcement',
+      'Human Intervention',
+      'Infinite Patience',
+      'Plan Traceability',
+      'Autonomous Execution',
+      'Multi-Model Support',
+      'State Persistence',
+      'Zero Dependencies',
+      'Ecosystem Maturity',
+      'Paradigm Innovation'
+    ],
+    datasets: [
+      { label: 'Claude Code', data: [20, 50, 15, 20, 95, 10, 60, 30, 85, 40], borderColor: '#00d2ff', backgroundColor: 'rgba(0,210,255,0.08)', pointBackgroundColor: '#00d2ff', borderWidth: 2 },
+      { label: 'LangGraph', data: [40, 70, 50, 15, 80, 90, 92, 10, 90, 30], borderColor: '#7b2ff7', backgroundColor: 'rgba(123,47,247,0.08)', pointBackgroundColor: '#7b2ff7', borderWidth: 2 },
+      { label: 'CVM', data: [98, 95, 100, 95, 80, 30, 85, 95, 5, 100], borderColor: '#ff6b6b', backgroundColor: 'rgba(255,107,107,0.1)', pointBackgroundColor: '#ff6b6b', borderWidth: 2 }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: { legend: { labels: { font: { size: 11 }, usePointStyle: true, pointStyle: 'circle' } } },
+    scales: { r: { min: 0, max: 100, ticks: { display: false }, grid: { color: gridColor }, angleLines: { color: gridColor }, pointLabels: { font: { size: 9 }, color: fontColor } } }
+  }
+});
+
+// Chart 6: Scatter - Paradigm Spectrum
+new Chart(document.getElementById('spectrumChart'), {
+  type: 'scatter',
+  data: {
+    datasets: [
+      {
+        label: 'Traditional (call AI as tool)',
+        data: [{ x: 10, y: 85 }],
+        backgroundColor: 'rgba(150,150,150,0.7)',
+        borderColor: '#999',
+        pointRadius: 14,
+        pointHoverRadius: 18
+      },
+      {
+        label: 'LangGraph / Frameworks',
+        data: [{ x: 45, y: 60 }],
+        backgroundColor: 'rgba(123,47,247,0.7)',
+        borderColor: '#7b2ff7',
+        pointRadius: 18,
+        pointHoverRadius: 22
+      },
+      {
+        label: 'Claude Code (native agent)',
+        data: [{ x: 70, y: 40 }],
+        backgroundColor: 'rgba(0,210,255,0.7)',
+        borderColor: '#00d2ff',
+        pointRadius: 18,
+        pointHoverRadius: 22
+      },
+      {
+        label: 'DSPy (declarative modules)',
+        data: [{ x: 35, y: 70 }],
+        backgroundColor: 'rgba(255,165,0,0.6)',
+        borderColor: '#ffa500',
+        pointRadius: 10,
+        pointHoverRadius: 14
+      },
+      {
+        label: 'ControlFlow (Prefect)',
+        data: [{ x: 50, y: 55 }],
+        backgroundColor: 'rgba(16,163,127,0.6)',
+        borderColor: '#10a37f',
+        pointRadius: 10,
+        pointHoverRadius: 14
+      },
+      {
+        label: 'CVM (AI as CPU)',
+        data: [{ x: 60, y: 92 }],
+        backgroundColor: 'rgba(255,107,107,0.9)',
+        borderColor: '#ff6b6b',
+        pointRadius: 22,
+        pointHoverRadius: 26,
+        pointStyle: 'star'
+      }
+    ]
+  },
+  options: {
+    responsive: true,
+    plugins: {
+      legend: { position: 'bottom', labels: { font: { size: 10 }, usePointStyle: true, padding: 12 } },
+      tooltip: {
+        callbacks: {
+          label: ctx => ctx.dataset.label
+        }
+      }
+    },
+    scales: {
+      x: {
+        min: 0, max: 100,
+        title: { display: true, text: 'AI Autonomy (AI executes independently) \u2192', color: '#888', font: { size: 11 } },
+        grid: { color: gridColor }
+      },
+      y: {
+        min: 0, max: 100,
+        title: { display: true, text: '\u2191 Program Control (code enforces structure & discipline)', color: '#888', font: { size: 11 } },
+        grid: { color: gridColor }
+      }
+    }
+  }
+});
+</script>
+
+</body>
+</html>

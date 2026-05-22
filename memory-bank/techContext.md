@@ -186,4 +186,20 @@ CMD ["node", "main.js"]
 - Program source validated before compilation
 - CC responses sanitized
 
+## Website (wwwroot/)
+
+### Files
+- `wwwroot/index.html` — Landing page (interactive CVM experience demo)
+- `wwwroot/study.html` — Research report (CVM vs Claude Code vs LangGraph)
+
+### Tech
+- Pure HTML/CSS/JS — no build step, no bundler
+- Chart.js 4.4.4 via CDN (study page only)
+- CSS custom properties for dark/light theming
+- localStorage for theme persistence (`cvm-theme`) and experience tracking (`cvm-experienced`)
+
+### Hosting
+- Domain: cvm.example4.ai (user's cluster)
+- Static files only — any web server works
+
 This technical foundation enables CVM to be a reliable, extensible platform for AI task orchestration.
