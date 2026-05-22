@@ -254,6 +254,32 @@ When NOT using CVM, the same format works perfectly for manual execution — tag
 
 ---
 
+## VALIDATION (MANDATORY)
+
+After writing a TDDAB plan, you MUST validate it with the validator tool:
+
+```bash
+npx tsx tasks/poc/validate-plan.ts <plan-file.md>
+```
+
+The validator:
+1. Parses the plan structurally (same logic as the CVM parser)
+2. Checks: `<mission>` exists and is non-empty
+3. Checks: every `<block>` has unique `NN-kebab-case` id
+4. Checks: every block contains `<intro>`, `<red>`, `<success>`
+5. Checks: `<red>` has at least one `- test:` line
+6. Checks: `<success>` has at least one `- [ ]` item
+7. If valid: generates the CVM executor `.ts` file automatically
+
+**A plan that doesn't pass the validator is NOT done.**
+
+To also generate the executor explicitly:
+```bash
+npx tsx tasks/poc/validate-plan.ts <plan.md> --output <executor.ts>
+```
+
+---
+
 ## ACTIVATION TRIGGER
 
 When user requests TDDAB planning:
@@ -264,5 +290,6 @@ When user requests TDDAB planning:
 5. No options, no discussions, no investigations
 6. Complete, deployable code only
 7. End with execution order
+8. **Run the validator — zero errors required**
 
 **A TDDAB plan is a RECIPE, not a DISCUSSION!**

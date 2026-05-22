@@ -1,0 +1,43 @@
+[11:53:12] EVAL: msg_len=418 first_80='Fatto. Aggiunta la sezione "Code Navigation" in CLAUDE.md con le regole:\n- **LSA'
+[11:53:12] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[11:54:15] EVAL: msg_len=1744 first_80='Perfetto. CVM ha già tutto:\n\n- **`JSON.parse()`** ✓ — parsa JSON e converte in v'
+[11:54:15] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[11:55:39] EVAL: msg_len=1054 first_80="Chiaro il quadro. L'approccio più semplice è estendere `readFile` nell'interfacc"
+[11:55:39] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[11:59:05] EVAL: msg_len=1141 first_80="# Mode: PLAN\n\nEcco il quadro completo degli OpCode CVM. Non c'è nessun `IMPORT` "
+[11:59:05] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[12:01:47] EVAL: msg_len=947 first_80='Ecco il punto esatto. `loadProgram` riceve `source: string` e chiama `compile(so'
+[12:01:47] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[12:03:14] EVAL: msg_len=974 first_80='# Mode: PLAN\n\nSì, senza nessuna modifica a CVM. Già funziona tutto:\n\n- `fs.readF'
+[12:03:14] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[12:07:28] EVAL: msg_len=1127 first_80='POC dimostrato al 100%. Ecco il riepilogo:\n\n**Pipeline funzionante:**\n1. `plan.m'
+[12:07:28] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[12:18:35] EVAL: msg_len=774 first_80='COMMIT con messaggio pre-compilato. Perfetto. Il dry-run conferma tutto.\n\n**Riep'
+[12:18:35] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[12:21:27] EVAL: msg_len=1555 first_80='# Mode: PLAN\n\nSì, il passo naturale. Due cose da fare:\n\n**1. Universal Executor '
+[12:21:27] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[12:21:51] EVAL: msg_len=1837 first_80='# Mode: PLAN\n\nGiusto — servono tre cose distribuite con CVM:\n\n1. **`tddab-planne'
+[12:21:51] BLOCK: category=WEASEL_GUESSING scores={'hypothesis_score': 0.65, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[12:21:59] EXIT: stop_hook_active=true
+[12:32:24] EVAL: msg_len=1348 first_80='# Mode: PLAN\n\nEcco la situazione. È un bel casino:\n\n**Problema principale**: tdd'
+[12:32:24] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[12:42:51] EVAL: msg_len=609 first_80='Il grafo è completo. Ecco il quadro:\n\n**Situazione attuale:**\n- **v2** (con tag '
+[12:42:51] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[12:43:54] EVAL: msg_len=197 first_80="Il file c'è, 18KB. Aprilo con la preview Markdown in VS Code — il diagramma Merm"
+[12:43:54] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[12:45:40] EVAL: msg_len=110 first_80='SVG generato: `tasks/poc/tddab-dependency-graph.svg` — aprilo nel browser o nell'
+[12:45:40] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[13:49:16] EVAL: msg_len=92 first_80='`tasks/poc/tddab-deps.svg` — 45KB, grafo pulito. Solo le dipendenze TDDAB: chi i'
+[13:49:16] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[13:49:47] EVAL: msg_len=58 first_80='`tasks/poc/tddab-deps.md` — aprilo nella preview Markdown.'
+[13:49:47] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[13:50:37] EVAL: msg_len=185 first_80="L'errore era alla riga 57 originale — ora è fixato. Il `\\n` nelle label dei nodi"
+[13:50:37] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[13:54:00] EVAL: msg_len=147 first_80='`tasks/poc/tddab-deps.md` aggiornato con due diagrammi: lo stato attuale e come '
+[13:54:00] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[13:58:09] EVAL: msg_len=223 first_80='Aggiornato. Apri `tasks/poc/tddab-deps.md` nella preview — hai il diagramma attu'
+[13:58:09] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[14:01:15] EVAL: msg_len=496 first_80='Fatto. In `.ai-agent/tasks/02-tddab-v2-restructure/` hai:\n\n- **`plan.md`** — pia'
+[14:01:15] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[14:04:32] EVAL: msg_len=183 first_80='Il commit `030d5a2` è su `feature/pretool-weasel-check` nel submodule `.ai-agent'
+[14:04:32] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}

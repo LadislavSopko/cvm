@@ -1,15 +1,12 @@
 {
   "mcpServers": {
-    "brave-search": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-brave-search"
-      ],
-      "env": {
-        "BRAVE_API_KEY": "BSAnpwFBPlUwkiN93SlnT-DsH36Eosd"
-      }
+    "lsai": {
+      "command": "/home/laco/.lsai/run",
+      "args": ["--stdio"]
+    },
+    "xmp4": {
+      "type": "http",
+      "url": "https://mcp.example4.ai/mcp"
     },
     "context7": {
       "type": "stdio",

@@ -64,3 +64,4 @@ vitest.config.*.timestamp*
 # Test output directory
 test/integration/tmp/
 test-results.log.cvm
+.cvm
