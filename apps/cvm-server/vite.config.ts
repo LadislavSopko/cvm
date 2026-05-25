@@ -37,6 +37,10 @@ export default defineConfig({
           src: join(__dirname, 'bin/*'),
           dest: 'bin',
         },
+        {
+          src: join(__dirname, '../../test/programs/tddab/planexecutor.ts'),
+          dest: 'programs',
+        },
       ],
     }),
   ],

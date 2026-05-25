@@ -1,5 +1,6 @@
 /// <reference no-default-lib="true"/>
 declare function CC(prompt: string): string;
+declare var fs: any;
 
 function main() {
   var raw = fs.readFile(".cvm/uplan.json");
@@ -19,6 +20,8 @@ function main() {
   console.log("=== TDDAB PlanExecutor ===");
   console.log("Plan: " + sourceFile);
   console.log("Blocks: " + blocks.length);
+
+  var completedBlocks = [];
 
   CC("MISSION BRIEFING: " + mission + " This plan has " + blocks.length + " blocks to implement in sequence." + toolsReminder + submitDone);
 
@@ -78,15 +81,17 @@ function main() {
       "All tests pass and all criteria verified. " +
       "Git add and commit with message: feat: " + block.title + "." + submitDone);
 
-    console.log("Block " + block.id + " COMPLETED (" + blockNum + "/" + blocks.length + ")");
+    completedBlocks.push(block.id);
+    console.log("Block " + block.id + " COMPLETED (" + completedBlocks.length + "/" + blocks.length + ")");
 
     blockIndex = blockIndex + 1;
   }
 
   console.log("");
-  console.log("=== ALL " + blocks.length + " BLOCKS COMPLETED ===");
+  console.log("=== ALL " + completedBlocks.length + " BLOCKS COMPLETED ===");
+  console.log("Completed: " + JSON.stringify(completedBlocks));
 
-  CC("FINAL REVIEW: All " + blocks.length + " blocks are done. " +
+  CC("FINAL REVIEW: All " + completedBlocks.length + " blocks are done. " +
     "Run a final full test suite to confirm no regressions. " +
     "Report the final status." + toolsReminder + submitDone);
 

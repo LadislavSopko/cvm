@@ -4,8 +4,13 @@ import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { z } from 'zod';
 import { VMManager } from '@cvm/vm';
 import { readFile, writeFile, mkdir } from 'fs/promises';
-import { resolve } from 'path';
+import { resolve, dirname, join } from 'path';
+import { fileURLToPath } from 'url';
 import { parseTddabPlan } from './tddab-parser.js';
+
+const BUILTIN_PROGRAMS: Record<string, string> = {
+  '@planexecutor': 'planexecutor.ts',
+};
 
 /**
  * MCP Server - A thin interface layer for the CVM
@@ -68,10 +73,15 @@ export class CVMMcpServer {
       },
       async ({ programId, filePath }) => {
         try {
-          // Resolve the path to prevent directory traversal
-          const resolvedPath = resolve(filePath);
-          
-          // Read the file
+          let resolvedPath: string;
+          const builtinFile = BUILTIN_PROGRAMS[filePath];
+          if (builtinFile) {
+            const serverDir = dirname(fileURLToPath(import.meta.url));
+            resolvedPath = join(serverDir, 'programs', builtinFile);
+          } else {
+            resolvedPath = resolve(filePath);
+          }
+
           const source = await readFile(resolvedPath, 'utf-8');
           
           // Load the program using existing VMManager method
