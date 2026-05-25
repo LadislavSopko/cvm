@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("=== Debug Heap Regex Storage ===");
   

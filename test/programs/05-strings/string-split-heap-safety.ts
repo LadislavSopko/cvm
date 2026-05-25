@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Heap safety test for string.split() operations
  * Tests Issue #2 fix: heap corruption with string.split() - fixed critical bug 

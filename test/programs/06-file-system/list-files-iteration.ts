@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare var fs: any;
+
 // Test iteration over fs.listFiles result
 function main() {
   console.log("Testing fs.listFiles iteration");

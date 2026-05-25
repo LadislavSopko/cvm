@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("=== Debug Stack for Replace Operation ===");
   

@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("=== CVM For-Of Loop Continue Bug Reproduction ===");
   

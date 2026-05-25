@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("=== RegExp Variable Replace Test ===");
   console.log("This test should expose the STRING_REPLACE vs STRING_REPLACE_REGEX bug");

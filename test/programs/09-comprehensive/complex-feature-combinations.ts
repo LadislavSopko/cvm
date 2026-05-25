@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
+
 function main() {
   console.log("=== CVM Complex Feature Combinations Test ===");
   console.log("Testing deeply nested language features");

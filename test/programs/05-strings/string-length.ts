@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
+
 function main() {
   console.log("STRING LENGTH TEST");
   console.log("==================");

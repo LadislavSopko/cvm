@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 // Test undefined value type
 
 function main() {

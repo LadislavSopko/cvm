@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Tests: Issue #1 - Nested loops JUMP_IF_FALSE with -1 argument
  * Features: nested while loops with various conditions

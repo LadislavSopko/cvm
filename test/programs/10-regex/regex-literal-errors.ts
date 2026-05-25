@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("=== RegExp Error Handling Test ===");
   console.log("This program demonstrates error handling for invalid regex patterns");

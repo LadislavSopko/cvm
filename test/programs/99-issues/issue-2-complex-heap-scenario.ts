@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
+
 /**
  * More complex test for Issue #2: Reproducing heap corruption in realistic scenario
  * Simulating a CVM program that processes tasks with CC() calls

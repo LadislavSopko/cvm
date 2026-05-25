@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
+
 function main() {
   let current = 1;
   while (current <= 5) {

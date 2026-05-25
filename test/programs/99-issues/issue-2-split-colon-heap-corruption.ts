@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Test for Issue #2: Specific heap corruption with split(':') in string concatenation
  * Reproducing the exact bug from entity-form-foundation-program

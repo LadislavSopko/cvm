@@ -1,3 +1,7 @@
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
+declare var fs: any;
+
 function main() {
   console.log("=== Domain Tests Factory Refactoring v2 ===");
   console.log("This program will refactor all Domain.Test files to use entity factories");

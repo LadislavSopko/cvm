@@ -1,3 +1,7 @@
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
+declare var fs: any;
+
 function main() {
   console.log("=== CVM Comprehensive Feature Test v3 ===");
   console.log("Testing all features including recent additions");

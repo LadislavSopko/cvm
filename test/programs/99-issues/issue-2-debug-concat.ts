@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Issue #2: Debug heap corruption by logging during string concatenation
  * Breaking down the problematic line 198 step by step

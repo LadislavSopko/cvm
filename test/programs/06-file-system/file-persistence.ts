@@ -1,3 +1,7 @@
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
+declare var fs: any;
+
 // Test program demonstrating state persistence across CC() calls
 function main() {
   console.log("Testing state persistence with fs.readFile/writeFile...");

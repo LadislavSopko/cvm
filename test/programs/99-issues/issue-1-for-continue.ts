@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Tests: C-style for loop with continue statement
  * Features: for(;;) loops with continue in various positions

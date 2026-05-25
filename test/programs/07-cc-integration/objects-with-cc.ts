@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
+
 function main() {
   // Simulate having some files
   const files = ["readme.txt", "architecture.txt", "features.txt"];

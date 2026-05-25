@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 // Test return value from main()
 
 function main() {

@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Test for Issue #3: Compilation error reporting improvement
  * This file intentionally contains syntax errors to verify that 

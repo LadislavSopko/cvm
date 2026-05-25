@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("=== For-Of Multiple Continue Bug Fix Test ===");
   

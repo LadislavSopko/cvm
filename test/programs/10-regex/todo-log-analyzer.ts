@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("=== TODO: Log Analyzer with Complete RegExp ===");
   console.log("Demonstrating complete regex functionality in TODO orchestration");

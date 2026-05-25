@@ -1,3 +1,7 @@
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
+declare var fs: any;
+
 function main() {
   const files = fs.listFiles("./docs", { filter: "*.txt" });
   const summaries = [];

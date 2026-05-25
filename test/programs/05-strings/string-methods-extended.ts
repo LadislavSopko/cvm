@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   // Test slice
   const str1 = "hello world";

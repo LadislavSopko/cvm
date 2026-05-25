@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   // Test toString() on various types
   console.log("Testing toString():");
