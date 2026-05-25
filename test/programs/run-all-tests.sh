@@ -179,6 +179,10 @@ run_test "../programs/11-tddab/planexecutor-multiblock.ts" "done" "done" "done" 
 run_test "../programs/11-tddab/planexecutor-multi-retry.ts" "done" "done" "done" "failed" "done" "failed" "done" "passed" "done" "done"
 # planexecutor-missing: no uplan.json, exits cleanly without CC calls
 run_test "../programs/11-tddab/planexecutor-missing.ts"
+# planexecutor-resume: skips block 01 (in progress file), executes block 02
+run_test "../programs/11-tddab/planexecutor-resume.ts" "done" "done" "done" "passed" "done" "done"
+# planexecutor-full-resume-cycle: first run (1 block), verify progress, second run (resume + 2 blocks)
+run_test "../programs/11-tddab/planexecutor-full-resume-cycle.ts" "done" "done" "done" "passed" "done" "done" "done" "done" "passed" "done" "done" "done" "passed" "done" "done"
 
 # Summary
 echo -e "\n${YELLOW}======================================${NC}"
