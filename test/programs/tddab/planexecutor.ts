@@ -23,6 +23,13 @@ function main() {
 
   var completedBlocks = [];
 
+  var progressRaw = fs.readFile(".cvm/uplan-progress.json");
+  var skipBlocks = [];
+  if (progressRaw !== null) {
+    skipBlocks = JSON.parse(progressRaw);
+    console.log("Resuming: " + skipBlocks.length + " blocks already completed");
+  }
+
   CC("MISSION BRIEFING: " + mission + " This plan has " + blocks.length + " blocks to implement in sequence." + toolsReminder + submitDone);
 
   var blockIndex = 0;
@@ -31,6 +38,21 @@ function main() {
     var block = blocks[blockIndex];
     var blockNum = blockIndex + 1;
     var progress = blockNum + "/" + blocks.length;
+
+    var shouldSkip = false;
+    var si = 0;
+    while (si < skipBlocks.length) {
+      if (skipBlocks[si] === block.id) {
+        shouldSkip = true;
+      }
+      si = si + 1;
+    }
+    if (shouldSkip) {
+      console.log("SKIP block " + block.id + " (already completed)");
+      completedBlocks.push(block.id);
+      blockIndex = blockIndex + 1;
+      continue;
+    }
 
     console.log("");
     console.log("=== Block " + progress + ": " + block.id + " - " + block.title + " ===");
@@ -82,6 +104,7 @@ function main() {
       "Git add and commit with message: feat: " + block.title + "." + submitDone);
 
     completedBlocks.push(block.id);
+    fs.writeFile(".cvm/uplan-progress.json", JSON.stringify(completedBlocks));
     console.log("Block " + block.id + " COMPLETED (" + completedBlocks.length + "/" + blocks.length + ")");
 
     blockIndex = blockIndex + 1;
