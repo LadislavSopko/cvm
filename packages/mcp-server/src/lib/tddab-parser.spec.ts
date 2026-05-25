@@ -1,0 +1,357 @@
+import { describe, it, expect } from 'vitest';
+import { parseTddabPlan } from './tddab-parser.js';
+
+const validPlan = `# TDDAB Plan: Test
+**Date:** 2026-05-25
+
+<mission>
+Project context for testing. TypeScript project.
+Build: npx nx test sample.
+</mission>
+
+<block id="01-greeting">
+## TDDAB-1: Add Greeting Function
+
+<intro>
+Create a greeting function.
+File: src/greeting.ts
+</intro>
+
+<red>
+- test: greet("World") returns "Hello, World!"
+- test: greet("") returns "Hello, !"
+</red>
+
+### Implementation
+export function greet(name: string): string { return "Hello, " + name + "!"; }
+
+<success>
+- [ ] greet function exists
+- [ ] all tests pass
+</success>
+</block>
+
+<block id="02-farewell">
+## TDDAB-2: Add Farewell Function
+
+<intro>
+Create a farewell function.
+File: src/farewell.ts
+</intro>
+
+<red>
+- test: farewell("World") returns "Goodbye, World!"
+- test: farewell("") returns "Goodbye, !"
+</red>
+
+### Implementation
+export function farewell(name: string): string { return "Goodbye, " + name + "!"; }
+
+<success>
+- [ ] farewell function exists
+- [ ] all tests pass
+</success>
+</block>
+`;
+
+describe('parseTddabPlan', () => {
+  describe('happy path', () => {
+    it('should extract mission text from mission tag', () => {
+      const result = parseTddabPlan(validPlan, 'test-plan.md');
+      expect(result.valid).toBe(true);
+      expect(result.plan?.mission).toContain('Project context for testing');
+    });
+
+    it('should extract all blocks with correct ids', () => {
+      const result = parseTddabPlan(validPlan, 'test-plan.md');
+      expect(result.valid).toBe(true);
+      expect(result.plan?.blocks).toHaveLength(2);
+      expect(result.plan?.blocks[0].id).toBe('01-greeting');
+      expect(result.plan?.blocks[1].id).toBe('02-farewell');
+    });
+
+    it('should extract block titles', () => {
+      const result = parseTddabPlan(validPlan, 'test-plan.md');
+      expect(result.plan?.blocks[0].title).toBe('Add Greeting Function');
+      expect(result.plan?.blocks[1].title).toBe('Add Farewell Function');
+    });
+
+    it('should extract intro content for each block', () => {
+      const result = parseTddabPlan(validPlan, 'test-plan.md');
+      expect(result.plan?.blocks[0].intro).toContain('Create a greeting function');
+      expect(result.plan?.blocks[1].intro).toContain('Create a farewell function');
+    });
+
+    it('should extract redTests array for each block', () => {
+      const result = parseTddabPlan(validPlan, 'test-plan.md');
+      expect(result.plan?.blocks[0].redTests).toEqual([
+        'greet("World") returns "Hello, World!"',
+        'greet("") returns "Hello, !"',
+      ]);
+      expect(result.plan?.blocks[1].redTests).toEqual([
+        'farewell("World") returns "Goodbye, World!"',
+        'farewell("") returns "Goodbye, !"',
+      ]);
+    });
+
+    it('should extract success array for each block', () => {
+      const result = parseTddabPlan(validPlan, 'test-plan.md');
+      expect(result.plan?.blocks[0].success).toEqual([
+        'greet function exists',
+        'all tests pass',
+      ]);
+      expect(result.plan?.blocks[1].success).toEqual([
+        'farewell function exists',
+        'all tests pass',
+      ]);
+    });
+
+    it('should set accurate startLine and endLine (1-indexed)', () => {
+      const result = parseTddabPlan(validPlan, 'test-plan.md');
+      const lines = validPlan.split('\n');
+      const block1Start = lines.findIndex(l => l.includes('<block id="01-greeting">'));
+      const block1End = lines.findIndex(l => l.includes('</block>'));
+      expect(result.plan?.blocks[0].startLine).toBe(block1Start + 1);
+      expect(result.plan?.blocks[0].endLine).toBe(block1End + 1);
+    });
+
+    it('should set sourceFile from parameter', () => {
+      const result = parseTddabPlan(validPlan, 'my-plan.md');
+      expect(result.plan?.sourceFile).toBe('my-plan.md');
+    });
+
+    it('should handle multi-line mission content', () => {
+      const md = `<mission>
+Line one.
+Line two.
+Line three.
+</mission>
+
+<block id="01-test">
+## TDDAB-1: Test Block
+
+<intro>
+Some intro text.
+</intro>
+
+<red>
+- test: something works
+</red>
+
+<success>
+- [ ] it works
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(true);
+      expect(result.plan?.mission).toBe('Line one.\nLine two.\nLine three.');
+    });
+
+    it('should handle multi-line intro, red, and success tags', () => {
+      const md = `<mission>Context</mission>
+
+<block id="01-multi">
+## TDDAB-1: Multi-line Content
+
+<intro>
+First line of intro.
+Second line of intro.
+Third line of intro.
+</intro>
+
+<red>
+- test: first test behavior
+- test: second test behavior
+- test: third test behavior
+</red>
+
+<success>
+- [ ] first criterion
+- [ ] second criterion
+- [ ] third criterion
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(true);
+      expect(result.plan?.blocks[0].intro).toContain('First line of intro');
+      expect(result.plan?.blocks[0].intro).toContain('Third line of intro');
+      expect(result.plan?.blocks[0].redTests).toHaveLength(3);
+      expect(result.plan?.blocks[0].success).toHaveLength(3);
+    });
+  });
+
+  describe('validation errors', () => {
+    it('should return valid=false with error on missing mission tag', () => {
+      const md = `<block id="01-test">
+## TDDAB-1: Test
+<intro>intro</intro>
+<red>
+- test: x
+</red>
+<success>
+- [ ] y
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.plan).toBeNull();
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('mission') })
+      );
+    });
+
+    it('should return valid=false with error on empty mission tag', () => {
+      const md = `<mission>
+</mission>
+
+<block id="01-test">
+## TDDAB-1: Test
+<intro>intro</intro>
+<red>
+- test: x
+</red>
+<success>
+- [ ] y
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('empty') })
+      );
+    });
+
+    it('should return valid=false with error on duplicate block ids', () => {
+      const md = `<mission>Context</mission>
+
+<block id="01-test">
+## TDDAB-1: Test
+<intro>intro</intro>
+<red>
+- test: x
+</red>
+<success>
+- [ ] y
+</success>
+</block>
+
+<block id="01-test">
+## TDDAB-2: Duplicate
+<intro>intro</intro>
+<red>
+- test: z
+</red>
+<success>
+- [ ] w
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('Duplicate') })
+      );
+    });
+
+    it('should return valid=false on missing intro tag inside block', () => {
+      const md = `<mission>Context</mission>
+
+<block id="01-test">
+## TDDAB-1: Test
+<red>
+- test: x
+</red>
+<success>
+- [ ] y
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('intro') })
+      );
+    });
+
+    it('should return valid=false on missing red tag inside block', () => {
+      const md = `<mission>Context</mission>
+
+<block id="01-test">
+## TDDAB-1: Test
+<intro>intro</intro>
+<success>
+- [ ] y
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('red') })
+      );
+    });
+
+    it('should return valid=false on missing success tag inside block', () => {
+      const md = `<mission>Context</mission>
+
+<block id="01-test">
+## TDDAB-1: Test
+<intro>intro</intro>
+<red>
+- test: x
+</red>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('success') })
+      );
+    });
+
+    it('should return valid=false when plan has zero blocks', () => {
+      const md = `<mission>Context here</mission>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('block') })
+      );
+    });
+
+    it('should reject invalid block id format', () => {
+      const md = `<mission>Context</mission>
+
+<block id="invalid-no-number">
+## TDDAB-1: Test
+<intro>intro</intro>
+<red>
+- test: x
+</red>
+<success>
+- [ ] y
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('NN-kebab-case') })
+      );
+    });
+
+    it('should reject block id with uppercase letters', () => {
+      const md = `<mission>Context</mission>
+
+<block id="01-MyBlock">
+## TDDAB-1: Test
+<intro>intro</intro>
+<red>
+- test: x
+</red>
+<success>
+- [ ] y
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('NN-kebab-case') })
+      );
+    });
+  });
+});
