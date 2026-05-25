@@ -168,6 +168,10 @@ run_test "../programs/10-regex/regex-pattern-matching-errors.ts"
 run_test "../programs/10-regex/todo-file-processor.ts"
 run_test "../programs/10-regex/todo-log-analyzer.ts"
 
+echo -e "\n${YELLOW}=== tddab ===${NC}"
+# planexecutor-test: MISSION, RED, GREEN, VERIFY(passed), COMMIT, FINAL REVIEW
+run_test "../programs/tddab/planexecutor-test.ts" "done" "done" "done" "passed" "done" "done"
+
 # Summary
 echo -e "\n${YELLOW}======================================${NC}"
 echo -e "${YELLOW}Test Summary:${NC}"

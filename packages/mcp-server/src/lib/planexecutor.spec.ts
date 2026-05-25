@@ -7,7 +7,7 @@ import { resolve, join } from 'path';
 import { tmpdir } from 'os';
 
 const WORKSPACE_ROOT = resolve(process.cwd(), '../..');
-const EXECUTOR_PATH = resolve(WORKSPACE_ROOT, 'programs/planexecutor.ts');
+const EXECUTOR_PATH = resolve(WORKSPACE_ROOT, 'test/programs/tddab/planexecutor.ts');
 
 function makeUplan(blocks: Array<{ id: string; title: string; intro: string; red: string; success: string }>): string {
   return JSON.stringify({
