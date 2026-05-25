@@ -9,7 +9,7 @@
 - BytecodeCompiler::AST→bytecode{TSParsing}✓
 - StatePersistence::MongoDBintegration{crossSession}✓
 - MCPIntegration::MCPserver{forClaudeIntegration}✓
-- Testing::E2E#67passing+allUnit/IntegrationTests✓
+- Testing::Vitest#67+E2E#5passing✓
 
 [LanguageFeatures]✓
 @completeTODOorchestrationSet::
@@ -26,23 +26,25 @@
 - wwwroot/study.html→researchReport{CVMvsClaudeCodevs LangGraph}
 - Domain::cvm.example4.ai{toBeDeployed}
 
-[ActiveWork]
-✓01-universal-template::parsePlanTool+PlanExecutor→COMPLETE
-@state::DEVELOP✓→readyForClose
-@branch::feature/universal-template
-@blocks#4::allComplete✓
-- 01-parser-module→tddab-parser.ts{19tests}✓
-- 02-mcp-parse-tool→parsePlanMCPtool{5tests}✓
-- 03-planexecutor→programs/planexecutor.ts{6tests}✓
-- 04-e2e-integration→fullPipeline{3tests}✓
+[TDDABPipeline]
+✓parsePlan::MCPtool→parsesplan.md→.cvm/uplan.json
+✓tddab-parser.ts::parserModule{19unitTests}
+✓planexecutor::test/programs/tddab/planexecutor.ts{singleSourceOfTruth}
+✓builtIn::loadFile"@planexecutor"→resolvedFromDist
+✓e2eTests::5tests{happy+retry+multiblock+multiRetry+missing}
+⚡resume::planned{progress-persist+parsePlan-backup}
+
+[InfraFixes]{2026-05-25}
+>tsconfig.json→exclude{test/programs+dist+out-tsc+.ai-agent+.claude/cvm+counter.ts}✓
+>test/programs/tsconfig.json→moduleDetection:force{noDuplicateMain}✓
+>allCVMscripts→header{///reference+declareCC+declareFs}✓
+>viteStaticCopy→pointsToTest/programs/tddab/{¬apps/cvm-server/programs/}✓
+>lsai-issue#53→tsWarmup514files→reported✓
 
 [Completed]
 >01-universal-template→developed{4blocks+67tests}✓{2026-05-25}
->planRewritten→4blocks{¬5}+¬generator✓{2026-05-23}
->planReviewed→5fixesApplied✓{2026-05-23}
->j-settings.md→repaired{5fixes}✓{2026-05-23}
->ai-agentSubmodule→integrated+setupComplete✓{2026-05-18}
->memoryBank→convertedToMBELv5✓{2026-05-18}
->tddab-planner-v2→formatSpecCreated✓{2026-05-18}
+>e2eSystemTests→5tests{allBranches}✓{2026-05-25}
+>planRewritten→4blocks+reviewed✓{2026-05-23}
+>j-settings.md→repaired✓{2026-05-23}
 >systemCompletion→allGitHubIssues#1-5fixed✓{2025-07-28}
 >regexpLiterals→fullyImplemented✓{2025-07-05}
