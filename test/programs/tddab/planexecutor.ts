@@ -67,8 +67,9 @@ function main() {
 
     CC("GREEN PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
       "Implement the minimum code to make all failing tests pass. " +
+      "IMPORTANT: Read the plan file for implementation details and reference code: " + block.planRef + " " +
       "CONTEXT: " + block.intro + " " +
-      block.planRef + toolsReminder + submitDone);
+      toolsReminder + submitDone);
 
     console.log("GREEN done for " + block.id);
 
