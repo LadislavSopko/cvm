@@ -1,6 +1,7 @@
 {
   "extends": "./tsconfig.base.json",
   "compileOnSave": false,
+  "exclude": ["test/programs/**/*", "counter.ts", ".ai-agent/**/*", ".claude/cvm/**/*", "**/out-tsc/**/*", "**/dist/**/*"],
   "files": [],
   "references": [
     {
