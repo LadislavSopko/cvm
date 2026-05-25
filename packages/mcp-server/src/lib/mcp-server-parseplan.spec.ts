@@ -164,6 +164,15 @@ describe('CVMMcpServer - parsePlan', () => {
     }
   });
 
+  it('should create uplan.json.bak when overwriting', async () => {
+    await transport.callTool('parsePlan', { filePath: planFile });
+    await transport.callTool('parsePlan', { filePath: planFile });
+
+    const bakContent = await readFile(join(dataDir, 'uplan.json.bak'), 'utf-8');
+    const bak = JSON.parse(bakContent);
+    expect(bak.mission).toContain('Test project context');
+  });
+
   it('should return isError true with validation errors for invalid plan', async () => {
     const invalidFile = join(testDir, 'invalid.md');
     await writeFile(invalidFile, '<block id="01-test">\n## TDDAB-1: Test\n<intro>x</intro>\n<red>\n- test: y\n</red>\n<success>\n- [ ] z\n</success>\n</block>');

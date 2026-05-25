@@ -3,7 +3,7 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { z } from 'zod';
 import { VMManager } from '@cvm/vm';
-import { readFile, writeFile, mkdir } from 'fs/promises';
+import { readFile, writeFile, mkdir, rename } from 'fs/promises';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { parseTddabPlan } from './tddab-parser.js';
@@ -553,6 +553,7 @@ export class CVMMcpServer {
           const dataDir = resolve(process.env['CVM_DATA_DIR'] || '.cvm');
           await mkdir(dataDir, { recursive: true });
           const uplanPath = resolve(dataDir, 'uplan.json');
+          try { await rename(uplanPath, uplanPath + '.bak'); } catch {}
           await writeFile(uplanPath, JSON.stringify(uplanData, null, 2), 'utf-8');
 
           return {
