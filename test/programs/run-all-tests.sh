@@ -168,9 +168,17 @@ run_test "../programs/10-regex/regex-pattern-matching-errors.ts"
 run_test "../programs/10-regex/todo-file-processor.ts"
 run_test "../programs/10-regex/todo-log-analyzer.ts"
 
-echo -e "\n${YELLOW}=== tddab ===${NC}"
-# planexecutor-test: MISSION, RED, GREEN, VERIFY(passed), COMMIT, FINAL REVIEW
-run_test "../programs/tddab/planexecutor-test.ts" "done" "done" "done" "passed" "done" "done"
+echo -e "\n${YELLOW}=== 11-tddab ===${NC}"
+# planexecutor-test: 1 block happy path — MISSION, RED, GREEN, VERIFY(passed), COMMIT, FINAL REVIEW
+run_test "../programs/11-tddab/planexecutor-test.ts" "done" "done" "done" "passed" "done" "done"
+# planexecutor-retry: 1 block with 1 retry — VERIFY(failed), FIX, RE-VERIFY(passed)
+run_test "../programs/11-tddab/planexecutor-retry.ts" "done" "done" "done" "failed" "done" "passed" "done" "done"
+# planexecutor-multiblock: 2 blocks, block 2 retries once
+run_test "../programs/11-tddab/planexecutor-multiblock.ts" "done" "done" "done" "passed" "done" "done" "done" "failed" "done" "passed" "done" "done"
+# planexecutor-multi-retry: 1 block fails twice before passing
+run_test "../programs/11-tddab/planexecutor-multi-retry.ts" "done" "done" "done" "failed" "done" "failed" "done" "passed" "done" "done"
+# planexecutor-missing: no uplan.json, exits cleanly without CC calls
+run_test "../programs/11-tddab/planexecutor-missing.ts"
 
 # Summary
 echo -e "\n${YELLOW}======================================${NC}"
