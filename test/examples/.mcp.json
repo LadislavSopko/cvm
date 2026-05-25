@@ -10,12 +10,12 @@
     },
     "cvm": {
       "command": "npx",
-      "args": ["cvm-server@latest"],
+      "args": ["cvm-server@next"],
       "env": {
         "CVM_STORAGE_TYPE": "file",
-        "CVM_DATA_DIR": ".cvm-examples",
+        "CVM_DATA_DIR": ".cvm",
         "CVM_LOG_LEVEL": "info",
-        "CVM_SANDBOX_PATHS": "/home/laco/cvm/test"
+        "CVM_SANDBOX_ROOT": "/home/laco/cvm/test/examples"
       }
     }
   }
