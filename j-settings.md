@@ -52,7 +52,15 @@
 ## Methodology
 @backend-method: tddab
 @frontend-method: manual
-@tddab-file: .ai-agent/.claude/support/mind-sets/typescript-tddab-overlay.md
+@tddab-file: .claude/commands/mind-sets/tddab-planner.md
+@tddab-lang-overlay: typescript-tddab-overlay.md
+
+## C# mindset version
+@csharp-mindset: n/a
+
+## Code Navigation
+@code-nav-local: lsai
+@code-nav-external: xmp4
 
 ## Testing
 @test-e2e: test/integration/

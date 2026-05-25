@@ -41,3 +41,130 @@
 [14:01:15] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
 [14:04:32] EVAL: msg_len=183 first_80='Il commit `030d5a2` è su `feature/pretool-weasel-check` nel submodule `.ai-agent'
 [14:04:32] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[22:23:05] EVAL: msg_len=1072 first_80='Eccellente. La ristrutturazione è fatta bene. Ecco il resoconto:\n\n**Livello 1 — '
+[22:23:05] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[22:38:50] EVAL: msg_len=459 first_80='Tutto a posto:\n\n- **1 planner universale** (`tddab-planner.md`) — formato v2 con'
+[22:38:50] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[08:27:12] EVAL: msg_len=1232 first_80='Ho letto tutto il Memory Bank. Ecco lo stato attuale del progetto:\n\n## CVM — Cog'
+[08:27:12] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[08:34:28] EVAL: msg_len=417 first_80='Correzioni applicate con successo a `j-settings.md`:\n\n1. `@tddab-file` → corrett'
+[08:34:28] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:00:38] EVAL: msg_len=595 first_80='## PLAN REVIEW — APPROVED (after fixes)\n\nTutte le 6 issue sono state corrette:\n\n'
+[09:00:38] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[09:02:29] EVAL: msg_len=459 first_80='Memory Bank aggiornato. Modifiche principali:\n\n- **activeContext.md** — stato ag'
+[09:02:29] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:03:11] EVAL: msg_len=863 first_80='# Mode: PLAN\n\nMemory Bank letto. Ecco lo stato attuale:\n\n**Progetto**: CVM (Cogn'
+[09:03:11] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:09:25] EVAL: msg_len=46 first_80='Prego! Se hai bisogno di qualcosa, sono qui. 👋'
+[09:09:25] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:10:53] EVAL: msg_len=1048 first_80="# Mode: PLAN\n\nCapito. Riassumo come vedo l'approccio aggiornato:\n\n**Tool 1: `par"
+[09:10:53] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[09:12:05] EVAL: msg_len=709 first_80="# Mode: PLAN\n\nChiaro, scusa per l'assunzione sbagliata. Allora:\n\n**Tool 1: `pars"
+[09:12:05] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[09:13:25] EVAL: msg_len=580 first_80='# Mode: PLAN\n\nPerfetto, ora è cristallino:\n\n**Unica tool nuova: `parsePlan`**\n- '
+[09:13:25] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[09:24:43] EVAL: msg_len=1031 first_80='# Mode: PLAN\n\nPiano TDDAB riscritto. Ecco il riepilogo:\n\n**4 blocchi** (ridotti '
+[09:24:43] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:45:16] EVAL: msg_len=2950 first_80='# PLAN REVIEW\n\n## Methodology Conformity\n\n| Check | Status | Note |\n|-------|---'
+[09:45:16] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[20:05:14] EVAL: msg_len=683 first_80='Tutti e 5 i fix applicati:\n\n1. BTLT build check aggiunto ai `<success>` di blocc'
+[20:05:14] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[20:07:37] EVAL: msg_len=326 first_80='Memory Bank aggiornato. Entrambi i file riflettono il nuovo piano:\n\n- **activeCo'
+[20:07:37] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[08:20:07] EVAL: msg_len=574 first_80='Fatto!\n\n**Cosa è stato implementato:**\n- **tddab-parser.ts** — parser che conver'
+[08:20:07] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[08:28:51] EVAL: msg_len=561 first_80='Fatto. Riepilogo delle correzioni:\n\n- **planexecutor.ts** spostato da `programs/'
+[08:28:51] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[08:29:20] EVAL: msg_len=606 first_80='**Comando per tutti i test E2E:**\n```bash\n./test/programs/run-all-tests.sh\n```\n\n'
+[08:29:20] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[08:32:55] EVAL: msg_len=564 first_80='Build funziona e exit code è 0. Il problema potrebbe essere altrove. Cosa vedi e'
+[08:32:55] BLOCK: category=WEASEL_GUESSING scores={'hypothesis_score': 0.7, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[08:35:52] EXIT: stop_hook_active=true
+[08:36:28] EVAL: msg_len=110 first_80='```bash\n./test/programs/run-test.sh tddab/planexecutor-test.ts "done" "done" "do'
+[08:36:28] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[08:37:10] EVAL: msg_len=44 first_80='```bash\n./test/programs/run-all-tests.sh\n```'
+[08:37:10] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[08:37:33] EVAL: msg_len=201 first_80='```bash\n./test/programs/run-all-tests.sh 2>&1 | tee output.log\n```\n\nCosì vedi tu'
+[08:37:33] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[08:38:51] EVAL: msg_len=306 first_80='Ecco il problema. Quando lo script lancia il build via Nx, Vitest rimane in watc'
+[08:38:51] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[08:41:22] EVAL: msg_len=499 first_80='Due opzioni senza andare online:\n\n**Opzione 1 — `npm link` (consigliata)**\n```ba'
+[08:41:22] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[08:44:06] EVAL: msg_len=102 first_80='`parsePlan` è attivo su `cvm-dbg`. La nuova tool funziona. Vuoi che la testi con'
+[08:44:06] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[08:48:54] EVAL: msg_len=752 first_80='# Mode: PLAN\n\nConcordo su entrambi i punti:\n\n1. **Mini progetto test** in `test/'
+[08:48:54] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[08:50:42] EVAL: msg_len=316 first_80='Pipeline funziona! Il planexecutor ha letto `uplan.json` e sta orchestrando. Il '
+[08:50:42] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:52:47] EVAL: msg_len=805 first_80='Pipeline completa. Tutti i branch testati:\n\n| Branch | Testato |\n|--------|-----'
+[09:52:47] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[09:54:06] EVAL: msg_len=8 first_80='Aspetto.'
+[09:54:06] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:55:54] EVAL: msg_len=247 first_80='Capito. `uplan.json` copia tutto il contenuto del piano — è sbagliato. Deve cont'
+[09:55:54] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:00:54] EVAL: msg_len=1975 first_80='# Mode: PLAN\n\n## Analisi del costo\n\n**Problema attuale:** `uplan.json` duplica t'
+[10:00:54] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[10:04:31] EVAL: msg_len=1225 first_80='# Mode: PLAN\n\nHai ragione — parsePlan è come una compilazione. Cambi il sorgente'
+[10:04:31] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:06:06] EVAL: msg_len=1123 first_80='# Mode: PLAN\n\n## Numeri reali per 20 file × 3000 righe\n\n**Input:** 60.000 righe '
+[10:06:06] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:08:27] EVAL: msg_len=1389 first_80='LSAI non trova i simboli — il workspace sta ancora inizializzando (il server dic'
+[10:08:27] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[10:10:23] EVAL: msg_len=287 first_80="Ancora vuoto. Il TypeScript language server non ha finito l'indicizzazione. Ques"
+[10:10:23] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:11:28] EVAL: msg_len=720 first_80='Il tsconfig root ha `"files": []` e solo `references` ai packages — `test/progra'
+[10:11:28] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[10:13:52] EVAL: msg_len=482 first_80='120 file `.ts`, solo 3 hanno `no-default-lib`. Ma comunque la direttiva `/// <re'
+[10:13:52] BLOCK: category=WEASEL_GUESSING scores={'hypothesis_score': 0.85, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[10:14:40] EXIT: stop_hook_active=true
+[10:16:50] EVAL: msg_len=515 first_80='Ancora 3 errori ma cambiati — ora sono `Duplicate function implementation` (riga'
+[10:16:50] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[10:32:08] EVAL: msg_len=207 first_80='Diagnostics OK ma search ancora vuota — il language server sta ancora indicizzan'
+[10:32:08] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:33:41] EVAL: msg_len=49 first_80='Aspetto 30 secondi per il TS server, poi riprovo.'
+[10:33:41] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:34:56] EXIT: empty message
+[10:35:21] EVAL: msg_len=491 first_80='LSAI non va su questo progetto. Il TS language server resta bloccato su "Initial'
+[10:35:21] BLOCK: category=KNOWN_BUG_CLAIM scores={'hypothesis_score': 0.0, 'known_bug_score': 1.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': 'Questo è un bug'}
+[10:36:39] EXIT: stop_hook_active=true
+[10:42:27] EVAL: msg_len=1015 first_80='Ecco il problema esatto:\n\n```\nWarmup: opening 514 files for TypeScript\n```\n\n**LS'
+[10:42:27] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[10:48:01] EVAL: msg_len=842 first_80="Ecco — c'è `MjsfProject`, `MjsfReader`, `WarmupAllFiles`. Il plugin legge il mjs"
+[10:48:01] BLOCK: category=WEASEL_GUESSING scores={'hypothesis_score': 0.65, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[10:49:03] EXIT: stop_hook_active=true
+[10:49:27] EVAL: msg_len=795 first_80='Stesso risultato. Il campo `plugins` nel mjsf non ha effetto sul warmup. Il plug'
+[10:49:27] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[12:14:15] EVAL: msg_len=200 first_80='Issue creato in `/home/laco/Zerox.Lsai.Local/lsai-issue-typescript-warmup-514-fi'
+[12:14:15] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[12:24:06] EVAL: msg_len=72 first_80='Fatto. Issue #53 aperta sul repo pubblico, #18 chiusa su quello privato.'
+[12:24:06] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[13:15:54] EVAL: msg_len=558 first_80='Tutti e 5 i test E2E passano. Ogni branch del planexecutor è coperto:\n\n| Test | '
+[13:15:54] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[14:01:14] EVAL: msg_len=28 first_80='Tutti e 5 passano. Committo?'
+[14:01:14] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[14:03:34] EVAL: msg_len=98 first_80='Tutto verde. Build OK, Vitest 67/67, E2E 5/5. Header aggiunto a tutti gli 88 scr'
+[14:03:34] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[14:05:27] EVAL: msg_len=153 first_80='Funziona — il `completedBlocks` traccia correttamente i blocchi fatti. I diagnos'
+[14:05:27] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[14:06:41] EVAL: msg_len=851 first_80='Perché il tsconfig `exclude` ha `"test/programs/**/*"` — ma il TS language serve'
+[14:06:41] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[14:13:38] EVAL: msg_len=128 first_80='VS Code dovrebbe recepirlo automaticamente. Apri un file CVM per verificare se i'
+[14:13:38] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[14:15:00] EVAL: msg_len=223 first_80="C'è:\n- Riga 24: `var completedBlocks = [];`\n- Riga 84: `completedBlocks.push(blo"
+[14:15:00] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[14:16:27] EVAL: msg_len=712 first_80='Due opzioni:\n\n**A) Built-in nel cvm-server** — il planexecutor.ts viene incluso '
+[14:16:27] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[14:20:19] EVAL: msg_len=286 first_80="Build OK, `planexecutor.ts` nella dist, 67/67 test. Ora l'utente può fare:\n\n```\n"
+[14:20:19] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[14:23:13] EVAL: msg_len=990 first_80='# Mode: PLAN\n\nIdea: il planexecutor già ha `completedBlocks`. Serve persistere i'
+[14:23:13] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[14:36:15] EVAL: msg_len=340 first_80='Piano creato: `tasks/01-universal-template/plan-resume.md`\n\n**2 blocchi:**\n1. **'
+[14:36:15] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[15:01:46] EVAL: msg_len=1032 first_80='# PLAN REVIEW\n\n| Check | Status |\n|-------|--------|\n| `<mission>` completa | OK'
+[15:01:46] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[15:03:03] EVAL: msg_len=209 first_80='```\nPLAN REVIEW - APPROVED ✓\n\n✓ Methodology conformity: OK (TDDAB format, test-f'
+[15:03:03] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[15:04:04] EVAL: msg_len=66 first_80='MB aggiornato. Pronto per `j-develop` sul plan-resume quando vuoi.'
+[15:04:04] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[15:37:07] EVAL: msg_len=465 first_80='Tutto committato. I file rimasti sono file di config locale (`.mcp.json`, `.giti'
+[15:37:07] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
