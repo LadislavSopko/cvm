@@ -3,8 +3,9 @@ import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js'
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { z } from 'zod';
 import { VMManager } from '@cvm/vm';
-import { readFile } from 'fs/promises';
+import { readFile, writeFile, mkdir } from 'fs/promises';
 import { resolve } from 'path';
+import { parseTddabPlan } from './tddab-parser.js';
 
 /**
  * MCP Server - A thin interface layer for the CVM
@@ -498,6 +499,62 @@ export class CVMMcpServer {
           const execId = await this.vmManager.restartExecution(programId, executionId);
           return {
             content: [{ type: 'text', text: `Execution started: ${execId} (set as current)` }]
+          };
+        } catch (error) {
+          return {
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+            isError: true
+          };
+        }
+      }
+    );
+
+    this.server.tool(
+      'parsePlan',
+      { filePath: z.string() },
+      async ({ filePath }) => {
+        try {
+          const resolvedPath = resolve(filePath);
+          const markdown = await readFile(resolvedPath, 'utf-8');
+          const result = parseTddabPlan(markdown, filePath);
+
+          if (!result.valid) {
+            const errorText = result.errors.map(e => `line ${e.line}: ${e.message}`).join('\n');
+            return {
+              content: [{ type: 'text', text: `Plan validation failed:\n${errorText}` }],
+              isError: true
+            };
+          }
+
+          const plan = result.plan!;
+          const uplanData = {
+            mission: plan.mission,
+            sourceFile: plan.sourceFile,
+            blocks: plan.blocks.map(b => ({
+              id: b.id,
+              title: b.title,
+              intro: b.intro,
+              red: b.redTests.map(t => '- ' + t).join('\n'),
+              success: b.success.map(s => '- [ ] ' + s).join('\n'),
+              planRef: `See ${plan.sourceFile} lines ${b.startLine}-${b.endLine}`,
+            })),
+          };
+
+          const dataDir = resolve(process.env['CVM_DATA_DIR'] || '.cvm');
+          await mkdir(dataDir, { recursive: true });
+          const uplanPath = resolve(dataDir, 'uplan.json');
+          await writeFile(uplanPath, JSON.stringify(uplanData, null, 2), 'utf-8');
+
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                valid: true,
+                blocks: plan.blocks.length,
+                path: uplanPath,
+                blockIds: plan.blocks.map(b => b.id),
+              }, null, 2)
+            }]
           };
         } catch (error) {
           return {
