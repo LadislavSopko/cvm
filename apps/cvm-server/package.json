@@ -1,6 +1,6 @@
 {
   "name": "cvm-server",
-  "version": "0.16.0-next.2",
+  "version": "0.16.0-next.3",
   "description": "Cognitive Virtual Machine (CVM) - A deterministic bytecode VM with AI cognitive operations",
   "keywords": [
     "mcp",
@@ -99,7 +99,7 @@
         ],
         "options": {
           "commands": [
-            "cd apps/cvm-server/dist && npm publish --otp={args.otp}"
+            "cd apps/cvm-server/dist && npm publish --registry https://registry.npmjs.org/ --otp={args.otp}"
           ]
         }
       },
@@ -110,7 +110,7 @@
         ],
         "options": {
           "commands": [
-            "cd apps/cvm-server/dist && npm publish --tag next --otp={args.otp}"
+            "cd apps/cvm-server/dist && npm publish --tag next --registry https://registry.npmjs.org/ --otp={args.otp}"
           ]
         }
       },

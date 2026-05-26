@@ -42,7 +42,26 @@ export class CVMMcpServer {
   }
 
   private setupTools(): void {
-    // Load a CVM program
+    this.server.tool(
+      'server_info',
+      {},
+      async () => {
+        const programs = await this.vmManager.listPrograms();
+        const executions = await this.vmManager.listExecutions();
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              name: 'cvm-server',
+              version: this.version,
+              programs: programs.length,
+              executions: executions.length,
+            }, null, 2)
+          }]
+        };
+      }
+    );
+
     this.server.tool(
       'load',
       {
