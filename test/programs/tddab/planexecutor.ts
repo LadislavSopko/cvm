@@ -16,7 +16,7 @@ function main() {
 
   var submitDone = " Respond with done when complete.";
   var submitTest = " Respond with passed if ALL criteria are checked, or failed if ANY is not met.";
-  var toolsReminder = " Use Read, Edit, Write, Bash tools for file operations and commands.";
+  var toolsReminder = " Use Read, Edit, Write, Bash and code navigation tools (LSAI, vs-mcp, xmp4) for file operations, commands and code inspection.";
 
   console.log("=== TDDAB PlanExecutor ===");
   if (sourceFiles) {
@@ -84,10 +84,12 @@ function main() {
     console.log("GREEN done for " + block.id);
 
     var verifyPrompt = "VERIFY PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
-      "Run all tests and typecheck. Then verify EACH criterion below. " +
-      "Mark each one as you check it: " +
+      "MANDATORY: For EACH criterion below, use code navigation tools to verify against actual code. " +
+      "Output this EXACT format before responding: " +
+      "CHECKLIST: (one line per criterion with [x] or [ ] and file:line evidence) " +
+      "COUNT: X/Y passed. " +
       "SUCCESS CRITERIA: " + block.success + " " +
-      "Are ALL criteria checked [x]?" + toolsReminder + submitTest;
+      "Respond passed ONLY if ALL criteria are [x]. If ANY is [ ], respond failed." + toolsReminder + submitTest;
 
     var testResult = CC(verifyPrompt);
     console.log("VERIFY result for " + block.id + ": " + testResult);
@@ -98,16 +100,63 @@ function main() {
       console.log("Fix attempt " + fixAttempt + " for " + block.id);
 
       CC("FIX PHASE [" + progress + "] block " + block.id + " (attempt " + fixAttempt + "). " +
-        "Tests or criteria failed. Debug the issue and fix it. " +
+        "Tests or criteria failed. Apply Protocol D: quote exact error, isolate location, one hypothesis, one fix, verify. " +
         "CRITERIA THAT MUST PASS: " + block.success + " " +
+        "TESTS REQUIRED: " + block.red + " " +
         block.planRef + toolsReminder + submitDone);
 
       testResult = CC("RE-VERIFY [" + progress + "] block " + block.id + " (after fix " + fixAttempt + "). " +
-        "Run all tests and typecheck again. Check EACH criterion: " +
+        "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
+        "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
         "SUCCESS CRITERIA: " + block.success + " " +
-        "Are ALL criteria now checked [x]?" + toolsReminder + submitTest);
+        "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
 
       console.log("RE-VERIFY result for " + block.id + ": " + testResult);
+    }
+
+    var redKeys = block.redKeys;
+    var jsonTemplate = "{";
+    var ki = 0;
+    while (ki < redKeys.length) {
+      if (ki > 0) {
+        jsonTemplate = jsonTemplate + ", ";
+      }
+      jsonTemplate = jsonTemplate + "\"" + redKeys[ki] + "\": null";
+      ki = ki + 1;
+    }
+    jsonTemplate = jsonTemplate + "}";
+
+    var crossCheckResponse = CC("CROSS-CHECK [" + progress + "] block " + block.id + ". " +
+      "Use code navigation tools to verify EACH test exists in actual test file(s). " +
+      "REQUIRED TESTS: " + block.red + " " +
+      "Complete this JSON — set each value to true (test exists) or false (missing): " +
+      jsonTemplate + " " +
+      "Respond ONLY with the completed JSON. NOTHING else." + toolsReminder);
+
+    var crossCheckPassed = true;
+    var checkResults = JSON.parse(crossCheckResponse);
+    for (var crKey in checkResults) {
+      if (checkResults[crKey] === false) {
+        crossCheckPassed = false;
+      }
+    }
+    console.log("CROSS-CHECK result for " + block.id + ": " + crossCheckResponse + " passed=" + crossCheckPassed);
+
+    if (crossCheckPassed === false) {
+      fixAttempt = fixAttempt + 1;
+      console.log("CROSS-CHECK failed, fix attempt " + fixAttempt + " for " + block.id);
+
+      CC("FIX PHASE [" + progress + "] block " + block.id + " (cross-check fix " + fixAttempt + "). " +
+        "Cross-check found missing tests. Apply Protocol D: identify exactly which tests are missing, add them. " +
+        "TESTS REQUIRED: " + block.red + " " +
+        "CRITERIA: " + block.success + " " +
+        block.planRef + toolsReminder + submitDone);
+
+      CC("RE-VERIFY [" + progress + "] block " + block.id + " (after cross-check fix). " +
+        "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
+        "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
+        "SUCCESS CRITERIA: " + block.success + " " +
+        "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
     }
 
     CC("COMMIT PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +

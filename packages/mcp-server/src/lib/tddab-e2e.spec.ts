@@ -79,6 +79,7 @@ describe('TDDAB E2E Pipeline', () => {
     const result = parseTddabPlan(planMd, 'sample-plan.md');
     const plan = result.plan!;
 
+    const toRedKey = (t: string) => t.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
     const uplanData = {
       mission: plan.mission,
       sourceFile: plan.sourceFile,
@@ -87,6 +88,7 @@ describe('TDDAB E2E Pipeline', () => {
         title: b.title,
         intro: b.intro,
         red: b.redTests.map(t => '- ' + t).join('\n'),
+        redKeys: b.redTests.map(t => toRedKey(t)),
         success: b.success.map(s => '- [ ] ' + s).join('\n'),
         planRef: `See sample-plan.md lines ${b.startLine}-${b.endLine}`,
       })),
@@ -110,7 +112,9 @@ describe('TDDAB E2E Pipeline', () => {
       prompts.push(next.message || '');
       let response = 'done';
 
-      if (next.message!.includes('VERIFY') && next.message!.includes('02-farewell') && !retriedBlock2) {
+      if (next.message!.includes('CROSS-CHECK')) {
+        response = '{"t1": true, "t2": true}';
+      } else if (next.message!.includes('VERIFY') && next.message!.includes('02-farewell') && !retriedBlock2) {
         response = 'failed';
         retriedBlock2 = true;
       } else if (next.message!.includes('VERIFY') || next.message!.includes('RE-VERIFY')) {
@@ -127,10 +131,11 @@ describe('TDDAB E2E Pipeline', () => {
     expect(prompts[0]).toContain('MISSION BRIEFING');
     expect(prompts[0]).toContain('E2E validation');
 
-    // Verify 3 blocks × 4 phases + 1 retry (FIX + RE-VERIFY) + FINAL REVIEW
+    // Verify 3 blocks × 4 phases + CROSS-CHECK after each passed VERIFY + 1 retry (FIX + RE-VERIFY) + FINAL REVIEW
     expect(prompts.filter(p => p.includes('RED PHASE'))).toHaveLength(3);
     expect(prompts.filter(p => p.includes('GREEN PHASE'))).toHaveLength(3);
     expect(prompts.filter(p => p.includes('COMMIT PHASE'))).toHaveLength(3);
+    expect(prompts.filter(p => p.includes('CROSS-CHECK'))).toHaveLength(3);
 
     // Block 02 has extra FIX + RE-VERIFY
     expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(1);

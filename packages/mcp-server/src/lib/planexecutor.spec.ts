@@ -9,12 +9,17 @@ import { tmpdir } from 'os';
 const WORKSPACE_ROOT = resolve(process.cwd(), '../..');
 const EXECUTOR_PATH = resolve(WORKSPACE_ROOT, 'test/programs/tddab/planexecutor.ts');
 
+function toRedKey(test: string): string {
+  return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
+}
+
 function makeUplan(blocks: Array<{ id: string; title: string; intro: string; red: string; success: string }>): string {
   return JSON.stringify({
     mission: 'Test mission for planexecutor verification.',
     sourceFile: 'test-plan.md',
     blocks: blocks.map(b => ({
       ...b,
+      redKeys: b.red.split('\n').filter(l => l.startsWith('- ')).map(l => toRedKey(l.replace('- ', ''))),
       planRef: 'See test-plan.md lines 1-10',
     })),
   });
@@ -98,8 +103,12 @@ describe('planexecutor', () => {
     let next = await vm.getNext('exec-order');
     while (next.type === 'waiting') {
       prompts.push(next.message || '');
-      const response = next.message!.includes('VERIFY') || next.message!.includes('RE-VERIFY')
-        ? 'passed' : 'done';
+      let response = 'done';
+      if (next.message!.includes('CROSS-CHECK')) {
+        response = '{"test_alpha": true}';
+      } else if (next.message!.includes('VERIFY') || next.message!.includes('RE-VERIFY')) {
+        response = 'passed';
+      }
       await vm.reportCCResult('exec-order', response);
       next = await vm.getNext('exec-order');
     }
@@ -109,8 +118,9 @@ describe('planexecutor', () => {
     expect(prompts[1]).toContain('01-alpha');
     expect(prompts[2]).toContain('GREEN PHASE');
     expect(prompts[3]).toContain('VERIFY PHASE');
-    expect(prompts[4]).toContain('COMMIT PHASE');
-    expect(prompts[5]).toContain('FINAL REVIEW');
+    expect(prompts[4]).toContain('CROSS-CHECK');
+    expect(prompts[5]).toContain('COMMIT PHASE');
+    expect(prompts[6]).toContain('FINAL REVIEW');
 
     await vm.dispose();
   });
@@ -136,7 +146,9 @@ describe('planexecutor', () => {
       prompts.push(next.message || '');
       let response = 'done';
 
-      if (next.message!.includes('VERIFY PHASE') || next.message!.includes('RE-VERIFY')) {
+      if (next.message!.includes('CROSS-CHECK')) {
+        response = '{"test_retry": true}';
+      } else if (next.message!.includes('VERIFY PHASE') || next.message!.includes('RE-VERIFY')) {
         verifyCount++;
         response = verifyCount <= 1 ? 'failed' : 'passed';
       }
@@ -194,8 +206,14 @@ describe('planexecutor', () => {
     let next = await vm.getNext('exec-seq');
     while (next.type === 'waiting') {
       prompts.push(next.message || '');
-      const response = next.message!.includes('VERIFY') || next.message!.includes('RE-VERIFY')
-        ? 'passed' : 'done';
+      let response = 'done';
+      if (next.message!.includes('CROSS-CHECK') && next.message!.includes('01-first')) {
+        response = '{"test_first": true}';
+      } else if (next.message!.includes('CROSS-CHECK') && next.message!.includes('02-second')) {
+        response = '{"test_second": true}';
+      } else if (next.message!.includes('VERIFY') || next.message!.includes('RE-VERIFY')) {
+        response = 'passed';
+      }
       await vm.reportCCResult('exec-seq', response);
       next = await vm.getNext('exec-seq');
     }

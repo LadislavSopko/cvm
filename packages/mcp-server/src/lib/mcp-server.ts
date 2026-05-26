@@ -8,6 +8,10 @@ import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { parseTddabPlan, parseFilesTag } from './tddab-parser.js';
 
+function toRedKey(test: string): string {
+  return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
+}
+
 const BUILTIN_PROGRAMS: Record<string, string> = {
   '@planexecutor': 'planexecutor.ts',
 };
@@ -569,6 +573,7 @@ export class CVMMcpServer {
                 title: b.title,
                 intro: b.intro,
                 red: b.redTests.map(t => '- ' + t).join('\n'),
+                redKeys: b.redTests.map(t => toRedKey(t)),
                 success: b.success.map(s => '- [ ] ' + s).join('\n'),
                 planRef: `See ${plan.sourceFile} lines ${b.startLine}-${b.endLine}`,
               })),
@@ -625,6 +630,7 @@ export class CVMMcpServer {
                   title: block.title,
                   intro: block.intro,
                   red: block.redTests.map(t => '- ' + t).join('\n'),
+                  redKeys: block.redTests.map(t => toRedKey(t)),
                   success: block.success.map(s => '- [ ] ' + s).join('\n'),
                   planRef: `See ${subPath} lines ${block.startLine}-${block.endLine}`,
                 });
