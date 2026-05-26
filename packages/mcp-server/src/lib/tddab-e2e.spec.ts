@@ -18,6 +18,7 @@ describe('TDDAB E2E Pipeline', () => {
   beforeAll(() => {
     mkdirSync(uplanDir, { recursive: true });
     mkdirSync(storageDir, { recursive: true });
+    try { rmSync(resolve(uplanDir, 'uplan-progress.json')); } catch { /* may not exist */ }
     originalSandbox = process.env['CVM_SANDBOX_ROOT'];
     process.env['CVM_SANDBOX_ROOT'] = process.cwd();
   });
@@ -30,6 +31,7 @@ describe('TDDAB E2E Pipeline', () => {
     }
     rmSync(storageDir, { recursive: true, force: true });
     try { rmSync(resolve(uplanDir, 'uplan.json')); } catch { /* may not exist */ }
+    try { rmSync(resolve(uplanDir, 'uplan-progress.json')); } catch { /* may not exist */ }
   });
 
   it('should parse sample-plan.md correctly with 3 blocks', () => {

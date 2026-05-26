@@ -66,3 +66,4 @@ test/integration/tmp/
 test-results.log.cvm
 .cvm
 *.log
+.sudo

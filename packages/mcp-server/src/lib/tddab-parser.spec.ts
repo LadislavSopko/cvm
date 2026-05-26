@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { parseTddabPlan } from './tddab-parser.js';
+import { parseTddabPlan, parseFilesTag } from './tddab-parser.js';
 
 const validPlan = `# TDDAB Plan: Test
 **Date:** 2026-05-25
@@ -352,6 +352,70 @@ Third line of intro.
       expect(result.errors).toContainEqual(
         expect.objectContaining({ message: expect.stringContaining('NN-kebab-case') })
       );
+    });
+  });
+
+  describe('requireMission option', () => {
+    const blocksOnly = `<block id="01-test">
+## TDDAB-1: Test
+<intro>intro text</intro>
+<red>
+- test: something works
+</red>
+<success>
+- [ ] it works
+</success>
+</block>`;
+
+    it('should return valid:true with empty mission when requireMission is false', () => {
+      const result = parseTddabPlan(blocksOnly, 'sub.md', { requireMission: false });
+      expect(result.valid).toBe(true);
+      expect(result.plan?.mission).toBe('');
+      expect(result.plan?.blocks).toHaveLength(1);
+      expect(result.plan?.blocks[0].id).toBe('01-test');
+    });
+
+    it('should return valid:false when requireMission is true (default) and no mission', () => {
+      const result = parseTddabPlan(blocksOnly, 'sub.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('mission') })
+      );
+    });
+
+    it('should return valid:false when requireMission is explicitly true and no mission', () => {
+      const result = parseTddabPlan(blocksOnly, 'sub.md', { requireMission: true });
+      expect(result.valid).toBe(false);
+    });
+
+    it('should parse blocks correctly when requireMission is false', () => {
+      const result = parseTddabPlan(blocksOnly, 'sub.md', { requireMission: false });
+      expect(result.valid).toBe(true);
+      expect(result.plan?.blocks[0].intro).toContain('intro text');
+      expect(result.plan?.blocks[0].redTests).toEqual(['something works']);
+      expect(result.plan?.blocks[0].success).toEqual(['it works']);
+    });
+  });
+
+  describe('parseFilesTag', () => {
+    it('should extract filenames from files tag', () => {
+      const md = `<mission>Context</mission>\n\n<files>\n- 01-models.md\n- 02-services.md\n</files>`;
+      expect(parseFilesTag(md)).toEqual(['01-models.md', '02-services.md']);
+    });
+
+    it('should return empty array if no files tag', () => {
+      const md = `<mission>Context</mission>\n\n<block id="01-test">stuff</block>`;
+      expect(parseFilesTag(md)).toEqual([]);
+    });
+
+    it('should trim whitespace from filenames', () => {
+      const md = `<files>\n-   01-models.md   \n-  02-services.md  \n</files>`;
+      expect(parseFilesTag(md)).toEqual(['01-models.md', '02-services.md']);
+    });
+
+    it('should ignore empty lines inside files tag', () => {
+      const md = `<files>\n- 01-models.md\n\n\n- 02-services.md\n</files>`;
+      expect(parseFilesTag(md)).toEqual(['01-models.md', '02-services.md']);
     });
   });
 });

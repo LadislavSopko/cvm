@@ -6,7 +6,7 @@ import { VMManager } from '@cvm/vm';
 import { readFile, writeFile, mkdir, rename } from 'fs/promises';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
-import { parseTddabPlan } from './tddab-parser.js';
+import { parseTddabPlan, parseFilesTag } from './tddab-parser.js';
 
 const BUILTIN_PROGRAMS: Record<string, string> = {
   '@planexecutor': 'planexecutor.ts',
@@ -526,29 +526,99 @@ export class CVMMcpServer {
         try {
           const resolvedPath = resolve(filePath);
           const markdown = await readFile(resolvedPath, 'utf-8');
-          const result = parseTddabPlan(markdown, filePath);
+          const subFiles = parseFilesTag(markdown);
 
-          if (!result.valid) {
-            const errorText = result.errors.map(e => `line ${e.line}: ${e.message}`).join('\n');
-            return {
-              content: [{ type: 'text', text: `Plan validation failed:\n${errorText}` }],
-              isError: true
+          let uplanData;
+
+          if (subFiles.length === 0) {
+            const result = parseTddabPlan(markdown, filePath);
+
+            if (!result.valid) {
+              const errorText = result.errors.map(e => `line ${e.line}: ${e.message}`).join('\n');
+              return {
+                content: [{ type: 'text', text: `Plan validation failed:\n${errorText}` }],
+                isError: true
+              };
+            }
+
+            const plan = result.plan!;
+            uplanData = {
+              mission: plan.mission,
+              sourceFile: plan.sourceFile,
+              blocks: plan.blocks.map(b => ({
+                id: b.id,
+                title: b.title,
+                intro: b.intro,
+                red: b.redTests.map(t => '- ' + t).join('\n'),
+                success: b.success.map(s => '- [ ] ' + s).join('\n'),
+                planRef: `See ${plan.sourceFile} lines ${b.startLine}-${b.endLine}`,
+              })),
+            };
+          } else {
+            const baseDir = dirname(resolvedPath);
+            const indexResult = parseTddabPlan(markdown, filePath, { requireBlocks: false });
+            if (!indexResult.valid) {
+              const errorText = indexResult.errors.map(e => `line ${e.line}: ${e.message}`).join('\n');
+              return {
+                content: [{ type: 'text', text: `Index plan validation failed:\n${errorText}` }],
+                isError: true
+              };
+            }
+            const mission = indexResult.plan!.mission;
+
+            const allBlocks: { id: string; title: string; intro: string; red: string; success: string; planRef: string }[] = [];
+            const seenIds = new Set<string>();
+            const sourceFiles = [resolvedPath];
+
+            for (const subFile of subFiles) {
+              const subPath = resolve(baseDir, subFile);
+              let subMarkdown: string;
+              try {
+                subMarkdown = await readFile(subPath, 'utf-8');
+              } catch {
+                return {
+                  content: [{ type: 'text', text: `Error: Sub-file not found: ${subFile}` }],
+                  isError: true
+                };
+              }
+
+              const subResult = parseTddabPlan(subMarkdown, subFile, { requireMission: false });
+              if (!subResult.valid) {
+                const errorText = subResult.errors.map(e => `${subFile} line ${e.line}: ${e.message}`).join('\n');
+                return {
+                  content: [{ type: 'text', text: `Plan validation failed in ${subFile}:\n${errorText}` }],
+                  isError: true
+                };
+              }
+
+              sourceFiles.push(subPath);
+
+              for (const block of subResult.plan!.blocks) {
+                if (seenIds.has(block.id)) {
+                  return {
+                    content: [{ type: 'text', text: `Error: Duplicate block id "${block.id}" in ${subFile}` }],
+                    isError: true
+                  };
+                }
+                seenIds.add(block.id);
+                allBlocks.push({
+                  id: block.id,
+                  title: block.title,
+                  intro: block.intro,
+                  red: block.redTests.map(t => '- ' + t).join('\n'),
+                  success: block.success.map(s => '- [ ] ' + s).join('\n'),
+                  planRef: `See ${subPath} lines ${block.startLine}-${block.endLine}`,
+                });
+              }
+            }
+
+            uplanData = {
+              mission,
+              sourceFile: resolvedPath,
+              sourceFiles,
+              blocks: allBlocks,
             };
           }
-
-          const plan = result.plan!;
-          const uplanData = {
-            mission: plan.mission,
-            sourceFile: plan.sourceFile,
-            blocks: plan.blocks.map(b => ({
-              id: b.id,
-              title: b.title,
-              intro: b.intro,
-              red: b.redTests.map(t => '- ' + t).join('\n'),
-              success: b.success.map(s => '- [ ] ' + s).join('\n'),
-              planRef: `See ${plan.sourceFile} lines ${b.startLine}-${b.endLine}`,
-            })),
-          };
 
           const dataDir = resolve(process.env['CVM_DATA_DIR'] || '.cvm');
           await mkdir(dataDir, { recursive: true });
@@ -561,9 +631,9 @@ export class CVMMcpServer {
               type: 'text',
               text: JSON.stringify({
                 valid: true,
-                blocks: plan.blocks.length,
+                blocks: uplanData.blocks.length,
                 path: uplanPath,
-                blockIds: plan.blocks.map(b => b.id),
+                blockIds: uplanData.blocks.map(b => b.id),
               }, null, 2)
             }]
           };

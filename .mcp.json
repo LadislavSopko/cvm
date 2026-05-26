@@ -46,6 +46,15 @@
         "CVM_SANDBOX_PATHS":"/home/laco/cvm",
         "CVM_LOG_FILE":".cvm/cvm-debug.log"
       }
+    },
+    "claude-chat": {
+      "command": "bunx",
+      "args": ["cc-chat-mcp@latest"],
+      "env": {
+        "CLAUDE_CHAT_URL": "ws://localhost:4444",
+        "CLAUDE_CHAT_NAME": "cvm-builder",
+        "CLAUDE_CHAT_LOG": "/tmp/cc-mcp-debug.log"
+      }
     }
   }
 }

@@ -188,4 +188,148 @@ describe('CVMMcpServer - parsePlan', () => {
       expect(result.content[0].text).toContain('mission');
     }
   });
+
+  describe('multi-file plans', () => {
+    const indexContent = `# TDDAB Plan: Multi-File Test
+**Date:** 2026-05-26
+
+<mission>
+Multi-file test project context.
+</mission>
+
+<files>
+- 01-models.md
+- 02-services.md
+</files>
+`;
+
+    const modelsContent = `# Models
+
+<block id="01-model">
+## TDDAB-1: Create Model
+
+<intro>
+Create the data model.
+</intro>
+
+<red>
+- test: model exists
+</red>
+
+### Implementation
+Simple model.
+
+<success>
+- [ ] model created
+</success>
+</block>
+`;
+
+    const servicesContent = `# Services
+
+<block id="02-service">
+## TDDAB-2: Create Service
+
+<intro>
+Create the service layer.
+</intro>
+
+<red>
+- test: service exists
+</red>
+
+### Implementation
+Simple service.
+
+<success>
+- [ ] service created
+</success>
+</block>
+`;
+
+    it('should parse multi-file plan and merge blocks from sub-files', async () => {
+      const indexFile = join(testDir, 'index.md');
+      await writeFile(indexFile, indexContent);
+      await writeFile(join(testDir, '01-models.md'), modelsContent);
+      await writeFile(join(testDir, '02-services.md'), servicesContent);
+
+      const result = await transport.callTool('parsePlan', { filePath: indexFile });
+
+      expect('content' in result).toBe(true);
+      if ('content' in result) {
+        expect(result.isError).toBeUndefined();
+        const response = JSON.parse(result.content[0].text);
+        expect(response.valid).toBe(true);
+        expect(response.blocks).toBe(2);
+        expect(response.blockIds).toEqual(['01-model', '02-service']);
+      }
+    });
+
+    it('should write uplan.json with sourceFiles array and correct planRef', async () => {
+      const indexFile = join(testDir, 'index.md');
+      await writeFile(indexFile, indexContent);
+      await writeFile(join(testDir, '01-models.md'), modelsContent);
+      await writeFile(join(testDir, '02-services.md'), servicesContent);
+
+      await transport.callTool('parsePlan', { filePath: indexFile });
+
+      const uplanPath = join(dataDir, 'uplan.json');
+      const uplan = JSON.parse(await readFile(uplanPath, 'utf-8'));
+
+      expect(uplan.mission).toContain('Multi-file test project context');
+      expect(uplan.sourceFile).toBe(resolve(indexFile));
+      expect(uplan.sourceFiles).toHaveLength(3);
+      expect(uplan.sourceFiles[0]).toContain('index.md');
+      expect(uplan.sourceFiles[1]).toContain('01-models.md');
+      expect(uplan.sourceFiles[2]).toContain('02-services.md');
+      expect(uplan.blocks).toHaveLength(2);
+      expect(uplan.blocks[0].planRef).toContain('01-models.md');
+      expect(uplan.blocks[1].planRef).toContain('02-services.md');
+    });
+
+    it('should return error for missing sub-file', async () => {
+      const indexFile = join(testDir, 'index.md');
+      await writeFile(indexFile, indexContent);
+      await writeFile(join(testDir, '01-models.md'), modelsContent);
+
+      const result = await transport.callTool('parsePlan', { filePath: indexFile });
+
+      expect('content' in result).toBe(true);
+      if ('content' in result) {
+        expect(result.isError).toBe(true);
+        expect(result.content[0].text).toContain('Sub-file not found');
+        expect(result.content[0].text).toContain('02-services.md');
+      }
+    });
+
+    it('should return error for duplicate block IDs across files', async () => {
+      const indexFile = join(testDir, 'index.md');
+      await writeFile(indexFile, indexContent);
+      await writeFile(join(testDir, '01-models.md'), modelsContent);
+      const dupContent = servicesContent.replace('02-service', '01-model');
+      await writeFile(join(testDir, '02-services.md'), dupContent);
+
+      const result = await transport.callTool('parsePlan', { filePath: indexFile });
+
+      expect('content' in result).toBe(true);
+      if ('content' in result) {
+        expect(result.isError).toBe(true);
+        expect(result.content[0].text).toContain('Duplicate block id');
+      }
+    });
+
+    it('should ignore mission tag in sub-files', async () => {
+      const indexFile = join(testDir, 'index.md');
+      await writeFile(indexFile, indexContent);
+      const modelsWithMission = `<mission>This should be ignored</mission>\n\n${modelsContent}`;
+      await writeFile(join(testDir, '01-models.md'), modelsWithMission);
+      await writeFile(join(testDir, '02-services.md'), servicesContent);
+
+      await transport.callTool('parsePlan', { filePath: indexFile });
+
+      const uplan = JSON.parse(await readFile(join(dataDir, 'uplan.json'), 'utf-8'));
+      expect(uplan.mission).toContain('Multi-file test project context');
+      expect(uplan.mission).not.toContain('This should be ignored');
+    });
+  });
 });

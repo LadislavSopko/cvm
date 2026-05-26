@@ -12,13 +12,23 @@ function main() {
   var mission = data.mission;
   var blocks = data.blocks;
   var sourceFile = data.sourceFile;
+  var sourceFiles = data.sourceFiles;
 
   var submitDone = " Respond with done when complete.";
   var submitTest = " Respond with passed if ALL criteria are checked, or failed if ANY is not met.";
   var toolsReminder = " Use Read, Edit, Write, Bash tools for file operations and commands.";
 
   console.log("=== TDDAB PlanExecutor ===");
-  console.log("Plan: " + sourceFile);
+  if (sourceFiles) {
+    console.log("Plan: " + sourceFiles.length + " files");
+    var fi = 0;
+    while (fi < sourceFiles.length) {
+      console.log("  - " + sourceFiles[fi]);
+      fi = fi + 1;
+    }
+  } else {
+    console.log("Plan: " + sourceFile);
+  }
   console.log("Blocks: " + blocks.length);
 
   var completedBlocks = [];

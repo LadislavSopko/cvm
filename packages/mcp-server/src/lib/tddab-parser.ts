@@ -25,9 +25,36 @@ export interface ParseResult {
   errors: ParseError[];
 }
 
+export interface ParseOptions {
+  requireMission?: boolean;
+  requireBlocks?: boolean;
+}
+
 const BLOCK_ID_PATTERN = /^\d{2}-[a-z0-9]+(-[a-z0-9]+)*$/;
 
-export function parseTddabPlan(markdown: string, sourceFile: string): ParseResult {
+export function parseFilesTag(markdown: string): string[] {
+  const lines = markdown.split('\n');
+  let i = 0;
+  while (i < lines.length) {
+    if (lines[i].trim().startsWith('<files>')) {
+      const files: string[] = [];
+      i++;
+      while (i < lines.length && !lines[i].trim().startsWith('</files>')) {
+        const match = lines[i].trim().match(/^-\s+(.+)/);
+        if (match) {
+          const filename = match[1].trim();
+          if (filename) files.push(filename);
+        }
+        i++;
+      }
+      return files;
+    }
+    i++;
+  }
+  return [];
+}
+
+export function parseTddabPlan(markdown: string, sourceFile: string, options?: ParseOptions): ParseResult {
   const lines = markdown.split('\n');
   const errors: ParseError[] = [];
   let mission = '';
@@ -61,7 +88,10 @@ export function parseTddabPlan(markdown: string, sourceFile: string): ParseResul
   }
 
   if (missionStart === -1) {
-    errors.push({ line: 0, message: 'Missing <mission> tag' });
+    if (options?.requireMission !== false) {
+      errors.push({ line: 0, message: 'Missing <mission> tag' });
+    }
+    i = 0;
   } else if (!mission) {
     errors.push({ line: missionStart + 1, message: '<mission> tag is empty' });
   }
@@ -189,7 +219,7 @@ export function parseTddabPlan(markdown: string, sourceFile: string): ParseResul
     });
   }
 
-  if (blocks.length === 0 && !errors.some(e => e.message.includes('block'))) {
+  if (blocks.length === 0 && options?.requireBlocks !== false && !errors.some(e => e.message.includes('block'))) {
     errors.push({ line: 0, message: 'No <block> tags found' });
   }
 
