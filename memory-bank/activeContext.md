@@ -1,41 +1,44 @@
 §MBEL:5.0
 
 [FOCUS]
-@state::DEVELOP✓→READY
-@feature::01-universal-template
+@state::DELIVERED✓
+@feature::02-multi-file-plan
 @branch::feature/universal-template
-@date::2026-05-25
+@date::2026-05-26
 
 [DELIVERED]
-@parsePlanTool::✓{MCPtool→parses+saves.cvm/uplan.json+backup.bak}
-@planexecutor::✓{test/programs/tddab/planexecutor.ts→singleSourceOfTruth}
-@progressPersist::✓{.cvm/uplan-progress.json→resume+skipDoneBlocks}
-@builtIn::✓{loadFile"@planexecutor"→resolvedFromDist/programs/}
-@skills::✓{j-cvm-check-plan+j-cvm-exec-plan→inAiAgentSubmodule}
-@e2eTests::✓{7tests in 11-tddab/→allBranches+resume+fullCycle}
-@publishNext::✓{0.16.0-next.1→npmTagNext}
+@multiFilePlan::✓{parsePlan→detects<files>tag→readsSubFiles→mergesBlocks}
+@parseOptions::✓{requireMission+requireBlocks→optionalForSubFiles+IndexFiles}
+@parseFilesTag::✓{extractsFilenameListFrom<files>tag}
+@planRefPerBlock::✓{eachBlock→planRefPointsToItsOwnSubFile+lineNumbers}
+@sourceFilesArray::✓{uplan.json→sourceFiles[]+sourceFile{backwardCompat}}
+@serverInfoTool::✓{newMCPtool→returnsName+version+programCount+executionCount}
+@planexecutorDisplay::✓{displaysSourceFilesListWhenMultiFile}
+@e2eTestsMultiFile::✓{5newTests→merge+planRef+duplicateID+missingFile+ignoreMission}
+@e2eFixStaleProgress::✓{cleanup uplan-progress.json in beforeAll+afterAll}
+@publishRegistryFix::✓{publish targets→explicit --registry npmjs.org}
+@exampleMultiFile::✓{test/examples/multi-file-plan/→index.md+01-models.md+02-services.md→4blocks}
+@exampleExecuted::✓{CVM executed all 4 blocks→code matches plan exactly}
+@npmPublished::✓{cvm-server@0.16.0-next.3{tagNext}}
 
 [ARCHITECTURE]
-@flow::parsePlan→uplan.json→loadFile@planexecutor→start→getTask/submitTask→loop
-@resume::progressFile→skipDoneBlocks→automaticOnRestart
-@backup::parsePlan→renames uplan.json→uplan.json.bak
-@distribution::viteStaticCopy→test/programs/tddab/planexecutor.ts→dist/programs/
-@GREENprompt::explicitly tells Claude to Read plan file for implementation
-@loopMode::/loop /j-cvm-exec-plan→selfPacing→worksAllNight
+@singleFile::parsePlan→no<files>tag→existingBehavior{unchanged}
+@multiFile::parsePlan→detects<files>→readsIndexForMission→parsesEachSubFile{requireMission:false}→mergesBlocks
+@rules::5agreed{missionInIndex+filesTagSignals+globalUniqueIDs+fileOrder=execOrder+backwardCompat}
+@collaboration::ai-agent-builder→updatedTDDABplanner{v2.17.18}+rule#10{noRawTagsInContent}
+@chat::claude-chat MCP→bunx cc-chat-mcp@latest{ws://localhost:4444}→room"cvm"
 
 [INFRA]
-@tsconfig::exclude{test/programs+dist+out-tsc+.ai-agent+.claude/cvm+counter.ts}
-@testPrograms/tsconfig::moduleDetection:force
-@cvmHeaders::allScripts→///reference+declareCC+declareFs
-@lsai::issue#53 reported{warmup514files}→workspaceReady{0errors}afterExclude
+@bun::installedSystemWide{/usr/local/bin/bun}
+@npmrc::registry=nexus.0ics.ai{butPublishToNpmjs}
+@aiAgent::submodule→reinstalled{feature/tddab-v2}
+@lsai::v1.0.178→installedGlobal{8languageServersReady}
 
 [STATS]
-@vitestTests::68passing
-@e2eSystemTests::7passing
+@vitestTests::81passing
 @build::7projects✓
-@npmPublished::cvm-server@0.16.0-next.1{tagNext}
+@npmPublished::cvm-server@0.16.0-next.3{tagNext}
 
 [NEXT]
 ?mergeToMain→publishStable
-?testExamples→verifyFullCycleInIsolation
-?loopMode→testOvernightExecution
+?testLoopModeWithMultiFilePlan

@@ -10,7 +10,7 @@
     },
     "cvm": {
       "command": "npx",
-      "args": ["cvm-server@next"],
+      "args": ["-y", "--registry", "https://registry.npmjs.org/", "cvm-server@next"],
       "env": {
         "CVM_STORAGE_TYPE": "file",
         "CVM_DATA_DIR": ".cvm",
