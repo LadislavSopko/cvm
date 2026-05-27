@@ -128,9 +128,10 @@ describe('TDDAB E2E Pipeline', () => {
 
     expect(next.type).toBe('completed');
 
-    // Verify MISSION prompt
-    expect(prompts[0]).toContain('MISSION BRIEFING');
+    // Verify first prompt has project context + RED phase
+    expect(prompts[0]).toContain('PROJECT CONTEXT');
     expect(prompts[0]).toContain('E2E validation');
+    expect(prompts[0]).toContain('RED PHASE');
 
     // Verify 3 blocks × 4 phases + CROSS-CHECK after each passed VERIFY + 1 retry (FIX + RE-VERIFY) + FINAL REVIEW
     expect(prompts.filter(p => p.includes('RED PHASE'))).toHaveLength(3);
@@ -203,7 +204,8 @@ describe('TDDAB E2E Pipeline', () => {
 
     expect(next.type).toBe('completed');
 
-    expect(prompts[0]).toContain('MISSION');
+    expect(prompts[0]).toContain('PROJECT CONTEXT');
+    expect(prompts[0]).toContain('EXECUTE');
     expect(prompts.filter(p => p.includes('EXECUTE'))).toHaveLength(2);
     expect(prompts.filter(p => p.includes('VERIFY'))).toHaveLength(2);
     expect(prompts.filter(p => p.includes('COMMIT'))).toHaveLength(2);

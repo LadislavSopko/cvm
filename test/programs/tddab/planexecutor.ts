@@ -44,7 +44,7 @@ function main() {
     console.log("Resuming: " + skipBlocks.length + " blocks already completed");
   }
 
-  CC("MISSION BRIEFING: " + mission + " This plan has " + blocks.length + " blocks to implement in sequence." + toolsReminder + submitDone);
+  var missionCtx = "PROJECT CONTEXT: " + mission + " ";
 
   var blockIndex = 0;
 
@@ -73,7 +73,7 @@ function main() {
 
     if (planType === "step") {
 
-      CC("EXECUTE [" + progress + "] step " + block.id + ": " + block.title + ". " +
+      CC(missionCtx + "EXECUTE [" + progress + "] step " + block.id + ": " + block.title + ". " +
         "CONTEXT: " + block.intro + " " +
         "ACTIONS TO PERFORM: " + block.red + " " +
         block.planRef + toolsReminder + submitDone);
@@ -114,7 +114,7 @@ function main() {
 
     } else {
 
-      CC("RED PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
+      CC(missionCtx + "RED PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
         "CONTEXT: " + block.intro + " " +
         "Write ONLY the failing tests listed below. Do NOT implement any production code yet. " +
         "TESTS TO WRITE: " + block.red + " " +

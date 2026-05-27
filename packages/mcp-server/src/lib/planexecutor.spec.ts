@@ -66,7 +66,7 @@ describe('planexecutor', () => {
     await vm.dispose();
   });
 
-  it('should produce MISSION CC as first prompt', async () => {
+  it('should include project context in first block prompt', async () => {
     const vm = createVMManager();
     await vm.initialize();
 
@@ -81,8 +81,9 @@ describe('planexecutor', () => {
 
     const result = await vm.getNext('exec-mission');
     expect(result.type).toBe('waiting');
-    expect(result.message).toContain('MISSION BRIEFING');
+    expect(result.message).toContain('PROJECT CONTEXT');
     expect(result.message).toContain('Test mission');
+    expect(result.message).toContain('RED PHASE');
 
     await vm.dispose();
   });
@@ -114,14 +115,14 @@ describe('planexecutor', () => {
       next = await vm.getNext('exec-order');
     }
 
-    expect(prompts[0]).toContain('MISSION');
-    expect(prompts[1]).toContain('RED PHASE');
-    expect(prompts[1]).toContain('01-alpha');
-    expect(prompts[2]).toContain('GREEN PHASE');
-    expect(prompts[3]).toContain('VERIFY PHASE');
-    expect(prompts[4]).toContain('CROSS-CHECK');
-    expect(prompts[5]).toContain('COMMIT PHASE');
-    expect(prompts[6]).toContain('FINAL REVIEW');
+    expect(prompts[0]).toContain('PROJECT CONTEXT');
+    expect(prompts[0]).toContain('RED PHASE');
+    expect(prompts[0]).toContain('01-alpha');
+    expect(prompts[1]).toContain('GREEN PHASE');
+    expect(prompts[2]).toContain('VERIFY PHASE');
+    expect(prompts[3]).toContain('CROSS-CHECK');
+    expect(prompts[4]).toContain('COMMIT PHASE');
+    expect(prompts[5]).toContain('FINAL REVIEW');
 
     await vm.dispose();
   });
@@ -255,11 +256,11 @@ describe('planexecutor', () => {
     }
 
     expect(next.type).toBe('completed');
-    expect(prompts[0]).toContain('MISSION');
-    expect(prompts[1]).toContain('EXECUTE');
-    expect(prompts[1]).toContain('01-cleanup');
-    expect(prompts[2]).toContain('VERIFY');
-    expect(prompts[3]).toContain('COMMIT');
+    expect(prompts[0]).toContain('PROJECT CONTEXT');
+    expect(prompts[0]).toContain('EXECUTE');
+    expect(prompts[0]).toContain('01-cleanup');
+    expect(prompts[1]).toContain('VERIFY');
+    expect(prompts[2]).toContain('COMMIT');
     expect(prompts[prompts.length - 1]).toContain('FINAL REVIEW');
 
     expect(prompts.filter(p => p.includes('RED PHASE'))).toHaveLength(0);
