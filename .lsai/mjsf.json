@@ -1,9 +1,9 @@
 {
   "schema": "lsai.mjsf/1",
-  "generatedAt": "2026-05-22T09:52:12Z",
+  "generatedAt": "2026-05-26T05:39:58Z",
   "generatedBy": {
     "tool": "lsai-analyzer",
-    "version": "1.0.177"
+    "version": "1.0.178"
   },
   "workspace": {
     "root": "/home/laco/cvm",
@@ -58,10 +58,21 @@
       "language": "typescript",
       "root": ".",
       "buildSystem": "tsconfig",
-      "sourceRoots": ["packages", "apps"],
+      "sourceRoots": [],
       "resourceRoots": [],
       "testRoots": [],
-      "outputRoots": ["dist", "out-tsc"]
+      "outputRoots": []
+    },
+    {
+      "id": "typescript:test/programs",
+      "name": "programs",
+      "language": "typescript",
+      "root": "test/programs",
+      "buildSystem": "tsconfig",
+      "sourceRoots": [],
+      "resourceRoots": [],
+      "testRoots": [],
+      "outputRoots": []
     },
     {
       "id": "typescript:apps/cvm-server",
@@ -69,10 +80,10 @@
       "language": "typescript",
       "root": "apps/cvm-server",
       "buildSystem": "tsconfig",
-      "sourceRoots": ["src"],
+      "sourceRoots": [],
       "resourceRoots": [],
       "testRoots": [],
-      "outputRoots": ["dist", "out-tsc"]
+      "outputRoots": []
     },
     {
       "id": "typescript:packages/storage",
@@ -80,10 +91,10 @@
       "language": "typescript",
       "root": "packages/storage",
       "buildSystem": "tsconfig",
-      "sourceRoots": ["src"],
+      "sourceRoots": [],
       "resourceRoots": [],
       "testRoots": [],
-      "outputRoots": ["dist", "out-tsc"]
+      "outputRoots": []
     },
     {
       "id": "typescript:packages/integration",
@@ -91,10 +102,10 @@
       "language": "typescript",
       "root": "packages/integration",
       "buildSystem": "tsconfig",
-      "sourceRoots": ["src"],
+      "sourceRoots": [],
       "resourceRoots": [],
       "testRoots": [],
-      "outputRoots": ["dist", "out-tsc"]
+      "outputRoots": []
     },
     {
       "id": "typescript:packages/mongodb",
@@ -102,10 +113,10 @@
       "language": "typescript",
       "root": "packages/mongodb",
       "buildSystem": "tsconfig",
-      "sourceRoots": ["src"],
+      "sourceRoots": [],
       "resourceRoots": [],
       "testRoots": [],
-      "outputRoots": ["dist", "out-tsc"]
+      "outputRoots": []
     },
     {
       "id": "typescript:packages/vm",
@@ -113,10 +124,10 @@
       "language": "typescript",
       "root": "packages/vm",
       "buildSystem": "tsconfig",
-      "sourceRoots": ["src"],
+      "sourceRoots": [],
       "resourceRoots": [],
       "testRoots": [],
-      "outputRoots": ["dist", "out-tsc"]
+      "outputRoots": []
     },
     {
       "id": "typescript:packages/types",
@@ -124,10 +135,10 @@
       "language": "typescript",
       "root": "packages/types",
       "buildSystem": "tsconfig",
-      "sourceRoots": ["src"],
+      "sourceRoots": [],
       "resourceRoots": [],
       "testRoots": [],
-      "outputRoots": ["dist", "out-tsc"]
+      "outputRoots": []
     },
     {
       "id": "typescript:packages/mcp-server",
@@ -135,10 +146,10 @@
       "language": "typescript",
       "root": "packages/mcp-server",
       "buildSystem": "tsconfig",
-      "sourceRoots": ["src"],
+      "sourceRoots": [],
       "resourceRoots": [],
       "testRoots": [],
-      "outputRoots": ["dist", "out-tsc"]
+      "outputRoots": []
     },
     {
       "id": "typescript:packages/parser",
@@ -146,16 +157,11 @@
       "language": "typescript",
       "root": "packages/parser",
       "buildSystem": "tsconfig",
-      "sourceRoots": ["src"],
+      "sourceRoots": [],
       "resourceRoots": [],
       "testRoots": [],
-      "outputRoots": ["dist", "out-tsc"]
+      "outputRoots": []
     }
   ],
-  "plugins": {
-    "lsp": {
-      "excludePaths": ["dist", "out-tsc", "test/programs", ".ai-agent", ".claude/cvm"],
-      "warmupAllFiles": false
-    }
-  }
+  "plugins": {}
 }
