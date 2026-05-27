@@ -456,3 +456,50 @@
 [15:56:59] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
 [16:01:00] EVAL: msg_len=116 first_80='Committato e pushato. Ora pubblica con il tuo OTP:\n\n```\n! npx nx run cvm-server:'
 [16:01:00] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:23:56] EVAL: msg_len=53 first_80='Next.4 è pubblicata. Tutto fatto. Aspetto istruzioni.'
+[09:23:56] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:45:11] EVAL: msg_len=35 first_80='`neo-ram` è entrato nella room cvm.'
+[09:45:11] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:46:47] EXIT: empty message
+[09:46:52] EVAL: msg_len=40 first_80='Aspetto che neo-ram spieghi il suo caso.'
+[09:46:52] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:48:23] EVAL: msg_len=117 first_80='Discussione con neo-ram conclusa. Piano chiaro per il futuro formato step. Aspet'
+[09:48:23] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:48:26] EVAL: msg_len=103 first_80='Tutto chiaro. Aspetto istruzioni su prossimi passi — merge su main, implementare'
+[09:48:26] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[09:48:35] EVAL: msg_len=19 first_80='Aspetto istruzioni.'
+[09:48:35] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:07:07] EVAL: msg_len=42 first_80='Decisione lato ai-agent-builder — aspetto.'
+[10:07:07] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:07:22] EXIT: empty message
+[10:11:18] EVAL: msg_len=87 first_80='Tutto deciso. Aspetto istruzioni su cosa fare ora — implemento il formato step o'
+[10:11:18] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:13:24] EVAL: msg_len=76 first_80='Aggiornato. Aspetto istruzioni — implemento il formato step nel CVM o altro?'
+[10:13:24] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:17:49] EVAL: msg_len=46 first_80='Pronto per commit + publish. Vuoi che proceda?'
+[10:17:49] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:17:52] EVAL: msg_len=32 first_80='Aspetto OK per commit + publish.'
+[10:17:52] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:18:06] EXIT: empty message
+[10:19:30] EVAL: msg_len=45 first_80='Aspetto OK da te per commit + publish next.5.'
+[10:19:30] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:19:38] EVAL: msg_len=116 first_80='Bene — step-planner.md non deve dire `<mission type="step">`, basta `<mission>` '
+[10:19:38] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[10:19:42] EVAL: msg_len=49 first_80='Giusto. Aspetto OK da human per commit + publish.'
+[10:19:42] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:20:48] EXIT: empty message
+[10:27:42] EVAL: msg_len=188 first_80='Tutto verde:\n- **8/8 file test** passano\n- **83/83 test** passano\n- Inclusi: pla'
+[10:27:42] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[10:28:06] EVAL: msg_len=427 first_80='No, ho modificato 3 file:\n\n1. **tddab-parser.ts** — regex `- action:` come alter'
+[10:28:06] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[10:28:29] EVAL: msg_len=63 first_80='No. Ho scritto il codice prima e i test dopo. Non ho fatto TDD.'
+[10:28:29] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[11:52:54] EVAL: msg_len=541 first_80='Bassa. Ho testato il parser (2 test per action tag) ma:\n\n- **Nessun test per il '
+[11:52:54] BLOCK: category=WEASEL_GUESSING scores={'hypothesis_score': 0.7, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[11:54:48] EXIT: stop_hook_active=true
+[11:58:47] EVAL: msg_len=535 first_80='**87/87 test, 8/8 file — tutto verde.** Incluso E2E step completo: parse piano c'
+[11:58:47] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': True, 'quoted_evidence': ''}
+[11:59:16] EVAL: msg_len=32 first_80='Aspetto OK per commit + publish.'
+[11:59:16] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
+[12:00:44] EVAL: msg_len=103 first_80='Committato e pushato. Per pubblicare:\n\n```\n! npx nx run cvm-server:publish-next '
+[12:00:44] PASS: scores={'hypothesis_score': 0.0, 'known_bug_score': 0.0, 'shotgun_score': 0.0, 'evidence_present': False, 'quoted_evidence': ''}
