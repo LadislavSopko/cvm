@@ -18,7 +18,11 @@ function main() {
   var submitTest = " Respond with passed if ALL criteria are checked, or failed if ANY is not met.";
   var toolsReminder = " Use Read, Edit, Write, Bash and code navigation tools (LSAI, vs-mcp, xmp4) for file operations, commands and code inspection.";
 
-  console.log("=== TDDAB PlanExecutor ===");
+  var planType = data.type;
+  if (planType === null || planType === undefined) {
+    planType = "tddab";
+  }
+  console.log("=== PlanExecutor (" + planType + ") ===");
   if (sourceFiles) {
     console.log("Plan: " + sourceFiles.length + " files");
     var fi = 0;
@@ -67,101 +71,146 @@ function main() {
     console.log("");
     console.log("=== Block " + progress + ": " + block.id + " - " + block.title + " ===");
 
-    CC("RED PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
-      "CONTEXT: " + block.intro + " " +
-      "Write ONLY the failing tests listed below. Do NOT implement any production code yet. " +
-      "TESTS TO WRITE: " + block.red + " " +
-      block.planRef + toolsReminder + submitDone);
+    if (planType === "step") {
 
-    console.log("RED done for " + block.id);
-
-    CC("GREEN PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
-      "Implement the minimum code to make all failing tests pass. " +
-      "IMPORTANT: Read the plan file for implementation details and reference code: " + block.planRef + " " +
-      "CONTEXT: " + block.intro + " " +
-      toolsReminder + submitDone);
-
-    console.log("GREEN done for " + block.id);
-
-    var verifyPrompt = "VERIFY PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
-      "MANDATORY: For EACH criterion below, use code navigation tools to verify against actual code. " +
-      "Output this EXACT format before responding: " +
-      "CHECKLIST: (one line per criterion with [x] or [ ] and file:line evidence) " +
-      "COUNT: X/Y passed. " +
-      "SUCCESS CRITERIA: " + block.success + " " +
-      "Respond passed ONLY if ALL criteria are [x]. If ANY is [ ], respond failed." + toolsReminder + submitTest;
-
-    var testResult = CC(verifyPrompt);
-    console.log("VERIFY result for " + block.id + ": " + testResult);
-
-    var fixAttempt = 0;
-    while (testResult === "failed") {
-      fixAttempt = fixAttempt + 1;
-      console.log("Fix attempt " + fixAttempt + " for " + block.id);
-
-      CC("FIX PHASE [" + progress + "] block " + block.id + " (attempt " + fixAttempt + "). " +
-        "Tests or criteria failed. Apply Protocol D: quote exact error, isolate location, one hypothesis, one fix, verify. " +
-        "CRITERIA THAT MUST PASS: " + block.success + " " +
-        "TESTS REQUIRED: " + block.red + " " +
+      CC("EXECUTE [" + progress + "] step " + block.id + ": " + block.title + ". " +
+        "CONTEXT: " + block.intro + " " +
+        "ACTIONS TO PERFORM: " + block.red + " " +
         block.planRef + toolsReminder + submitDone);
 
-      testResult = CC("RE-VERIFY [" + progress + "] block " + block.id + " (after fix " + fixAttempt + "). " +
-        "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
+      console.log("EXECUTE done for " + block.id);
+
+      var stepResult = CC("VERIFY [" + progress + "] step " + block.id + ": " + block.title + ". " +
+        "MANDATORY: For EACH criterion below, verify against actual state. " +
         "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
         "SUCCESS CRITERIA: " + block.success + " " +
-        "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+        "Respond passed ONLY if ALL are [x]. If ANY is [ ], respond failed." + toolsReminder + submitTest);
 
-      console.log("RE-VERIFY result for " + block.id + ": " + testResult);
-    }
+      console.log("VERIFY result for " + block.id + ": " + stepResult);
 
-    var redKeys = block.redKeys;
-    var jsonTemplate = "{";
-    var ki = 0;
-    while (ki < redKeys.length) {
-      if (ki > 0) {
-        jsonTemplate = jsonTemplate + ", ";
+      var stepFix = 0;
+      while (stepResult === "failed") {
+        stepFix = stepFix + 1;
+        console.log("Fix attempt " + stepFix + " for " + block.id);
+
+        CC("FIX [" + progress + "] step " + block.id + " (attempt " + stepFix + "). " +
+          "Apply Protocol D: quote exact error, isolate location, one hypothesis, one fix, verify. " +
+          "ACTIONS: " + block.red + " " +
+          "CRITERIA: " + block.success + " " +
+          block.planRef + toolsReminder + submitDone);
+
+        stepResult = CC("RE-VERIFY [" + progress + "] step " + block.id + " (after fix " + stepFix + "). " +
+          "MANDATORY: For EACH criterion, verify against actual state. " +
+          "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
+          "SUCCESS CRITERIA: " + block.success + " " +
+          "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+
+        console.log("RE-VERIFY result for " + block.id + ": " + stepResult);
       }
-      jsonTemplate = jsonTemplate + "\"" + redKeys[ki] + "\": null";
-      ki = ki + 1;
-    }
-    jsonTemplate = jsonTemplate + "}";
 
-    var crossCheckResponse = CC("CROSS-CHECK [" + progress + "] block " + block.id + ". " +
-      "Use code navigation tools to verify EACH test exists in actual test file(s). " +
-      "REQUIRED TESTS: " + block.red + " " +
-      "Complete this JSON — set each value to true (test exists) or false (missing): " +
-      jsonTemplate + " " +
-      "Respond ONLY with the completed JSON. NOTHING else." + toolsReminder);
+      CC("COMMIT [" + progress + "] step " + block.id + ": " + block.title + ". " +
+        "All criteria verified. " +
+        "Git add and commit with message: chore: " + block.title + "." + submitDone);
 
-    var crossCheckPassed = true;
-    var checkResults = JSON.parse(crossCheckResponse);
-    for (var crKey in checkResults) {
-      if (checkResults[crKey] === false) {
-        crossCheckPassed = false;
-      }
-    }
-    console.log("CROSS-CHECK result for " + block.id + ": " + crossCheckResponse + " passed=" + crossCheckPassed);
+    } else {
 
-    if (crossCheckPassed === false) {
-      fixAttempt = fixAttempt + 1;
-      console.log("CROSS-CHECK failed, fix attempt " + fixAttempt + " for " + block.id);
-
-      CC("FIX PHASE [" + progress + "] block " + block.id + " (cross-check fix " + fixAttempt + "). " +
-        "Cross-check found missing tests. Apply Protocol D: identify exactly which tests are missing, add them. " +
-        "TESTS REQUIRED: " + block.red + " " +
-        "CRITERIA: " + block.success + " " +
+      CC("RED PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
+        "CONTEXT: " + block.intro + " " +
+        "Write ONLY the failing tests listed below. Do NOT implement any production code yet. " +
+        "TESTS TO WRITE: " + block.red + " " +
         block.planRef + toolsReminder + submitDone);
 
-      CC("RE-VERIFY [" + progress + "] block " + block.id + " (after cross-check fix). " +
-        "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
-        "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
-        "SUCCESS CRITERIA: " + block.success + " " +
-        "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
-    }
+      console.log("RED done for " + block.id);
 
-    CC("COMMIT PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
-      "All tests pass and all criteria verified. " +
-      "Git add and commit with message: feat: " + block.title + "." + submitDone);
+      CC("GREEN PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
+        "Implement the minimum code to make all failing tests pass. " +
+        "IMPORTANT: Read the plan file for implementation details and reference code: " + block.planRef + " " +
+        "CONTEXT: " + block.intro + " " +
+        toolsReminder + submitDone);
+
+      console.log("GREEN done for " + block.id);
+
+      var verifyPrompt = "VERIFY PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
+        "MANDATORY: For EACH criterion below, use code navigation tools to verify against actual code. " +
+        "Output this EXACT format before responding: " +
+        "CHECKLIST: (one line per criterion with [x] or [ ] and file:line evidence) " +
+        "COUNT: X/Y passed. " +
+        "SUCCESS CRITERIA: " + block.success + " " +
+        "Respond passed ONLY if ALL criteria are [x]. If ANY is [ ], respond failed." + toolsReminder + submitTest;
+
+      var testResult = CC(verifyPrompt);
+      console.log("VERIFY result for " + block.id + ": " + testResult);
+
+      var fixAttempt = 0;
+      while (testResult === "failed") {
+        fixAttempt = fixAttempt + 1;
+        console.log("Fix attempt " + fixAttempt + " for " + block.id);
+
+        CC("FIX PHASE [" + progress + "] block " + block.id + " (attempt " + fixAttempt + "). " +
+          "Tests or criteria failed. Apply Protocol D: quote exact error, isolate location, one hypothesis, one fix, verify. " +
+          "CRITERIA THAT MUST PASS: " + block.success + " " +
+          "TESTS REQUIRED: " + block.red + " " +
+          block.planRef + toolsReminder + submitDone);
+
+        testResult = CC("RE-VERIFY [" + progress + "] block " + block.id + " (after fix " + fixAttempt + "). " +
+          "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
+          "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
+          "SUCCESS CRITERIA: " + block.success + " " +
+          "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+
+        console.log("RE-VERIFY result for " + block.id + ": " + testResult);
+      }
+
+      var redKeys = block.redKeys;
+      var jsonTemplate = "{";
+      var ki = 0;
+      while (ki < redKeys.length) {
+        if (ki > 0) {
+          jsonTemplate = jsonTemplate + ", ";
+        }
+        jsonTemplate = jsonTemplate + "\"" + redKeys[ki] + "\": null";
+        ki = ki + 1;
+      }
+      jsonTemplate = jsonTemplate + "}";
+
+      var crossCheckResponse = CC("CROSS-CHECK [" + progress + "] block " + block.id + ". " +
+        "Use code navigation tools to verify EACH test exists in actual test file(s). " +
+        "REQUIRED TESTS: " + block.red + " " +
+        "Complete this JSON — set each value to true (test exists) or false (missing): " +
+        jsonTemplate + " " +
+        "Respond ONLY with the completed JSON. NOTHING else." + toolsReminder);
+
+      var crossCheckPassed = true;
+      var checkResults = JSON.parse(crossCheckResponse);
+      for (var crKey in checkResults) {
+        if (checkResults[crKey] === false) {
+          crossCheckPassed = false;
+        }
+      }
+      console.log("CROSS-CHECK result for " + block.id + ": " + crossCheckResponse + " passed=" + crossCheckPassed);
+
+      if (crossCheckPassed === false) {
+        fixAttempt = fixAttempt + 1;
+        console.log("CROSS-CHECK failed, fix attempt " + fixAttempt + " for " + block.id);
+
+        CC("FIX PHASE [" + progress + "] block " + block.id + " (cross-check fix " + fixAttempt + "). " +
+          "Cross-check found missing tests. Apply Protocol D: identify exactly which tests are missing, add them. " +
+          "TESTS REQUIRED: " + block.red + " " +
+          "CRITERIA: " + block.success + " " +
+          block.planRef + toolsReminder + submitDone);
+
+        CC("RE-VERIFY [" + progress + "] block " + block.id + " (after cross-check fix). " +
+          "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
+          "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
+          "SUCCESS CRITERIA: " + block.success + " " +
+          "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+      }
+
+      CC("COMMIT PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
+        "All tests pass and all criteria verified. " +
+        "Git add and commit with message: feat: " + block.title + "." + submitDone);
+
+    }
 
     completedBlocks.push(block.id);
     fs.writeFile(".cvm/uplan-progress.json", JSON.stringify(completedBlocks));

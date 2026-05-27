@@ -397,6 +397,58 @@ Third line of intro.
     });
   });
 
+  describe('actions tag (step plans)', () => {
+    it('should parse actions tag with action lines', () => {
+      const md = `<mission>Cleanup context</mission>
+
+<block id="01-cleanup">
+## TDDAB-1: Remove Legacy Config
+
+<intro>
+Remove v1 config entries.
+</intro>
+
+<actions>
+- action: Remove v1 entries from .env
+- action: Clean v1 refs from config
+</actions>
+
+<success>
+- [ ] no v1 references in config
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'step.md');
+      expect(result.valid).toBe(true);
+      expect(result.plan?.blocks[0].isAction).toBe(true);
+      expect(result.plan?.blocks[0].redTests).toEqual([
+        'Remove v1 entries from .env',
+        'Clean v1 refs from config',
+      ]);
+    });
+
+    it('should set isAction false for red tag with test lines', () => {
+      const result = parseTddabPlan(validPlan, 'test.md');
+      expect(result.plan?.blocks[0].isAction).toBe(false);
+    });
+
+    it('should error when block has neither red nor actions tag', () => {
+      const md = `<mission>Context</mission>
+
+<block id="01-missing">
+## TDDAB-1: Missing
+<intro>intro</intro>
+<success>
+- [ ] done
+</success>
+</block>`;
+      const result = parseTddabPlan(md, 'test.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toContainEqual(
+        expect.objectContaining({ message: expect.stringContaining('<actions>') })
+      );
+    });
+  });
+
   describe('parseFilesTag', () => {
     it('should extract filenames from files tag', () => {
       const md = `<mission>Context</mission>\n\n<files>\n- 01-models.md\n- 02-services.md\n</files>`;

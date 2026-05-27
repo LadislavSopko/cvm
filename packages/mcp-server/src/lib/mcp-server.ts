@@ -8,6 +8,13 @@ import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { parseTddabPlan, parseFilesTag } from './tddab-parser.js';
 
+function deducePlanType(blocks: { isAction: boolean }[]): 'tddab' | 'step' {
+  const hasAction = blocks.some(b => b.isAction);
+  const hasTest = blocks.some(b => !b.isAction);
+  if (hasAction && !hasTest) return 'step';
+  return 'tddab';
+}
+
 function toRedKey(test: string): string {
   return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
 }
@@ -566,6 +573,7 @@ export class CVMMcpServer {
 
             const plan = result.plan!;
             uplanData = {
+              type: deducePlanType(plan.blocks),
               mission: plan.mission,
               sourceFile: plan.sourceFile,
               blocks: plan.blocks.map(b => ({
@@ -590,7 +598,7 @@ export class CVMMcpServer {
             }
             const mission = indexResult.plan!.mission;
 
-            const allBlocks: { id: string; title: string; intro: string; red: string; success: string; planRef: string }[] = [];
+            const allBlocks: { id: string; title: string; intro: string; red: string; redKeys: string[]; success: string; planRef: string; isAction: boolean }[] = [];
             const seenIds = new Set<string>();
             const sourceFiles = [resolvedPath];
 
@@ -633,11 +641,13 @@ export class CVMMcpServer {
                   redKeys: block.redTests.map(t => toRedKey(t)),
                   success: block.success.map(s => '- [ ] ' + s).join('\n'),
                   planRef: `See ${subPath} lines ${block.startLine}-${block.endLine}`,
+                  isAction: block.isAction,
                 });
               }
             }
 
             uplanData = {
+              type: deducePlanType(allBlocks),
               mission,
               sourceFile: resolvedPath,
               sourceFiles,

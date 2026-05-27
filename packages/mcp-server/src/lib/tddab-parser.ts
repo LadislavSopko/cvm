@@ -3,6 +3,7 @@ export interface TddabBlock {
   title: string;
   intro: string;
   redTests: string[];
+  isAction: boolean;
   success: string[];
   startLine: number;
   endLine: number;
@@ -114,6 +115,7 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
     let title = '';
     let intro = '';
     let redTests: string[] = [];
+    let isAction = false;
     let successItems: string[] = [];
     let blockEndLine = -1;
     let hasIntro = false;
@@ -171,6 +173,21 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
         continue;
       }
 
+      if (line.startsWith('<actions>')) {
+        hasRed = true;
+        isAction = true;
+        i++;
+        while (i < lines.length && !lines[i].trim().startsWith('</actions>')) {
+          const actionMatch = lines[i].trim().match(/^-\s*action:\s*(.+)/);
+          if (actionMatch) {
+            redTests.push(actionMatch[1].trim());
+          }
+          i++;
+        }
+        if (i < lines.length) i++;
+        continue;
+      }
+
       if (line.startsWith('<success>')) {
         hasSuccess = true;
         i++;
@@ -198,9 +215,9 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
       errors.push({ line: blockStartLine + 1, message: `Block "${blockId}" has empty <intro>` });
     }
     if (!hasRed) {
-      errors.push({ line: blockStartLine + 1, message: `Block "${blockId}" missing <red> tag` });
+      errors.push({ line: blockStartLine + 1, message: `Block "${blockId}" missing <red> or <actions> tag` });
     } else if (redTests.length === 0) {
-      errors.push({ line: blockStartLine + 1, message: `Block "${blockId}" has <red> but no "- test:" lines` });
+      errors.push({ line: blockStartLine + 1, message: `Block "${blockId}" has <red>/<actions> but no "- test:" or "- action:" lines` });
     }
     if (!hasSuccess) {
       errors.push({ line: blockStartLine + 1, message: `Block "${blockId}" missing <success> tag` });
@@ -213,6 +230,7 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
       title,
       intro,
       redTests,
+      isAction,
       success: successItems,
       startLine: blockStartLine + 1,
       endLine: blockEndLine + 1,

@@ -13,8 +13,9 @@ function toRedKey(test: string): string {
   return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
 }
 
-function makeUplan(blocks: Array<{ id: string; title: string; intro: string; red: string; success: string }>): string {
+function makeUplan(blocks: Array<{ id: string; title: string; intro: string; red: string; success: string }>, type?: string): string {
   return JSON.stringify({
+    type: type || 'tddab',
     mission: 'Test mission for planexecutor verification.',
     sourceFile: 'test-plan.md',
     blocks: blocks.map(b => ({
@@ -224,6 +225,80 @@ describe('planexecutor', () => {
     expect(prompts.some(p => p.includes('[1/2]'))).toBe(true);
     expect(prompts.some(p => p.includes('[2/2]'))).toBe(true);
     expect(prompts[prompts.length - 1]).toContain('FINAL REVIEW');
+
+    await vm.dispose();
+  });
+
+  it('should use EXECUTE/VERIFY/COMMIT flow for step plan type', async () => {
+    const vm = createVMManager();
+    await vm.initialize();
+
+    const uplan = makeUplan([
+      { id: '01-cleanup', title: 'Cleanup Config', intro: 'Remove old config', red: '- Remove legacy entries', success: '- [ ] config clean' },
+    ], 'step');
+    writeFileSync(join(cvmDir, 'uplan.json'), uplan);
+
+    const source = readFileSync(EXECUTOR_PATH, 'utf-8');
+    await vm.loadProgram('pe-step', source);
+    await vm.startExecution('pe-step', 'exec-step');
+
+    const prompts: string[] = [];
+    let next = await vm.getNext('exec-step');
+    while (next.type === 'waiting') {
+      prompts.push(next.message || '');
+      let response = 'done';
+      if (next.message!.includes('VERIFY') || next.message!.includes('RE-VERIFY')) {
+        response = 'passed';
+      }
+      await vm.reportCCResult('exec-step', response);
+      next = await vm.getNext('exec-step');
+    }
+
+    expect(next.type).toBe('completed');
+    expect(prompts[0]).toContain('MISSION');
+    expect(prompts[1]).toContain('EXECUTE');
+    expect(prompts[1]).toContain('01-cleanup');
+    expect(prompts[2]).toContain('VERIFY');
+    expect(prompts[3]).toContain('COMMIT');
+    expect(prompts[prompts.length - 1]).toContain('FINAL REVIEW');
+
+    expect(prompts.filter(p => p.includes('RED PHASE'))).toHaveLength(0);
+    expect(prompts.filter(p => p.includes('GREEN PHASE'))).toHaveLength(0);
+    expect(prompts.filter(p => p.includes('CROSS-CHECK'))).toHaveLength(0);
+
+    await vm.dispose();
+  });
+
+  it('should handle VERIFY failure in step plan with FIX loop', async () => {
+    const vm = createVMManager();
+    await vm.initialize();
+
+    const uplan = makeUplan([
+      { id: '01-fix-step', title: 'Fix Step', intro: 'Step that needs fix', red: '- Remove broken file', success: '- [ ] file removed' },
+    ], 'step');
+    writeFileSync(join(cvmDir, 'uplan.json'), uplan);
+
+    const source = readFileSync(EXECUTOR_PATH, 'utf-8');
+    await vm.loadProgram('pe-step-fix', source);
+    await vm.startExecution('pe-step-fix', 'exec-step-fix');
+
+    const prompts: string[] = [];
+    let verifyCount = 0;
+    let next = await vm.getNext('exec-step-fix');
+    while (next.type === 'waiting') {
+      prompts.push(next.message || '');
+      let response = 'done';
+      if (next.message!.includes('VERIFY') || next.message!.includes('RE-VERIFY')) {
+        verifyCount++;
+        response = verifyCount <= 1 ? 'failed' : 'passed';
+      }
+      await vm.reportCCResult('exec-step-fix', response);
+      next = await vm.getNext('exec-step-fix');
+    }
+
+    expect(next.type).toBe('completed');
+    expect(prompts.filter(p => p.includes('FIX'))).toHaveLength(1);
+    expect(prompts.filter(p => p.includes('RE-VERIFY'))).toHaveLength(1);
 
     await vm.dispose();
   });
