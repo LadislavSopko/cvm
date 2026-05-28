@@ -12,18 +12,38 @@ function main() {
   console.log("=== CVM Benchmark Runner ===");
   console.log("Task loaded: " + task.length + " chars");
 
-  console.log("Phase 1: Generating TDDAB plan...");
-  CC("You have a coding task to solve. Follow these steps IN ORDER: " +
+  console.log("Phase 1: Understand the codebase...");
+  CC("You have a coding task to solve. Before anything else, UNDERSTAND the project: " +
+    "1. Read the task description below to know WHAT is needed. " +
+    "2. Explore the codebase: file structure, existing code, tests, build system. " +
+    "3. Identify the language, framework, test runner, and key patterns used. " +
+    "TASK: " + task + " " +
+    "Explore thoroughly. Respond with done when you understand the project.");
+
+  console.log("Codebase explored");
+
+  console.log("Phase 2: Initialize Memory Bank...");
+  CC("Create a memory-bank/ directory and initialize it with project context from your exploration: " +
+    "1. memory-bank/productContext.md — what this project does, its purpose " +
+    "2. memory-bank/techContext.md — language, framework, build commands, test commands, dependencies " +
+    "3. memory-bank/activeContext.md — current task context and what needs to be done " +
+    "4. memory-bank/progress.md — empty for now, will track block progress " +
+    "Use MBEL v5.0 format if memory-bank/README.md exists, otherwise use plain text. " +
+    "Respond with done when memory-bank is initialized.");
+
+  console.log("Memory Bank initialized");
+
+  console.log("Phase 3: Generate TDDAB plan...");
+  CC("Now generate the implementation plan. Follow these steps IN ORDER: " +
     "1. Load the TDDAB planner mindset: use skill /mind-sets:tddab-planner " +
     "2. Read the mindset carefully — it contains ALL the rules for creating plans. " +
-    "3. Read the task description below. " +
-    "4. Generate a TDDAB plan following the mindset rules. Save as plan.md. " +
-    "TASK: " + task + " " +
+    "3. Use your codebase understanding and memory-bank context to generate a TDDAB plan. " +
+    "4. Save as plan.md. " +
     "Respond with done when plan.md is saved.");
 
   console.log("Plan generated");
 
-  console.log("Phase 2: Reviewing plan...");
+  console.log("Phase 4: Review plan...");
   var reviewOk = "failed";
   while (reviewOk !== "passed") {
     reviewOk = CC("Review the plan you created. Follow these steps: " +
@@ -38,7 +58,7 @@ function main() {
 
   console.log("Plan reviewed and approved");
 
-  console.log("Phase 3: Executing plan via CVM...");
+  console.log("Phase 5: Execute plan via CVM...");
   CC("Use skill /j-cvm-exec-plan on plan.md");
 
   console.log("=== Benchmark Runner Complete ===");
