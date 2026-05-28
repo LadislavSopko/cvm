@@ -121,8 +121,9 @@ describe('planexecutor', () => {
     expect(prompts[1]).toContain('GREEN PHASE');
     expect(prompts[2]).toContain('VERIFY PHASE');
     expect(prompts[3]).toContain('CROSS-CHECK');
-    expect(prompts[4]).toContain('COMMIT PHASE');
-    expect(prompts[5]).toContain('FINAL REVIEW');
+    expect(prompts[4]).toContain('UPDATE MEMORY BANK');
+    expect(prompts[5]).toContain('COMMIT PHASE');
+    expect(prompts[6]).toContain('FINAL REVIEW');
 
     await vm.dispose();
   });
@@ -260,7 +261,8 @@ describe('planexecutor', () => {
     expect(prompts[0]).toContain('EXECUTE');
     expect(prompts[0]).toContain('01-cleanup');
     expect(prompts[1]).toContain('VERIFY');
-    expect(prompts[2]).toContain('COMMIT');
+    expect(prompts[2]).toContain('UPDATE MEMORY BANK');
+    expect(prompts[3]).toContain('COMMIT');
     expect(prompts[prompts.length - 1]).toContain('FINAL REVIEW');
 
     expect(prompts.filter(p => p.includes('RED PHASE'))).toHaveLength(0);

@@ -108,6 +108,9 @@ function main() {
         console.log("RE-VERIFY result for " + block.id + ": " + stepResult);
       }
 
+      CC("UPDATE MEMORY BANK [" + progress + "] step " + block.id + ": " + block.title + ". " +
+        "Update memory-bank/activeContext.md and memory-bank/progress.md with what was completed in this block." + toolsReminder + submitDone);
+
       CC("COMMIT [" + progress + "] step " + block.id + ": " + block.title + ". " +
         "All criteria verified. " +
         "Git add and commit with message: chore: " + block.title + "." + submitDone);
@@ -205,6 +208,9 @@ function main() {
           "SUCCESS CRITERIA: " + block.success + " " +
           "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
       }
+
+      CC("UPDATE MEMORY BANK [" + progress + "] block " + block.id + ": " + block.title + ". " +
+        "Update memory-bank/activeContext.md and memory-bank/progress.md with what was completed in this block." + toolsReminder + submitDone);
 
       CC("COMMIT PHASE [" + progress + "] block " + block.id + ": " + block.title + ". " +
         "All tests pass and all criteria verified. " +
