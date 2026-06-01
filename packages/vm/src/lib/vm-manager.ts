@@ -218,6 +218,12 @@ export class VMManager {
       throw new Error(`Execution not found: ${executionId}`);
     }
 
+    if (execution.state !== 'AWAITING_COGNITIVE_RESULT') {
+      throw new Error(
+        `Cannot submit result: execution '${executionId}' is in state '${execution.state}', expected 'AWAITING_COGNITIVE_RESULT'`
+      );
+    }
+
     const program = await this.storage.getProgram(execution.programId);
     if (!program) {
       throw new Error(`Program not found: ${execution.programId}`);

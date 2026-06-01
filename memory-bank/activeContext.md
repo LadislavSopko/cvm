@@ -1,53 +1,50 @@
 §MBEL:5.0
 
 [FOCUS]
-@state::DEVELOP
-@feature::02-multi-file-plan+step-plans+guardrails+benchmark
-@branch::feature/universal-template
-@date::2026-05-28
+@state::PLAN
+@feature::03-submitTask-guard
+@branch::feature/03-submitTask-guard
+@date::2026-06-01
 
-[DELIVERED-MultiFile]{2026-05-26}
-@multiFilePlan::✓{parsePlan→detects files tag→readsSubFiles→mergesBlocks}
-@parseOptions::✓{requireMission+requireBlocks→optional}
-@parseFilesTag::✓{extractsFilenameList}
-@sourceFilesArray::✓{uplan.json→sourceFiles[]+sourceFile{backwardCompat}}
-@serverInfoTool::✓{MCPtool→name+version+programCount+executionCount}
+[ISSUE]
+@githubIssue::#9{planexecutor phase state machine desyncs under batched getTask/submitTask}
+@rootCause::reportCCResult{vm-manager.ts:215}→¬checksState→acceptsSubmitInAnyState
+@desync::client batches submitTask→VM advances without valid AWAITING_COGNITIVE_RESULT state
+@fix::twoFronts{server+client}
 
-[DELIVERED-StepPlans]{2026-05-27}
-@actionsTag::✓{parser accepts actions tag with - action: lines}
-@planType::✓{auto-detect→tddab|step based on tag content}
-@stepFlow::✓{EXECUTE→VERIFY→fixLoop→COMMIT{noRED/GREEN/CROSSCHECK}}
-@stepPlanner::✓{ai-agent step-planner.md separate from tddab-planner}
+[SERVER-SIDE]
+@guard::reportCCResult→throwIf{execution.state¬'AWAITING_COGNITIVE_RESULT'}
+@errorChain::throw→mcpServer catch{mcp-server.ts:257}→isError:true→client
+@plan::tasks/03-submitTask-guard/plan.md{1block TDDAB→reviewed✓+fixedRUNNINGstate}
+@testFile::packages/vm/src/lib/vm-manager-submit-guard.spec.ts{new}
+@reviewFix::addedRUNNINGstate{red+implementation+success}→all5statesCovered
 
-[DELIVERED-Guardrails]{2026-05-26-27}
-@verifyPrompt::✓{mandatory checklist+file:line evidence+code nav tools}
-@crossCheck::✓{JSON object→redKeys as properties→Claude fills true/false→program decides}
-@redKeys::✓{generated in parsePlan→toRedKey()→40char snake_case}
-@fixPhase::✓{Protocol D referenced in every FIX prompt}
-@toolsReminder::✓{includes LSAI+vs-mcp+xmp4}
-@missionContext::✓{prepended to first CC() of every block{notEveryCC}}
-@noMissionBriefing::✓{removed separate MISSION BRIEFING→missionCtx in block start}
-@mbUpdate::✓{UPDATE MEMORY BANK CC() before every COMMIT}
+[CLIENT-SIDE]
+@aiAgent::v2.17.28{j-cvm-exec-plan.md updated}
+@rules::
+- ALLcvmCalls(getTask+submitTask)→masterOnly{¬subagents}
+- ONEcvmToolCallPerTurn
+- strictSequence::getTask→work→submitTask→waitConfirm→getTask
+- subagentsOK→forWork{analyzeFiles+runTests+codeNav}
+- subagentsVIETATO→forCVMprotocol{mcp__cvm__*tools}
 
-[DELIVERED-Benchmark]{2026-05-28}
-@benchmarkRunner::✓{benchmark/benchmark-runner.ts→3CC:plan+reviewLoop+execSkill}
-@deepsweResearch::✓{pier supports skills_dir+memory_dir+mcp_servers natively}
-@pierClaudeCode::✓{--ak skills_dir+subscription via CLAUDE_CODE_OAUTH_TOKEN}
+[SUBMODULE]
+@aiAgent::removedAndReadded{cleanSubmodule}
+>commit::c4455d3{chore: remove .ai-agent submodule}
+>readded::gitSubmoduleAdd{pointsTo 3dba33c master}
+@gitGraphIssue::ServiceWorkerInvalidStateError{VSCode webview bug→openIssue#316991}
 
 [ARCHITECTURE]
 @planTypes::tddab{RED→GREEN→VERIFY→CROSSCHECK→MBUPDATE→COMMIT}+step{EXECUTE→VERIFY→MBUPDATE→COMMIT}
 @multiFile::index.md{mission+files}→subFiles{blocks only}→merged uplan.json
 @crossCheck::redKeys JSON template→Claude fills true/false→program verifies
-@benchmarkFlow::CC1{loadMindset+generatePlan}→CC2{reviewLoop}→CC3{useSkill /j-cvm-exec-plan}
-@collaboration::claude-chat room"cvm"→cvm-builder+ai-agent-builder+neo-ram+human
+@collaboration::claude-chat room"cvm"→cvm-builder+ai-agent-builder+human
 
-[STATS]
-@vitestTests::87passing
-@build::7projects✓
-@npmPublished::cvm-server@0.16.0-next.7{tagNext}
-@aiAgent::v2.17.25{feature/tddab-v2}
+[DEVELOPED]
+>block01-state-guard::RED✓→GREEN✓→VERIFY✓→CROSSCHECK✓→MBUPDATE✓{2026-06-01}
+>guard::vm-manager.ts:221{throwIf state≠AWAITING_COGNITIVE_RESULT}
+>tests::vm-manager-submit-guard.spec.ts{5tests allPass}
 
 [NEXT]
-?publishNext.8{mbUpdate+benchmark-runner}
-?deepswePOC→1task dry-run
-?mergeToMain→publishStable
+?commit→pushBranch→PR→mergeToMain
+?closeIssue#9{withPRreference}
