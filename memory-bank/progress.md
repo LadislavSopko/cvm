@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [MissionStatus]
-@status::03-submitTask-guard→DEVELOPED✓{RED+GREEN+VERIFY+CROSSCHECK passed}
+@status::03-submitTask-guard→CLOSED✓{merged+released cvm-server@1.0.1}
 @CVM::algorithmicTODOManager{forClaude}→complexMultiStepOrchestration+statePersistence
 
 [CoreSystem]✓
@@ -24,7 +24,7 @@
 @state::IDLE
 
 [Completed]
->03-submitTask-guard::stateGuard{vm-manager.ts:221}+5tests+e2e64/64→merged main{2026-06-01}
+>03-submitTask-guard::stateGuard{vm-manager.ts:221}+5tests+e2e64/64→merged+released cvm-server@1.0.1{2026-06-01}
 >aiAgentSync::j-cvm-exec-plan.md→syncProtocolRules{v2.17.28}{2026-06-01}
 >submoduleCleanup::removedBroken+readdedClean{2026-06-01}
 >benchmarkKit→created{2026-05-28}

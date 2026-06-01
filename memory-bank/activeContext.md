@@ -12,3 +12,5 @@
 @tests::vm-manager-submit-guard.spec.ts{5tests allPass}
 @e2e::64/64 pass
 @commit::8c42e80{feat: add state guard to reportCCResult (fixes #9)}
+@release::cvm-server@1.0.1{npm publish pending→user OTP}
+@note::1.0.0 blocked on npm registry→bumped to 1.0.1
