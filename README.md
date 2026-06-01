@@ -2,7 +2,11 @@
 
 **Stop writing fragile AI scripts. Write programs that Claude executes one thought at a time.**
 
+> **CVM is dual-licensed** under [AGPL-3.0-or-later](./LICENSE) for open source use and a [commercial license](./COMMERCIAL.md) for proprietary integration. See [COMMERCIAL.md](./COMMERCIAL.md) for details.
+
 [![npm version](https://badge.fury.io/js/cvm-server.svg)](https://www.npmjs.com/package/cvm-server)
+[![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
+[![Commercial License Available](https://img.shields.io/badge/Commercial-Available-green.svg)](./COMMERCIAL.md)
 
 **TRADITIONAL SCRIPT**
 
@@ -480,4 +484,17 @@ With CVM: Brilliant with perfect memory and a checklist
 
 ---
 
-Copyright 2025 Ladislav Sopko. Licensed under Apache 2.0.
+## License
+
+CVM is **dual-licensed**:
+
+- **[AGPL-3.0-or-later](./LICENSE)** — free for open source, personal, research, and internal use that complies with the AGPL network clause (section 13).
+- **[Commercial license](./COMMERCIAL.md)** — required for proprietary integration, closed-source redistribution, or any use incompatible with AGPL-3.0.
+
+If you are a company that wants to integrate CVM into a commercial product, ship it inside a closed-source tool, or expose it as part of a hosted service without releasing your own code under AGPL, see [COMMERCIAL.md](./COMMERCIAL.md).
+
+> **Note on previous versions:** All releases up to and including version `0.16.0-next.8` were licensed under Apache-2.0 and remain available under those terms. Starting from version `1.0.0`, CVM is dual-licensed as described above.
+
+---
+
+Copyright (C) 2025-2026 Ladislav Sopko.

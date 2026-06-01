@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2025-2026 Ladislav Sopko
+
 import type { CVMValue, CVMArrayRef, CVMObjectRef, CVMArray, CVMObject } from '@cvm/types';
 import type { VMHeap } from './vm-heap.js';
 import { isCVMArrayRef, isCVMObjectRef } from '@cvm/types';

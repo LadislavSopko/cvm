@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2025-2026 Ladislav Sopko
+
 /**
  * Core types for the CVM system
  * These are shared between multiple packages

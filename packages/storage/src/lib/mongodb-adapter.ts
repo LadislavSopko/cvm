@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2025-2026 Ladislav Sopko
+
 import { MongoClient, Db, Collection } from 'mongodb';
 import { Program, Execution } from '@cvm/types';
 import { StorageAdapter } from './storage.js';
