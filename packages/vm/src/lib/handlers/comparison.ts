@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2025-2026 Ladislav Sopko
+
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler, VMError } from './types.js';
 import { cvmToNumber, cvmToString, isCVMNull, isCVMUndefined, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';

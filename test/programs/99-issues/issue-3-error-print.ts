@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Test for Issue #3: Error print shows [object Object]
  * This should trigger a compilation error to see the bad error message

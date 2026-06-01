@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("=== Complete RegExp Pattern Matching E2E Test ===");
   

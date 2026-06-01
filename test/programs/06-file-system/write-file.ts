@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare var fs: any;
+
 function main() {
   console.log("Testing fs.writeFile");
   

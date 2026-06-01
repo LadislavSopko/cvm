@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Tests: Runtime test for JUMP_IF_FALSE -1 issue
  * Features: Complex nested loops with breaks and continues

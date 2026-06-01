@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("Test array indexing");
   const arr = [10, 20, 30];

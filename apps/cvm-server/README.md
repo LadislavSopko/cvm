@@ -227,4 +227,4 @@ Check logs for:
 
 ## License
 
-Apache 2.0 - See LICENSE file for details
+AGPL-3.0-or-later — See [LICENSE](../../LICENSE) for details. Commercial license available — see [COMMERCIAL.md](../../COMMERCIAL.md).

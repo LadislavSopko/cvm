@@ -1,3 +1,6 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2025-2026 Ladislav Sopko
+
 import { StorageAdapter } from './storage.js';
 import { FileStorageAdapter } from './file-adapter.js';
 import { MongoDBAdapter } from './mongodb-adapter.js';

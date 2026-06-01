@@ -33,8 +33,8 @@ npx nx test --all
 - We use TypeScript with ES modules
 - All imports must use `.js` extension
 - Follow existing code patterns and conventions
-- Add Apache 2.0 license header to new source files
+- Add SPDX license header to new source files (`// SPDX-License-Identifier: AGPL-3.0-or-later`)
 
 ## License
 
-By contributing to CVM, you agree that your contributions will be licensed under the Apache License 2.0.
+By contributing to CVM, you agree that your contributions will be licensed under the AGPL-3.0-or-later license. A Contributor License Agreement (CLA) may be required for external contributions to preserve the dual-licensing model — see [COMMERCIAL.md](./COMMERCIAL.md) for details.

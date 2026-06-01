@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Tests: C-style for loop functionality
  * Features: basic for loops, break, continue, nested loops, edge cases

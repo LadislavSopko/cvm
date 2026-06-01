@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Test for Issue #2: string.split() with undefined array access corrupts heap
  * Reproducing the exact scenario: 20 tasks, split()[2] on short strings

@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("Testing arrays...");
   const arr = [1, 2, 3];

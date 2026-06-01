@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Test for Issue #2: string.split() corrupts heap
  * When using split() in a loop with array of tasks, the heap gets corrupted

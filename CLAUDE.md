@@ -183,6 +183,11 @@ The Memory Bank is Claude's ONLY connection to the project between sessions. Wit
 - Always use MCP tools instead of direct database connections
 - MCP tools provide better error handling and consistency
 
+### Code Navigation
+- Use `mcp__lsai__*` tools for navigating THIS project's code (search symbols, usages, callers, callees, hierarchy, impact analysis, outline, diagnostics)
+- Use `mcp__xmp4__*` tools for navigating THIRD-PARTY libraries (npm dependencies, external APIs — first `xmp4_projects` to find the project, then `xmp4_search`/`xmp4_info`/`xmp4_usages` etc.)
+- Prefer LSAI/xmp4 over grep/glob/find for code navigation — they provide compiler-grade intelligence
+
 ## Project-Specific Notes
 
 ### Import/Export Patterns

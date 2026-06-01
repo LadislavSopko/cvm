@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare var fs: any;
+
 // Test for-of loop with fs.listFiles
 function main() {
   console.log("Testing for-of with fs.listFiles");

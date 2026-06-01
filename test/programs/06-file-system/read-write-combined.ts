@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare var fs: any;
+
 // Test program for fs.readFile and fs.writeFile functionality
 function main() {
   console.log("Testing fs.readFile and fs.writeFile...");

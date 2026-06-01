@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Tests: Debug JUMP_IF_FALSE -1 issue
  * Features: Simple test to check if JUMP_IF_FALSE ever has -1 as argument

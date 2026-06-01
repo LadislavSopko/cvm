@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Minimal test to reproduce Issue #2: heap corruption 
  * Focused on the exact pattern that causes the issue

@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Comprehensive test for string.replace() functionality
  * Tests Issue #5 fix: string.replace('aa','nn') not working after regexp was added

@@ -1,23 +1,22 @@
+§MBEL:5.0
 
-# Project: CVM
+[Mission]
+@CVM::AlgorithmicTODOManager{forClaude}
+@purpose::Programs→SmartTODOLists{systematic+¬contextLoss}
 
-## 🎯 CVM's Mission
+[WhatCVMIs]
+@is::PassiveStateMachine{Claude→asks"whatsNext"→CVMgivesTask→complete→repeat}
+@is::PerfectExecutionFlow{across#1000sOperations}
+@solves::"Claude,analyzeThese1000Files"→¬confusion
 
-**CVM is an algorithmic TODO manager for Claude.** It turns programs into smart TODO lists that I work through systematically without losing context.
+[WhatCVMIsNot]
+¬generalPurposeLang
+¬complexComputation
+¬traditionalScripting
 
-## What CVM Really Does:
-- **NOT** a general-purpose programming language
-- **NOT** about complex computation or algorithms
-- **IS** a passive state machine that I query for tasks
-- **IS** a way to maintain perfect execution flow across 1000s of operations
-- **IS** designed to solve: "Claude, analyze these 1000 files" → without me getting confused
+[CoreConcept]
+CC()::CreateTaskForClaude
+CC("SummarizeFile:"+filename)→createsTODO{¬callsClaude}
 
-## Key Concept: CC() = "Create Task for Claude"
-```typescript
-CC("Summarize this file: " + filename)  // Creates a TODO, doesn't "call" me
-```
-
-## Architecture:
-```
-Claude → asks "what's next?" → CVM gives task → Claude completes → repeat
-```
+[Architecture]
+Claude→asks"whatsNext?"→CVMgivesTask→Claudecompletes→repeat

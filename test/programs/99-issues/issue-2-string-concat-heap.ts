@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Issue #2: Test heap corruption with complex string concatenation
  * Simulating the exact pattern from entity-form-foundation-program

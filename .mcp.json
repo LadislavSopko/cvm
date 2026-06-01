@@ -1,15 +1,12 @@
 {
   "mcpServers": {
-    "brave-search": {
-      "type": "stdio",
-      "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-brave-search"
-      ],
-      "env": {
-        "BRAVE_API_KEY": "BSAnpwFBPlUwkiN93SlnT-DsH36Eosd"
-      }
+    "lsai": {
+      "command": "/home/laco/.lsai/run",
+      "args": ["--stdio"]
+    },
+    "xmp4": {
+      "type": "http",
+      "url": "https://mcp.example4.ai/mcp"
     },
     "context7": {
       "type": "stdio",
@@ -37,6 +34,26 @@
         "CVM_LOG_LEVEL": "info",
         "CVM_SANDBOX_PATHS":"/home/laco/cvm",
         "CVM_LOG_FILE":".cvm/cvm-debug.log"
+      }
+    },
+    "cvm-dbg": {
+      "command": "node",
+      "args": ["/home/laco/cvm/apps/cvm-server/dist/main.cjs"],      
+      "env": {
+        "CVM_STORAGE_TYPE": "file",
+        "CVM_DATA_DIR": ".cvm",
+        "CVM_LOG_LEVEL": "trace",
+        "CVM_SANDBOX_PATHS":"/home/laco/cvm",
+        "CVM_LOG_FILE":".cvm/cvm-debug.log"
+      }
+    },
+    "claude-chat": {
+      "command": "bunx",
+      "args": ["cc-chat-mcp@latest"],
+      "env": {
+        "CLAUDE_CHAT_URL": "ws://localhost:4444",
+        "CLAUDE_CHAT_NAME": "cvm-builder",
+        "CLAUDE_CHAT_LOG": "/tmp/cc-mcp-debug.log"
       }
     }
   }

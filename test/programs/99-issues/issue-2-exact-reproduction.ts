@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Exact reproduction of Issue #2 heap corruption
  * Based on entity-form-foundation-program structure

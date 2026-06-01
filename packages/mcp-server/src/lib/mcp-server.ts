@@ -1,10 +1,30 @@
+// SPDX-License-Identifier: AGPL-3.0-or-later
+// Copyright (C) 2025-2026 Ladislav Sopko
+
 import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { z } from 'zod';
 import { VMManager } from '@cvm/vm';
-import { readFile } from 'fs/promises';
-import { resolve } from 'path';
+import { readFile, writeFile, mkdir, rename } from 'fs/promises';
+import { resolve, dirname, join } from 'path';
+import { fileURLToPath } from 'url';
+import { parseTddabPlan, parseFilesTag } from './tddab-parser.js';
+
+function deducePlanType(blocks: { isAction: boolean }[]): 'tddab' | 'step' {
+  const hasAction = blocks.some(b => b.isAction);
+  const hasTest = blocks.some(b => !b.isAction);
+  if (hasAction && !hasTest) return 'step';
+  return 'tddab';
+}
+
+function toRedKey(test: string): string {
+  return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
+}
+
+const BUILTIN_PROGRAMS: Record<string, string> = {
+  '@planexecutor': 'planexecutor.ts',
+};
 
 /**
  * MCP Server - A thin interface layer for the CVM
@@ -36,7 +56,26 @@ export class CVMMcpServer {
   }
 
   private setupTools(): void {
-    // Load a CVM program
+    this.server.tool(
+      'server_info',
+      {},
+      async () => {
+        const programs = await this.vmManager.listPrograms();
+        const executions = await this.vmManager.listExecutions();
+        return {
+          content: [{
+            type: 'text',
+            text: JSON.stringify({
+              name: 'cvm-server',
+              version: this.version,
+              programs: programs.length,
+              executions: executions.length,
+            }, null, 2)
+          }]
+        };
+      }
+    );
+
     this.server.tool(
       'load',
       {
@@ -67,10 +106,15 @@ export class CVMMcpServer {
       },
       async ({ programId, filePath }) => {
         try {
-          // Resolve the path to prevent directory traversal
-          const resolvedPath = resolve(filePath);
-          
-          // Read the file
+          let resolvedPath: string;
+          const builtinFile = BUILTIN_PROGRAMS[filePath];
+          if (builtinFile) {
+            const serverDir = dirname(fileURLToPath(import.meta.url));
+            resolvedPath = join(serverDir, 'programs', builtinFile);
+          } else {
+            resolvedPath = resolve(filePath);
+          }
+
           const source = await readFile(resolvedPath, 'utf-8');
           
           // Load the program using existing VMManager method
@@ -498,6 +542,138 @@ export class CVMMcpServer {
           const execId = await this.vmManager.restartExecution(programId, executionId);
           return {
             content: [{ type: 'text', text: `Execution started: ${execId} (set as current)` }]
+          };
+        } catch (error) {
+          return {
+            content: [{ type: 'text', text: `Error: ${error instanceof Error ? error.message : 'Unknown error'}` }],
+            isError: true
+          };
+        }
+      }
+    );
+
+    this.server.tool(
+      'parsePlan',
+      { filePath: z.string() },
+      async ({ filePath }) => {
+        try {
+          const resolvedPath = resolve(filePath);
+          const markdown = await readFile(resolvedPath, 'utf-8');
+          const subFiles = parseFilesTag(markdown);
+
+          let uplanData;
+
+          if (subFiles.length === 0) {
+            const result = parseTddabPlan(markdown, filePath);
+
+            if (!result.valid) {
+              const errorText = result.errors.map(e => `line ${e.line}: ${e.message}`).join('\n');
+              return {
+                content: [{ type: 'text', text: `Plan validation failed:\n${errorText}` }],
+                isError: true
+              };
+            }
+
+            const plan = result.plan!;
+            uplanData = {
+              type: deducePlanType(plan.blocks),
+              mission: plan.mission,
+              sourceFile: plan.sourceFile,
+              blocks: plan.blocks.map(b => ({
+                id: b.id,
+                title: b.title,
+                intro: b.intro,
+                red: b.redTests.map(t => '- ' + t).join('\n'),
+                redKeys: b.redTests.map(t => toRedKey(t)),
+                success: b.success.map(s => '- [ ] ' + s).join('\n'),
+                planRef: `See ${plan.sourceFile} lines ${b.startLine}-${b.endLine}`,
+              })),
+            };
+          } else {
+            const baseDir = dirname(resolvedPath);
+            const indexResult = parseTddabPlan(markdown, filePath, { requireBlocks: false });
+            if (!indexResult.valid) {
+              const errorText = indexResult.errors.map(e => `line ${e.line}: ${e.message}`).join('\n');
+              return {
+                content: [{ type: 'text', text: `Index plan validation failed:\n${errorText}` }],
+                isError: true
+              };
+            }
+            const mission = indexResult.plan!.mission;
+
+            const allBlocks: { id: string; title: string; intro: string; red: string; redKeys: string[]; success: string; planRef: string; isAction: boolean }[] = [];
+            const seenIds = new Set<string>();
+            const sourceFiles = [resolvedPath];
+
+            for (const subFile of subFiles) {
+              const subPath = resolve(baseDir, subFile);
+              let subMarkdown: string;
+              try {
+                subMarkdown = await readFile(subPath, 'utf-8');
+              } catch {
+                return {
+                  content: [{ type: 'text', text: `Error: Sub-file not found: ${subFile}` }],
+                  isError: true
+                };
+              }
+
+              const subResult = parseTddabPlan(subMarkdown, subFile, { requireMission: false });
+              if (!subResult.valid) {
+                const errorText = subResult.errors.map(e => `${subFile} line ${e.line}: ${e.message}`).join('\n');
+                return {
+                  content: [{ type: 'text', text: `Plan validation failed in ${subFile}:\n${errorText}` }],
+                  isError: true
+                };
+              }
+
+              sourceFiles.push(subPath);
+
+              for (const block of subResult.plan!.blocks) {
+                if (seenIds.has(block.id)) {
+                  return {
+                    content: [{ type: 'text', text: `Error: Duplicate block id "${block.id}" in ${subFile}` }],
+                    isError: true
+                  };
+                }
+                seenIds.add(block.id);
+                allBlocks.push({
+                  id: block.id,
+                  title: block.title,
+                  intro: block.intro,
+                  red: block.redTests.map(t => '- ' + t).join('\n'),
+                  redKeys: block.redTests.map(t => toRedKey(t)),
+                  success: block.success.map(s => '- [ ] ' + s).join('\n'),
+                  planRef: `See ${subPath} lines ${block.startLine}-${block.endLine}`,
+                  isAction: block.isAction,
+                });
+              }
+            }
+
+            uplanData = {
+              type: deducePlanType(allBlocks),
+              mission,
+              sourceFile: resolvedPath,
+              sourceFiles,
+              blocks: allBlocks,
+            };
+          }
+
+          const dataDir = resolve(process.env['CVM_DATA_DIR'] || '.cvm');
+          await mkdir(dataDir, { recursive: true });
+          const uplanPath = resolve(dataDir, 'uplan.json');
+          try { await rename(uplanPath, uplanPath + '.bak'); } catch {}
+          await writeFile(uplanPath, JSON.stringify(uplanData, null, 2), 'utf-8');
+
+          return {
+            content: [{
+              type: 'text',
+              text: JSON.stringify({
+                valid: true,
+                blocks: uplanData.blocks.length,
+                path: uplanPath,
+                blockIds: uplanData.blocks.map(b => b.id),
+              }, null, 2)
+            }]
           };
         } catch (error) {
           return {

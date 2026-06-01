@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 function main() {
   console.log("=== TODO: File Processing with RegExp ===");
   console.log("Demonstrating regex literals in TODO orchestration workflow");

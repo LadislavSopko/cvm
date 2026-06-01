@@ -1,5 +1,5 @@
-// CVM Focus Program - Forces Claude to read Memory Bank at session start
-// This ensures Claude has full context of the project state
+/// <reference no-default-lib="true"/>
+declare function CC(prompt: string): string;
 
 function main() {
   CC("Review CLAUDE.md for project-specific rules and conventions, respond just 'done' when finished.");

@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare var fs: any;
+
 // Test basic fs.listFiles functionality
 function main() {
   console.log("Testing fs.listFiles basic functionality");

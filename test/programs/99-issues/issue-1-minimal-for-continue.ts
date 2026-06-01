@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * Tests: Minimal test to show for-continue bug
  * Features: Simple for loop with continue

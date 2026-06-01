@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 // Test variable scoping in code blocks
 function main() {
   console.log("=== Testing Block Scoping ===");

@@ -1,3 +1,6 @@
+/// <reference no-default-lib="true"/>
+declare var fs: any;
+
 // Test fs.listFiles with recursive option
 function main() {
   console.log("=== Testing fs.listFiles with recursive option ===");

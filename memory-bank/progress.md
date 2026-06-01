@@ -1,69 +1,40 @@
-# Progress Report
+§MBEL:5.0
 
-## Mission Status: ✅ PRODUCTION READY
+[MissionStatus]
+@status::StepPlans+Guardrails+BenchmarkKit delivered
+@CVM::algorithmicTODOManager{forClaude}→complexMultiStepOrchestration+statePersistence
 
-CVM successfully serves as an algorithmic TODO manager for Claude, enabling complex multi-step task orchestration with state persistence.
+[CoreSystem]✓
+- VirtualMachine::stackBased+heapMemoryManagement✓
+- BytecodeCompiler::AST→bytecode{TSParsing}✓
+- StatePersistence::file+MongoDBintegration{crossSession}✓
+- MCPIntegration::MCPserver{forClaudeIntegration}✓
+- Testing::Vitest#87passing✓
 
-## Core System ✅
-- **Virtual Machine**: Stack-based execution with heap memory management
-- **Bytecode Compiler**: AST → bytecode transformation with TypeScript parsing
-- **State Persistence**: MongoDB integration for cross-session continuity
-- **MCP Integration**: Model Context Protocol server for Claude integration
-- **Testing**: 56/56 E2E tests passing + all unit/integration tests passing across entire project
+[TDDABPipeline]✓
+- parsePlan::singleFile+multiFile{files tag}+stepPlans{actions tag}✓
+- planType::autoDetect{tddab|step}→uplan.json type field✓
+- tddabFlow::RED→GREEN→VERIFY→CROSSCHECK→MBUPDATE→COMMIT✓
+- stepFlow::EXECUTE→VERIFY→fixLoop→MBUPDATE→COMMIT✓
+- verifyGuardrail::mandatoryChecklist+file:line evidence+codeNavTools✓
+- crossCheck::redKeys JSON→Claude fills true/false→program decides✓
+- missionContext::prepended to first CC() per block{notEveryCC}✓
+- mbUpdate::UPDATE MEMORY BANK CC() before every COMMIT✓
+- protocolD::referenced in every FIX prompt✓
+- resume::uplan-progress.json→skipDoneBlocks{automaticOnRestart}✓
+- serverInfoTool::MCPtool→name+version+programCount+executionCount✓
 
-## Language Features ✅
-**Complete TODO orchestration feature set:**
-- **Types**: string, number, boolean, null, undefined
-- **Operators**: Arithmetic, comparison, logical, assignment
-- **Control Flow**: if/else, while, for-of, switch/case, for(;;), for...in
-- **Data Structures**: Arrays and Objects with full manipulation
-- **Built-ins**: JSON, console.log, CC() cognitive calls
-- **File System**: fs.readFile(), fs.writeFile(), fs.listFiles() with sandboxing
-- **RegExp**: Complete pattern matching with .test(), .match(), .replace()
+[BenchmarkKit]{2026-05-28}
+- benchmarkRunner::benchmark/benchmark-runner.ts{3CC:plan+reviewLoop+execSkill}✓
+- deepsweResearch::pier supports skills_dir+memory_dir+mcp_servers✓
+- pierIntegration::--ak skills_dir+CLAUDE_CODE_OAUTH_TOKEN{subscription}✓
 
-## RegExp Implementation ✅ (v0.15.0)
-**Production-ready pattern matching for sophisticated workflows:**
-- RegExp literals: `/pattern/flags` syntax
-- Pattern testing: `regex.test(string)`
-- Data extraction: `string.match(regex)`
-- Text transformation: `string.replace(regex, replacement)`
-- All flags: Global (g), case insensitive (i), multiline (m)
-- Capture groups: $1, $2, $&, $$ replacement patterns
-- JavaScript-compliant behavior with proper error handling
-
-**Enables**: Log analysis, data validation, content sanitization, pattern-based filtering
-
-## Design Principles ✅
-- **Operations never throw** - Return null/undefined on error
-- **Simplicity over features** - CVM is a TODO list, not a programming language
-- **Mission-focused** - Every feature helps orchestrate tasks for Claude
-
-## Features NOT Needed ❌
-- Callback functions (array.filter() excluded for this reason)
-- Classes/OOP, async/promises, try-catch blocks
-- Multiple function definitions (main() is sufficient)
-- Advanced math operations, complex data transformations
-
-## System Completion (July 28, 2025) ✅ COMPLETED
-- **All GitHub Issues Fixed**: Issues #1-5 resolved with comprehensive test validation
-- **BTLT Achievement**: Build ✅ TypeCheck ✅ Lint ✅ Test ✅ (57 E2E + all unit tests passing)
-- **Version Released**: System deployed and operational
-
-## Current Status
-**Mission Achieved** - CVM provides complete TODO orchestration capabilities. The passive architecture (Claude asks "what's next?") combined with state persistence enables infinite complexity through guided steps.
-
-**Quality Assurance**: Recent bug fixes fully validated with comprehensive E2E test coverage. BTLT process ensures zero failures, zero warnings, zero shortcuts.
-
-**Testing Issue Discovered**: VM execution logging revealed implementation-dependent tests that break when non-functional changes are made. Simple fix identified: make BREAK/CONTINUE error handling consistent.
-
-**Next**: Execute simple control flow fix to resolve testing anti-pattern and restore clean BTLT status.
-
-## Website: cvm.example4.ai ✅
-- **wwwroot/index.html** — Interactive landing page (human becomes CPU, 4 rounds, reveal)
-- **wwwroot/study.html** — Research report (CVM paradigm + market research, Chart.js charts)
-- **Stack**: Pure HTML/CSS/JS, Chart.js CDN, zero build step
-- **Theme**: Dark/light toggle, shared localStorage (`cvm-theme`), calmer navy palette
-- **Key research conclusion**: No existing framework inverts control the way CVM does
-- **Domain**: cvm.example4.ai (to be deployed on user's cluster)
-
-Ready for widespread production use with robust test infrastructure.
+[Completed]
+>benchmarkKit→created{2026-05-28}
+>stepPlanSupport→delivered+published{2026-05-27}
+>guardrails(CROSSCHECK+ProtocolD+missionCtx)→delivered{2026-05-26-27}
+>multiFilePlanSupport→delivered+published{2026-05-26}
+>TDDABpipelineFull→delivered{2026-05-25}
+>01-universal-template→developed{4blocks+resumePlan2blocks}✓{2026-05-25}
+>systemCompletion→allGitHubIssues#1-5fixed✓{2025-07-28}
+>regexpLiterals→fullyImplemented✓{2025-07-05}

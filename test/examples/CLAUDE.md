@@ -1,5 +1,19 @@
 # CVM Usage Instructions for Claude
 
+## Quick Start: Run TDDAB Plan with PlanExecutor
+
+To execute the plan in this directory:
+
+```
+1. mcp__cvm__parsePlan  → filePath: "/home/laco/cvm/test/examples/plan.md"
+2. mcp__cvm__loadFile   → programId: "planexecutor", filePath: "@planexecutor"
+3. mcp__cvm__start      → programId: "planexecutor", executionId: "run-1"
+4. mcp__cvm__getTask    → (loop: read prompt, do the work, submitTask with "done"/"passed"/"failed")
+5. mcp__cvm__submitTask → result: "done" (or "passed"/"failed" for VERIFY phases)
+```
+
+Repeat steps 4-5 until getTask returns "Execution completed".
+
 ## Overview
 The CVM (Cognitive Virtual Machine) server is now available as an MCP tool. You can use it to load and execute CVM programs that combine deterministic logic with AI reasoning.
 

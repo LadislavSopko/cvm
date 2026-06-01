@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 /**
  * More complex test for string.split() heap corruption
  * Testing nested operations and multiple heap allocations

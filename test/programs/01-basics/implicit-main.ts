@@ -1,3 +1,5 @@
+/// <reference no-default-lib="true"/>
+
 // Test program without explicit main() call
 function main() {
   console.log("=== Testing Implicit main() Execution ===");

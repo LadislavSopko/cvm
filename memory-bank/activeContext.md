@@ -1,150 +1,53 @@
-# Active Context
+§MBEL:5.0
 
-## Current Work Focus
+[FOCUS]
+@state::DEVELOP
+@feature::02-multi-file-plan+step-plans+guardrails+benchmark
+@branch::feature/universal-template
+@date::2026-05-28
 
-### VM Execution Logging & Testing Issue Resolution ⚠️ IN PROGRESS (August 2025)
-- **Status**: TDDAB-3 VM LOGGING COMPLETE ✅, DISCOVERED TESTING ANTI-PATTERN ⚠️
-- **Achievement**: 
-  - VM execution logging implemented with jump target validation
-  - Critical issue discovered: tests validate implementation details, not behavior
-  - Root cause: BREAK/CONTINUE error messages inconsistent, tests expect hardcoded strings
-- **Current Problem**: Adding logging broke tests because they test exact error strings instead of behavior
-- **Next Phase**: Fix inconsistent BREAK/CONTINUE error handling (simple 2-line fix)
-- **Learning**: Tests should verify behavior, not implementation artifacts
+[DELIVERED-MultiFile]{2026-05-26}
+@multiFilePlan::✓{parsePlan→detects files tag→readsSubFiles→mergesBlocks}
+@parseOptions::✓{requireMission+requireBlocks→optional}
+@parseFilesTag::✓{extractsFilenameList}
+@sourceFilesArray::✓{uplan.json→sourceFiles[]+sourceFile{backwardCompat}}
+@serverInfoTool::✓{MCPtool→name+version+programCount+executionCount}
 
-### Previous Work: RegExp Literals Implementation Complete ✅
-- **Status**: FULLY IMPLEMENTED (2025-07-05)
-- Complete RegExp literal support: `/pattern/flags` syntax
-- All standard flags supported: g, i, m, gim combinations
-- Property access: .source, .flags, .global, .ignoreCase, .multiline
-- Comprehensive E2E test suite with 4 test programs
-- Full integration with CVM's heap and object system
-- Perfect for TODO orchestration: pattern validation, file filtering, config checking
+[DELIVERED-StepPlans]{2026-05-27}
+@actionsTag::✓{parser accepts actions tag with - action: lines}
+@planType::✓{auto-detect→tddab|step based on tag content}
+@stepFlow::✓{EXECUTE→VERIFY→fixLoop→COMMIT{noRED/GREEN/CROSSCHECK}}
+@stepPlanner::✓{ai-agent step-planner.md separate from tddab-planner}
 
-## Recent Changes
+[DELIVERED-Guardrails]{2026-05-26-27}
+@verifyPrompt::✓{mandatory checklist+file:line evidence+code nav tools}
+@crossCheck::✓{JSON object→redKeys as properties→Claude fills true/false→program decides}
+@redKeys::✓{generated in parsePlan→toRedKey()→40char snake_case}
+@fixPhase::✓{Protocol D referenced in every FIX prompt}
+@toolsReminder::✓{includes LSAI+vs-mcp+xmp4}
+@missionContext::✓{prepended to first CC() of every block{notEveryCC}}
+@noMissionBriefing::✓{removed separate MISSION BRIEFING→missionCtx in block start}
+@mbUpdate::✓{UPDATE MEMORY BANK CC() before every COMMIT}
 
-### VM Execution Logging Implementation (August 2025) ✅ COMPLETED
-- **TDDAB-3 Complete**: VM execution logging with jump target validation
-- **Implementation**: Added Pino logger to VM with instruction tracing and error context
-- **Critical Discovery**: Tests are implementation-dependent, not behavior-driven
-- **Problem Revealed**: BREAK/CONTINUE have inconsistent error formats, tests expect hardcoded strings
-- **Technical Debt Found**: Adding logging broke tests because they validate exact error messages
-- **Solution Identified**: Simple fix - make error messages consistent, update test expectations
+[DELIVERED-Benchmark]{2026-05-28}
+@benchmarkRunner::✓{benchmark/benchmark-runner.ts→3CC:plan+reviewLoop+execSkill}
+@deepsweResearch::✓{pier supports skills_dir+memory_dir+mcp_servers natively}
+@pierClaudeCode::✓{--ak skills_dir+subscription via CLAUDE_CODE_OAUTH_TOKEN}
 
-### Console.log Debugging Investigation (August 2025) ✅ COMPLETED  
-- **Problem**: console.log from CVM server process not visible during testing
-- **Root Cause**: StdioClientTransport uses stdout for JSON-RPC protocol, only stderr visible  
-- **Technical Discovery**: console.error works, console.log doesn't due to MCP protocol architecture
-- **Solution Found**: Pino logging library with out-of-process file handling
-- **Key Learning**: Never assume logging works - always verify output channels first
+[ARCHITECTURE]
+@planTypes::tddab{RED→GREEN→VERIFY→CROSSCHECK→MBUPDATE→COMMIT}+step{EXECUTE→VERIFY→MBUPDATE→COMMIT}
+@multiFile::index.md{mission+files}→subFiles{blocks only}→merged uplan.json
+@crossCheck::redKeys JSON template→Claude fills true/false→program verifies
+@benchmarkFlow::CC1{loadMindset+generatePlan}→CC2{reviewLoop}→CC3{useSkill /j-cvm-exec-plan}
+@collaboration::claude-chat room"cvm"→cvm-builder+ai-agent-builder+neo-ram+human
 
-### Bug Fixes & System Completion (July 27-28, 2025) ✅ COMPLETED
-- **All GitHub Issues #1-5 Fixed**: string.replace() regression, heap corruption, compilation errors, for-loop continue statements, and regex variable handling
-- **Test Infrastructure Enhanced**: All 57 E2E tests + unit tests passing with proper CC response handling
-- **BTLT Status**: Build ✅ TypeCheck ✅ Lint ✅ Test ✅ - Production ready
-- **Version Released**: System is now live and operational
+[STATS]
+@vitestTests::87passing
+@build::7projects✓
+@npmPublished::cvm-server@0.16.0-next.7{tagNext}
+@aiAgent::v2.17.25{feature/tddab-v2}
 
-### RegExp Literals Implementation (July 5, 2025) ✅ COMPLETED
-- Implemented complete RegExp literal support using atomic TDD methodology
-- Added parser support for `/pattern/flags` syntax with full AST integration
-- Implemented LOAD_REGEX bytecode opcode with compiler visitor pattern
-- Created VM handler with proper CVMObject structure for property access
-- Built comprehensive test coverage: unit tests (8), integration tests (9), E2E tests (4)
-- Organized E2E tests in proper `/test/programs/10-regex/` category structure
-- Fixed all TypeScript compilation errors and achieved 100% test coverage
-- All 1,049+ tests passing across entire CVM project
-
-### Test Suite Organization (Completed) - Updated July 28, 2025
-- Reorganized 60+ tests into 57 tests across 10 categories including regex
-- Added 4 new E2E tests for bug fix validation (3 on July 27 + for-loops.ts on July 28)
-- Fixed test infrastructure to properly handle CC responses in category runner
-- Set up test artifacts to write to tmp/ directory
-- **Current Status**: E2E tests (57/57) passing, unit tests all passing - BTLT complete ✅
-- Updated API.md with current implementation status
-
-### String & Array Methods Implementation (Completed July 2, 2025)
-- Implemented all 15 planned string/array methods using TDD approach
-- Added comprehensive test coverage and E2E validation
-- All methods JavaScript-compliant and fully tested
-
-### Website: cvm.example4.ai (March 2026) ✅ COMPLETED
-- Created interactive landing page (`wwwroot/index.html`) — human becomes the CPU
-- Created research study page (`wwwroot/study.html`) — CVM vs Claude Code vs LangGraph
-- Dark/light theme with shared localStorage, calmer color palette
-- Skip button visible after first completion, Chart.js radar grids theme-aware
-- Single scrollable study page (no tabs) — CVM on top, market research below
-- Footer with CVM, example4.ai, projects.0ics.ai, author, Apache 2.0
-
-## Next Steps
-
-### Immediate
-1. **CVM is now feature-complete for TODO orchestration** ✅
-2. All core language features implemented and tested
-3. Ready for production use in complex multi-step task management
-4. **Website ready** — deploy wwwroot/ to cvm.example4.ai
-
-### Future Enhancements (Optional)
-1. RegExp pattern matching methods (.test(), .match(), .replace() with patterns)
-2. Additional file system operations (fs.readFile, fs.writeFile)
-3. Enhanced error handling mechanisms
-
-### Medium Term (All Core Features Complete)
-1. ✅ Traditional for(;;) loops - IMPLEMENTED
-2. ✅ Function declarations (main only) - IMPLEMENTED
-3. ✅ Better error recovery mechanisms - Implemented via null returns
-4. Performance optimizations (optional)
-
-## Active Decisions and Considerations
-
-### Design Principles
-- **Passive architecture** - CVM never initiates, only responds
-- **State preservation first** - Never lose user progress
-- **Clean boundaries** - Each package has single responsibility
-- **No exceptions** - Operations return success/failure states
-
-### Documentation Standards
-- Every package needs README
-- Examples required for all features
-- Cross-references for navigation
-- Testing instructions mandatory
-
-## Important Patterns and Preferences
-
-### Code Organization
-- Nx monorepo with clear package boundaries
-- Handler pattern for VM opcodes
-- Visitor pattern for compiler
-- Storage adapter pattern for persistence
-
-### Development Workflow
-- Always rebuild after changes (`npx nx reset && npx nx run-many --target=build --all`)
-- **BTLT Process**: Build → TypeCheck → Lint → Test (zero failures required)
-- Use E2E tests to verify functionality
-- All new features require proper E2E tests with CC response configuration
-- Document as you go
-- Memory Bank is source of truth
-
-## Learnings and Project Insights
-
-### Critical Testing Anti-Pattern Discovered (August 2025)
-1. **Problem**: Tests validate implementation details (exact error strings) instead of behavior
-2. **Root Cause**: I wrote tests to match whatever the code happened to output, creating inconsistencies
-3. **Evidence**: BREAK and CONTINUE have different error message formats for no logical reason
-4. **Impact**: Adding logging (pure observability) broke tests because they expect hardcoded strings
-5. **Solution**: Make error handling consistent, test behavior patterns instead of exact strings
-
-### Key Insights from Documentation Work
-1. Package dependency order matters for understanding
-2. Handler architecture is well-designed and extensible
-3. Test coverage is excellent (56/56 E2E tests passing)
-4. E2E testing critical for catching integration issues
-5. **Test Infrastructure Insight**: Category runner needed CC response support - shows importance of complete test tooling
-
-### What Makes CVM Special
-- Inversion of control - AI drives, CVM responds
-- Perfect state preservation between calls
-- Observable execution at any point
-- Designed specifically for AI task orchestration
-
-### Current Understanding
-CVM is mature and well-architected. The core is solid, with room for feature additions like function parameters and better error handling. The passive MCP server design is elegant and enables the unique execution model.
+[NEXT]
+?publishNext.8{mbUpdate+benchmark-runner}
+?deepswePOC→1task dry-run
+?mergeToMain→publishStable
