@@ -1,3 +1,44 @@
+# 1.0.0 (2026-06-01)
+
+### 🚀 Features
+
+- license migration Apache-2.0 → AGPL-3.0-or-later + commercial dual licensing (v1.0.0) ([54f3ced](https://github.com/LadislavSopko/cvm/commit/54f3ced))
+- MB update before commit + benchmark-runner + version 0.16.0-next.8 ([84222a0](https://github.com/LadislavSopko/cvm/commit/84222a0))
+- mission context per block (not per CC) + remove MISSION BRIEFING + version 0.16.0-next.6 ([dcb7159](https://github.com/LadislavSopko/cvm/commit/dcb7159))
+- step plan support (<actions> tag) + version 0.16.0-next.5 ([5950c59](https://github.com/LadislavSopko/cvm/commit/5950c59))
+- CROSS-CHECK guardrail with JSON verification + version 0.16.0-next.4 ([f67ed9f](https://github.com/LadislavSopko/cvm/commit/f67ed9f))
+- server_info tool + version 0.16.0-next.3 + publish registry fix ([79c9256](https://github.com/LadislavSopko/cvm/commit/79c9256))
+- multi-file TDDAB plan support + version 0.16.0-next.2 ([c316d0a](https://github.com/LadislavSopko/cvm/commit/c316d0a))
+- CVM skills + publish-next target + test examples setup ([d106340](https://github.com/LadislavSopko/cvm/commit/d106340))
+- planexecutor completedBlocks tracking + built-in @planexecutor loading ([c02f3b5](https://github.com/LadislavSopko/cvm/commit/c02f3b5))
+- add program management tools - list, delete, restart ([0020dd3](https://github.com/LadislavSopko/cvm/commit/0020dd3))
+- implement execution management tools ([f6eef56](https://github.com/LadislavSopko/cvm/commit/f6eef56))
+- ⚠️  implement toString() method and implicit main() execution ([62b3992](https://github.com/LadislavSopko/cvm/commit/62b3992))
+- ⚠️  add complete object support to CVM (v0.9.0) ([365225e](https://github.com/LadislavSopko/cvm/commit/365225e))
+- ⚠️  implement fs.listFiles() with sandboxing and glob filtering ([693b61d](https://github.com/LadislavSopko/cvm/commit/693b61d))
+- complete Phase 3 - for-of loops with break/continue support ([b8bf17b](https://github.com/LadislavSopko/cvm/commit/b8bf17b))
+- implement unary operators (++, --, unary -, unary +) ([d85a30b](https://github.com/LadislavSopko/cvm/commit/d85a30b))
+- implement essential string methods (substring, indexOf, split) ([3b33893](https://github.com/LadislavSopko/cvm/commit/3b33893))
+- implement Phase 1 language extensions - arrays and JSON parsing ([9b6f5ba](https://github.com/LadislavSopko/cvm/commit/9b6f5ba))
+
+### 🩹 Fixes
+
+- persist iterator state across CC calls for for-of loops ([d529c99](https://github.com/LadislavSopko/cvm/commit/d529c99))
+- package.json loading error in npx context ([7b84cf4](https://github.com/LadislavSopko/cvm/commit/7b84cf4))
+- critical bin script error requiring wrong file extension ([5b1a3ab](https://github.com/LadislavSopko/cvm/commit/5b1a3ab))
+- TypeScript errors and add proper stack underflow checks ([cf6943b](https://github.com/LadislavSopko/cvm/commit/cf6943b))
+- MCP server now uses actual package version ([8d99d7b](https://github.com/LadislavSopko/cvm/commit/8d99d7b))
+
+### ⚠️  Breaking Changes
+
+- None - backward compatible with existing programs
+- CVMObject.properties changed from Map<string, CVMValue> to Record<string, CVMValue> for JSON compatibility
+- fs.listFiles() now returns array of absolute path strings instead of file objects
+
+### ❤️ Thank You
+
+- Ladislav Sopko @LadislavSopko
+
 ## 0.9.2 (2025-06-21)
 
 ### 🚀 Features
