@@ -20,19 +20,11 @@
 - crossCheck::redKeys JSON→Claude fills true/false→program decides✓
 - resume::uplan-progress.json→skipDoneBlocks{automaticOnRestart}✓
 
-[ActiveTask]{2026-06-01}
-@feature::03-submitTask-guard
-@branch::feature/03-submitTask-guard
-@issue::#9
-⚡plan::reviewed✓+fixed{tasks/03-submitTask-guard/plan.md}
->reviewFix::addedRUNNINGstateTest{red+impl+success}→all4rejectStates+1happyPath
->develop::RED✓→GREEN✓→VERIFY✓→CROSSCHECK✓→MBUPDATE{now}{2026-06-01}
->guard::vm-manager.ts:221-225{throwIf state≠AWAITING_COGNITIVE_RESULT}
->tests::vm-manager-submit-guard.spec.ts{5tests:4reject+1happy}→allPass
-?commit+push+PR+mergeToMain
-?closeIssue#9
+[NoActiveTask]
+@state::IDLE
 
 [Completed]
+>03-submitTask-guard::stateGuard{vm-manager.ts:221}+5tests+e2e64/64→merged main{2026-06-01}
 >aiAgentSync::j-cvm-exec-plan.md→syncProtocolRules{v2.17.28}{2026-06-01}
 >submoduleCleanup::removedBroken+readdedClean{2026-06-01}
 >benchmarkKit→created{2026-05-28}
