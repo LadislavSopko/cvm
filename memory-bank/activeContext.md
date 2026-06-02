@@ -62,8 +62,12 @@
   >TS6133:386 era solo IDE/LSP{nx typecheck non lo segnala}→fixato comunque
   >integration.spec.ts::richiede MongoDB→avviato docker compose{docker/docker-compose.yml,prontuari-mongo:27017}→passa 259ms{file non toccato,no .skip}
   >result::typecheck 0/0,test vm 698✓+mcp-server 87✓
-?block02-verdict-inline{next}
-?block03-fix-crosscheck-reverify
+>block02-verdict-inline DONE✓{RED→GREEN→VERIFY→CROSSCHECK passed}
+  >planexecutor.ts::terminatori terse{:17-18 Submit ONLY one word}+parser inline minimal su STEP loop{:91,93,110}+TDDAB loop{:149,151,168}→v.toLowerCase().startsWith("passed");while(!passed)
+  >no ===,no split/trim/includes,no helper{solo main}→grep confermato
+  >test::6 nuovi in planexecutor.spec.ts{:346-373}+helper runVerdict{pulisce uplan-progress per isolamento}→mcp-server 93 verdi
+  >BTLT::build 7 proj✓+typecheck 0+test 698+93;planexecutor copiato in dist con nuova logica
+?block03-fix-crosscheck-reverify{next:wire bug :205}
 
 [PLAN-READY]
 @plan::tasks/04-verdict-gate-contract/plan.md→parsePlan valid✓{3 blocks}+j-review-plan APPROVED{fix:added Execution Order+header+### Implementation reference code per block}

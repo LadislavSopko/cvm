@@ -305,4 +305,75 @@ describe('planexecutor', () => {
 
     await vm.dispose();
   });
+
+  // Drives one TDDAB block, answering each VERIFY/RE-VERIFY with the next
+  // entry of verifyResponses (then "passed"), and returns the collected prompts.
+  async function runVerdict(progId: string, verifyResponses: string[]): Promise<string[]> {
+    const vm = createVMManager();
+    await vm.initialize();
+    const uplan = makeUplan([
+      { id: '01-verdict', title: 'Verdict', intro: 'Verdict intro', red: '- test verdict', success: '- [ ] verdict done' },
+    ]);
+    writeFileSync(join(cvmDir, 'uplan.json'), uplan);
+    // Each call is an independent run — clear any progress from a prior test
+    // so the shared block id is not skipped as "already completed".
+    rmSync(join(cvmDir, 'uplan-progress.json'), { force: true });
+    const source = readFileSync(EXECUTOR_PATH, 'utf-8');
+    await vm.loadProgram(progId, source);
+    await vm.startExecution(progId, 'exec-' + progId);
+
+    const prompts: string[] = [];
+    let vi = 0;
+    let next = await vm.getNext('exec-' + progId);
+    while (next.type === 'waiting') {
+      const msg = next.message || '';
+      prompts.push(msg);
+      let response = 'done';
+      if (msg.includes('CROSS-CHECK')) {
+        response = '{"test_verdict": true}';
+      } else if (msg.includes('VERIFY PHASE') || msg.includes('RE-VERIFY')) {
+        response = vi < verifyResponses.length ? verifyResponses[vi] : 'passed';
+        vi++;
+      }
+      await vm.reportCCResult('exec-' + progId, response);
+      next = await vm.getNext('exec-' + progId);
+    }
+    await vm.dispose();
+    return prompts;
+  }
+
+  describe('verdict parsing (terse + tolerant)', () => {
+    it('treats "passed" as pass and exits with no FIX PHASE', async () => {
+      const prompts = await runVerdict('pe-v-passed', ['passed']);
+      expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(0);
+    });
+
+    it('treats a reply starting with "passed" then an essay on later lines as pass', async () => {
+      const prompts = await runVerdict('pe-v-essay', ['passed\nAll criteria met, no failures, nothing rejected.']);
+      expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(0);
+    });
+
+    it('treats "PASSED" (uppercase) as pass', async () => {
+      const prompts = await runVerdict('pe-v-upper', ['PASSED']);
+      expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(0);
+    });
+
+    it('treats "failed" as fail: exactly one FIX PHASE then one RE-VERIFY', async () => {
+      const prompts = await runVerdict('pe-v-failed', ['failed', 'passed']);
+      expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(1);
+      expect(prompts.filter(p => p.includes('RE-VERIFY'))).toHaveLength(1);
+    });
+
+    it('treats a reply not starting with "passed" as failed and re-runs', async () => {
+      const prompts = await runVerdict('pe-v-garbage', ['I am not sure it works', 'passed']);
+      expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(1);
+      expect(prompts.filter(p => p.includes('RE-VERIFY'))).toHaveLength(1);
+    });
+
+    it('VERIFY PHASE prompt instructs to submit only the word passed or failed', async () => {
+      const prompts = await runVerdict('pe-v-prompt', ['passed']);
+      const verifyPrompt = prompts.find(p => p.includes('VERIFY PHASE')) || '';
+      expect(verifyPrompt.toLowerCase()).toContain('submit only one word: passed or failed');
+    });
+  });
 });

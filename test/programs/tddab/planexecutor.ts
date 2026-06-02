@@ -14,8 +14,8 @@ function main() {
   var sourceFile = data.sourceFile;
   var sourceFiles = data.sourceFiles;
 
-  var submitDone = " Respond with done when complete.";
-  var submitTest = " Respond with passed if ALL criteria are checked, or failed if ANY is not met.";
+  var submitDone = " Submit ONLY one word: done.";
+  var submitTest = " Do all checking in your tool calls. Submit ONLY one word: passed or failed.";
   var toolsReminder = " Use Read, Edit, Write, Bash and code navigation tools (LSAI, vs-mcp, xmp4) for file operations, commands and code inspection.";
 
   var planType = data.type;
@@ -88,8 +88,9 @@ function main() {
 
       console.log("VERIFY result for " + block.id + ": " + stepResult);
 
+      var stepPassed = stepResult.toLowerCase().startsWith("passed");
       var stepFix = 0;
-      while (stepResult === "failed") {
+      while (!stepPassed) {
         stepFix = stepFix + 1;
         console.log("Fix attempt " + stepFix + " for " + block.id);
 
@@ -106,6 +107,7 @@ function main() {
           "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
 
         console.log("RE-VERIFY result for " + block.id + ": " + stepResult);
+        stepPassed = stepResult.toLowerCase().startsWith("passed");
       }
 
       CC("UPDATE MEMORY BANK [" + progress + "] step " + block.id + ": " + block.title + ". " +
@@ -144,8 +146,9 @@ function main() {
       var testResult = CC(verifyPrompt);
       console.log("VERIFY result for " + block.id + ": " + testResult);
 
+      var testPassed = testResult.toLowerCase().startsWith("passed");
       var fixAttempt = 0;
-      while (testResult === "failed") {
+      while (!testPassed) {
         fixAttempt = fixAttempt + 1;
         console.log("Fix attempt " + fixAttempt + " for " + block.id);
 
@@ -162,6 +165,7 @@ function main() {
           "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
 
         console.log("RE-VERIFY result for " + block.id + ": " + testResult);
+        testPassed = testResult.toLowerCase().startsWith("passed");
       }
 
       var redKeys = block.redKeys;

@@ -24,7 +24,7 @@
 @feature::04-verdict-gate-contract{branch off main}
 @dogfooding::executing via planexecutor{run-04-verdict}
 >block01-clean-main✓{typecheck 22 errori fixati→0/0,integration.spec.ts via MongoDB docker,698+87 test verdi}
-?block02-verdict-inline{minimal parser toLowerCase+startsWith on G1-G5+terse submit}
+>block02-verdict-inline✓{parser inline toLowerCase+startsWith su STEP+TDDAB loop,terminatori terse,6 test,BTLT 0/0,build 7 proj}
 ?block03-fix-crosscheck-reverify{wire bug :205}
 
 [Completed]
