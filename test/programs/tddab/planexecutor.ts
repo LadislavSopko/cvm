@@ -206,11 +206,30 @@ function main() {
           "CRITERIA: " + block.success + " " +
           block.planRef + toolsReminder + submitDone);
 
-        CC("RE-VERIFY [" + progress + "] block " + block.id + " (after cross-check fix). " +
+        var ccResult = CC("RE-VERIFY [" + progress + "] block " + block.id + " (after cross-check fix). " +
           "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
           "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
           "SUCCESS CRITERIA: " + block.success + " " +
           "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+        var ccPassed = ccResult.toLowerCase().startsWith("passed");
+
+        while (!ccPassed) {
+          fixAttempt = fixAttempt + 1;
+          console.log("CROSS-CHECK re-verify failed, fix attempt " + fixAttempt + " for " + block.id);
+
+          CC("FIX PHASE [" + progress + "] block " + block.id + " (cross-check fix " + fixAttempt + "). " +
+            "Cross-check found missing tests. Apply Protocol D: identify exactly which tests are missing, add them. " +
+            "TESTS REQUIRED: " + block.red + " " +
+            "CRITERIA: " + block.success + " " +
+            block.planRef + toolsReminder + submitDone);
+
+          ccResult = CC("RE-VERIFY [" + progress + "] block " + block.id + " (after cross-check fix " + fixAttempt + "). " +
+            "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
+            "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
+            "SUCCESS CRITERIA: " + block.success + " " +
+            "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+          ccPassed = ccResult.toLowerCase().startsWith("passed");
+        }
       }
 
       CC("UPDATE MEMORY BANK [" + progress + "] block " + block.id + ": " + block.title + ". " +

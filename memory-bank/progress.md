@@ -25,7 +25,8 @@
 @dogfooding::executing via planexecutor{run-04-verdict}
 >block01-clean-main✓{typecheck 22 errori fixati→0/0,integration.spec.ts via MongoDB docker,698+87 test verdi}
 >block02-verdict-inline✓{parser inline toLowerCase+startsWith su STEP+TDDAB loop,terminatori terse,6 test,BTLT 0/0,build 7 proj}
-?block03-fix-crosscheck-reverify{wire bug :205}
+>block03-fix-crosscheck-reverify✓{RE-VERIFY post-crosscheck wired in fix loop,3 test,BTLT 0/0,e2e 64/64}
+@04-verdict-gate-contract::ALL 3 blocks DONE→ready close+merge
 
 [Completed]
 >03-submitTask-guard::stateGuard{vm-manager.ts:221}+5tests+e2e64/64→merged+released cvm-server@1.0.1{2026-06-01}

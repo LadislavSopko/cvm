@@ -67,7 +67,13 @@
   >no ===,no split/trim/includes,no helper{solo main}→grep confermato
   >test::6 nuovi in planexecutor.spec.ts{:346-373}+helper runVerdict{pulisce uplan-progress per isolamento}→mcp-server 93 verdi
   >BTLT::build 7 proj✓+typecheck 0+test 698+93;planexecutor copiato in dist con nuova logica
-?block03-fix-crosscheck-reverify{next:wire bug :205}
+>block03-fix-crosscheck-reverify DONE✓{RED→GREEN→VERIFY→CROSSCHECK passed}
+  >bug :209{RE-VERIFY post-crosscheck ritorno scartato}→FIXED:ccResult assegnato+ccPassed+while(!ccPassed) loop{stesso parser minimal}
+  >test::3 in planexecutor.spec.ts{:381,387,396}→cross-check fail+RE-VERIFY failed→2 FIX{discriminante};pass path invariato
+  >BTLT::build 7 proj+typecheck 0+vm 698+mcp-server 96
+  >e2e::run-all-tests.sh 64/64✓{tutti 11-tddab inclusi}→behavior holds
+  >NOTA::run-category.sh falliva{legge risposte non-secche da file→gate stretto le rifiuta}→runner obsoleto non planexecutor;run-all-tests.sh=autorità,verde
+@04-DONE::tutti 3 blocchi completati→pronto per close/merge+benchmark validation
 
 [PLAN-READY]
 @plan::tasks/04-verdict-gate-contract/plan.md→parsePlan valid✓{3 blocks}+j-review-plan APPROVED{fix:added Execution Order+header+### Implementation reference code per block}

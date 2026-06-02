@@ -308,7 +308,7 @@ describe('planexecutor', () => {
 
   // Drives one TDDAB block, answering each VERIFY/RE-VERIFY with the next
   // entry of verifyResponses (then "passed"), and returns the collected prompts.
-  async function runVerdict(progId: string, verifyResponses: string[]): Promise<string[]> {
+  async function runVerdict(progId: string, verifyResponses: string[], crossCheckJson = '{"test_verdict": true}'): Promise<string[]> {
     const vm = createVMManager();
     await vm.initialize();
     const uplan = makeUplan([
@@ -330,7 +330,7 @@ describe('planexecutor', () => {
       prompts.push(msg);
       let response = 'done';
       if (msg.includes('CROSS-CHECK')) {
-        response = '{"test_verdict": true}';
+        response = crossCheckJson;
       } else if (msg.includes('VERIFY PHASE') || msg.includes('RE-VERIFY')) {
         response = vi < verifyResponses.length ? verifyResponses[vi] : 'passed';
         vi++;
@@ -374,6 +374,30 @@ describe('planexecutor', () => {
       const prompts = await runVerdict('pe-v-prompt', ['passed']);
       const verifyPrompt = prompts.find(p => p.includes('VERIFY PHASE')) || '';
       expect(verifyPrompt.toLowerCase()).toContain('submit only one word: passed or failed');
+    });
+  });
+
+  describe('cross-check re-verify gating', () => {
+    it('when cross-check fails and RE-VERIFY returns "failed", issues another FIX and does not commit yet', async () => {
+      // VERIFY(passed) -> CROSS-CHECK(false) -> FIX -> RE-VERIFY(failed) -> FIX -> RE-VERIFY(passed)
+      const prompts = await runVerdict('pe-cc-fail', ['passed', 'failed', 'passed'], '{"test_verdict": false}');
+      expect(prompts.filter(p => p.includes('FIX PHASE')).length).toBe(2);
+    });
+
+    it('when cross-check fails and RE-VERIFY returns "passed", proceeds to UPDATE MEMORY BANK then COMMIT', async () => {
+      const prompts = await runVerdict('pe-cc-pass', ['passed', 'passed'], '{"test_verdict": false}');
+      expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(1);
+      const mbIdx = prompts.findIndex(p => p.includes('UPDATE MEMORY BANK'));
+      const commitIdx = prompts.findIndex(p => p.includes('COMMIT PHASE'));
+      expect(mbIdx).toBeGreaterThan(-1);
+      expect(commitIdx).toBeGreaterThan(mbIdx);
+    });
+
+    it('when cross-check passes, no extra RE-VERIFY and sequence unchanged', async () => {
+      const prompts = await runVerdict('pe-cc-ok', ['passed'], '{"test_verdict": true}');
+      expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(0);
+      expect(prompts.filter(p => p.includes('RE-VERIFY'))).toHaveLength(0);
+      expect(prompts.filter(p => p.includes('CROSS-CHECK'))).toHaveLength(1);
     });
   });
 });
