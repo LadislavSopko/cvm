@@ -69,6 +69,7 @@ describe('reportCCResult state guard', () => {
       const { StorageFactory } = await import('@cvm/storage');
       const storage = StorageFactory.create();
       const execution = await storage.getExecution(execId);
+      if (!execution) throw new Error(`setup: execution ${execId} not found`);
       execution.state = 'READY';
       await storage.saveExecution(execution);
       return execId;
@@ -78,6 +79,7 @@ describe('reportCCResult state guard', () => {
       const { StorageFactory } = await import('@cvm/storage');
       const storage = StorageFactory.create();
       const execution = await storage.getExecution(execId);
+      if (!execution) throw new Error(`setup: execution ${execId} not found`);
       execution.state = 'RUNNING';
       await storage.saveExecution(execution);
       return execId;
@@ -101,6 +103,7 @@ describe('reportCCResult state guard', () => {
       const { StorageFactory } = await import('@cvm/storage');
       const storage = StorageFactory.create();
       const execution = await storage.getExecution(execId);
+      if (!execution) throw new Error(`setup: execution ${execId} not found`);
       execution.state = 'ERROR';
       execution.error = 'simulated error';
       await storage.saveExecution(execution);

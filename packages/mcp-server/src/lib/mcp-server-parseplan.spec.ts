@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { CVMMcpServer } from './mcp-server.js';
 import { TestTransport } from './test-transport.js';
-import { writeFile, unlink, mkdir, rm, readFile } from 'node:fs/promises';
+import { writeFile, mkdir, rm, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 vi.mock('@cvm/vm', () => ({
@@ -117,7 +117,7 @@ describe('CVMMcpServer - parsePlan', () => {
 
     expect('content' in result).toBe(true);
     if ('content' in result) {
-      const response = JSON.parse(result.content[0].text);
+      const response = JSON.parse(result.content[0].text as string);
       expect(response.valid).toBe(true);
       expect(response.blocks).toBe(2);
       expect(response.path).toContain('uplan.json');
@@ -258,7 +258,7 @@ Simple service.
       expect('content' in result).toBe(true);
       if ('content' in result) {
         expect(result.isError).toBeUndefined();
-        const response = JSON.parse(result.content[0].text);
+        const response = JSON.parse(result.content[0].text as string);
         expect(response.valid).toBe(true);
         expect(response.blocks).toBe(2);
         expect(response.blockIds).toEqual(['01-model', '02-service']);

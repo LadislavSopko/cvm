@@ -383,7 +383,7 @@ export class VMManager {
    */
   private serializeHeap(heap: VMHeap): { objects: Record<number, { type: 'array' | 'object'; data: CVMValue }>; nextId: number } {
     // Define replacer inside serializeHeap
-    const replacer = (key: string, value: any) => {
+    const replacer = (_key: string, value: any) => {
       if (isCVMArrayRef(value) || isCVMObjectRef(value)) {
         return { $ref: value.id };
       }

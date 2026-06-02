@@ -20,8 +20,12 @@
 - crossCheck::redKeys JSON→Claude fills true/false→program decides✓
 - resume::uplan-progress.json→skipDoneBlocks{automaticOnRestart}✓
 
-[NoActiveTask]
-@state::IDLE
+[ActiveTask]{2026-06-02}
+@feature::04-verdict-gate-contract{branch off main}
+@dogfooding::executing via planexecutor{run-04-verdict}
+>block01-clean-main✓{typecheck 22 errori fixati→0/0,integration.spec.ts via MongoDB docker,698+87 test verdi}
+?block02-verdict-inline{minimal parser toLowerCase+startsWith on G1-G5+terse submit}
+?block03-fix-crosscheck-reverify{wire bug :205}
 
 [Completed]
 >03-submitTask-guard::stateGuard{vm-manager.ts:221}+5tests+e2e64/64→merged+released cvm-server@1.0.1{2026-06-01}

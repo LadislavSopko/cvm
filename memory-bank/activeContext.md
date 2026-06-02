@@ -52,6 +52,19 @@
 @probesSaved→avoided shipping infinite-loop to prod{human istinto giusto}
 @futureCandidate::05-vm-functions{user-defined functions→call frames+param passing+local scope+RETURN unwind;CALL oggi stubbed control.ts:150;tosta perché stack VM;next feature dedicata,non ora}
 
+[EXEC-04 PROGRESS]
+@branch::feature/04-verdict-gate-contract{off main}
+@dogfooding::planexecutor run-04-verdict{exec via cvm-dbg}
+>block01-clean-main DONE✓{RED→GREEN→VERIFY→CROSSCHECK passed}
+  >scoperta::typecheck reale aveva 22 errori{NON 2}→14 in vm-manager-submit-guard.spec.ts{MIEI da 03,null-check mancante getExecution}+8 in mcp-server{preesistenti:unlink/beforeEach unused,JSON.parse unknown}
+  >LEZIONE::03 verificato solo `nx test`(vitest no typecheck)→mergiato+rilasciato 1.0.1 con typecheck rotto→BTLT include TYPECHECK non solo test
+  >fix::null-guard×3{spec}+_key{vm-manager.ts:386,param posizionale non dead code}+rm import unused+as string×2;NO suppression
+  >TS6133:386 era solo IDE/LSP{nx typecheck non lo segnala}→fixato comunque
+  >integration.spec.ts::richiede MongoDB→avviato docker compose{docker/docker-compose.yml,prontuari-mongo:27017}→passa 259ms{file non toccato,no .skip}
+  >result::typecheck 0/0,test vm 698✓+mcp-server 87✓
+?block02-verdict-inline{next}
+?block03-fix-crosscheck-reverify
+
 [PLAN-READY]
 @plan::tasks/04-verdict-gate-contract/plan.md→parsePlan valid✓{3 blocks}+j-review-plan APPROVED{fix:added Execution Order+header+### Implementation reference code per block}
 @blocks::01-clean-main{vm-manager.ts:386 TS6133+integration.spec.ts timeout→0/0}→02-verdict-inline{toLowerCase+startsWith minimal su G1-G5+terminatori secchi}→03-fix-crosscheck-reverify{bug :205 ritorno scartato→wire nel fix loop}
