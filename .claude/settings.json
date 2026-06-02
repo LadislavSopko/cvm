@@ -11,6 +11,16 @@
             "statusMessage": "Protocol-D checkpoint..."
           }
         ]
+      },
+      {
+        "matcher": "*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash \"$CLAUDE_PROJECT_DIR/.claude/support/hooks/run-pretool-weasel.sh\"",
+            "statusMessage": "Protocol-D weasel check..."
+          }
+        ]
       }
     ],
     "Stop": [
