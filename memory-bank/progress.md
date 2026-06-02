@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [MissionStatus]
-@status::03-submitTask-guard→CLOSED✓{merged+released cvm-server@1.0.1}
+@status::04-verdict-gate-contract→CLOSED✓{merged main;npm publish pending→1.1.0}
 @CVM::algorithmicTODOManager{forClaude}→complexMultiStepOrchestration+statePersistence
 
 [CoreSystem]✓
@@ -20,15 +20,13 @@
 - crossCheck::redKeys JSON→Claude fills true/false→program decides✓
 - resume::uplan-progress.json→skipDoneBlocks{automaticOnRestart}✓
 
-[ActiveTask]{2026-06-02}
-@feature::04-verdict-gate-contract{branch off main}
-@dogfooding::executing via planexecutor{run-04-verdict}
->block01-clean-main✓{typecheck 22 errori fixati→0/0,integration.spec.ts via MongoDB docker,698+87 test verdi}
->block02-verdict-inline✓{parser inline toLowerCase+startsWith su STEP+TDDAB loop,terminatori terse,6 test,BTLT 0/0,build 7 proj}
->block03-fix-crosscheck-reverify✓{RE-VERIFY post-crosscheck wired in fix loop,3 test,BTLT 0/0,e2e 64/64}
-@04-verdict-gate-contract::ALL 3 blocks DONE→ready close+merge
+[NoActiveTask]
+@state::IDLE
 
 [Completed]
+>04-verdict-gate-contract::dogfooding via planexecutor{3 blocks}→merged main{2026-06-02}
+  >01 clean main 0/0{22 typecheck errori fixati}+02 parser inline toLowerCase+startsWith+terse submit+03 RE-VERIFY post-crosscheck wired
+  >verify::build 7 proj+typecheck 0+vm 698+mcp-server 96+e2e 64/64;npm publish pending→1.1.0
 >03-submitTask-guard::stateGuard{vm-manager.ts:221}+5tests+e2e64/64→merged+released cvm-server@1.0.1{2026-06-01}
 >aiAgentSync::j-cvm-exec-plan.md→syncProtocolRules{v2.17.28}{2026-06-01}
 >submoduleCleanup::removedBroken+readdedClean{2026-06-01}
