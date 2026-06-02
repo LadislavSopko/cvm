@@ -1,3 +1,7 @@
+## 1.1.0 (2026-06-02)
+
+This was a version bump only for cvm-server to align it with other projects, there were no code changes.
+
 # 1.0.0 (2026-06-01)
 
 ### 🚀 Features
