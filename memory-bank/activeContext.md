@@ -1,37 +1,48 @@
 §MBEL:5.0
 
 [FOCUS]
-@state::IDLE
-@date::2026-06-03
+@state::AUDIT_COMPLETE
+@date::2026-06-09
 
-[LAST-COMPLETED]
-@feature::04-verdict-gate-contract{2026-06-02}
-@branch::feature/04-verdict-gate-contract→merged✓main
-@release::cvm-server@1.1.0 LIVE on npmjs{published 2026-06-03}
-@confirmedByUse::human confirms 1.1.0 working in real use→benchmark formale non urgente
+[AUDIT-2026-06-09]
+@type::x-audit(architecture/foundations/security)
+@score::3.9/5{engineering strong,enforcement weak}
+@testsPass::1179 passed+1 skipped✓|typecheck clean✓
+@testRatio::2.4:1{source:test}
 
-[CONTRACT-VERDICT-GATE]{agreed room"cvm" w/ai-agent-builder+human 2026-06-02}
-@parser::MINIMAL inline→var v=resp.toLowerCase();var passed=v.startsWith("passed");while(!passed)
->2 op solo{toLowerCase+startsWith};NO split/trim/includes;NO ===;NO function{VM limit};bias→failed
-@submit::SECCO→solo token{passed|failed|done};ragionamento nel turno NON nel submit
-@policy0/0::vive lato skill SCOPED al toolchain reale{NO enforcement nell'executor}
-@noCapNoAbort::human veto
-@ownership::planexecutor.ts=cvm;benchmark-runner.ts+4 skill=ai-agent-builder{parser 1:1}
+[CRITICAL-SECURITY⚠PREPUBLISH]
+@sandbox-bypass::packages/vm/src/lib/file-system.ts:56
+@issue::startsWith(sandboxPath) without trailing separator→/data/sandbox-evil passes when root=/data/sandbox
+@fix::1-line{addTrailingSeparatorCheck}
+@status::actionable before next publish
 
-[CRITICAL-VM-LIMIT]
-@noUserFunctions::CVM supporta SOLO main(){control.ts:158};logica INLINE obbligatoria
-@futureCandidate::05-vm-functions
+[ARCHITECTURE-FINDINGS]
+@deadCode::@cvm/mongodb{unused,noImports,onlyVitecfg}→@cvm/storage has own mongodb-adapter.ts
+@depsIncoherent::mongodb pinned 3 ranges{types^6.3UNUSED,storage^6.12,app^6.17};@types/pino{deprecated,published};typescript{double-declared}
+@nxCloudId::nx.json undeclared→401 on every build
+@clutter::counter.ts+graph.html+tsconfig.tsbuildinfo{committed}
+@planexecutor::production builtin under test/tree→should move to apps/cvm-server/programs/
+@npmAudit::impossible{nexus proxy returns 400}→supply-chain unmeasured
+@mcp-sdk::1.17.2 installed vs 1.29.0 upstream;deprecated server.tool() API
 
-[MBEL-DISCUSSION]{2026-06-03 room"cvm" w/ai-agent-builder+ai-skills-user+human}
-Verdetto unanime a 3, misurato con 3 misure indipendenti (tiktoken cl100k):
-- MB reale prosa→MBEL = ~40% token risparmiati (6774→3600-4400). REALE e utile.
-- MA il merito è DISCIPLINA (terseness+dedup), NON gli operatori. Encoding puro ≈ +14-21% peggiore.
-- Prova: stesso encoding MBEL, 3 numeri diversi (-34/-40/-47) = conta quanto stringi, non il formato.
-- MBEL valore VERO = struttura + triage + marcatori + PROTOCOLLO DI POTATURA (overwrite¬append/completed→history/clears-on-new-task/archive-EOD).
-- Claim onesto per README pubblico: niente "75%/100%". Token ~come inglese-terso; valore = disciplina encoding-indipendente.
-- Bet futuro: se modelli imparano MBEL (training+tokenizer) → decode sparisce + token diventano efficienti → encoding diventa win. Repo pubblico = seed.
-@repo::https://github.com/0ics-srls/memory-bank{PUBLIC,MIT,credito Cline}
-@npmRegistry::nexus.0ics.ai è cache→stale;npmjs.org diretto è l'autorità{per cvm-server}
+[ENFORCEMENT-GAPS]
+@ci::none
+@lint::none
+@validation::config cast-without-zod-despite-available
+@foundationScore::9.5/16{arch strong:interface-first+black-box+test-per-module;enforcement weak:¬CI¬lint}
 
-[PREV-COMPLETED]
-@03-submitTask-guard{2026-06-01}→merged main+released cvm-server@1.0.1{vm-manager.ts:221 state guard,issue #9}
+[VM-MOAT-CLARIFIED]
+>hypothesis::bytecode VM replaceable by simpler state machine
+>challenge::Protocol-D review of planexecutor.ts FULL TEXT
+✓corrected::VM is NOT replaceable;three requirements{zero-infra+survive-process-death+drive-MCP-agent}require full bytecode
+>claim::moat="instruction-level resumability"→OVERSTATED
+@actual-moat::zero-infra durable-execution-for-agent
+@recovery::application-level block checkpoint(.cvm/uplan-progress.json)¬per-instruction VM serialization
+
+[NEXT-QUICK-WINS]
+→next{fix sandbox bypass}⚠critical-before-publish
+→next{delete @cvm/mongodb}
+→next{clean @cvm/types deps+drop @types/pino from published}
+→next{remove nxCloudId from nx.json}
+→next{add CI+ESLint}
+→next{ship 05-vm-functions}⚡strategic{silent-undefined at control.ts:158 is biggest user trap}

@@ -12,10 +12,11 @@
 @SWC{fastTScompiler}
 
 [KeyDeps]
-@modelcontextprotocol/sdk→MCPprotocol
-@mongodb::6.x→storageOption
-@zod→schemaValidation{MCPtools}
+@modelcontextprotocol/sdk→MCPprotocol{1.17.2installed vs1.29.0upstream;deprecated server.tool()API}⚠upgrade-target
+@mongodb::6.x→storageOption{pinned3ranges:types^6.3UNUSED+storage^6.12+app^6.17}⚠consolidate
+@zod→schemaValidation{MCPtools+config validation NOT USED despite available}
 @TypeScriptCompilerAPI→parsingCVMsource
+@types/pino→deprecated{published+unused}⚠remove-from-published
 
 [DevSetup]
 !prereqs::NodeJs18.16+&npm&Git
@@ -49,10 +50,10 @@ memoryLimits{heapAllocations}
 [PackageDeps]
 parser→{¬internalDeps}
 types→{¬internalDeps}
-mongodb→types
+mongodb→types{!DEAD:unused,noImports,onlyVitecfg;@storage has own mongodb-adapter.ts}
 storage→types
 vm→parser+types+storage
-mcpServer→vm+parser
+mcpServer→vm+parser{declares mongodb dep¬imports}
 cvmServer→mcpServer
 
 [ExternalDeps]
@@ -96,8 +97,17 @@ npx nx release
 [SecuritySandboxing]
 CVMprograms→restrictedEnv
 ¬accessToNodeGlobals
-fileOps→limitedToSandbox
+fileOps→limitedToSandbox{!BUG:file-system.ts:56 startsWith bypass⚠critical-prepublish}
 resourceLimits→enforced
+
+[InfrastructureIssues]
+@nxCloudId::nx.json undeclared→401 on every build⚠remove
+@npmAudit::nexus proxy returns 400→supply-chain exposure unmeasured
+@clutter::counter.ts+graph.html+tsconfig.tsbuildinfo{committed}⚠clean
+@planexecutor::production builtin under test/→should move to apps/cvm-server/programs/
+@ci::none⚠add
+@lint::none⚠add
+@configValidation::cast-without-zod despite zod available⚠enforce
 
 [InputValidation]
 AllMCPinputs→validatedWithZod

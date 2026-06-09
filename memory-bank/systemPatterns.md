@@ -11,9 +11,12 @@ ClaudeDesktop(MCPClient)
 [KeyDecisions]
 
 [1.CustomBytecodeInterpreter]
-←why::EnablesPauseResumeAtAnyInstruction
-@how::StackBasedVM+ExplicitStateManagement
-→benefits::PerfectStatePreservation+DeterministicExecution
+←why::EnablesZeroInfraDurableExecutionForAgent{3demands:zero-infra+survive-process-death+drive-MCP-agent}
+@how::StackBasedVM+ExplicitStateManagement+ApplicationLevelCheckpoint
+→benefits::PerfectStatePreservation+DeterministicExecution+AgentOrchestration
+@moat::¬replaceable{bytecode VM necessary;simpler state machine insufficient}
+@recovery::application-level block checkpoint{.cvm/uplan-progress.json}¬per-instruction serialization
+§lesson{2026-06-09}::instruction-level resumability claim OVERSTATED;real moat is durable-execution-for-agent abstraction
 
 [2.MCPServerArchitecture]
 ←why::ClaudeNeedsStandardProtocol{toolInteraction}
