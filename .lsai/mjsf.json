@@ -1,9 +1,9 @@
 {
   "schema": "lsai.mjsf/1",
-  "generatedAt": "2026-05-26T05:39:58Z",
+  "generatedAt": "2026-06-29T06:09:18Z",
   "generatedBy": {
     "tool": "lsai-analyzer",
-    "version": "1.0.178"
+    "version": "1.0.197"
   },
   "workspace": {
     "root": "/home/laco/cvm",
@@ -52,6 +52,17 @@
     }
   },
   "projects": [
+    {
+      "id": "javascript:test/examples/multi-file-plan",
+      "name": "multi-file-plan",
+      "language": "javascript",
+      "root": "test/examples/multi-file-plan",
+      "buildSystem": "npm",
+      "sourceRoots": [],
+      "resourceRoots": [],
+      "testRoots": [],
+      "outputRoots": []
+    },
     {
       "id": "typescript:",
       "name": "cvm",
