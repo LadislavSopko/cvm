@@ -1,12 +1,16 @@
-# CVM Plan Format Specification
+# CVM Plan Protocol (CVM-PP) Specification
 
 **Status:** Stable · **Audience:** plan authors and tool builders (e.g. external plan
-generators that want to emit CVM-executable plans) · **Version:** 1.0
+generators that want to emit CVM-executable plans) · **Protocol version:** 1.0
 
-This document is the **contract** for the Markdown plan format that the CVM `parsePlan`
-tool accepts. A plan that conforms to this spec can be validated and executed
-autonomously by CVM with no further transformation. If you generate plans
-programmatically, target this grammar exactly and your output will run as-is.
+The **CVM Plan Protocol (CVM-PP)** is the Markdown plan format that CVM understands. The
+promise is simple: **if you have a plan written in CVM-PP form, CVM knows how to drive an
+agent through it** — validate it, compile it, and hand it to an AI agent one task at a
+time, with no further transformation.
+
+This document is the **contract** for CVM-PP. The CVM `parsePlan` tool accepts exactly
+this grammar. If you generate plans programmatically, target CVM-PP and your output runs
+as-is.
 
 ---
 

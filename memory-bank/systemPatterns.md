@@ -119,3 +119,18 @@ DebuggableExecution
 
 [AddingLanguageFeatures]
 1. ExtendParserGrammar→2.AddASTNodeTypes→3.ImplementCompilerVisitor→4.CreateVMHandlers
+
+[CVMPlanProtocol]
+§CVMProtocol:1.0
+@spec::docs/PLAN_FORMAT.md{CVM Plan Protocol (CVM-PP) Specification}
+@paradigm::CVM¬executes+sequences→checkpoints+AIdrives+stateManaged
+@purpose::contractForMarkdownPlanGrammar{parsedByMCPtool;executedByplanexecutor}
+@format::single-file|multi-file{index.md+<files>/file1.md}
+@types::tddab{RED→GREEN→VERIFY→CROSS-CHECK→COMMIT}|step{EXECUTE→VERIFY→COMMIT}
+@detection::deducePlanType{autoDetectFromStructure}
+@compiler::parsePlan{packages/mcp-server/src/lib/mcp-server.ts}
+@output::.cvm/uplan.json{type+mission+sourceFile+sourceFiles+blocks[id/title/intro/red/redKeys/success/planRef]}
+@resumption::.cvm/uplan-progress.json{applicationLevelCheckpoint}
+↳reference-impl::tddab-parser.ts{lexing+parsing}
+↳executor::test/programs/tddab/planexecutor.ts{checkpoint+resume+verify}
+@moat::durable-execution-for-agent{zero-infra+survive-process-death+orchestrate-AI}

@@ -8,6 +8,12 @@
 [![License: AGPL v3](https://img.shields.io/badge/License-AGPL_v3-blue.svg)](https://www.gnu.org/licenses/agpl-3.0)
 [![Commercial License Available](https://img.shields.io/badge/Commercial-Available-green.svg)](./COMMERCIAL.md)
 
+> [!IMPORTANT]
+> **New: the CVM Plan Protocol (CVM-PP).** Write your work as a structured Markdown plan
+> and CVM drives an AI agent through it, one task at a time — no hand-written CVM program
+> needed. If a plan is in CVM-PP form, CVM knows how to run it.
+> → [What it is & how it works](#the-cvm-plan-protocol-cvm-pp-let-an-agent-drive-itself-through-a-plan) · [Protocol specification](docs/PLAN_FORMAT.md)
+
 **TRADITIONAL SCRIPT**
 
 🔘 Gray = Script Operations
@@ -330,6 +336,46 @@ These programs guide Claude through hundreds of coordinated changes:
 
 Each program breaks down complex tasks into cognitive checkpoints where Claude provides implementation, reviews code, fixes issues, and verifies correctness - all while CVM maintains perfect state across the entire workflow.
 
+## The CVM Plan Protocol (CVM-PP): Let an Agent Drive Itself Through a Plan
+
+You don't have to hand-write a CVM program for every task. CVM speaks the **CVM Plan
+Protocol (CVM-PP)**: write the work as a structured Markdown **plan** (mission + an ordered
+list of atomic blocks), and **if the plan is in CVM-PP form, CVM knows how to run it** —
+an AI agent then **drives itself through it, one task at a time**.
+
+CVM does *not* execute the work — it sequences it. It turns the plan into a stream of
+checkpoints and hands the agent a single task at a time (write this failing test →
+implement it → verify each criterion → commit), holding all the loop / retry / resume /
+progress state itself. The agent does the actual work and reports back; CVM advances.
+This is the same guide-rope idea as `CC()`, applied to a whole development plan, so an
+agent can follow a long plan without keeping it all in its context.
+
+```mermaid
+flowchart LR
+    PLAN["📄 Markdown plan<br/>(mission + blocks)"] -->|parsePlan| UPLAN["🧩 uplan.json<br/>(validated + compiled)"]
+    UPLAN -->|planexecutor| SEQ["🔁 One task at a time<br/>RED → GREEN → VERIFY → COMMIT"]
+    SEQ -->|CC checkpoint| AGENT["🧠 AI agent<br/>does the work, reports back"]
+    AGENT -->|done| SEQ
+```
+
+**Two pieces:**
+
+- **`parsePlan`** — validates the plan against the grammar and compiles it to
+  `.cvm/uplan.json`. On any violation it fails with precise `line N: message` errors.
+- **`planexecutor`** — walks the blocks, emitting one phase task at a time to the agent
+  and advancing as each is reported done. Completed blocks are checkpointed to
+  `.cvm/uplan-progress.json`, so an interrupted run **resumes** where it left off.
+
+Plans come in two flavours: **`tddab`** (test-driven blocks, `RED → GREEN → VERIFY →
+CROSS-CHECK → COMMIT`) and **`step`** (action blocks, `EXECUTE → VERIFY → COMMIT`), and
+can span a single file or an index file plus multiple sub-files.
+
+**CVM-PP is a documented, stable contract.** If an AI (or any tool) produces a plan that
+conforms to the protocol, it is immediately drivable — no conversion needed. The full
+specification (grammar, validation rules, examples, authoring checklist) lives in
+**[docs/PLAN_FORMAT.md](docs/PLAN_FORMAT.md)** and is intended as an interop target for
+external plan generators.
+
 ## Language Features & Limitations
 
 Since CVM uses a custom interpreter, it supports a TypeScript-like subset designed for reliability and safety.
@@ -442,6 +488,7 @@ This allows you to monitor long-running tasks and verify progress without interr
 - `getTask(executionId)` - Pull next task
 - `submitTask(executionId, result)` - Submit result
 - `status(executionId)` - Check state anytime
+- `parsePlan(filePath)` - Validate a CVM-PP plan and compile it to `.cvm/uplan.json` (see [The CVM Plan Protocol](#the-cvm-plan-protocol-cvm-pp-let-an-agent-drive-itself-through-a-plan))
 
 **What CVM Maintains**:
 - All variables and their values
@@ -474,6 +521,7 @@ Perfect for any workflow where Claude needs to process many items systematically
 - Any task requiring loops with AI processing
 
 [→ Full API Documentation](docs/API.md)
+[→ CVM Plan Protocol (CVM-PP) Specification](docs/PLAN_FORMAT.md)
 
 ## The Key Insight
 
