@@ -5,7 +5,7 @@
 @feature::05-cvm-plan-skills
 @branch::feature/05-cvm-plan-skills{pushed✓}
 @date::2026-07-02
-@next::j-cvm-exec-plan⚡{block01done✓;→block02 actions strict}
+@next::j-cvm-exec-plan⚡{blocks01-02done✓;→block03 PLAN_FORMAT v1.1 docs}
 @exec::run-05-cvm-plan-skills{planexecutor}
 
 [SCOPE]

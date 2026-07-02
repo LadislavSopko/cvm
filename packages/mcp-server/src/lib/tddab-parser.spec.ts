@@ -555,6 +555,66 @@ these cover the auth flows
     });
   });
 
+  describe('strict actions validation (issue #10)', () => {
+    function planWithActionLines(actionLines: string[]): string {
+      return `<mission>Context for strict actions tests. TypeScript project.</mission>
+
+<block id="01-strict-actions">
+## TDDAB-1: Strict Actions
+
+<intro>
+Testing strict actions validation.
+</intro>
+
+<actions>
+${actionLines.join('\n')}
+</actions>
+
+<success>
+- [ ] it works
+</success>
+</block>`;
+    }
+
+    it('should reject an actions line with tag before colon', () => {
+      const md = planWithActionLines(['- action: ok step', '- action @manual: run migration']);
+      const result = parseTddabPlan(md, 'plan.md');
+      const expectedLine =
+        md.split('\n').findIndex(l => l.trim() === '- action @manual: run migration') + 1;
+      expect(result.valid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].line).toBe(expectedLine);
+      expect(result.errors[0].message).toContain('unparseable line in actions');
+      expect(result.errors[0].message).toContain(String(expectedLine));
+      expect(result.errors[0].message).toContain('- action @manual: run migration');
+    });
+
+    it('should reject a prose line inside actions', () => {
+      const md = planWithActionLines(['- action: ok step', 'this describes the migration flow']);
+      const result = parseTddabPlan(md, 'plan.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].message).toContain('unparseable line in actions');
+      expect(result.errors[0].message).toContain('this describes the migration flow');
+    });
+
+    it('should allow blank lines between valid action lines', () => {
+      const md = planWithActionLines(['- action: first step', '', '   ', '- action: second step']);
+      const result = parseTddabPlan(md, 'plan.md');
+      expect(result.valid).toBe(true);
+      expect(result.plan?.blocks[0].redTests).toEqual(['first step', 'second step']);
+    });
+
+    it('should keep a fully valid step-style plan valid with isAction true', () => {
+      const md = planWithActionLines(['- action: remove v1 config', '- action: update refs']);
+      const result = parseTddabPlan(md, 'plan.md');
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+      expect(result.plan?.blocks[0].isAction).toBe(true);
+      expect(result.plan?.blocks[0].redTests).toEqual(['remove v1 config', 'update refs']);
+    });
+  });
+
   describe('parseFilesTag', () => {
     it('should extract filenames from files tag', () => {
       const md = `<mission>Context</mission>\n\n<files>\n- 01-models.md\n- 02-services.md\n</files>`;

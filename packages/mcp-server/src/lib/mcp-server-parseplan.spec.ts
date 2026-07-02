@@ -189,6 +189,35 @@ describe('CVMMcpServer - parsePlan', () => {
     }
   });
 
+  it('should return isError true with unparseable-line message for malformed actions line', async () => {
+    const malformedFile = join(testDir, 'malformed-actions.md');
+    const malformedContent = `<mission>Step plan context for strict actions.</mission>
+
+<block id="01-cleanup">
+## TDDAB-1: Cleanup
+<intro>Remove legacy config.</intro>
+<actions>
+- action: remove v1 entries
+- action @manual: run migration
+</actions>
+<success>
+- [ ] no v1 references
+</success>
+</block>`;
+    await writeFile(malformedFile, malformedContent);
+
+    const result = await transport.callTool('parsePlan', {
+      filePath: malformedFile
+    });
+
+    expect('content' in result).toBe(true);
+    if ('content' in result) {
+      expect(result.isError).toBe(true);
+      expect(result.content[0].text).toContain('validation failed');
+      expect(result.content[0].text).toContain('unparseable line in actions');
+    }
+  });
+
   describe('multi-file plans', () => {
     const indexContent = `# TDDAB Plan: Multi-File Test
 **Date:** 2026-05-26

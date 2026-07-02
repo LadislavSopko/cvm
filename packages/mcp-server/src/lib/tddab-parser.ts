@@ -187,9 +187,15 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
         isAction = true;
         i++;
         while (i < lines.length && !lines[i].trim().startsWith('</actions>')) {
-          const actionMatch = lines[i].trim().match(/^-\s*action:\s*(.+)/);
+          const raw = lines[i].trim();
+          const actionMatch = raw.match(/^-\s*action:\s*(.+)/);
           if (actionMatch) {
             redTests.push(actionMatch[1].trim());
+          } else if (raw !== '') {
+            errors.push({
+              line: i + 1,
+              message: `Block "${blockId}" has unparseable line in actions at line ${i + 1}: "${raw}"`,
+            });
           }
           i++;
         }
