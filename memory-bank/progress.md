@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [05-cvm-plan-skills]
-@status::DEVELOP⚡{j-cvm-exec-plan running;blocks01-05done✓}
+@status::DEVELOP⚡{j-cvm-exec-plan running;blocks01-06done✓}
 @branch::feature/05-cvm-plan-skills{pushed✓}
 @date::2026-07-02
 
@@ -19,7 +19,7 @@
 03-plan-format-docs{→PLAN_FORMAT v1.1}✓DONE{docs/PLAN_FORMAT.md:v1.1 header+§2/§3 strict+§4.6 rule+WRONG/CORRECT+§8 errors+§11 changelog}
 04-skill-plan-create✓DONE{skills/cvm-plan-create/SKILL.md;frontmatter+readSpec+authorChecklist+issue#10trap+parsePlanValidate}
 05-skill-plan-review✓DONE{skills/cvm-plan-review/SKILL.md;2-stage:parsePlan machineValidation+semanticChecklist+verdict output}
-06-skill-plan-execute
+06-skill-plan-execute✓DONE{skills/cvm-plan-execute/SKILL.md;CCparadigm+prereqs+parsePlan/start/getTask/submitTask loop+resume(status/list_executions/set_current)+rules}
 07-readme-skills-section
 
 [Pending]
