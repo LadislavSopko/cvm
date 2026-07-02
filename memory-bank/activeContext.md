@@ -1,24 +1,33 @@
 §MBEL:5.0
 
 [FOCUS]
-@state::CVMProtocolOutreach
-@date::2026-06-29
+@state::DEVELOP
+@feature::05-cvm-plan-skills
+@branch::feature/05-cvm-plan-skills{pushed✓}
+@date::2026-07-02
+@next::j-cvm-exec-plan⚡{block01done✓;→block02 actions strict}
+@exec::run-05-cvm-plan-skills{planexecutor}
 
-[COMPLETED]
->audit-2026-06-09::completed✓{security+arch findings→tasks/}
->cvm-pp-spec::docs/PLAN_FORMAT.md{CVM-PPv1.0}✓
->paradigm-framing::clarified✓{CVMsequences+AIdrives+stateManaged}
->readme-updates::CVM-PP announcement+section+QRef✓
+[SCOPE]
+@issue::github#10{parsePlan silentDrop redLines¬"- test:"prefix→valid:true✗}
+@fix::strictValidation{nonEmptyLine¬parseable→ParseError+lineNumber}©issue-option-1
+@skills::3universal{skills/cvm-plan-create+cvm-plan-review+cvm-plan-execute}→CVMstandalone¬aiAgentSetup
+@order::fixIssue→deploy{npmPublish}→skills→x-audit{separate}
 
-[CVMPlanProtocol]
-@spec::docs/PLAN_FORMAT.md{title:"CVM Plan Protocol (CVM-PP) Specification"}
-@version::1.0
-@consumers::parsePlan{mcp-server}+planexecutor{test/programs/tddab}
-@format::single-file|multi-file{index+<files>subdirs}
-@types::tddab|step{auto-detected via deducePlanType}
-@compiled-to::.cvm/uplan.json{type+mission+sourceFile+blocks[]}
+[ARTIFACTS]
+@notes::tasks/05-cvm-plan-skills/notes.md{requirements✓+analysis✓+proposal✓+complexityScores✓+tddabRules✓}
+@plan::tasks/05-cvm-plan-skills/plan.md{blocks#7}✓
+>reviewed::j-review-plan✓{parsePlan:valid+redKeys#19=testLines#12+actionLines#7+rule10fix→snippetsInnerLoopOnly}
 
-[OUTREACH]
-→next{update-issue-6-wording}⚠pending{branding→CVM-PP}
-→next{add-cvm-skills}⚠pending{2generic:generate-plan,validate-plan}
-@external::ndom91/open-plan-annotator#6{requestingCVM-PPexport}
+[CODE]
+@parser::packages/mcp-server/src/lib/tddab-parser.ts{redLoop~165-177+actionsLoop~179-192→silentSkip✗}
+@spec::tddab-parser.spec.ts{tests#31}
+@e2e::mcp-server-parseplan.spec.ts
+@docs::docs/PLAN_FORMAT.md{→v1.1:strictContract+tagsAfterColon+changelog}
+
+[DECISIONS]
+>proposeApproval::autoAdvanced{userAFK;proposal=issuePreference}⚠reconfirmAtPlanReview
+@lsai::workspace{cvm-javascript-1}indexesJS¬TS→symbolChecks→directRead+grep{flagged}
+
+[BLOCKERS]
+¬none

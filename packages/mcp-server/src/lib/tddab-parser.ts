@@ -166,9 +166,15 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
         hasRed = true;
         i++;
         while (i < lines.length && !lines[i].trim().startsWith('</red>')) {
-          const testMatch = lines[i].trim().match(/^-\s*test:\s*(.+)/);
+          const raw = lines[i].trim();
+          const testMatch = raw.match(/^-\s*test:\s*(.+)/);
           if (testMatch) {
             redTests.push(testMatch[1].trim());
+          } else if (raw !== '') {
+            errors.push({
+              line: i + 1,
+              message: `Block "${blockId}" has unparseable line in red at line ${i + 1}: "${raw}"`,
+            });
           }
           i++;
         }

@@ -1,23 +1,32 @@
 §MBEL:5.0
 
-[CVMProtocolWork]
-@status::COMPLETE✓
-@phase::documentation{2026-06-29}
+[05-cvm-plan-skills]
+@status::DEVELOP⚡{j-cvm-exec-plan running;block01done✓}
+@branch::feature/05-cvm-plan-skills{pushed✓}
+@date::2026-07-02
 
-[Deliverables]
-✓Spec::docs/PLAN_FORMAT.md{title:"CVM Plan Protocol (CVM-PP) Specification";v1.0}
-✓Paradigm::clarified{CVM¬executes;sequences→checkpoints;AIdrives;statePreserved}
-✓Reference::parsePlan{packages/mcp-server/src/lib/mcp-server.ts}
-✓Reference::planexecutor{test/programs/tddab/planexecutor.ts}
-✓Reference::parser::packages/mcp-server/src/lib/tddab-parser.ts
-✓README::updated{[!IMPORTANT]news+§CVMProtocol+parsePlan→QRef}
+[Done]
+>branch+taskFolder::created✓{tasks/05-cvm-plan-skills/}
+>requirements::gathered✓{issue#10fix→deploy→3skills→x-audit}
+>analysis::done✓{parser:tddab-parser.ts redLoop~165-177+actionsLoop~179-192 silentSkip}
+>proposal::written✓{strict validation©issue-option-1+skills/ dir+README install}
+>plan::created✓{plan.md blocks#7}
+>selfReview::j-review-plan✓{parsePlan valid+redKeys#19 match+rule10 snippetFix}
 
-[Outreach]
-✓Issue::ndom91/open-plan-annotator#6{requestingCVM-PPexport;pending:wording-update}
+[PlanBlocks]
+01-strict-red-validation{tests#7}✓DONE{tddab-parser.ts:168-180 red loop→ParseError on unparseable line;spec 37green;build 7proj✓}
+02-strict-actions-validation{tests#5}
+03-plan-format-docs{→PLAN_FORMAT v1.1}
+04-skill-plan-create
+05-skill-plan-review
+06-skill-plan-execute
+07-readme-skills-section
 
 [Pending]
-?UpdateIssue6{confirmCVM-PPbranding}⚠next
-?AddSkills{generate-cvm-plan+validate-cvm-plan}⚠next
+?j-develop{userTrigger}!
+?closeIssue10+npmPublish{atClose/Deploy}
+?x-audit{separateActivity;postFeature}
+?updateIssue6{CVM-PPbranding}⚠carryOver{fromPreviousSession}
 
 [MissionStatus]
 @CVM::algorithmicTODOManager{forClaude}→complexMultiStepOrchestration+statePersistence

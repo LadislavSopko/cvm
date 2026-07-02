@@ -449,6 +449,112 @@ Remove v1 config entries.
     });
   });
 
+  describe('strict red validation (issue #10)', () => {
+    function planWithRedLines(redLines: string[]): string {
+      return `<mission>Context for strict red tests. TypeScript project.</mission>
+
+<block id="01-strict">
+## TDDAB-1: Strict Red
+
+<intro>
+Testing strict red validation.
+</intro>
+
+<red>
+${redLines.join('\n')}
+</red>
+
+<success>
+- [ ] it works
+</success>
+</block>`;
+    }
+
+    it('should reject red line with tag before colon', () => {
+      const md = planWithRedLines(['- test: ok line', '- test @local-only: dropped line']);
+      const result = parseTddabPlan(md, 'plan.md');
+      const expectedLine =
+        md.split('\n').findIndex(l => l.trim() === '- test @local-only: dropped line') + 1;
+      expect(result.valid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].line).toBe(expectedLine);
+      expect(result.errors[0].message).toContain('01-strict');
+      expect(result.errors[0].message).toContain('unparseable line in red');
+      expect(result.errors[0].message).toContain(String(expectedLine));
+      expect(result.errors[0].message).toContain('- test @local-only: dropped line');
+    });
+
+    it('should reject a prose line inside red', () => {
+      const md = planWithRedLines(['- test: ok line', 'these cover the auth flows']);
+      const result = parseTddabPlan(md, 'plan.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toHaveLength(1);
+      expect(result.errors[0].message).toContain('unparseable line in red');
+      expect(result.errors[0].message).toContain('these cover the auth flows');
+    });
+
+    it('should allow blank and whitespace-only lines between valid tests', () => {
+      const md = planWithRedLines(['- test: first', '', '   ', '- test: second']);
+      const result = parseTddabPlan(md, 'plan.md');
+      expect(result.valid).toBe(true);
+      expect(result.plan?.blocks[0].redTests).toEqual(['first', 'second']);
+    });
+
+    it('should report exactly three errors for three malformed lines among six valid (issue #10 repro)', () => {
+      const md = planWithRedLines([
+        '- test: valid one',
+        '- test @local-only: bad one',
+        '- test: valid two',
+        'a prose line describing coverage',
+        '- test: valid three',
+        '- test: valid four',
+        '- test @manual: bad two',
+        '- test: valid five',
+        '- test: valid six',
+      ]);
+      const result = parseTddabPlan(md, 'plan.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors).toHaveLength(3);
+      expect(result.errors.every(e => e.message.includes('unparseable line in red'))).toBe(true);
+    });
+
+    it('should parse a tag written after the colon as a normal test line', () => {
+      const md = planWithRedLines(['- test: register happy @local-only — details']);
+      const result = parseTddabPlan(md, 'plan.md');
+      expect(result.valid).toBe(true);
+      expect(result.plan?.blocks[0].redTests).toEqual([
+        'register happy @local-only — details',
+      ]);
+    });
+
+    it('should keep a fully valid existing-style plan valid with unchanged redTests', () => {
+      const result = parseTddabPlan(validPlan, 'test-plan.md');
+      expect(result.valid).toBe(true);
+      expect(result.errors).toHaveLength(0);
+      expect(result.plan?.blocks[0].redTests).toEqual([
+        'greet("World") returns "Hello, World!"',
+        'greet("") returns "Hello, !"',
+      ]);
+    });
+
+    it('should report both a malformed red line and a missing success tag', () => {
+      const md = `<mission>Context</mission>
+
+<block id="01-strict">
+## TDDAB-1: Strict Red
+<intro>intro</intro>
+<red>
+- test: ok line
+these cover the auth flows
+</red>
+</block>`;
+      const result = parseTddabPlan(md, 'plan.md');
+      expect(result.valid).toBe(false);
+      expect(result.errors.some(e => e.message.includes('unparseable line in red'))).toBe(true);
+      expect(result.errors.some(e => e.message.includes('success'))).toBe(true);
+    });
+  });
+
   describe('parseFilesTag', () => {
     it('should extract filenames from files tag', () => {
       const md = `<mission>Context</mission>\n\n<files>\n- 01-models.md\n- 02-services.md\n</files>`;
