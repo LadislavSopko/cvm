@@ -1,7 +1,7 @@
 # CVM Plan Protocol (CVM-PP) Specification
 
 **Status:** Stable · **Audience:** plan authors and tool builders (e.g. external plan
-generators that want to emit CVM-executable plans) · **Protocol version:** 1.0
+generators that want to emit CVM-executable plans) · **Protocol version:** 1.1
 
 The **CVM Plan Protocol (CVM-PP)** is the Markdown plan format that CVM understands. The
 promise is simple: **if you have a plan written in CVM-PP form, CVM knows how to drive an
@@ -60,8 +60,10 @@ There are **two plan types**, auto-detected (you do not declare it):
   `<block>`, `<files>`) may be written **inline** (`<tag>content</tag>` on one line) or
   **multiline** (open tag, content lines, close tag on its own line). `<mission>` and
   `<intro>` support both forms; list tags are normally multiline.
-- Inside list tags, only lines matching the specific item pattern are captured. **Any
-  other line is silently ignored** (see §4.6 — this is intentional and useful).
+- Inside `<red>` and `<actions>` tags, every non-empty line **must** match the item
+  pattern (`- test:` / `- action:`). A non-empty line that does not match is a **hard
+  validation error** (see §4.6); only blank / whitespace-only lines are allowed between
+  items. Other list tags (`<files>`, `<success>`) still ignore non-matching lines.
 - Markdown outside the recognized tags (prose, `###` headings, fenced code blocks) is
   ignored by the parser but is preserved in the source file and reachable by the
   executor via `planRef` (§6).
@@ -101,8 +103,9 @@ actions         = "<actions>" , { "- action: " , text }+ , "</actions>" ;
 success         = "<success>" , { "- [ ] " , text }+ , "</success>" ;
 ```
 
-> Note: the EBNF shows logical structure. The parser is line-oriented and tolerant of
-> extra non-matching lines anywhere inside a block (they are dropped).
+> Note: the EBNF shows logical structure. The parser is line-oriented. Prose and code
+> outside list tags are ignored, but inside `<red>` / `<actions>` every non-empty line
+> must be a valid item — an unparseable line there is a hard error (§4.6, §8).
 
 ---
 
@@ -174,9 +177,27 @@ write first:
 
 Rules:
 - A block must have **either** `<red>` **or** `<actions>`, with **at least one** item.
-- Only lines starting with `- test:` (inside `<red>`) or `- action:` (inside
-  `<actions>`) are captured. Other lines are ignored — so you can freely interleave
-  prose or code between items if you want, though keeping items clean is preferred.
+- **Strict content rule.** Inside `<red>` every non-empty line must match `- test:` and
+  inside `<actions>` every non-empty line must match `- action:`. Any non-empty line that
+  does not match is a **hard validation error** reported with its 1-based line number
+  (e.g. `Block "X" has unparseable line in red at line N: "..."`); no `uplan.json` is
+  written. Blank / whitespace-only lines are permitted between items. This makes the
+  contents a strict contract — you cannot interleave prose or code inside these tags;
+  put such detail in the `### Implementation` body instead (reachable via `planRef`, §6).
+
+**Tag placement — annotations go AFTER the colon.** Any tag/annotation (e.g.
+`@local-only`) must appear in the item text, **after** the `:`, never between the word
+`test`/`action` and the colon. A tag before the colon breaks the item pattern and, prior
+to CVM-PP v1.1, was silently dropped while `parsePlan` still reported `valid:true`
+(GitHub issue #10). It is now a hard error.
+
+```
+WRONG — tag before the colon (does not match `- test:`, hard error):
+- test @local-only: register happy path
+
+CORRECT — tag after the colon (parses as a normal test item):
+- test: register happy path @local-only — needs a live DB
+```
 
 ### 4.7 `<success>` (required)
 The acceptance checklist. Each item is an unchecked Markdown checkbox:
@@ -291,6 +312,8 @@ Design implications for authors:
 | Missing/empty `<intro>` | `Block "X" missing <intro> tag` / `has empty <intro>` |
 | Missing `<red>`/`<actions>` | `Block "X" missing <red> or <actions> tag` |
 | `<red>`/`<actions>` with no items | `Block "X" has <red>/<actions> but no "- test:"/"- action:" lines` |
+| Unparseable line inside `<red>` | `Block "X" has unparseable line in red at line N: "..."` |
+| Unparseable line inside `<actions>` | `Block "X" has unparseable line in actions at line N: "..."` |
 | Missing `<success>` | `Block "X" missing <success> tag` |
 | `<success>` with no `- [ ]` items | `Block "X" has <success> but no "- [ ]" items` |
 | No blocks at all (when required) | `No <block> tags found` |
@@ -404,4 +427,23 @@ PROJECT: Prepare the 1.2.0 release.
 - [ ] Blocks ordered by dependency; cross-block deps stated in `<intro>`.
 - [ ] Rich implementation detail placed in the block body (reachable via `planRef`).
 - [ ] For a pure `step` plan, **all** blocks use `<actions>`.
+- [ ] Inside `<red>`/`<actions>`, every non-empty line is a valid `- test:`/`- action:`
+      item; annotations go after the colon (§4.6).
 - [ ] Validate with `parsePlan` before shipping; fix any `line N:` errors.
+
+---
+
+## 11. Changelog
+
+### v1.1
+
+- **Strict `<red>` / `<actions>` content.** Any non-empty line inside `<red>` or
+  `<actions>` that is not a valid `- test:` / `- action:` item is now a hard validation
+  error carrying its 1-based line number, instead of being silently dropped. Blank /
+  whitespace-only lines remain permitted. Fixes GitHub issue #10, where a line with a tag
+  before the colon (`- test @local-only: ...`) was dropped while `parsePlan` still
+  reported `valid:true`. Annotations must go **after** the colon (§4.6).
+
+### v1.0
+
+- Initial CVM-PP specification.
