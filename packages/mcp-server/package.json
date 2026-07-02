@@ -16,7 +16,6 @@
     }
   },
   "dependencies": {
-    "@cvm/mongodb": "^0.0.1",
     "@cvm/parser": "^0.0.1",
     "@cvm/vm": "^0.0.1",
     "@modelcontextprotocol/sdk": "^1.12.2",

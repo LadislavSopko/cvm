@@ -31,7 +31,7 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['@cvm/parser', '@cvm/storage', '@cvm/types', 'dotenv', 'mongodb', 'fs', 'fs/promises', 'path', 'os', 'stream', 'net', 'dns', 'util', 'zlib', 'timers', 'timers/promises', 'events', 'tls', 'crypto', 'url', 'querystring', 'http', 'https']
+      external: ['@cvm/parser', '@cvm/storage', '@cvm/types', 'dotenv', 'fs', 'fs/promises', 'path', 'os', 'stream', 'net', 'dns', 'util', 'zlib', 'timers', 'timers/promises', 'events', 'tls', 'crypto', 'url', 'querystring', 'http', 'https']
     },
   },
   test: {

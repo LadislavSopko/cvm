@@ -1,3 +1,9 @@
+## 2.0.0 (2026-07-02)
+
+### 🚨 Breaking Changes
+
+- **storage:** removed MongoDB storage backend; file storage only. `CVM_STORAGE_TYPE=mongodb` now throws at storage creation with a clear message pointing to file storage. The dead `@cvm/mongodb` package and `mongodb` dependency have been removed from all packages.
+
 ## 1.2.0 (2026-07-02)
 
 ### 🚀 Features

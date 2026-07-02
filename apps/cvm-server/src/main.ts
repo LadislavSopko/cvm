@@ -50,14 +50,10 @@ async function main() {
     });
     
     // Log storage configuration
-    if (config.storage.type === 'file') {
-      const dataDir = config.storage.dataDir || '.cvm';
-      const fullPath = resolve(process.cwd(), dataDir);
-      logger.info(`[CVM] Initializing file storage in: ${fullPath}`);
-      logger.warn(`[CVM] ⚠️  Remember to add '${dataDir}/' to your .gitignore file!`);
-    } else {
-      logger.info('[CVM] Using MongoDB storage');
-    }
+    const dataDir = config.storage.dataDir || '.cvm';
+    const fullPath = resolve(process.cwd(), dataDir);
+    logger.info(`[CVM] Initializing file storage in: ${fullPath}`);
+    logger.warn(`[CVM] ⚠️  Remember to add '${dataDir}/' to your .gitignore file!`);
     
     // Create CVM MCP server instance (it creates its own VMManager internally)
     cvmServer = new CVMMcpServer(version);

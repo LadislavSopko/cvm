@@ -70,13 +70,9 @@ The server uses environment variables for configuration:
 ### Storage Configuration
 
 ```bash
-# File storage (default)
+# File storage (only supported backend)
 CVM_STORAGE_TYPE=file
 CVM_DATA_DIR=.cvm
-
-# MongoDB storage
-CVM_STORAGE_TYPE=mongodb
-MONGODB_URL=mongodb://localhost:27017/cvm
 ```
 
 ### Logging Configuration

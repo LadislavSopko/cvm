@@ -27,9 +27,6 @@
     },
     {
       "path": "../parser/tsconfig.lib.json"
-    },
-    {
-      "path": "../mongodb/tsconfig.lib.json"
     }
   ],
   "exclude": [

@@ -9,8 +9,7 @@ dotenv.config({ path: resolve(__dirname, '../../../.env') });
 
 export interface Config {
   storage: {
-    type: 'file' | 'mongodb';
-    mongoUri?: string;
+    type: 'file';
     dataDir?: string;
   };
   logging: {
@@ -33,14 +32,8 @@ export function loadConfig(): Config {
   const env = process.env.NODE_ENV || 'development';
   
   // Storage configuration
-  const storageType = (process.env.CVM_STORAGE_TYPE || 'file') as 'file' | 'mongodb';
-  const mongoUri = process.env.MONGODB_URI;
+  const storageType = (process.env.CVM_STORAGE_TYPE || 'file') as Config['storage']['type'];
   const dataDir = process.env.CVM_DATA_DIR;
-  
-  // Validate storage configuration
-  if (storageType === 'mongodb' && !mongoUri) {
-    throw new Error('MONGODB_URI environment variable is required when CVM_STORAGE_TYPE is mongodb');
-  }
 
   // Optional with defaults
   const logLevel = (process.env.CVM_LOG_LEVEL || 'info') as Config['logging']['level'];
@@ -56,7 +49,6 @@ export function loadConfig(): Config {
   return {
     storage: {
       type: storageType,
-      mongoUri,
       dataDir,
     },
     logging: {

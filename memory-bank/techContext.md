@@ -13,14 +13,14 @@
 
 [KeyDeps]
 @modelcontextprotocol/sdk→MCPprotocol{1.17.2installed vs1.29.0upstream;deprecated server.tool()API}⚠upgrade-target
-@mongodb::6.x→storageOption{pinned3ranges:types^6.3UNUSED+storage^6.12+app^6.17}⚠consolidate
-@zod→schemaValidation{MCPtools+config validation NOT USED despite available}
+@mongodb::REMOVED{06-drop-mongodb→v2.0.0shipped;fileStorageOnly;@cvm/mongodbPkg+allMongoDeps+MongoDBAdapterDeleted}
+@zod→schemaValidation{©audit-correction::USED forMCPtoolInputs(mcp-server.ts:82-538);¬usedForEnvConfig(realGap§8)}
 @TypeScriptCompilerAPI→parsingCVMsource
-@types/pino→deprecated{published+unused}⚠remove-from-published
+@types/pino→©audit-correction::USED(logger.ts require pino);but shipsAsRUNTIMEdep⚠move-to-devDeps
 
 [DevSetup]
 !prereqs::NodeJs18.16+&npm&Git
-?optional::MongoDB{dbStorage}+ClaudeDesktop{MCPintegration}
+?optional::ClaudeDesktop{MCPintegration}
 
 [SetupCommands]
 npm install
@@ -50,14 +50,13 @@ memoryLimits{heapAllocations}
 [PackageDeps]
 parser→{¬internalDeps}
 types→{¬internalDeps}
-mongodb→types{!DEAD:unused,noImports,onlyVitecfg;@storage has own mongodb-adapter.ts}
 storage→types
 vm→parser+types+storage
-mcpServer→vm+parser{declares mongodb dep¬imports}
+mcpServer→vm+parser
 cvmServer→mcpServer
 
 [ExternalDeps]
-@production::minimal{MCPsdk+optionalMongoDB}
+@production::minimal{MCPsdk}
 @development::fullNxToolchain+TypeScript+Vitest
 
 [NxCommands]
@@ -77,9 +76,8 @@ E2ETests→fullStack{test/integration}
 CoverageTarget~%85+{corePackages}
 
 [EnvVars]
-CVM_STORAGE_TYPE=file|mongodb
+CVM_STORAGE_TYPE=file
 CVM_DATA_DIR=.cvm
-MONGODB_URL=mongodb://localhost:27017/cvm
 CVM_LOG_LEVEL=debug|info|warn|error
 CVM_LOG_FORMAT=pretty|json
 NODE_ENV=development|production
@@ -101,7 +99,7 @@ fileOps→limitedToSandbox{!BUG:file-system.ts:56 startsWith bypass⚠critical-p
 resourceLimits→enforced
 
 [InfrastructureIssues]
-@nxCloudId::nx.json undeclared→401 on every build⚠remove
+@nxCloudId::©audit-correction::DECLARED(nx.json:20)but noAccessToken→orphan⚠remove-or-add-token
 @npmAudit::nexus proxy returns 400→supply-chain exposure unmeasured
 @clutter::counter.ts+graph.html+tsconfig.tsbuildinfo{committed}⚠clean
 @planexecutor::production builtin under test/→should move to apps/cvm-server/programs/

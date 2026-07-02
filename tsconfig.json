@@ -11,9 +11,6 @@
       "path": "./packages/vm"
     },
     {
-      "path": "./packages/mongodb"
-    },
-    {
       "path": "./packages/mcp-server"
     },
     {

@@ -31,7 +31,7 @@ export default defineConfig(() => ({
     },
     rollupOptions: {
       // External packages that should not be bundled into your library.
-      external: ['fs', 'fs/promises', 'path', 'os', 'stream', 'net', 'dns', 'util', 'zlib', 'timers', 'timers/promises', 'events', 'tls', 'crypto', 'url', 'querystring', 'http', 'https', '@cvm/types', 'mongodb']
+      external: ['fs', 'fs/promises', 'path', 'os', 'stream', 'net', 'dns', 'util', 'zlib', 'timers', 'timers/promises', 'events', 'tls', 'crypto', 'url', 'querystring', 'http', 'https', '@cvm/types']
     },
   },
   test: {

@@ -138,7 +138,7 @@ Traditional scripts treat Claude as a service. CVM treats Claude as the driver.
 - **Simple API**: Just 6 straightforward functions (load, start, getTask, submitTask, status, etc.)
 - **TypeScript native**: Write programs in familiar TypeScript syntax
 - **Clean separation**: Deterministic logic in code, cognitive tasks delegated to AI
-- **MongoDB or File persistence**: Automatic state management between calls
+- **File persistence**: Automatic state management between calls
 
 **Use Cases for Developers:**
 - Complex multi-step workflows that need AI reasoning

@@ -1,21 +1,19 @@
 # @cvm/storage
 
-Storage abstraction layer for CVM, providing persistent storage for programs and execution state. Supports multiple backends through a common interface.
+Storage abstraction layer for CVM, providing persistent storage for programs and execution state. File storage is the only supported backend.
 
 ## Overview
 
 This package provides:
-- **StorageAdapter Interface**: Common API for all storage backends
+- **StorageAdapter Interface**: Common API for storage backends
 - **File Storage**: Local filesystem storage using JSON files
-- **MongoDB Storage**: Scalable document-based storage
-- **Storage Factory**: Automatic backend selection based on configuration
+- **Storage Factory**: Zero-setup file storage instantiation
 
 ## Architecture
 
 ```
 StorageAdapter (interface)
-       ├── FileStorageAdapter
-       └── MongoDBStorageAdapter
+       └── FileStorageAdapter
 ```
 
 ## Storage Adapter Interface
@@ -55,7 +53,7 @@ interface StorageAdapter {
 
 ### File Storage
 
-Default backend using local filesystem:
+Only backend, using local filesystem:
 - Programs stored in `data/programs/`
 - Executions stored in `data/executions/`
 - Output stored in `data/outputs/`
@@ -68,39 +66,18 @@ const storage = new FileStorageAdapter('./cvm-data');
 await storage.connect();
 ```
 
-### MongoDB Storage
-
-Scalable backend for production use:
-- Programs in `programs` collection
-- Executions in `executions` collection
-- Output appended to execution documents
-- Metadata in `metadata` collection
-
-```typescript
-import { MongoDBStorageAdapter } from '@cvm/storage';
-
-const storage = new MongoDBStorageAdapter('mongodb://localhost:27017/cvm');
-await storage.connect();
-```
-
 ## Storage Factory
 
-Automatically selects backend based on environment:
+Zero-setup file storage instantiation:
 
 ```typescript
-import { createStorageAdapter } from '@cvm/storage';
+import { StorageFactory } from '@cvm/storage';
 
-// Uses MONGODB_URL env var if set, otherwise file storage
-const storage = await createStorageAdapter();
+// Defaults to file storage in .cvm/ (or CVM_DATA_DIR / CVM_STORAGE_TYPE env vars)
+const storage = StorageFactory.create();
 
 // Or specify explicitly
-const mongoStorage = await createStorageAdapter({ 
-  mongoUrl: 'mongodb://localhost:27017/cvm' 
-});
-
-const fileStorage = await createStorageAdapter({ 
-  dataDir: './my-data' 
-});
+const storage = StorageFactory.create({ dataDir: './my-data' });
 ```
 
 ## Key Features
@@ -123,11 +100,12 @@ const fileStorage = await createStorageAdapter({
 ## Usage Example
 
 ```typescript
-import { createStorageAdapter } from '@cvm/storage';
+import { StorageFactory } from '@cvm/storage';
 import { Program, Execution } from '@cvm/types';
 
 // Initialize storage
-const storage = await createStorageAdapter();
+const storage = StorageFactory.create();
+await storage.connect();
 
 // Save a program
 const program: Program = {
@@ -168,4 +146,3 @@ npx nx test storage
 ## Dependencies
 
 - **@cvm/types**: Core type definitions
-- **mongodb**: MongoDB driver (optional, for MongoDB backend)

@@ -1,21 +1,27 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import { MongoDBAdapter } from '@cvm/storage';
+import { mkdtempSync, rmSync } from 'fs';
+import { tmpdir } from 'os';
+import { join } from 'path';
+import { FileStorageAdapter } from '@cvm/storage';
 import { compile } from '@cvm/parser';
 import { VM } from './vm.js';
 import { OpCode } from '@cvm/parser';
 
-describe('Parser-VM-MongoDB Integration', () => {
-  let adapter: MongoDBAdapter;
+describe('Parser-VM-File Integration', () => {
+  let adapter: FileStorageAdapter;
   let vm: VM;
+  let dataDir: string;
 
   beforeAll(async () => {
-    adapter = new MongoDBAdapter('mongodb://root:example@localhost:27017/cvm_integration_test?authSource=admin');
+    dataDir = mkdtempSync(join(tmpdir(), 'cvm-vm-integration-'));
+    adapter = new FileStorageAdapter(dataDir);
     await adapter.connect();
     vm = new VM();
   });
 
   afterAll(async () => {
     await adapter.disconnect();
+    rmSync(dataDir, { recursive: true, force: true });
   });
 
   describe('full integration flow', () => {
@@ -33,7 +39,7 @@ describe('Parser-VM-MongoDB Integration', () => {
       expect(parseResult.success).toBe(true);
       expect(parseResult.errors).toHaveLength(0);
 
-      // Step 2: Store program in MongoDB
+      // Step 2: Store program in file storage
       const program = {
         id: 'integration-test-1',
         name: 'Integration Test Program',
@@ -44,15 +50,10 @@ describe('Parser-VM-MongoDB Integration', () => {
 
       await adapter.saveProgram(program);
 
-      // Step 3: Retrieve program from MongoDB
+      // Step 3: Retrieve program from file storage
       const retrieved = await adapter.getProgram('integration-test-1');
       expect(retrieved).toBeDefined();
-      // MongoDB converts undefined to null, so we need to handle that
-      const normalizedBytecode = retrieved!.bytecode.map((instr: any) => ({
-        ...instr,
-        arg: instr.arg === null ? undefined : instr.arg
-      }));
-      expect(normalizedBytecode).toEqual(parseResult.bytecode);
+      expect(retrieved!.bytecode).toEqual(parseResult.bytecode);
 
       // Step 4: Execute the bytecode in VM
       const state = vm.execute(retrieved!.bytecode);

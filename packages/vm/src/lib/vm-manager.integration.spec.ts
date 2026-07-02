@@ -5,7 +5,6 @@ describe('VMManager Integration Tests', () => {
   let vmManager: VMManager;
 
   beforeAll(async () => {
-    // VMManager will use MONGODB_URI from .env file
     vmManager = new VMManager();
     await vmManager.initialize();
   });

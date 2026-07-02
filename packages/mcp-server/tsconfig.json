@@ -16,9 +16,6 @@
       "path": "../parser"
     },
     {
-      "path": "../mongodb"
-    },
-    {
       "path": "./tsconfig.lib.json"
     },
     {
