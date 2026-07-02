@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [05-cvm-plan-skills]
-@status::DEVELOP⚡{j-cvm-exec-plan running;blocks01-03done✓}
+@status::DEVELOP⚡{j-cvm-exec-plan running;blocks01-04done✓}
 @branch::feature/05-cvm-plan-skills{pushed✓}
 @date::2026-07-02
 
@@ -17,7 +17,7 @@
 01-strict-red-validation{tests#7}✓DONE{tddab-parser.ts:168-180 red loop→ParseError on unparseable line;spec 37green;build 7proj✓}
 02-strict-actions-validation{tests#5}✓DONE{tddab-parser.ts:184-196 actions loop→ParseError;+e2e parsePlan test;mcp-server suite 108green}
 03-plan-format-docs{→PLAN_FORMAT v1.1}✓DONE{docs/PLAN_FORMAT.md:v1.1 header+§2/§3 strict+§4.6 rule+WRONG/CORRECT+§8 errors+§11 changelog}
-04-skill-plan-create
+04-skill-plan-create✓DONE{skills/cvm-plan-create/SKILL.md;frontmatter+readSpec+authorChecklist+issue#10trap+parsePlanValidate}
 05-skill-plan-review
 06-skill-plan-execute
 07-readme-skills-section
