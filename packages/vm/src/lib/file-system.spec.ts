@@ -86,6 +86,36 @@ describe('SandboxedFileSystem', () => {
     }
   });
 
+  it('should deny a sibling path that only shares the sandbox string prefix', () => {
+    vi.mocked(fs.readdirSync).mockReturnValue(mockFiles as any);
+    vi.mocked(fs.statSync).mockReturnValue({
+      size: 1024,
+      mtime: new Date('2024-01-01')
+    } as any);
+
+    // Sandbox is '/test'; '/test-evil' is OUTSIDE it but shares the string prefix.
+    const result = fileSystem.listFiles('/test-evil');
+
+    expect(isCVMArray(result)).toBe(true);
+    if (isCVMArray(result)) {
+      expect(result.elements).toHaveLength(0);
+    }
+  });
+
+  it('should still allow the sandbox root itself and its descendants', () => {
+    vi.mocked(fs.readdirSync).mockReturnValue(mockFiles as any);
+    vi.mocked(fs.statSync).mockReturnValue({
+      size: 1024,
+      mtime: new Date('2024-01-01')
+    } as any);
+
+    const atRoot = fileSystem.listFiles('/test');
+    const inside = fileSystem.listFiles('/test/subdir');
+
+    expect(isCVMArray(atRoot) && atRoot.elements.length).toBe(3);
+    expect(isCVMArray(inside) && inside.elements.length).toBe(3);
+  });
+
   it('should handle empty sandbox paths', () => {
     process.env.CVM_SANDBOX_PATHS = '';
     fileSystem = new SandboxedFileSystem();

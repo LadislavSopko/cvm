@@ -52,9 +52,11 @@ export class SandboxedFileSystem implements FileSystemService {
       return false;
     }
     
-    // Check if path is within any sandbox path
-    return this.sandboxPaths.some(sandboxPath => 
-      normalizedPath.startsWith(sandboxPath)
+    // Check if path is within any sandbox path (require a path-separator
+    // boundary so a sibling like "/test-evil" cannot match sandbox "/test")
+    return this.sandboxPaths.some(sandboxPath =>
+      normalizedPath === sandboxPath ||
+      normalizedPath.startsWith(sandboxPath + path.sep)
     );
   }
 
