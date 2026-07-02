@@ -3,5 +3,7 @@
 [STATUS]
 @state::IDLE
 @date::2026-07-02
->closed::05-cvm-plan-skills✓{merged→main(ff);pushed;deploy::none}
-->next{user}⚠{pending::closeIssue#10+npmPublish+x-audit;carryOver::issue#6;newWork::j-new-feature}
+>closed::05-cvm-plan-skills✓{merged→main(ff);pushed}
+>released::cvm-server@1.2.0✓{npmPublished(user);GitHubRelease✓;tag+CHANGELOG✓;issue#10 CLOSED✓}
+>fix::vm sandbox escape prefix-match✓{file-system.ts isPathAllowed+path.sep boundary;a10b425}
+->next{user}⚠{optional::x-audit{separate};zeroOpenIssues;newWork::j-new-feature}
