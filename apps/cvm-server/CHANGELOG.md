@@ -1,3 +1,15 @@
+## 1.2.0 (2026-07-02)
+
+### 🚀 Features
+
+- **plan parser:** strict `<red>` / `<actions>` content validation — any non-empty line inside those sections that is not a valid `- test:` / `- action:` item is now a hard validation error with its 1-based line number, instead of being silently dropped (fixes [#10](https://github.com/LadislavSopko/cvm/issues/10)). Annotations must go after the colon.
+- **skills:** add three universal, agent-agnostic skills — `cvm-plan-create`, `cvm-plan-review`, `cvm-plan-execute` — so any AI agent can author, review, and drive CVM-PP plans standalone.
+- **docs:** CVM Plan Protocol (CVM-PP) specification bumped to v1.1 documenting the strict content rule and tag-placement.
+
+### 🩹 Fixes
+
+- **vm:** prevent sandbox escape via path prefix match — `isPathAllowed` now requires a path-separator boundary so a sibling like `/data/app-secrets` no longer matches sandbox `/data/app`.
+
 ## 1.1.0 (2026-06-02)
 
 This was a version bump only for cvm-server to align it with other projects, there were no code changes.
