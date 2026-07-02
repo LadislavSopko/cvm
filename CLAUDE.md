@@ -160,13 +160,13 @@ The Memory Bank is Claude's ONLY connection to the project between sessions. Wit
   - `mcp__sequential-thinking__` for complex analysis
 - NO code comments unless explicitly requested
 - NO commit message disclaimers or emojis
-- Only commit when user explicitly asks
 - Check lint/typecheck before completing tasks
 
 ### Git/GitHub Rules
-- NEVER commit, push, or create PRs unless explicitly requested by user
-- All git operations require explicit user approval
-- When asked to commit, follow commit guidelines in default instructions
+- Commits are allowed as part of normal workflow (e.g. TDDAB block commits during `/j-cvm-exec-plan` autonomous execution) without asking for confirmation each time
+- Pushing and creating PRs still require explicit user request
+- Never force-push, rewrite published history, or skip hooks (`--no-verify`) without explicit request
+- Follow the commit guidelines in default instructions
 
 ### Task Management
 - Use TodoWrite/TodoRead tools for complex multi-step tasks

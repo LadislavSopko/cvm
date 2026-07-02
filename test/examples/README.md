@@ -38,7 +38,7 @@ The `.mcp.json` file in this directory is configured to use the published npm pa
 
 ## Environment Variables
 
-- `CVM_STORAGE_TYPE`: Storage backend (`file` or `mongodb`)
+- `CVM_STORAGE_TYPE`: Storage backend (`file`, the only supported value)
 - `CVM_DATA_DIR`: Directory for file storage (default: `.cvm`)
 - `CVM_LOG_LEVEL`: Logging verbosity (`debug`, `info`, `warn`, `error`)
 

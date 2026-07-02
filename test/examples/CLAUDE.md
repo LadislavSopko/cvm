@@ -99,4 +99,4 @@ When calling `cvm_status` or receiving responses, you'll see these status values
 - Programs must be valid TypeScript with a main() function
 - Only string operations are currently supported
 - CC() is the cognitive interrupt that pauses execution for AI processing
-- All state is persisted in MongoDB between calls
+- All state is persisted to file storage between calls
