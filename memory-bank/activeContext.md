@@ -1,12 +1,12 @@
 §MBEL:5.0
 
 [FOCUS]
-@state::DEVELOP
+@state::TEST
 @feature::05-cvm-plan-skills
 @branch::feature/05-cvm-plan-skills{pushed✓}
 @date::2026-07-02
-@next::j-cvm-exec-plan⚡{blocks01-06done✓;→block07 README skills section}
-@exec::run-05-cvm-plan-skills{planexecutor}
+@next::j-close⚡{all7blocksDone✓;→closeIssue#10+npmPublish+x-audit}
+@exec::run-05-cvm-plan-skills{planexecutor;COMPLETE}
 
 [SCOPE]
 @issue::github#10{parsePlan silentDrop redLines¬"- test:"prefix→valid:true✗}

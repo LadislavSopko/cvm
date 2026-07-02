@@ -376,6 +376,44 @@ specification (grammar, validation rules, examples, authoring checklist) lives i
 **[docs/PLAN_FORMAT.md](docs/PLAN_FORMAT.md)** and is intended as an interop target for
 external plan generators.
 
+## Universal Skills: Use CVM Standalone with Any AI Agent
+
+CVM ships three **universal skills** — self-contained Markdown guides that let any AI
+agent author, review, and run CVM-PP plans **without the maintainer's bespoke agent
+setup**. Each references [docs/PLAN_FORMAT.md](docs/PLAN_FORMAT.md) as the single source
+of truth for the format.
+
+- **[skills/cvm-plan-create/SKILL.md](skills/cvm-plan-create/SKILL.md)** — author a valid
+  CVM-PP plan (mission + atomic blocks), then validate it with `parsePlan`.
+- **[skills/cvm-plan-review/SKILL.md](skills/cvm-plan-review/SKILL.md)** — review a plan
+  before execution: machine validation via `parsePlan`, then a semantic quality pass.
+- **[skills/cvm-plan-execute/SKILL.md](skills/cvm-plan-execute/SKILL.md)** — drive a
+  validated plan end to end through the `parsePlan → start → getTask/submitTask` loop.
+
+### Installation (Claude Code)
+
+Copy each skill directory into your project's `.claude/skills/` folder:
+
+```bash
+mkdir -p .claude/skills
+cp -r skills/cvm-plan-create  .claude/skills/
+cp -r skills/cvm-plan-review  .claude/skills/
+cp -r skills/cvm-plan-execute .claude/skills/
+```
+
+Or symlink them, so they track this repo's updates:
+
+```bash
+mkdir -p .claude/skills
+ln -s "$(pwd)/skills/cvm-plan-create"  .claude/skills/cvm-plan-create
+ln -s "$(pwd)/skills/cvm-plan-review"  .claude/skills/cvm-plan-review
+ln -s "$(pwd)/skills/cvm-plan-execute" .claude/skills/cvm-plan-execute
+```
+
+The skills are plain Markdown with YAML frontmatter — **agent-agnostic**. Other agent
+frameworks can ingest the same `SKILL.md` files directly; nothing about them is specific
+to Claude Code beyond the install path above.
+
 ## Language Features & Limitations
 
 Since CVM uses a custom interpreter, it supports a TypeScript-like subset designed for reliability and safety.
