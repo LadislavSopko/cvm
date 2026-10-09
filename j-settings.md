@@ -32,7 +32,7 @@
 ## Ports
 @frontend-port: n/a
 @backend-port: n/a
-@db-port: 27017
+@db-port: n/a
 
 ## Deploy
 @deploy-script: none
@@ -46,8 +46,8 @@
 @auth-notes:
 
 ## Database
-@db-type: mongodb
-@db-local: docker
+@db-type: none (file storage)
+@db-local: n/a
 
 ## Methodology
 @backend-method: tddab

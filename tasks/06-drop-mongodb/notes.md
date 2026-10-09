@@ -78,6 +78,6 @@ Regole chiave che seguirò (dalla lettura di tddab-planner.md + typescript-overl
 - [x] Code analyzed
 - [x] Solution proposed
 - [x] Plan created (j-review-plan: APPROVED; parsePlan valid; 21/21 redKeys match)
-- [ ] Development done
-- [ ] Tested
-- [ ] Deployed
+- [x] Development done
+- [x] Tested
+- [x] Deployed (n/a: @deploy-script none; npm publish of 2.0.0 is a separate step)

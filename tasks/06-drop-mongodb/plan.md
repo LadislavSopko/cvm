@@ -84,11 +84,11 @@ describe('Parser-VM-FileStorage Integration', () => {
 Keep every `it(...)` body identical except the adapter type and the removed null-normalization. Preserve the license header.
 
 <success>
-- [ ] `integration.spec.ts` no longer imports `MongoDBAdapter` or uses a `mongodb://` URI (grep clean).
-- [ ] `npx nx test vm` passes with zero MongoDB dependency at runtime.
-- [ ] `vm-manager.integration.spec.ts`: stale `MONGODB_URI` comment (line 8) removed; no adapter swap (VMManager uses the file-storage default).
-- [ ] `packages/vm/vite.config.ts` no longer lists `'mongodb'` in `external`.
-- [ ] `npx nx run-many --target=build --all` passes.
+- [x] `integration.spec.ts` no longer imports `MongoDBAdapter` or uses a `mongodb://` URI (grep clean).
+- [x] `npx nx test vm` passes with zero MongoDB dependency at runtime.
+- [x] `vm-manager.integration.spec.ts`: stale `MONGODB_URI` comment (line 8) removed; no adapter swap (VMManager uses the file-storage default).
+- [x] `packages/vm/vite.config.ts` no longer lists `'mongodb'` in `external`.
+- [x] `npx nx run-many --target=build --all` passes.
 </success>
 </block>
 
@@ -143,11 +143,11 @@ export class StorageFactory {
 `packages/storage/src/index.ts`: remove the `export * from './lib/mongodb-adapter.js';` line. Delete `mongodb-adapter.ts` + `mongodb-adapter.spec.ts`. Remove `"mongodb"` from `packages/storage/package.json` dependencies. Rewrite `storage-factory.spec.ts` to drop the "creates MongoDBAdapter" cases and add the throw cases above (import only `FileStorageAdapter`).
 
 <success>
-- [ ] `mongodb-adapter.ts` and `mongodb-adapter.spec.ts` deleted; `index.ts` no longer exports them.
-- [ ] `rg -i mongo packages/storage/src` returns nothing.
-- [ ] `packages/storage/package.json` has no `mongodb` dependency; `packages/storage/vite.config.ts` no longer lists `'mongodb'` in `external`.
-- [ ] `npx nx test storage` passes including the new mongodb-throws tests.
-- [ ] `npx nx run-many --target=build --all` passes.
+- [x] `mongodb-adapter.ts` and `mongodb-adapter.spec.ts` deleted; `index.ts` no longer exports them.
+- [x] `rg -i mongo packages/storage/src` returns nothing.
+- [x] `packages/storage/package.json` has no `mongodb` dependency; `packages/storage/vite.config.ts` no longer lists `'mongodb'` in `external`.
+- [x] `npx nx test storage` passes including the new mongodb-throws tests.
+- [x] `npx nx run-many --target=build --all` passes.
 </success>
 </block>
 
@@ -169,11 +169,11 @@ Clean the app layer now that only file storage exists. In `apps/cvm-server/src/c
 `apps/cvm-server/src/config.ts` — `Config.storage` becomes `{ type: 'file'; dataDir?: string }`; `loadConfig` drops `mongoUri` and the `if (storageType === 'mongodb' && !mongoUri) throw` block; the actual mongodb-type rejection now lives in `StorageFactory` (TDDAB-2). New `apps/cvm-server/src/config.spec.ts` uses Vitest, saves/restores `process.env` in `beforeEach/afterEach`, asserts the cases above. `apps/cvm-server/src/main.ts` — replace the storage `if/else` so only the file-storage branch remains. `apps/cvm-server/package.json` — remove `"mongodb"` from dependencies, set `"version": "2.0.0"`. Also remove the stale `'mongodb'` entry from the rollup `external` array in `apps/cvm-server/vite.config.ts`.
 
 <success>
-- [ ] `config.ts` has no `mongoUri` and no mongodb validation branch.
-- [ ] `apps/cvm-server/src/config.spec.ts` exists and `npx nx test cvm-server` passes.
-- [ ] `apps/cvm-server/package.json`: version `2.0.0`, no `mongodb` dependency; `apps/cvm-server/vite.config.ts` no longer lists `'mongodb'` in `external`.
-- [ ] `rg -i mongo apps/cvm-server/src` returns nothing.
-- [ ] `npx nx run-many --target=build --all` passes.
+- [x] `config.ts` has no `mongoUri` and no mongodb validation branch.
+- [x] `apps/cvm-server/src/config.spec.ts` exists and `npx nx test cvm-server` passes.
+- [x] `apps/cvm-server/package.json`: version `2.0.0`, no `mongodb` dependency; `apps/cvm-server/vite.config.ts` no longer lists `'mongodb'` in `external`.
+- [x] `rg -i mongo apps/cvm-server/src` returns nothing.
+- [x] `npx nx run-many --target=build --all` passes.
 </success>
 </block>
 
@@ -195,10 +195,10 @@ Remove the dead standalone package `packages/mongodb` entirely and the phantom d
 Delete directory `packages/mongodb`. In root `tsconfig.json`, remove the `references` entry `{ "path": "./packages/mongodb" }`. In `packages/mcp-server/package.json`, delete the `"@cvm/mongodb": "^0.0.1"` dependency line, and in `packages/mcp-server/vite.config.ts` remove `'mongodb'` from the `external` array. In `packages/types/package.json`, delete the `"mongodb": "^6.3.0"` dependency line (keep `pino`, `pino-pretty`, `@types/pino`). If any Nx cache/graph references linger, they resolve on `nx reset`; note it in the block but no code change needed.
 
 <success>
-- [ ] `packages/mongodb` directory no longer exists.
-- [ ] Root `tsconfig.json` has no `./packages/mongodb` reference.
-- [ ] No `@cvm/mongodb` dependency anywhere; `packages/types` has no `mongodb` dep; `packages/mcp-server/vite.config.ts` no longer lists `'mongodb'` in `external`.
-- [ ] `npx nx run-many --target=build --all` and `npx nx run-many --target=test --all` pass.
+- [x] `packages/mongodb` directory no longer exists.
+- [x] Root `tsconfig.json` has no `./packages/mongodb` reference.
+- [x] No `@cvm/mongodb` dependency anywhere; `packages/types` has no `mongodb` dep; `packages/mcp-server/vite.config.ts` no longer lists `'mongodb'` in `external`.
+- [x] `npx nx run-many --target=build --all` and `npx nx run-many --target=test --all` pass.
 </success>
 </block>
 
@@ -219,10 +219,10 @@ Final wiring/docs block. Remove the MongoDB service from local infra and update 
 Remove the `mongodb` service, its volume `mongodb_data`, and `mongo-network` from `docker/docker-compose.yml` (keep the nginx docs service if still wanted, or remove the whole `docker/` dir if it only served mongo — decide by what remains; the nginx `documents` service is unrelated to mongo, keep it). Delete `docker/init-mongo/`. Strip MongoDB rows from the env-var tables in the three READMEs and the root README; remove `MONGODB_URI` from `.env`. Add the CHANGELOG `2.0.0` breaking entry. Update `memory-bank/techContext.md`: remove `MONGODB_URL`/`CVM_STORAGE_TYPE=mongodb` from `[EnvVars]`, and update `[PackageDeps]`/`[KeyDeps]` mongodb lines to reflect removal.
 
 <success>
-- [ ] `rg -in mongo docker/` is empty; `docker/init-mongo/` deleted.
-- [ ] No `MONGODB_URI` / `CVM_STORAGE_TYPE=mongodb` references in READMEs or `.env`.
-- [ ] CHANGELOG has the `2.0.0` BREAKING entry.
-- [ ] `memory-bank/techContext.md` no longer advertises MongoDB storage.
+- [x] `rg -in mongo docker/` is empty; `docker/init-mongo/` deleted.
+- [x] No `MONGODB_URI` / `CVM_STORAGE_TYPE=mongodb` references in READMEs or `.env`.
+- [x] CHANGELOG has the `2.0.0` BREAKING entry.
+- [x] `memory-bank/techContext.md` no longer advertises MongoDB storage.
 </success>
 </block>
 
