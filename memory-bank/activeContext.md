@@ -40,6 +40,6 @@ E·tests::block-scoping{try/catch unsupported}→rewrite to CVM function-scope s
 ✓mcpLive::cvm MCP = 2.1.0{after nexus npm-proxy+npm-group Invalidate cache + npx cache cleared;2026-10-09}
   ↳probe::getTask→CC text+"--- When done, call submitTask…"✓;submitTask→"OK. Call getTask for the next task."✓;last submit→'OK. Execution completed with result: "end"'✓;getTask after→'Execution completed with result: "end"'✓{return value kept}
   §lesson::~/.npmrc registry=nexus.0ics.ai npm-group→after publish invalidate nexus npm-proxy cache{or lower Maximum metadata age}
-?issue#11::close with summary{ask user:answer was ambiguous}
+✓issue#11::closed 2026-10-09 with summary comment
 ?j-new-feature::08 e2e-and-compiler-fixes{analysis in FEATURE-08-ANALYSIS}
 ?audit-followups::CI+lint+config-zod+execLimitsEnforce+realpathSandbox
