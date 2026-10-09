@@ -88,6 +88,10 @@
   ↳.ai-agent tddab-planner.md:34 "#### Test scope tiers (speed rule)"{FOCUSED/BLOCK/FULL+ban full-suite in success w/ examples};checklist item:318;canonical BTLT line untouched
   ↳.ai-agent commit fccfec6{VERSION 2.22.1→2.22.2 via bash scripts/bump-version.sh(not executable→use bash);test/run-test.sh PASSED}
   §rule::.ai-agent CLAUDE.md→bump-version before each commit+run test/run-test.sh after
+  ↳parent commit::ec36fdc{MB only}
+>step02-review-plan-flags-full-suite✓{EXECUTE+VERIFY3/3}
+  ↳.ai-agent j-review-plan.md §D::check block success uses BLOCK-scoped test cmds;full-suite in block=issue+fix;refs tddab-planner tiers
+  ↳.ai-agent commit 4c4d642{VERSION 2.22.3;run-test PASSED}
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]

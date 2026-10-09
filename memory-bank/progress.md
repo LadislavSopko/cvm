@@ -13,7 +13,8 @@
 ✓block05-tool-response-guidance{plan.md 5/5 code blocks done;FINAL REVIEW pending}
 ✓plan.md FINAL REVIEW{1212 tests}
 ✓rules-step01-planner-test-tiers{.ai-agent fccfec6}
-?develop::plan-rules.md 02→04
+✓rules-step02-review-plan-flags-full-suite{.ai-agent 4c4d642}
+?develop::plan-rules.md 03→04
 ✓block06-redkey-full-length{redKey collision fixed}
 ?j-close::full BTLT+npm publish{userOK}+close#11+push .ai-agent branch{userOK}
 
