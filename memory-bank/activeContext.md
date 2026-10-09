@@ -112,7 +112,19 @@
   05-strings/string-methods-extended+09/all-features+09/string-array-methods-all{STRING_SLICE requires a string}
   06-file-system/file-persistence{Invalid jump target: -1}
   10-regex/regex-literal-errors+regex-pattern-matching-errors{expected error tests}
-?decide::issue for runner false-pass+6 real VM/compiler errors{out of scope 07}
+@decided{2026-10-09}::fix in NEW feature 08{after j-close 07};rewrite file-persistence+block-scoping tests
+[FEATURE-08-ANALYSIS]{verified in code;ready for j-new-feature 08}
+A!runnerFalsePass::test/integration/mcp-test-client.ts:79-84 Error:→done=true exit0;"✓ Program loaded" even on load error;no expected-error marker
+  ?fix::exit1 on load/start/exec error;--expect-error "<substr>";run-all-tests.sh passes it for 10-regex/regex-literal-errors+regex-pattern-matching-errors
+B!!compilerSwallow::compiler.ts:111-120 catch assumes reportError done;call-expression.ts:366 throw'Unsupported call expression' w/o reportError→stmt dropped|loop half-emitted(JUMP_IF_FALSE -1);success:true;unpatched jumps only debug-logged(:133-142)
+  ?fix::catch→push CompilationError{line/col} if not reported;unpatched -1 jump→compile error
+  @impact::scan 64 e2e programs→only 2 swallowed errors,both file-persistence(Math.min,Date.now)
+C!breakInForeach::break-statement.ts:17-18 emits ITER_END then BREAK→target is loop-end ITER_END{for-of-statement.ts:82-86,for-in-statement.ts:69-76}→double ITER_END→"No active iterator";specs only check compile
+  ?fix::break emits no ITER_END;tests EXECUTE break/continue in for-of,for-in,nested
+D!sliceOneArg::compiler always pushes 3{PUSH_UNDEFINED end,call-expression.ts:160-170};handler advanced.ts:355-390 guesses arity by types→slice(n) fails;vm-string-slice.spec uses 2-push form only
+  ?fix::handler always pops 3,undefined end=absent;update VM specs to compiler contract;e2e slice(n)
+E·tests::block-scoping{try/catch unsupported}→rewrite to CVM function-scope semantics;file-persistence{Math.min,Date.now}→rewrite without them
+@method::TDDAB block per bug with RED reproducing real error
 
 [PENDING-USER]
 ?approve plan→j-develop|j-cvm-exec-plan
