@@ -1,3 +1,20 @@
+## 2.1.0 (2026-10-09)
+
+### 🚀 Changed
+
+- **mcp:** `submitTask` replies according to the state the program reached: `OK. Call getTask for the next task.` while more tasks follow, `OK. Execution completed.` (or `OK. Execution completed with result: …`) at the end, `Error: …` (isError) on failure — instead of a bare `Execution resumed`.
+- **mcp:** `getTask` appends `--- When done, call submitTask with your result as requested.` to every task, so agents never answer in chat.
+- **vm:** `VMManager.reportCCResult` returns the `ExecutionResult` it reached.
+- **planexecutor:** prompts carry a tiered test scope — focused tests while developing (RED/GREEN/FIX), the touched packages at the block gate (VERIFY/RE-VERIFY), the full suite once at FINAL REVIEW.
+- **planexecutor:** moved from `test/programs/tddab/` to `apps/cvm-server/programs/` (shipped builtin `@planexecutor` unchanged).
+
+### 🩹 Fixed
+
+- **planexecutor:** the CROSS-CHECK prompt asks to submit the JSON via `cvm_submitTask` instead of "Respond ONLY with the completed JSON", which made agents print it in chat and stall (fixes [#11](https://github.com/LadislavSopko/cvm/issues/11)).
+- **planexecutor:** the CROSS-CHECK answer is extracted from code fences or surrounding prose and validated (every required key must be `true`/`false`); invalid or incomplete answers are re-asked until valid instead of silently passing.
+- **vm:** `getTask` keeps the program return value when the program completes inside `submitTask`.
+- **plan parser:** red-test keys use the full normalized test text (no 40-character truncation, which made different tests collide); duplicate red tests in one block are a validation error.
+
 ## 2.0.0 (2026-07-02)
 
 ### 🚨 Breaking Changes

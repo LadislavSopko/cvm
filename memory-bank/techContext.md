@@ -102,7 +102,6 @@ resourceLimits→enforced
 @nxCloudId::©audit-correction::DECLARED(nx.json:20)but noAccessToken→orphan⚠remove-or-add-token
 @npmAudit::nexus proxy returns 400→supply-chain exposure unmeasured
 @clutter::counter.ts+graph.html+tsconfig.tsbuildinfo{committed}⚠clean
-@planexecutor::production builtin under test/→should move to apps/cvm-server/programs/
 @ci::none⚠add
 @lint::none⚠add
 @configValidation::cast-without-zod despite zod available⚠enforce

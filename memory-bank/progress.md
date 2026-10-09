@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [07-agent-loop-robustness]
-@state::DEVELOP{j-cvm-exec-plan plan.md}
+@state::TEST{ready for j-close}
 >done::LISTEN+ANALYZE+RESEARCH+PROPOSE+PLAN✓
 >done::interview{testTiers textual;reask unbounded;extras release+move+close#11}
 >done::liveProbe submitTask/getTask{cvm-dbg}
@@ -15,7 +15,8 @@
 ✓rules-step01-planner-test-tiers{.ai-agent fccfec6}
 ✓rules-step02-review-plan-flags-full-suite{.ai-agent 4c4d642}
 ✓rules-step03-develop-close-align-tiers{.ai-agent 2386017;pointer b8fca02}
-?develop::plan-rules.md 04{release 2.1.0}
+✓rules-step04-release-2-1-0{2.1.0+CHANGELOG;full suite 1212✓}
+@done::plan.md 6/6+plan-rules.md 4/4
 ✓block06-redkey-full-length{redKey collision fixed}
 ?j-close::full BTLT+npm publish{userOK}+close#11+push .ai-agent branch{userOK}
 

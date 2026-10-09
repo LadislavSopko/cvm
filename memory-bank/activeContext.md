@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [STATUS]
-@state::DEVELOP{j-cvm-exec-plan plan.md}
+@state::TEST{plan.md 6/6+plan-rules.md 4/4 done;ready for j-close}
 @feature::07-agent-loop-robustness
 @branch::feature/07-agent-loop-robustness{pushed;lastCommit 4a55e77}
 @date::2026-10-09
@@ -97,6 +97,10 @@
   ↳.ai-agent j-develop.md::run tests FOCUSED while developing{:101,:105};per-step gate BLOCK{:121};completion FULL{:133};internal check per-step→block-scoped
   ↳.ai-agent j-close.md:82::FULL suite all projects as pre-merge barrier
   ↳.ai-agent commit 2386017{VERSION 2.22.4;run-test PASSED};parent b8fca02 records .ai-agent pointer{includes user's branch switch}
+  ↳parent commit::0ec1b9a{MB only}
+>step04-release-2-1-0✓{EXECUTE+VERIFY failed(headings Features/Fixes≠Fixed/Changed)→FIX rename→RE-VERIFY5/5}
+  ↳apps/cvm-server/package.json 2.1.0;CHANGELOG 2.1.0{Changed5+Fixed4 incl. redKey fix};techContext stale planexecutor line removed
+  ↳full gate::build6✓+typecheck7✓+FULL suite 1212✓;npm still 1.2.0;#11 OPEN{left for j-close}
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]
