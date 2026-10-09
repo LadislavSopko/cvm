@@ -39,7 +39,7 @@
     "access": "public"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.2",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@types/pino": "^7.0.4",
     "dotenv": "^16.0.0",
     "pino": "^9.7.0",

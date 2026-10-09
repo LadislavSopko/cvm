@@ -18,7 +18,7 @@
   "dependencies": {
     "@cvm/parser": "^0.0.1",
     "@cvm/vm": "^0.0.1",
-    "@modelcontextprotocol/sdk": "^1.12.2",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "zod": "^3.25.64"
   }
 }

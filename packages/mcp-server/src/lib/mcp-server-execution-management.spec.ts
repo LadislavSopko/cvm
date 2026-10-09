@@ -73,7 +73,7 @@ describe('CVMMcpServer - Execution Management', () => {
       const result = await testTransport.callTool('list_executions', {});
       
       expect(result).toHaveProperty('content');
-      expect('content' in result && result.content[0].text).toBeTruthy();
+      expect('content' in result && result.content[0].type === 'text' && result.content[0].text).toBeTruthy();
       
       const response = JSON.parse((result as any).content[0].text);
       expect(response).toHaveLength(2);

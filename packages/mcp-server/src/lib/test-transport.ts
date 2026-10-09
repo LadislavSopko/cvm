@@ -9,6 +9,11 @@ import {
   InitializeRequest
 } from '@modelcontextprotocol/sdk/types.js';
 
+// CVM tools only ever return text content, so tests read content[i].text directly.
+export type TextToolResult = Omit<CallToolResult, 'content'> & {
+  content: Array<{ type: 'text'; text: string }>;
+};
+
 /**
  * Test transport that allows direct invocation of registered tools
  * through the MCP protocol, ensuring we test the exact same code path as production
@@ -39,7 +44,7 @@ export class TestTransport implements Transport {
 
   async send(message: JSONRPCMessage): Promise<void> {
     // Handle responses to our requests
-    if ('id' in message && message.id !== null && this.responseHandlers.has(message.id)) {
+    if ('id' in message && message.id != null && this.responseHandlers.has(message.id)) {
       const handler = this.responseHandlers.get(message.id)!;
       this.responseHandlers.delete(message.id);
       handler(message);
@@ -78,7 +83,7 @@ export class TestTransport implements Transport {
    */
   private async sendRequest(request: JSONRPCMessage): Promise<any> {
     return new Promise((resolve) => {
-      if ('id' in request && request.id !== null) {
+      if ('id' in request && request.id != null) {
         this.responseHandlers.set(request.id, resolve);
       }
       
@@ -93,7 +98,7 @@ export class TestTransport implements Transport {
    * Invoke a tool through the MCP protocol
    * This ensures we test the exact same code path as production
    */
-  async callTool(toolName: string, args: any): Promise<CallToolResult | { error: any }> {
+  async callTool(toolName: string, args: any): Promise<TextToolResult | { error: any }> {
     if (!this.initialized) {
       throw new Error('Transport not initialized');
     }
@@ -114,6 +119,6 @@ export class TestTransport implements Transport {
     if ('error' in response) {
       return { error: response.error };
     }
-    return response.result as CallToolResult;
+    return response.result as TextToolResult;
   }
 }
