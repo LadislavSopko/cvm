@@ -36,7 +36,10 @@ E·tests::block-scoping{try/catch unsupported}→rewrite to CVM function-scope s
 @method::TDDAB block per bug with RED reproducing real error
 
 [NEXT]
-?publish::cvm-server@2.1.0→npm{USER does it by hand;dist built+verified}
+✓publish::cvm-server@2.1.0 on npmjs{dist-tags latest=2.1.0,next=2.1.0;user published by hand}
+!mcpStillOld::cvm MCP runs 1.2.0←npm default registry=nexus.0ics.ai npm-group proxy caches stale metadata{latest 1.2.0,no 2.1.0}
+  ?fix::invalidate nexus npm proxy cache|add env npm_config_registry=https://registry.npmjs.org/ to cvm in .mcp.json{user:later}
+  ?then::rm -rf ~/.npm/_npx/<dir with cvm-server> + /mcp reconnect;verify server_info=2.1.0+live probe submitTask/getTask texts
 ?issue#11::close with summary{ask user:answer was ambiguous}
 ?j-new-feature::08 e2e-and-compiler-fixes{analysis in FEATURE-08-ANALYSIS}
 ?audit-followups::CI+lint+config-zod+execLimitsEnforce+realpathSandbox
