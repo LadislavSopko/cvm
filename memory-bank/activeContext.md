@@ -62,6 +62,12 @@
   ↳planexecutor:20-21::scopeFocused+scopeBlock consts;13 prompts wired{dev→focused:EXECUTE/RED/GREEN/all FIX;verify→block:VERIFY/all RE-VERIFY};MB/COMMIT/CROSS-CHECK untouched;FINAL REVIEW only"full test suite"
   ↳planexecutor.spec::5 tests{tddabPrompts via runVerdict+stepPrompts driver};runaway guard added to runVerdict too
   ↳gate::build6✓+typecheck7✓+test mcp-server125✓+cvm-server4✓
+  ↳commit::d066e49
+>block04✓{RED+GREEN+VERIFY5/5+CROSSCHECK6/6}
+  ↳vm-manager.ts:216::reportCCResult→Promise<ExecutionResult>{completed+result|error|waiting+ccPrompt|RUNNING→waiting};getNext COMPLETED:196 adds result:execution.returnValue{return-value bug fixed}
+  ↳new vm-manager-submit-result.spec.ts{6 tests;in-memory storage mock}
+  ↳gate::build6✓+typecheck7✓+test vm706✓+mcp-server125✓+cvm-server4✓
+  ✗newFinding::redKey collision{parsePlan truncates test text to 40 chars→two RED lines"reportCCResult returns type completed wi…"→SAME key→JSON template has duplicate key;cross-check cannot distinguish them}→?issue/fix{toRedKey in tddab-parser+planexecutor.spec}
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]

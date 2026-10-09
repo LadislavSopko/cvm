@@ -192,7 +192,8 @@ export class VMManager {
     if (execution.state === 'COMPLETED') {
       return {
         type: 'completed',
-        message: 'Execution completed'
+        message: 'Execution completed',
+        result: execution.returnValue
       };
     } else if (execution.state === 'ERROR') {
       return {
@@ -212,7 +213,7 @@ export class VMManager {
   /**
    * Report result from cognitive operation and continue execution
    */
-  async reportCCResult(executionId: string, result: string): Promise<void> {
+  async reportCCResult(executionId: string, result: string): Promise<ExecutionResult> {
     const execution = await this.storage.getExecution(executionId);
     if (!execution) {
       throw new Error(`Execution not found: ${executionId}`);
@@ -255,30 +256,36 @@ export class VMManager {
     const serializedState = this.serializeVMState(newState);
     Object.assign(execution, serializedState);
     
+    let next: ExecutionResult;
     if (newState.status === 'complete') {
       execution.state = 'COMPLETED';
-      
+
       // Save return value if present
       if (newState.returnValue !== undefined) {
         execution.returnValue = newState.returnValue;
       }
-      
+
       this.vms.delete(executionId);
+      next = { type: 'completed', message: 'Execution completed', result: newState.returnValue };
     } else if (newState.status === 'error') {
       execution.state = 'ERROR';
       execution.error = newState.error;
       this.vms.delete(executionId);
+      next = { type: 'error', error: newState.error };
     } else if (newState.status === 'waiting_cc') {
       // Hit another CC immediately
       execution.state = 'AWAITING_COGNITIVE_RESULT';
       execution.ccPrompt = newState.ccPrompt;
+      next = { type: 'waiting', message: newState.ccPrompt || 'Waiting for input' };
     } else {
       // For any other state, keep as RUNNING
       // getNext will handle it when called
       execution.state = 'RUNNING';
+      next = { type: 'waiting' };
     }
-    
+
     await this.storage.saveExecution(execution);
+    return next;
   }
 
   /**
