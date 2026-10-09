@@ -119,17 +119,6 @@
       "outputRoots": []
     },
     {
-      "id": "typescript:packages/mongodb",
-      "name": "mongodb",
-      "language": "typescript",
-      "root": "packages/mongodb",
-      "buildSystem": "tsconfig",
-      "sourceRoots": [],
-      "resourceRoots": [],
-      "testRoots": [],
-      "outputRoots": []
-    },
-    {
       "id": "typescript:packages/vm",
       "name": "vm",
       "language": "typescript",
