@@ -110,11 +110,16 @@ describe('TDDAB E2E Pipeline', () => {
     let next = await vmManager.getNext('e2e-run');
 
     while (next.type === 'waiting') {
+      if (prompts.length > 200) {
+        throw new Error('runaway loop');
+      }
       prompts.push(next.message || '');
       let response = 'done';
 
       if (next.message!.includes('CROSS-CHECK')) {
-        response = '{"t1": true, "t2": true}';
+        const msg = next.message!;
+        const tpl = msg.substring(msg.indexOf('{'), msg.lastIndexOf('}') + 1);
+        response = tpl.split(': null').join(': true');
       } else if (next.message!.includes('VERIFY') && next.message!.includes('02-farewell') && !retriedBlock2) {
         response = 'failed';
         retriedBlock2 = true;
@@ -138,6 +143,7 @@ describe('TDDAB E2E Pipeline', () => {
     expect(prompts.filter(p => p.includes('GREEN PHASE'))).toHaveLength(3);
     expect(prompts.filter(p => p.includes('COMMIT PHASE'))).toHaveLength(3);
     expect(prompts.filter(p => p.includes('CROSS-CHECK'))).toHaveLength(3);
+    expect(prompts.filter(p => p.includes('CROSS-CHECK RETRY'))).toHaveLength(0);
 
     // Block 02 has extra FIX + RE-VERIFY
     expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(1);

@@ -7,7 +7,8 @@
 >done::liveProbe submitTask/getTask{cvm-dbg}
 >done::plan.md{5blocks}+plan-rules.md{4steps}+j-review-plan✓{fixesApplied}
 ✓block01-crosscheck-submit-and-extract
-?develop::plan.md 02→05 then plan-rules.md 01→04
+✓block02-crosscheck-validate-reask
+?develop::plan.md 03→05 then plan-rules.md 01→04
 ?j-close::full BTLT+npm publish{userOK}+close#11+push .ai-agent branch{userOK}
 
 [COMPLETED]

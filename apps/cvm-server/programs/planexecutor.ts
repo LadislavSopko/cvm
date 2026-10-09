@@ -187,18 +187,51 @@ function main() {
         "Complete this JSON — set each value to true (test exists) or false (missing): " +
         jsonTemplate + toolsReminder + submitJson);
 
-      var jsStart = crossCheckResponse.indexOf("{");
-      var jsEnd = crossCheckResponse.lastIndexOf("}");
       var checkResults = null;
-      if (jsStart >= 0 && jsEnd > jsStart) {
-        checkResults = JSON.parse(crossCheckResponse.substring(jsStart, jsEnd + 1));
+      var crossCheckValid = false;
+      while (!crossCheckValid) {
+        var jsStart = crossCheckResponse.indexOf("{");
+        var jsEnd = crossCheckResponse.lastIndexOf("}");
+        checkResults = null;
+        if (jsStart >= 0 && jsEnd > jsStart) {
+          checkResults = JSON.parse(crossCheckResponse.substring(jsStart, jsEnd + 1));
+        }
+
+        var ccProblem = "";
+        if (checkResults === null) {
+          ccProblem = "no valid JSON object found in your answer";
+        } else {
+          var vk = 0;
+          while (vk < redKeys.length) {
+            var ccValue = checkResults[redKeys[vk]];
+            if (ccValue !== true && ccValue !== false) {
+              ccProblem = ccProblem + " " + redKeys[vk];
+            }
+            vk = vk + 1;
+          }
+          if (ccProblem !== "") {
+            ccProblem = "these keys are missing or not true/false:" + ccProblem;
+          }
+        }
+
+        if (ccProblem === "") {
+          crossCheckValid = true;
+        } else {
+          console.log("CROSS-CHECK invalid for " + block.id + ": " + ccProblem);
+          crossCheckResponse = CC("CROSS-CHECK RETRY [" + progress + "] block " + block.id + ". " +
+            "Your previous answer was not accepted: " + ccProblem + ". " +
+            "Every key must be set to true (test exists) or false (missing). " +
+            "Complete this JSON: " + jsonTemplate + submitJson);
+        }
       }
 
       var crossCheckPassed = true;
-      for (var crKey in checkResults) {
-        if (checkResults[crKey] === false) {
+      var pk = 0;
+      while (pk < redKeys.length) {
+        if (checkResults[redKeys[pk]] === false) {
           crossCheckPassed = false;
         }
+        pk = pk + 1;
       }
       console.log("CROSS-CHECK result for " + block.id + ": " + crossCheckResponse + " passed=" + crossCheckPassed);
 

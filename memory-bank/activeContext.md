@@ -51,6 +51,12 @@
   ↳submitJson const+CROSS-CHECK ends toolsReminder+submitJson;JSON extracted indexOf{/lastIndexOf}/substring
   ↳planexecutor.spec::runBlock driver{200-prompt guard}+5 tests
   ↳gate::build6✓+typecheck7✓+test mcp-server113✓+cvm-server4✓{block-scoped}
+  ↳commit::495c37f
+>block02✓{RED+GREEN+VERIFY7/7+CROSSCHECK8/8}
+  ↳planexecutor:191-235::while(!crossCheckValid){extract→JSON.parse→each redKey true|false else ccProblem→CC"CROSS-CHECK RETRY"+jsonTemplate+submitJson};crossCheckPassed iterates redKeys{extra keys ignored}
+  ↳planexecutor.spec::7 tests{non-JSON/missing/null/unbounded/template/false-on-retry/extra keys}
+  ↳tddab-e2e.spec::answer built from prompt template{": null"→": true"}+runaway guard+assert 0 RETRY{was passing only via silent-pass bug}
+  ↳gate::build6✓+typecheck7✓+test mcp-server120✓+cvm-server4✓
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]

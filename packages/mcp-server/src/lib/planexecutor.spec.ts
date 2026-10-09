@@ -471,4 +471,53 @@ describe('planexecutor', () => {
       expect(prompts.some(p => p.includes('FIX PHASE') && p.includes('cross-check fix'))).toBe(true);
     });
   });
+
+  describe('cross-check answer validation and re-ask', () => {
+    const ALL_TRUE = '{"test_one": true, "test_two": true}';
+
+    it('re-asks with CROSS-CHECK RETRY after a non-JSON answer, never going straight to UPDATE MEMORY BANK', async () => {
+      const prompts = await runBlock('ccv-text', ['all tests exist', ALL_TRUE]);
+      const i = prompts.findIndex(p => p.startsWith('CROSS-CHECK ['));
+      expect(i).toBeGreaterThan(-1);
+      expect(prompts[i + 1]).toContain('CROSS-CHECK RETRY');
+      expect(prompts[i + 1]).not.toContain('UPDATE MEMORY BANK');
+    });
+
+    it('names a missing required key in the CROSS-CHECK RETRY prompt', async () => {
+      const prompts = await runBlock('ccv-missing', ['{"test_one": true}', ALL_TRUE]);
+      const retry = prompts.find(p => p.includes('CROSS-CHECK RETRY')) || '';
+      expect(retry).toContain('test_two');
+    });
+
+    it('names a required key left null in the CROSS-CHECK RETRY prompt', async () => {
+      const prompts = await runBlock('ccv-null', ['{"test_one": true, "test_two": null}', ALL_TRUE]);
+      const retry = prompts.find(p => p.includes('CROSS-CHECK RETRY')) || '';
+      expect(retry).toContain('test_two');
+    });
+
+    it('re-asks without a limit: three invalid answers then a valid one', async () => {
+      const prompts = await runBlock('ccv-loop', ['x', 'y', 'z', ALL_TRUE]);
+      expect(prompts.filter(p => p.includes('CROSS-CHECK RETRY'))).toHaveLength(3);
+      expect(prompts.some(p => p.includes('UPDATE MEMORY BANK'))).toBe(true);
+    });
+
+    it('CROSS-CHECK RETRY prompt repeats the JSON template and the submit instruction', async () => {
+      const prompts = await runBlock('ccv-tpl', ['nope', ALL_TRUE]);
+      const retry = prompts.find(p => p.includes('CROSS-CHECK RETRY')) || '';
+      expect(retry).toContain('"test_one": null');
+      expect(retry).toContain('"test_two": null');
+      expect(retry).toContain('cvm_submitTask');
+    });
+
+    it('a valid answer on retry with a false value goes to the cross-check FIX PHASE', async () => {
+      const prompts = await runBlock('ccv-false', ['nope', '{"test_one": true, "test_two": false}']);
+      expect(prompts.some(p => p.includes('FIX PHASE') && p.includes('cross-check fix'))).toBe(true);
+    });
+
+    it('ignores extra keys when all required keys are true', async () => {
+      const prompts = await runBlock('ccv-extra', ['{"test_one": true, "test_two": true, "bonus": false}']);
+      expect(prompts.some(p => p.includes('CROSS-CHECK RETRY'))).toBe(false);
+      expect(prompts.some(p => p.includes('cross-check fix'))).toBe(false);
+    });
+  });
 });
