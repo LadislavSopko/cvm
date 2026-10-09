@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [STATUS]
-@state::PROPOSE
+@state::PLAN
 @feature::08-e2e-and-compiler-fixes
 @branch::feature/08-e2e-and-compiler-fixes
 @date::2026-10-09
@@ -23,6 +23,14 @@
   06-file-system/file-persistence{Invalid jump target: -1}
   10-regex/regex-literal-errors+regex-pattern-matching-errors{expected error tests}
 @decided{2026-10-09}::fix in NEW feature 08{after j-close 07};rewrite file-persistence+block-scoping tests
+[FEATURE-08-PLAN]
+@plan::tasks/08-e2e-and-compiler-fixes/plan.md{tddab;4blocks;25redKeys;valid}+plan-steps.md{step;3}
+@blocks::01compiler-reports-unsupported{7 throw→reportError+catch safety net+unpatched-jump error}→02break-in-foreach{no ITER_END in break}→03slice-string-and-array{handler pops 3;string|array}→04e2e-client-truthful-outcome{packages/integration/src/e2e-outcome.ts+--expect-error}
+@steps::01rewrite block-scoping+file-persistence→02hygiene{git rm main.cjs+tsbuildinfo;bin w/o ./}→03full e2e run+2.1.1
+@extraFindings::7 swallow sites(not 1);break also broken in for-in;arr.slice never worked;stale apps/cvm-server/main.cjs tracked
+@experiment::catch safety net→parser241+vm706+mcp136+integration37 green
+?next::user approves→j-cvm-exec-plan plan.md then plan-steps.md
+
 [FEATURE-08-ANALYSIS]{verified in code;ready for j-new-feature 08}
 A!runnerFalsePass::test/integration/mcp-test-client.ts:79-84 Error:→done=true exit0;"✓ Program loaded" even on load error;no expected-error marker
   ?fix::exit1 on load/start/exec error;--expect-error "<substr>";run-all-tests.sh passes it for 10-regex/regex-literal-errors+regex-pattern-matching-errors

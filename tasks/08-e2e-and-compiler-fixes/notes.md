@@ -54,11 +54,18 @@ Baseline: test/programs/run-all-tests.sh reports 64/64 PASSED, but 8 programs en
 6. F hygiene: bin "bin/cvm-server.cjs" (no ./); git rm apps/cvm-server/main.cjs + tsconfig.tsbuildinfo and ignore them.
 Order: compiler/VM fixes first (B, C, D), then client (A) so the e2e suite becomes truthful, then tests (E) so it is green, then hygiene (F). Release as cvm-server 2.1.1 (bug fixes).
 
+## TDDAB Rules Applied
+1. Bottom-up, one layer per block: parser (compile errors) → parser+VM execution (break) → VM handler (slice) → e2e client outcome logic. Each block deployable and revertible alone.
+2. RED = the block's contract, observable at its own layer: compile() result/errors; VM execution status/output/returnValue; pure outcome functions of the e2e client. RED reproduces the REAL failure seen in the e2e suite.
+3. Self-sufficient blocks: full paths, exact messages, VM/compiler APIs and commands in mission+intro; reference code carries every decision, not compile-perfect.
+4. Every success list ends with the canonical BTLT line; test commands are BLOCK-scoped (npx nx test PACKAGE), the full suite runs only at FINAL REVIEW (Test scope tiers).
+5. Non-test work (rewriting e2e programs, git rm artifacts, bin field, release) goes in a separate STEP plan: mixed plans are classified tddab.
+
 ## Status
 - [x] Requirements gathered (user: "decide what is needed")
 - [x] Code analyzed
-- [ ] Solution proposed
-- [ ] Plan created
+- [x] Solution proposed (approved 2026-10-09; complexity scoring skipped by user)
+- [x] Plan created (plan.md tddab 4 blocks, 25 redKeys; plan-steps.md step 3 steps; parsePlan valid; code cross-check fixed slice handler style)
 - [ ] Development done
 - [ ] Tested
 - [ ] Deployed
