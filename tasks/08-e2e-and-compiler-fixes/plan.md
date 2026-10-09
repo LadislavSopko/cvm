@@ -277,7 +277,7 @@ Today the client prints "✓" for load/start results even when they are errors a
   loadError → 1 "load failed: …"; startError → 1 "start failed: …";
   finalText starts with "Error:" → if expectError and finalText includes it → 0 "expected error"; else 1 "execution error: …";
   expectError set but finalText is a completion → 1 "expected error not raised";
-  completion with outputFound false → 1 "no output file"; otherwise 0 "completed".
+  otherwise 0: "completed" when outputFound, "completed (no output)" when not — a program that prints nothing is valid (e.g. 01-basics/return-types.ts; the output file is only written when output is non-empty, vm-manager.ts appendOutput).
 - run-all-tests.sh: the two regex demos get --expect-error with a substring of their real error ("Invalid regular expression" and "Expected string argument for regex test").
 </intro>
 
@@ -287,7 +287,7 @@ Today the client prints "✓" for load/start results even when they are errors a
 - test: decideOutcome returns exit code 1 when the execution ends with an Error text and no error is expected
 - test: decideOutcome returns exit code 0 when the execution error contains the expected error text
 - test: decideOutcome returns exit code 1 when an expected error is not raised
-- test: decideOutcome returns exit code 1 when the execution completed but no output file was found
+- test: decideOutcome returns exit code 0 when the execution completed without an output file
 - test: decideOutcome returns exit code 0 for a completed execution with output
 </red>
 
@@ -317,8 +317,7 @@ export function decideOutcome(i: OutcomeInput): Outcome {
     return { exitCode: 1, reason: `execution error: ${i.finalText}` };
   }
   if (i.expectError) return { exitCode: 1, reason: `expected error not raised: ${i.expectError}` };
-  if (!i.outputFound) return { exitCode: 1, reason: 'no output file' };
-  return { exitCode: 0, reason: 'completed' };
+  return { exitCode: 0, reason: i.outputFound ? 'completed' : 'completed (no output)' };
 }
 ```
 mcp-test-client.ts: use parseClientArgs(process.argv.slice(2)); record loadError when the load result isError or its text starts with "Error:" (same for start) and stop; keep the getTask loop; set outputFound from the output file read; at the end print the reason and process.exit(decideOutcome(...).exitCode).

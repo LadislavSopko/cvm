@@ -19,18 +19,21 @@ Commands: npx nx run-many --target=build --all ; npx nx run-many --target=typech
 <intro>
 Precondition: plan.md executed. Files: /home/laco/cvm/test/programs/03-control-flow/block-scoping.ts and /home/laco/cvm/test/programs/06-file-system/file-persistence.ts (and their run_test lines in /home/laco/cvm/test/programs/run-all-tests.sh only if the CC responses change).
 block-scoping.ts uses try/catch (unsupported) to "prove" block scoping; CVM variables are function-scoped. Rewrite it to document CVM's real behaviour with plain console.log lines: outer variable modified inside if-block is visible after; a let declared inside an if-block and a for-loop counter are still visible after the block (print their values); nested blocks see outer variables. Header comment states CVM uses function-level scope.
-file-persistence.ts uses Math.min and Date.now (unsupported). Replace `Math.min(startIdx + 3, files.length)` with an if/else computing the same value, and `timestamp: Date.now()` with `step: i + 1`. Keep the CC flow unchanged.
+file-persistence.ts uses Math.min and Date.now (unsupported). Replace `Math.min(startIdx + 3, files.length)` with an if/else computing the same value, and `timestamp: Date.now()` with `step: i + 1`. It is also not repeatable: at the end it writes "{}" to ./tmp/cvm-state.json, and the next run parses it into a state without filesProcessed (startIdx undefined). Treat a parsed state whose filesProcessed is undefined like no state (initialize { filesProcessed: 0, totalSize: 0, history: [] }). Its run_test line in run-all-tests.sh has NO CC responses although the program asks up to 4 CCs (at most 3 file summaries per run + 1 overview; ./ in test/integration has 3+ .ts files): change it to
+run_test "../programs/06-file-system/file-persistence.ts" "summary 1" "summary 2" "summary 3" "overview"
+(4 responses cover any starting state; unused responses are ignored by the client).
 </intro>
 
 <actions>
 - action: Rewrite test/programs/03-control-flow/block-scoping.ts without try/catch, documenting function-level scope with explicit console.log output
-- action: Rewrite test/programs/06-file-system/file-persistence.ts replacing Math.min with if/else and Date.now with a step counter
+- action: Rewrite test/programs/06-file-system/file-persistence.ts replacing Math.min with if/else and Date.now with a step counter, and treating a state without filesProcessed as fresh
+- action: Give the file-persistence run_test line in test/programs/run-all-tests.sh the 4 CC responses "summary 1" "summary 2" "summary 3" "overview"
 - action: Run both programs with the e2e client and confirm exit code 0 and expected output
 </actions>
 
 <success>
 - [ ] block-scoping.ts compiles (no try/catch) and the client exits 0 with the scoping lines printed
-- [ ] file-persistence.ts compiles without errors (no Math/Date) and the client exits 0 with the CC responses used by run-all-tests.sh
+- [ ] file-persistence.ts compiles without errors (no Math/Date) and the client exits 0 with the 4 responses from run-all-tests.sh, on two consecutive runs
 - [ ] grep finds no "try {", "Math." or "Date." in these two files
 </success>
 </block>
@@ -39,17 +42,17 @@ file-persistence.ts uses Math.min and Date.now (unsupported). Replace `Math.min(
 ## Step 2: Remove Stale Artifacts and Fix the bin Field
 
 <intro>
-Independent of step 1. /home/laco/cvm/apps/cvm-server/main.cjs (55 KB, an old build committed long ago; bin/cvm-server.cjs requires ../main.cjs, so running from the source tree loads it; it also pollutes code navigation) and /home/laco/cvm/apps/cvm-server/tsconfig.tsbuildinfo are build artifacts tracked in git. The published package is built into apps/cvm-server/dist (vite copies package.json, bin, programs; main.cjs is emitted there), so the root copies are not needed. npm publish warns `"bin[cvm-server]" script name was cleaned` because bin is "./bin/cvm-server.cjs".
+Independent of step 1. /home/laco/cvm/apps/cvm-server/main.cjs (55 KB, an old build committed long ago; bin/cvm-server.cjs requires ../main.cjs, so running from the source tree loads it; it also pollutes code navigation) and the TypeScript build-info files tracked in git (today: tsconfig.tsbuildinfo, apps/cvm-server/tsconfig.tsbuildinfo, packages/integration/tsconfig.tsbuildinfo, packages/storage/tsconfig.tsbuildinfo — list them with git ls-files '*tsbuildinfo') are build artifacts. The published package is built into apps/cvm-server/dist (vite copies package.json, bin, programs; main.cjs is emitted there), so the root copies are not needed. npm publish warns `"bin[cvm-server]" script name was cleaned` because bin is "./bin/cvm-server.cjs".
 </intro>
 
 <actions>
-- action: git rm --cached apps/cvm-server/main.cjs apps/cvm-server/tsconfig.tsbuildinfo, delete the files, and add both paths to the repository .gitignore
+- action: git rm --cached apps/cvm-server/main.cjs and every file listed by git ls-files '*tsbuildinfo', delete apps/cvm-server/main.cjs, and add apps/cvm-server/main.cjs and **/tsconfig.tsbuildinfo to the repository .gitignore
 - action: In apps/cvm-server/package.json set "bin": { "cvm-server": "bin/cvm-server.cjs" }
 - action: Rebuild and run `cd apps/cvm-server/dist && npm pack --dry-run` to confirm the tarball still contains bin/cvm-server.cjs, main.cjs, programs/planexecutor.ts and no bin warning
 </actions>
 
 <success>
-- [ ] git ls-files no longer lists apps/cvm-server/main.cjs or apps/cvm-server/tsconfig.tsbuildinfo, and both are ignored
+- [ ] git ls-files no longer lists apps/cvm-server/main.cjs or any tsconfig.tsbuildinfo, and they are ignored
 - [ ] apps/cvm-server/package.json bin is "bin/cvm-server.cjs"
 - [ ] npm pack --dry-run in apps/cvm-server/dist lists bin/cvm-server.cjs, main.cjs, programs/planexecutor.ts and prints no "script name was cleaned" warning
 - [ ] npx nx run-many --target=build --all passes

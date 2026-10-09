@@ -28,6 +28,7 @@
 @blocks::01compiler-reports-unsupported{7 throw→reportError+catch safety net+unpatched-jump error}→02break-in-foreach{no ITER_END in break}→03slice-string-and-array{handler pops 3;string|array}→04e2e-client-truthful-outcome{packages/integration/src/e2e-outcome.ts+--expect-error}
 @steps::01rewrite block-scoping+file-persistence→02hygiene{git rm main.cjs+tsbuildinfo;bin w/o ./}→03full e2e run+2.1.1
 @extraFindings::7 swallow sites(not 1);break also broken in for-in;arr.slice never worked;stale apps/cvm-server/main.cjs tracked
+@review::j-review-plan(LSAI outline)→3 fixes{04 no-output=pass(return-types.ts prints nothing);step01 file-persistence 4 CC responses+'{}' state=fresh;step02 git rm all tracked tsbuildinfo(4)}
 @experiment::catch safety net→parser241+vm706+mcp136+integration37 green
 ?next::user approves→j-cvm-exec-plan plan.md then plan-steps.md
 
