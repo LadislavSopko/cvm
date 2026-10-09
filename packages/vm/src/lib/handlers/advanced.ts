@@ -3,7 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber, isCVMObjectRef, CVMObjectRef, CVMObject } from '@cvm/types';
+import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber, isCVMObjectRef, CVMObjectRef, CVMObject, isCVMUndefined, isCVMArrayRef, CVMArray } from '@cvm/types';
 
 export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.RETURN]: {
@@ -353,13 +353,10 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   },
 
   [OpCode.STRING_SLICE]: {
-    stackIn: 2, // Minimum 2 (string, start), optionally 3 (string, start, end)
+    stackIn: 3, // target, start, end (end = undefined when absent)
     stackOut: 1,
     execute: (state, instruction) => {
-      // The compiler pushes: string, start, [end]
-      // So we pop in reverse order: [end], start, string
-      
-      if (state.stack.length < 2) {
+      if (state.stack.length < 3) {
         return {
           type: 'StackUnderflow',
           message: 'STRING_SLICE: Stack underflow',
@@ -367,52 +364,42 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
           opcode: instruction.op
         };
       }
-      
-      // First check how many arguments we have
-      const stackSize = state.stack.length;
-      let str: CVMValue;
-      let start: number;
-      let end: number | undefined;
-      
-      // Save the current stack to restore if we need to check argument count
-      const arg1 = state.stack.length >= 1 ? state.stack[stackSize - 1] : undefined; // Top of stack
-      const arg2 = state.stack.length >= 2 ? state.stack[stackSize - 2] : undefined; // Second from top
-      
-      // Check if we have 3 arguments (string, start, end)
-      if (stackSize >= 3 && typeof arg1 === 'number' && typeof arg2 === 'number') {
-        // Three arguments case
-        end = state.stack.pop() as number;
-        start = state.stack.pop() as number;
-        str = state.stack.pop()!;
-      } else {
-        // Two arguments case
-        start = state.stack.pop() as number;
-        str = state.stack.pop()!;
-        end = undefined;
-      }
-      
-      if (!isCVMString(str)) {
+
+      const endVal = state.stack.pop()!;
+      const startVal = state.stack.pop()!;
+      const target = state.stack.pop()!;
+
+      if (typeof startVal !== 'number') {
         return {
           type: 'RuntimeError',
-          message: 'STRING_SLICE requires a string',
+          message: 'slice requires a numeric start index',
           pc: state.pc,
           opcode: instruction.op
         };
       }
-      
-      if (typeof start !== 'number') {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_SLICE requires numeric start index',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+      const end = (endVal === undefined || isCVMUndefined(endVal)) ? undefined : (endVal as number);
+
+      if (isCVMString(target)) {
+        state.stack.push(end === undefined ? target.slice(startVal) : target.slice(startVal, end));
+        return undefined;
       }
-      
-      // JavaScript slice behavior - handles negative indices
-      const result = end !== undefined ? str.slice(start, end) : str.slice(start);
-      state.stack.push(result);
-      return undefined;
+
+      if (isCVMArrayRef(target)) {
+        const heapObj = state.heap.get(target.id);
+        if (heapObj && heapObj.type === 'array') {
+          const elements = (heapObj.data as CVMArray).elements;
+          const sliced = end === undefined ? elements.slice(startVal) : elements.slice(startVal, end);
+          state.stack.push(state.heap.allocate('array', createCVMArray(sliced)));
+          return undefined;
+        }
+      }
+
+      return {
+        type: 'RuntimeError',
+        message: 'slice requires a string or an array',
+        pc: state.pc,
+        opcode: instruction.op
+      };
     }
   },
 

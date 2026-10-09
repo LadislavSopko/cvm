@@ -43,6 +43,11 @@
 >block02✓{RED5fail+1guard;GREEN=remove ITER_END emit in break-statement.ts;VERIFY4/4;CROSSCHECK6/6}
   ↳RED showed nested case even popped OUTER iterator(ITER_NEXT: No active iterator)
   ↳new vm/src/lib/vm-break-foreach.spec.ts{6};gate::build6+typecheck7+parser247+vm712✓
+  ↳commit::c145b10
+>block03✓{RED;GREEN;VERIFY4/4;CROSSCHECK6/6}
+  ↳advanced.ts:355 STRING_SLICE stackIn3:pop end,start,target;undefined end=absent;string→slice;arrayRef→new heap array;else 'slice requires a string or an array';non-number start→'slice requires a numeric start index'
+  ↳vm-string-slice.spec rewritten to 3-value compiler contract{PUSH_UNDEFINED};new vm-slice-compiled.spec.ts{6}
+  ↳gate::build6+typecheck7+vm718✓
 
 [FEATURE-08-ANALYSIS]{verified in code;ready for j-new-feature 08}
 A!runnerFalsePass::test/integration/mcp-test-client.ts:79-84 Error:→done=true exit0;"✓ Program loaded" even on load error;no expected-error marker

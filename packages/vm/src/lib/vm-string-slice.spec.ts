@@ -8,10 +8,11 @@ describe('VM - STRING_SLICE', () => {
     const bytecode = [
       { op: OpCode.PUSH, arg: 'hello world' },
       { op: OpCode.PUSH, arg: 6 },
+      { op: OpCode.PUSH_UNDEFINED },
       { op: OpCode.STRING_SLICE },
       { op: OpCode.HALT }
     ];
-    
+
     const state = vm.execute(bytecode);
     expect(state.stack[0]).toBe('world');
   });
@@ -25,7 +26,7 @@ describe('VM - STRING_SLICE', () => {
       { op: OpCode.STRING_SLICE },
       { op: OpCode.HALT }
     ];
-    
+
     const state = vm.execute(bytecode);
     expect(state.stack[0]).toBe('hello');
   });
@@ -39,7 +40,7 @@ describe('VM - STRING_SLICE', () => {
       { op: OpCode.STRING_SLICE },
       { op: OpCode.HALT }
     ];
-    
+
     const state = vm.execute(bytecode);
     expect(state.stack[0]).toBe('worl');
   });
@@ -49,10 +50,11 @@ describe('VM - STRING_SLICE', () => {
     const bytecode = [
       { op: OpCode.PUSH, arg: 'hello' },
       { op: OpCode.PUSH, arg: -2 },
+      { op: OpCode.PUSH_UNDEFINED },
       { op: OpCode.STRING_SLICE },
       { op: OpCode.HALT }
     ];
-    
+
     const state = vm.execute(bytecode);
     expect(state.stack[0]).toBe('lo');
   });
@@ -62,26 +64,28 @@ describe('VM - STRING_SLICE', () => {
     const bytecode = [
       { op: OpCode.PUSH, arg: 'hello' },
       { op: OpCode.PUSH, arg: 10 },
+      { op: OpCode.PUSH_UNDEFINED },
       { op: OpCode.STRING_SLICE },
       { op: OpCode.HALT }
     ];
-    
+
     const state = vm.execute(bytecode);
     expect(state.stack[0]).toBe('');
   });
 
-  it('should error on non-string input', () => {
+  it('should error on input that is neither a string nor an array', () => {
     const vm = new VM();
     const bytecode = [
       { op: OpCode.PUSH, arg: 123 },
       { op: OpCode.PUSH, arg: 0 },
+      { op: OpCode.PUSH_UNDEFINED },
       { op: OpCode.STRING_SLICE },
       { op: OpCode.HALT }
     ];
-    
+
     const state = vm.execute(bytecode);
     expect(state.status).toBe('error');
-    expect(state.error).toBe('STRING_SLICE requires a string');
+    expect(state.error).toBe('slice requires a string or an array');
   });
 
   it('should error on non-numeric start', () => {
@@ -89,13 +93,14 @@ describe('VM - STRING_SLICE', () => {
     const bytecode = [
       { op: OpCode.PUSH, arg: 'hello' },
       { op: OpCode.PUSH, arg: 'abc' },
+      { op: OpCode.PUSH_UNDEFINED },
       { op: OpCode.STRING_SLICE },
       { op: OpCode.HALT }
     ];
-    
+
     const state = vm.execute(bytecode);
     expect(state.status).toBe('error');
-    expect(state.error).toBe('STRING_SLICE requires numeric start index');
+    expect(state.error).toBe('slice requires a numeric start index');
   });
 
   it('should error on stack underflow', () => {
@@ -105,9 +110,9 @@ describe('VM - STRING_SLICE', () => {
       { op: OpCode.STRING_SLICE },
       { op: OpCode.HALT }
     ];
-    
+
     const state = vm.execute(bytecode);
     expect(state.status).toBe('error');
-    expect(state.error).toBe('STRING_SLICE: Stack underflow');
+    expect(state.error).toContain('underflow');
   });
 });
