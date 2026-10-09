@@ -1,8 +1,9 @@
 §MBEL:5.0
 
 [STATUS]
-@state::IDLE
-@branch::main
+@state::LISTEN
+@feature::07-agent-loop-robustness
+@branch::feature/07-agent-loop-robustness
 @date::2026-10-09
 
 [RECENT]
