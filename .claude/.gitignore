@@ -1,7 +1,13 @@
+settings.local.json
+node_modules
+node_modules/
+logs
+logs/
 agents
 agents/
 commands
 commands/
+lint-rules
+lint-rules/
 support
 support/
-settings.local.json
