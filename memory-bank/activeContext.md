@@ -81,6 +81,13 @@
   ↳test helpers toRedKey aligned{planexecutor.spec+tddab-e2e x2};PLAN_FORMAT.md §6 updated
   ↳mcp-server-parseplan.spec::redKeys describe 5 tests
   ↳gate::build6✓+typecheck7✓+test mcp-server136✓+cvm-server4✓
+  ↳commit::c89c6e5
+>FINAL REVIEW plan.md{01-06}✓::build6+typecheck7+FULL suite 7 projects 1212 tests✓
+@run::run-07-rules-20261009{plan-rules.md step;progress of plan.md moved to .cvm/uplan-progress.07-plan.bak}
+>step01-planner-test-tiers✓{EXECUTE+VERIFY4/4}
+  ↳.ai-agent tddab-planner.md:34 "#### Test scope tiers (speed rule)"{FOCUSED/BLOCK/FULL+ban full-suite in success w/ examples};checklist item:318;canonical BTLT line untouched
+  ↳.ai-agent commit fccfec6{VERSION 2.22.1→2.22.2 via bash scripts/bump-version.sh(not executable→use bash);test/run-test.sh PASSED}
+  §rule::.ai-agent CLAUDE.md→bump-version before each commit+run test/run-test.sh after
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]

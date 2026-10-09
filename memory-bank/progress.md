@@ -11,8 +11,10 @@
 ✓block03-prompt-test-scope
 ✓block04-vm-submit-returns-next-state
 ✓block05-tool-response-guidance{plan.md 5/5 code blocks done;FINAL REVIEW pending}
-?develop::plan-rules.md 01→04
-✓block06-redkey-full-length{redKey collision fixed;FINAL REVIEW pending}
+✓plan.md FINAL REVIEW{1212 tests}
+✓rules-step01-planner-test-tiers{.ai-agent fccfec6}
+?develop::plan-rules.md 02→04
+✓block06-redkey-full-length{redKey collision fixed}
 ?j-close::full BTLT+npm publish{userOK}+close#11+push .ai-agent branch{userOK}
 
 [COMPLETED]
