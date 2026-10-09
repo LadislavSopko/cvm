@@ -67,3 +67,7 @@ test-results.log.cvm
 .cvm
 *.log
 .sudo
+
+# Build artifacts
+apps/cvm-server/main.cjs
+**/tsconfig.tsbuildinfo

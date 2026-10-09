@@ -60,6 +60,10 @@
 >step01-rewrite-invalid-e2e-programs✓{EXECUTE+VERIFY3/3}
   ↳block-scoping.ts::no try/catch;documents function-level scope;client exit0
   ↳file-persistence.ts::if/else instead of Math.min;step instead of Date.now;state w/o numeric filesProcessed→fresh{typeof};run_test 4 CC responses;2 consecutive runs exit0
+  ↳commit::30c116c{msg fixed by hand:title empty}
+>step02-release-hygiene✓{EXECUTE+VERIFY4/4}
+  ↳git rm --cached apps/cvm-server/main.cjs+4 tsbuildinfo;.gitignore 'apps/cvm-server/main.cjs','**/tsconfig.tsbuildinfo';bin→'bin/cvm-server.cjs';npm pack dry-run clean{no bin warning}
+  ↳note::e2e runs leave untracked test/integration/{final-results.json,test-data.json,test-output.txt}→not committed
 !newBug::CVM `x === undefined` ALWAYS false{even let u;};typeof x works→'undefined'{probe 2026-10-09}→?ask user:fix in 08|issue
 !minor::step plan title empty in prompts{parser takes title only from '## TDDAB-N:' headings;step-planner uses '## Step N:'}→?ask user
 

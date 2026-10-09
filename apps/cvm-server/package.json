@@ -23,7 +23,7 @@
   },
   "main": "main.cjs",
   "bin": {
-    "cvm-server": "./bin/cvm-server.cjs"
+    "cvm-server": "bin/cvm-server.cjs"
   },
   "files": [
     "bin",
