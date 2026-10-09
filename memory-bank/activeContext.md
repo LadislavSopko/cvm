@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [STATUS]
-@state::LISTEN
+@state::PROPOSE
 @feature::08-e2e-and-compiler-fixes
 @branch::feature/08-e2e-and-compiler-fixes
 @date::2026-10-09
