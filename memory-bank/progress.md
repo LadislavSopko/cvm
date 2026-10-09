@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [STATUS]
-@state::LISTEN{07-agent-loop-robustness}
+@state::PLAN{07-agent-loop-robustness}
 
 [COMPLETED]
 >06-drop-mongodb✓{2026-07-02→closed2026-10-09;5/5blocks TDDAB;merged→main;cvm-server@2.0.0;tasks/06-drop-mongodb/}
