@@ -7,6 +7,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { readFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
+import { parseClientArgs, decideOutcome, Outcome } from '../../packages/integration/src/e2e-outcome.js';
 
 class CVMMcpTestClient {
   private client: Client;
@@ -38,7 +39,7 @@ class CVMMcpTestClient {
     console.log('✓ Connected to CVM server\n');
   }
 
-  async runTest(programPath: string, responses: string[]): Promise<void> {
+  async runTest(programPath: string, responses: string[], expectError?: string): Promise<Outcome> {
     console.log('=== CVM MCP Test Client ===\n');
 
     try {
@@ -51,7 +52,12 @@ class CVMMcpTestClient {
         name: 'load',
         arguments: { programId, source }
       });
-      console.log('✓ Program loaded:', (loadResult.content as any)[0].text);
+      const loadText = (loadResult.content as any)[0].text as string;
+      if (loadResult.isError || loadText.startsWith('Error:')) {
+        console.error('✗ Program load failed:', loadText);
+        return decideOutcome({ loadError: loadText, finalText: '', outputFound: false, expectError });
+      }
+      console.log('✓ Program loaded:', loadText);
       console.log();
 
       // Start execution
@@ -61,12 +67,18 @@ class CVMMcpTestClient {
         name: 'start',
         arguments: { programId, executionId }
       });
-      console.log('✓ Execution started:', (startResult.content as any)[0].text);
+      const startText = (startResult.content as any)[0].text as string;
+      if (startResult.isError || startText.startsWith('Error:')) {
+        console.error('✗ Execution start failed:', startText);
+        return decideOutcome({ startError: startText, finalText: '', outputFound: false, expectError });
+      }
+      console.log('✓ Execution started:', startText);
       console.log();
 
       // Process CC calls
       let responseIndex = 0;
       let done = false;
+      let finalText = '';
 
       while (!done) {
         const taskResult = await this.client.callTool({
@@ -78,9 +90,11 @@ class CVMMcpTestClient {
 
         if (taskText === 'Execution completed' || taskText.startsWith('Execution completed with result:')) {
           console.log('✓ Execution completed successfully!\n');
+          finalText = taskText;
           done = true;
         } else if (taskText.startsWith('Error:')) {
           console.error('✗ Execution error:', taskText);
+          finalText = taskText;
           done = true;
         } else {
           // Must be a CC prompt
@@ -109,15 +123,19 @@ class CVMMcpTestClient {
       // Give it a moment to write
       await new Promise(resolve => setTimeout(resolve, 500));
       
+      let outputFound = false;
       try {
         const output = readFileSync(outputPath, 'utf-8');
+        outputFound = true;
         console.log('\n=== Program Output ===');
         console.log(output);
         console.log('===================\n');
         console.log('✓ Output file verified!');
-      } catch (e) {
-        console.error('✗ Could not read output file:', e);
+      } catch {
+        console.log('(no output file: program printed nothing)');
       }
+
+      return decideOutcome({ finalText, outputFound, expectError });
 
     } finally {
       await this.cleanup();
@@ -139,13 +157,16 @@ if (args.length < 1) {
   process.exit(1);
 }
 
-const programPath = args[0];
-const responses = args.slice(1);
+const { programPath, responses, expectError } = parseClientArgs(args);
 
 const client = new CVMMcpTestClient();
 
 client.connect()
-  .then(() => client.runTest(programPath, responses))
+  .then(() => client.runTest(programPath, responses, expectError))
+  .then((outcome) => {
+    console.log(`${outcome.exitCode === 0 ? '✓' : '✗'} Outcome: ${outcome.reason}`);
+    process.exit(outcome.exitCode);
+  })
   .catch((err) => {
     console.error('Test failed:', err);
     process.exit(1);

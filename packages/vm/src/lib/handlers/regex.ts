@@ -142,8 +142,8 @@ const regexTest: OpcodeHandler = {
       // Recreate JavaScript RegExp from stored properties
       // The LOAD_REGEX handler stores the regex as an object with properties
       const cvmObject = regexObj.data as CVMObject;
-      const pattern = cvmObject.properties.source;
-      const flags = cvmObject.properties.flags;
+      const pattern = cvmObject.properties['source'];
+      const flags = cvmObject.properties['flags'];
       
       if (typeof pattern !== 'string' || typeof flags !== 'string') {
         return {
@@ -232,8 +232,8 @@ const stringMatch: OpcodeHandler = {
     try {
       // Recreate JavaScript RegExp from stored properties
       const cvmObject = regexObj.data as CVMObject;
-      const pattern = cvmObject.properties.source;
-      const flags = cvmObject.properties.flags;
+      const pattern = cvmObject.properties['source'];
+      const flags = cvmObject.properties['flags'];
       
       if (typeof pattern !== 'string' || typeof flags !== 'string') {
         return {
@@ -357,8 +357,8 @@ const stringReplaceRegex: OpcodeHandler = {
     try {
       // Recreate JavaScript RegExp from stored properties
       const cvmObject = regexObj.data as CVMObject;
-      const pattern = cvmObject.properties.source;
-      const flags = cvmObject.properties.flags;
+      const pattern = cvmObject.properties['source'];
+      const flags = cvmObject.properties['flags'];
       
       if (typeof pattern !== 'string' || typeof flags !== 'string') {
         return {

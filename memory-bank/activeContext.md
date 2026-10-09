@@ -48,6 +48,12 @@
   ↳advanced.ts:355 STRING_SLICE stackIn3:pop end,start,target;undefined end=absent;string→slice;arrayRef→new heap array;else 'slice requires a string or an array';non-number start→'slice requires a numeric start index'
   ↳vm-string-slice.spec rewritten to 3-value compiler contract{PUSH_UNDEFINED};new vm-slice-compiled.spec.ts{6}
   ↳gate::build6+typecheck7+vm718✓
+  ↳commit::204d9dc
+>block04✓{RED;GREEN;VERIFY failed(typecheck)→FIX→RE-VERIFY4/4;CROSSCHECK7/7}
+  ↳new packages/integration/src/e2e-outcome.ts{parseClientArgs,decideOutcome}+spec{7};client exits with outcome code,load/start errors detected,no output=ok;run-all-tests regex demos --expect-error
+  ↳live::block-scoping exit1(load failed),regex-literal-errors exit0(expected error),return-types exit0(completed no output)
+  !finding::integration typecheck was FAILING pre-existing{TS4111 types/logger.ts:13-14,vm/handlers/regex.ts:145-146,235-236,360-361} hidden by nx cache→fixed w/ bracket access;+TS6307 tsconfig.spec include src/**/*.ts
+  §lesson::verify typecheck with --skip-nx-cache;cached 'Successfully' can hide real failures
 
 [FEATURE-08-ANALYSIS]{verified in code;ready for j-new-feature 08}
 A!runnerFalsePass::test/integration/mcp-test-client.ts:79-84 Error:→done=true exit0;"✓ Program loaded" even on load error;no expected-error marker

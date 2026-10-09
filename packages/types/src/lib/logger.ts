@@ -10,8 +10,8 @@ let _logger: any = null;
 function getLogger() {
   if (!_logger) {
     
-    const logLevel = process.env.CVM_LOG_LEVEL || 'info';
-    const logFile = process.env.CVM_LOG_FILE || '.cvm/cvm-debug.log';
+    const logLevel = process.env['CVM_LOG_LEVEL'] || 'info';
+    const logFile = process.env['CVM_LOG_FILE'] || '.cvm/cvm-debug.log';
     
 
     // Ensure log directory exists in production
