@@ -592,11 +592,105 @@ it('getTask completed / error have no reminder', async () => {
 </success>
 </block>
 
+<block id="06-redkey-full-length">
+## TDDAB-6: RED Keys Use the Full Test Text and Duplicates Fail Validation
+
+<intro>
+Files: /home/laco/cvm/packages/mcp-server/src/lib/mcp-server.ts (function toRedKey near the top, and the parsePlan tool handler which builds redKeys in BOTH the single-file path and the multi-file path), tests in /home/laco/cvm/packages/mcp-server/src/lib/mcp-server-parseplan.spec.ts (harness: write a plan into testDir, transport.callTool('parsePlan', { filePath }), read uplan.json from dataDir), the local toRedKey copies in /home/laco/cvm/packages/mcp-server/src/lib/planexecutor.spec.ts and /home/laco/cvm/packages/mcp-server/src/lib/tddab-e2e.spec.ts (two copies), and the redKeys description in /home/laco/cvm/docs/PLAN_FORMAT.md section 6. Independent of blocks 01-05.
+
+Bug found while executing this plan: toRedKey truncates the normalized test text to 40 characters, so two different tests that start with the same 40 characters (e.g. "reportCCResult returns type completed with the program return value" and "reportCCResult returns type completed without result") get the SAME key; the CROSS-CHECK JSON template then contains duplicate keys and one existing test can mask a missing one.
+Decision (user): keys are NOT truncated. toRedKey = strip non-alphanumeric (keep spaces), trim, collapse spaces to "_", lowercase. If two RED tests of the same tddab block still normalize to the same key (identical text), parsePlan fails validation with isError true and the message: Block "BLOCK_ID" has duplicate red tests: KEY. Action blocks (step plans, "- action:" lines) are not checked for duplicates.
+</intro>
+
+<red>
+- test: parsePlan writes the full normalized test text as redKey without truncating at 40 characters
+- test: two red tests sharing the same first 40 characters get two different redKeys
+- test: parsePlan fails validation naming the block when two red tests of one block normalize to the same key
+- test: duplicate red tests inside a sub-file of a multi-file plan also fail validation
+- test: repeated action lines in a step plan block are still accepted
+</red>
+
+### Implementation
+
+packages/mcp-server/src/lib/mcp-server.ts:
+```ts
+function toRedKey(test: string): string {
+  return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ +/g, '_').toLowerCase();
+}
+
+function findDuplicateRedKey(redTests: string[]): string | undefined {
+  const seen = new Set<string>();
+  for (const t of redTests) {
+    const key = toRedKey(t);
+    if (seen.has(key)) return key;
+    seen.add(key);
+  }
+  return undefined;
+}
+```
+Single-file path, after result.valid check, before building uplanData:
+```ts
+for (const b of plan.blocks) {
+  const dup = b.isAction ? undefined : findDuplicateRedKey(b.redTests);
+  if (dup) {
+    return {
+      content: [{ type: 'text', text: `Plan validation failed:\nBlock "${b.id}" has duplicate red tests: ${dup}` }],
+      isError: true
+    };
+  }
+}
+```
+Multi-file path, inside the per-block loop, next to the duplicate block id check:
+```ts
+const dup = block.isAction ? undefined : findDuplicateRedKey(block.redTests);
+if (dup) {
+  return {
+    content: [{ type: 'text', text: `Plan validation failed in ${subFile}:\nBlock "${block.id}" has duplicate red tests: ${dup}` }],
+    isError: true
+  };
+}
+```
+Test helpers: in planexecutor.spec.ts and tddab-e2e.spec.ts remove `.substring(0, 40).trim()` from the local toRedKey copies so they match production.
+docs/PLAN_FORMAT.md section 6: replace "take first 40 chars, " with nothing and add "Two red tests of one block that normalize to the same key are a validation error."
+
+packages/mcp-server/src/lib/mcp-server-parseplan.spec.ts:
+```ts
+const longA = 'reportCCResult returns type completed with the program return value';
+const longB = 'reportCCResult returns type completed without result when main returns nothing';
+// plan with one block whose red has "- test: " + longA and "- test: " + longB
+it('keeps the full key', async () => {
+  // parsePlan, read uplan.json
+  expect(uplan.blocks[0].redKeys[0]).toBe('reportccresult_returns_type_completed_with_the_program_return_value');
+});
+it('distinct keys for same 40-char prefix', async () => {
+  expect(new Set(uplan.blocks[0].redKeys).size).toBe(2);
+});
+it('duplicate red tests fail', async () => {
+  // block 01-dup with "- test: same thing" twice
+  expect(result.isError).toBe(true);
+  expect(result.content[0].text).toContain('Block "01-dup" has duplicate red tests: same_thing');
+});
+it('duplicate red tests in a sub-file fail', async () => { /* index.md + 01-dup.md, same assertion with "in 01-dup.md" */ });
+it('repeated action lines are accepted', async () => {
+  // step block with "- action: run build" twice -> valid true
+});
+```
+
+<success>
+- [ ] toRedKey no longer truncates; full normalized text is the key
+- [ ] Duplicate red keys inside a tddab block fail parsePlan (single-file and multi-file) with the specified message; action blocks are not checked
+- [ ] Local toRedKey copies in planexecutor.spec.ts and tddab-e2e.spec.ts match production; docs/PLAN_FORMAT.md updated
+- [ ] All 5 RED tests pass: npx nx test mcp-server -- mcp-server-parseplan.spec.ts
+- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+</success>
+</block>
+
 ## Execution Order
 01-crosscheck-submit-and-extract → no dependencies (includes the planexecutor move)
 02-crosscheck-validate-reask     → depends on 01
 03-prompt-test-scope             → depends on 01 (can run parallel with 02, same file → run sequentially)
 04-vm-submit-returns-next-state  → no dependencies (packages/vm)
 05-tool-response-guidance        → depends on 04 (packages/mcp-server)
+06-redkey-full-length            → no dependencies (packages/mcp-server parsePlan; found during execution)
 
 Follow-up STEP plan: plan-rules.md (.ai-agent rules + release 2.1.0), executed after this plan.
