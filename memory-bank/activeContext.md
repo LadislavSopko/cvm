@@ -57,6 +57,11 @@
   ↳planexecutor.spec::7 tests{non-JSON/missing/null/unbounded/template/false-on-retry/extra keys}
   ↳tddab-e2e.spec::answer built from prompt template{": null"→": true"}+runaway guard+assert 0 RETRY{was passing only via silent-pass bug}
   ↳gate::build6✓+typecheck7✓+test mcp-server120✓+cvm-server4✓
+  ↳commit::dc79bf3
+>block03✓{RED+GREEN+VERIFY5/5+CROSSCHECK5/5}
+  ↳planexecutor:20-21::scopeFocused+scopeBlock consts;13 prompts wired{dev→focused:EXECUTE/RED/GREEN/all FIX;verify→block:VERIFY/all RE-VERIFY};MB/COMMIT/CROSS-CHECK untouched;FINAL REVIEW only"full test suite"
+  ↳planexecutor.spec::5 tests{tddabPrompts via runVerdict+stepPrompts driver};runaway guard added to runVerdict too
+  ↳gate::build6✓+typecheck7✓+test mcp-server125✓+cvm-server4✓
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]

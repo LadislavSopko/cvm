@@ -8,7 +8,8 @@
 >done::plan.md{5blocks}+plan-rules.md{4steps}+j-review-plan✓{fixesApplied}
 ✓block01-crosscheck-submit-and-extract
 ✓block02-crosscheck-validate-reask
-?develop::plan.md 03→05 then plan-rules.md 01→04
+✓block03-prompt-test-scope
+?develop::plan.md 04→05 then plan-rules.md 01→04
 ?j-close::full BTLT+npm publish{userOK}+close#11+push .ai-agent branch{userOK}
 
 [COMPLETED]

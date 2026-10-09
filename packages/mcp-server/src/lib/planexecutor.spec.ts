@@ -326,6 +326,9 @@ describe('planexecutor', () => {
     let vi = 0;
     let next = await vm.getNext('exec-' + progId);
     while (next.type === 'waiting') {
+      if (prompts.length > 200) {
+        throw new Error('runaway loop');
+      }
       const msg = next.message || '';
       prompts.push(msg);
       let response = 'done';
@@ -518,6 +521,90 @@ describe('planexecutor', () => {
       const prompts = await runBlock('ccv-extra', ['{"test_one": true, "test_two": true, "bonus": false}']);
       expect(prompts.some(p => p.includes('CROSS-CHECK RETRY'))).toBe(false);
       expect(prompts.some(p => p.includes('cross-check fix'))).toBe(false);
+    });
+  });
+
+  describe('tiered test scope in prompts', () => {
+    const FOCUSED = 'run ONLY the tests you are writing or touching now';
+    const BLOCK = 'run the tests of the project(s)/package(s) this block touches';
+
+    // VERIFY fails once, then cross-check reports a missing test:
+    // RED, GREEN, VERIFY, FIX, RE-VERIFY, CROSS-CHECK, FIX (cross-check), RE-VERIFY, MB, COMMIT, FINAL
+    function tddabPrompts(id: string): Promise<string[]> {
+      return runVerdict(id, ['failed', 'passed', 'passed'], '{"test_verdict": false}');
+    }
+
+    async function stepPrompts(id: string): Promise<string[]> {
+      const vm = createVMManager();
+      await vm.initialize();
+      const uplan = makeUplan([
+        { id: '01-scope-step', title: 'Scope Step', intro: 'Step intro', red: '- Remove a file', success: '- [ ] file removed' },
+      ], 'step');
+      writeFileSync(join(cvmDir, 'uplan.json'), uplan);
+      rmSync(join(cvmDir, 'uplan-progress.json'), { force: true });
+      const source = readFileSync(EXECUTOR_PATH, 'utf-8');
+      await vm.loadProgram('pe-' + id, source);
+      await vm.startExecution('pe-' + id, 'exec-' + id);
+
+      const prompts: string[] = [];
+      let verifyCount = 0;
+      let next = await vm.getNext('exec-' + id);
+      while (next.type === 'waiting') {
+        if (prompts.length > 200) {
+          throw new Error('runaway loop');
+        }
+        const msg = next.message || '';
+        prompts.push(msg);
+        let response = 'done';
+        if (msg.includes('VERIFY')) {
+          verifyCount++;
+          response = verifyCount <= 1 ? 'failed' : 'passed';
+        }
+        await vm.reportCCResult('exec-' + id, response);
+        next = await vm.getNext('exec-' + id);
+      }
+      await vm.dispose();
+      return prompts;
+    }
+
+    it('RED PHASE and GREEN PHASE prompts carry the focused scope', async () => {
+      const prompts = await tddabPrompts('scope-redgreen');
+      expect(prompts.find(p => p.includes('RED PHASE'))).toContain(FOCUSED);
+      expect(prompts.find(p => p.includes('GREEN PHASE'))).toContain(FOCUSED);
+    });
+
+    it('every FIX PHASE prompt, including the cross-check fix, carries the focused scope', async () => {
+      const prompts = await tddabPrompts('scope-fix');
+      const fixes = prompts.filter(p => p.startsWith('FIX PHASE'));
+      expect(fixes.length).toBeGreaterThanOrEqual(2);
+      expect(fixes.some(p => p.includes('cross-check fix'))).toBe(true);
+      fixes.forEach(p => expect(p).toContain(FOCUSED));
+    });
+
+    it('VERIFY PHASE and every RE-VERIFY prompt carry the block scope', async () => {
+      const prompts = await tddabPrompts('scope-verify');
+      const verifies = prompts.filter(p => p.startsWith('VERIFY PHASE') || p.startsWith('RE-VERIFY'));
+      expect(verifies.length).toBeGreaterThanOrEqual(3);
+      verifies.forEach(p => expect(p).toContain(BLOCK));
+    });
+
+    it('FINAL REVIEW is the only prompt asking for the full test suite', async () => {
+      const prompts = await tddabPrompts('scope-final');
+      const full = prompts.filter(p => p.includes('full test suite'));
+      expect(full).toHaveLength(1);
+      expect(full[0]).toContain('FINAL REVIEW');
+    });
+
+    it('step plan: EXECUTE and FIX carry the focused scope, VERIFY and RE-VERIFY the block scope', async () => {
+      const prompts = await stepPrompts('scope-step');
+      const exec = prompts.find(p => p.includes('EXECUTE ['));
+      const fix = prompts.find(p => p.startsWith('FIX ['));
+      const verify = prompts.find(p => p.startsWith('VERIFY ['));
+      const reverify = prompts.find(p => p.startsWith('RE-VERIFY ['));
+      expect(exec).toContain(FOCUSED);
+      expect(fix).toContain(FOCUSED);
+      expect(verify).toContain(BLOCK);
+      expect(reverify).toContain(BLOCK);
     });
   });
 });

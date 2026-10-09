@@ -17,6 +17,8 @@ function main() {
   var submitDone = " Submit ONLY one word: done.";
   var submitTest = " Do all checking in your tool calls. Submit ONLY one word: passed or failed.";
   var submitJson = " Do all checking in your tool calls. Submit ONLY the completed JSON as your cvm_submitTask result, never as a chat message.";
+  var scopeFocused = " TEST SCOPE: run ONLY the tests you are writing or touching now (single test file or test-name filter), not the whole suite.";
+  var scopeBlock = " TEST SCOPE: run the tests of the project(s)/package(s) this block touches, not the whole suite; the full suite runs once at FINAL REVIEW.";
   var toolsReminder = " Use Read, Edit, Write, Bash and code navigation tools (LSAI, vs-mcp, xmp4) for file operations, commands and code inspection.";
 
   var planType = data.type;
@@ -77,7 +79,7 @@ function main() {
       CC(missionCtx + "EXECUTE [" + progress + "] step " + block.id + ": " + block.title + ". " +
         "CONTEXT: " + block.intro + " " +
         "ACTIONS TO PERFORM: " + block.red + " " +
-        block.planRef + toolsReminder + submitDone);
+        block.planRef + toolsReminder + scopeFocused + submitDone);
 
       console.log("EXECUTE done for " + block.id);
 
@@ -85,7 +87,7 @@ function main() {
         "MANDATORY: For EACH criterion below, verify against actual state. " +
         "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
         "SUCCESS CRITERIA: " + block.success + " " +
-        "Respond passed ONLY if ALL are [x]. If ANY is [ ], respond failed." + toolsReminder + submitTest);
+        "Respond passed ONLY if ALL are [x]. If ANY is [ ], respond failed." + toolsReminder + scopeBlock + submitTest);
 
       console.log("VERIFY result for " + block.id + ": " + stepResult);
 
@@ -99,13 +101,13 @@ function main() {
           "Apply Protocol D: quote exact error, isolate location, one hypothesis, one fix, verify. " +
           "ACTIONS: " + block.red + " " +
           "CRITERIA: " + block.success + " " +
-          block.planRef + toolsReminder + submitDone);
+          block.planRef + toolsReminder + scopeFocused + submitDone);
 
         stepResult = CC("RE-VERIFY [" + progress + "] step " + block.id + " (after fix " + stepFix + "). " +
           "MANDATORY: For EACH criterion, verify against actual state. " +
           "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
           "SUCCESS CRITERIA: " + block.success + " " +
-          "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+          "Respond passed ONLY if ALL are [x]." + toolsReminder + scopeBlock + submitTest);
 
         console.log("RE-VERIFY result for " + block.id + ": " + stepResult);
         stepPassed = stepResult.toLowerCase().startsWith("passed");
@@ -124,7 +126,7 @@ function main() {
         "CONTEXT: " + block.intro + " " +
         "Write ONLY the failing tests listed below. Do NOT implement any production code yet. " +
         "TESTS TO WRITE: " + block.red + " " +
-        block.planRef + toolsReminder + submitDone);
+        block.planRef + toolsReminder + scopeFocused + submitDone);
 
       console.log("RED done for " + block.id);
 
@@ -132,7 +134,7 @@ function main() {
         "Implement the minimum code to make all failing tests pass. " +
         "IMPORTANT: Read the plan file for implementation details and reference code: " + block.planRef + " " +
         "CONTEXT: " + block.intro + " " +
-        toolsReminder + submitDone);
+        toolsReminder + scopeFocused + submitDone);
 
       console.log("GREEN done for " + block.id);
 
@@ -142,7 +144,7 @@ function main() {
         "CHECKLIST: (one line per criterion with [x] or [ ] and file:line evidence) " +
         "COUNT: X/Y passed. " +
         "SUCCESS CRITERIA: " + block.success + " " +
-        "Respond passed ONLY if ALL criteria are [x]. If ANY is [ ], respond failed." + toolsReminder + submitTest;
+        "Respond passed ONLY if ALL criteria are [x]. If ANY is [ ], respond failed." + toolsReminder + scopeBlock + submitTest;
 
       var testResult = CC(verifyPrompt);
       console.log("VERIFY result for " + block.id + ": " + testResult);
@@ -157,13 +159,13 @@ function main() {
           "Tests or criteria failed. Apply Protocol D: quote exact error, isolate location, one hypothesis, one fix, verify. " +
           "CRITERIA THAT MUST PASS: " + block.success + " " +
           "TESTS REQUIRED: " + block.red + " " +
-          block.planRef + toolsReminder + submitDone);
+          block.planRef + toolsReminder + scopeFocused + submitDone);
 
         testResult = CC("RE-VERIFY [" + progress + "] block " + block.id + " (after fix " + fixAttempt + "). " +
           "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
           "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
           "SUCCESS CRITERIA: " + block.success + " " +
-          "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+          "Respond passed ONLY if ALL are [x]." + toolsReminder + scopeBlock + submitTest);
 
         console.log("RE-VERIFY result for " + block.id + ": " + testResult);
         testPassed = testResult.toLowerCase().startsWith("passed");
@@ -243,13 +245,13 @@ function main() {
           "Cross-check found missing tests. Apply Protocol D: identify exactly which tests are missing, add them. " +
           "TESTS REQUIRED: " + block.red + " " +
           "CRITERIA: " + block.success + " " +
-          block.planRef + toolsReminder + submitDone);
+          block.planRef + toolsReminder + scopeFocused + submitDone);
 
         var ccResult = CC("RE-VERIFY [" + progress + "] block " + block.id + " (after cross-check fix). " +
           "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
           "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
           "SUCCESS CRITERIA: " + block.success + " " +
-          "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+          "Respond passed ONLY if ALL are [x]." + toolsReminder + scopeBlock + submitTest);
         var ccPassed = ccResult.toLowerCase().startsWith("passed");
 
         while (!ccPassed) {
@@ -260,13 +262,13 @@ function main() {
             "Cross-check found missing tests. Apply Protocol D: identify exactly which tests are missing, add them. " +
             "TESTS REQUIRED: " + block.red + " " +
             "CRITERIA: " + block.success + " " +
-            block.planRef + toolsReminder + submitDone);
+            block.planRef + toolsReminder + scopeFocused + submitDone);
 
           ccResult = CC("RE-VERIFY [" + progress + "] block " + block.id + " (after cross-check fix " + fixAttempt + "). " +
             "MANDATORY: For EACH criterion, use code navigation tools to verify against actual code. " +
             "Output CHECKLIST with [x]/[ ] and evidence. COUNT: X/Y. " +
             "SUCCESS CRITERIA: " + block.success + " " +
-            "Respond passed ONLY if ALL are [x]." + toolsReminder + submitTest);
+            "Respond passed ONLY if ALL are [x]." + toolsReminder + scopeBlock + submitTest);
           ccPassed = ccResult.toLowerCase().startsWith("passed");
         }
       }
