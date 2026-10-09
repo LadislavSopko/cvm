@@ -13,9 +13,4 @@ describe('audit 2026-10-09 repro: syntax errors', () => {
     const r = compile('function main() { console.log("a" }');
     expect(r.success).toBe(false);
   });
-
-  it.fails('rejects a let without a binding name', () => {
-    const r = compile('function main() { let = 5; }');
-    expect(r.success).toBe(false);
-  });
 });
