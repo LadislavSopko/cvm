@@ -75,7 +75,7 @@ VM→Task/Result→Claude{cycle}
 3. VM→executesUntilCC()instruction
 4. StateSaved+ExecutionPauses
 5. mcp__cvm__getTask→ReturnPrompt
-6. mcp__cvm__submitTask→ResumeWithResult
+6. mcp__cvm__submitTask→ResumeWithResult{reportCCResult RUNS VM until next CC|complete|error+persists state}
 7. Repeat→untilCompletion
 
 [StateSerializationPath]
