@@ -107,10 +107,10 @@ it('valid loops leave no -1 jumps', () => {
 ```
 
 <success>
-- [ ] No `throw new Error` left in packages/parser/src/lib/compiler/** visitors; all 7 sites use reportError with unchanged messages
-- [ ] compiler.ts records unreported errors at the statement position and reports unpatched -1 jumps when no other error exists
-- [ ] All 6 RED tests pass: npx nx test parser -- compiler-error-reporting.spec.ts
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] No `throw new Error` left in packages/parser/src/lib/compiler/** visitors; all 7 sites use reportError with unchanged messages
+- [x] compiler.ts records unreported errors at the statement position and reports unpatched -1 jumps when no other error exists
+- [x] All 6 RED tests pass: npx nx test parser -- compiler-error-reporting.spec.ts
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 
@@ -170,10 +170,10 @@ it('for-of inside while', () => { /* while i<2 { for-of break } → loop count 2
 ```
 
 <success>
-- [ ] break-statement.ts emits no ITER_END for any loop type
-- [ ] All 6 RED tests pass: npx nx test vm -- vm-break-foreach.spec.ts
-- [ ] Existing compiler-break-continue.spec.ts still passes: npx nx test parser
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] break-statement.ts emits no ITER_END for any loop type
+- [x] All 6 RED tests pass: npx nx test vm -- vm-break-foreach.spec.ts
+- [x] Existing compiler-break-continue.spec.ts still passes: npx nx test parser
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 
@@ -258,10 +258,10 @@ it('slice on number fails', () => {
 ```
 
 <success>
-- [ ] STRING_SLICE always consumes 3 stack values and supports strings and arrays as specified
-- [ ] vm-string-slice.spec.ts uses the 3-value compiler contract and passes
-- [ ] All 6 RED tests pass: npx nx test vm -- vm-slice-compiled.spec.ts vm-string-slice.spec.ts
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] STRING_SLICE always consumes 3 stack values and supports strings and arrays as specified
+- [x] vm-string-slice.spec.ts uses the 3-value compiler contract and passes
+- [x] All 6 RED tests pass: npx nx test vm -- vm-slice-compiled.spec.ts vm-string-slice.spec.ts
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 
@@ -328,10 +328,10 @@ run_test "../programs/10-regex/regex-pattern-matching-errors.ts" "--expect-error
 ```
 
 <success>
-- [ ] e2e-outcome.ts exports parseClientArgs and decideOutcome with the specified rules
-- [ ] mcp-test-client.ts exits with decideOutcome's code; run-all-tests.sh passes --expect-error to the two regex demos
-- [ ] All 7 RED tests pass: npx nx test integration -- e2e-outcome.spec.ts
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] e2e-outcome.ts exports parseClientArgs and decideOutcome with the specified rules
+- [x] mcp-test-client.ts exits with decideOutcome's code; run-all-tests.sh passes --expect-error to the two regex demos
+- [x] All 7 RED tests pass: npx nx test integration -- e2e-outcome.spec.ts
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 

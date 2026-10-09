@@ -66,6 +66,6 @@ Order: compiler/VM fixes first (B, C, D), then client (A) so the e2e suite becom
 - [x] Code analyzed
 - [x] Solution proposed (approved 2026-10-09; complexity scoring skipped by user)
 - [x] Plan created (plan.md tddab 4 blocks, 25 redKeys; plan-steps.md step 3 steps; parsePlan valid; code cross-check fixed slice handler style)
-- [ ] Development done
-- [ ] Tested
+- [x] Development done (plan.md 4/4 + plan-steps.md 3/3 via CVM planexecutor 2.1.0)
+- [x] Tested (nx no-cache: build 6, typecheck 7, 1237 tests; e2e 64/64 truthful)
 - [ ] Deployed

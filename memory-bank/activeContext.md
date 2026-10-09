@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [STATUS]
-@state::DEVELOP{j-cvm-exec-plan plan.md}
+@state::TEST{plan.md 4/4+plan-steps.md 3/3;ready for j-close;open findings:undefined-compare bug,step title}
 @feature::08-e2e-and-compiler-fixes
 @branch::feature/08-e2e-and-compiler-fixes
 @date::2026-10-09
@@ -64,6 +64,10 @@
 >step02-release-hygiene✓{EXECUTE+VERIFY4/4}
   ↳git rm --cached apps/cvm-server/main.cjs+4 tsbuildinfo;.gitignore 'apps/cvm-server/main.cjs','**/tsconfig.tsbuildinfo';bin→'bin/cvm-server.cjs';npm pack dry-run clean{no bin warning}
   ↳note::e2e runs leave untracked test/integration/{final-results.json,test-data.json,test-output.txt}→not committed
+  ↳commit::03f59c2
+>step03-truthful-e2e-run-and-release✓{EXECUTE+VERIFY4/4}
+  ↳cvm-server 2.1.1+CHANGELOG{Fixed:compiler errors,break foreach,slice,e2e client,packaging}
+  ↳FULL::nx no-cache build6+typecheck7+tests1237✓;e2e run-all-tests 64/64 TRULY passed{regex demos via --expect-error};npm latest still 2.1.0
 !newBug::CVM `x === undefined` ALWAYS false{even let u;};typeof x works→'undefined'{probe 2026-10-09}→?ask user:fix in 08|issue
 !minor::step plan title empty in prompts{parser takes title only from '## TDDAB-N:' headings;step-planner uses '## Step N:'}→?ask user
 

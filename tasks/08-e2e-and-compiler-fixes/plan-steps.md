@@ -32,9 +32,9 @@ run_test "../programs/06-file-system/file-persistence.ts" "summary 1" "summary 2
 </actions>
 
 <success>
-- [ ] block-scoping.ts compiles (no try/catch) and the client exits 0 with the scoping lines printed
-- [ ] file-persistence.ts compiles without errors (no Math/Date) and the client exits 0 with the 4 responses from run-all-tests.sh, on two consecutive runs
-- [ ] grep finds no "try {", "Math." or "Date." in these two files
+- [x] block-scoping.ts compiles (no try/catch) and the client exits 0 with the scoping lines printed
+- [x] file-persistence.ts compiles without errors (no Math/Date) and the client exits 0 with the 4 responses from run-all-tests.sh, on two consecutive runs
+- [x] grep finds no "try {", "Math." or "Date." in these two files
 </success>
 </block>
 
@@ -52,10 +52,10 @@ Independent of step 1. /home/laco/cvm/apps/cvm-server/main.cjs (55 KB, an old bu
 </actions>
 
 <success>
-- [ ] git ls-files no longer lists apps/cvm-server/main.cjs or any tsconfig.tsbuildinfo, and they are ignored
-- [ ] apps/cvm-server/package.json bin is "bin/cvm-server.cjs"
-- [ ] npm pack --dry-run in apps/cvm-server/dist lists bin/cvm-server.cjs, main.cjs, programs/planexecutor.ts and prints no "script name was cleaned" warning
-- [ ] npx nx run-many --target=build --all passes
+- [x] git ls-files no longer lists apps/cvm-server/main.cjs or any tsconfig.tsbuildinfo, and they are ignored
+- [x] apps/cvm-server/package.json bin is "bin/cvm-server.cjs"
+- [x] npm pack --dry-run in apps/cvm-server/dist lists bin/cvm-server.cjs, main.cjs, programs/planexecutor.ts and prints no "script name was cleaned" warning
+- [x] npx nx run-many --target=build --all passes
 </success>
 </block>
 
@@ -73,10 +73,10 @@ Precondition: steps 1-2. This is the end-of-plan FULL tier: run the whole Nx sui
 </actions>
 
 <success>
-- [ ] Build, typecheck and the full Nx test suite pass
-- [ ] run-all-tests.sh reports Failed: 0 and every program's client run exited 0 (the two regex demos via --expect-error)
-- [ ] apps/cvm-server/package.json is 2.1.1 and CHANGELOG.md top entry is 2.1.1 with the Fixed items
-- [ ] Nothing was published (npm latest still 2.1.0)
+- [x] Build, typecheck and the full Nx test suite pass
+- [x] run-all-tests.sh reports Failed: 0 and every program's client run exited 0 (the two regex demos via --expect-error)
+- [x] apps/cvm-server/package.json is 2.1.1 and CHANGELOG.md top entry is 2.1.1 with the Fixed items
+- [x] Nothing was published (npm latest still 2.1.0)
 </success>
 </block>
 
