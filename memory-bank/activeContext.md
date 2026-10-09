@@ -68,6 +68,13 @@
 >step03-truthful-e2e-run-and-release✓{EXECUTE+VERIFY4/4}
   ↳cvm-server 2.1.1+CHANGELOG{Fixed:compiler errors,break foreach,slice,e2e client,packaging}
   ↳FULL::nx no-cache build6+typecheck7+tests1237✓;e2e run-all-tests 64/64 TRULY passed{regex demos via --expect-error};npm latest still 2.1.0
+[AUDIT-2026-10-09]
+@file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}
+@proven::12 it.fails repros{parser:syntax errors accepted x3;vm:arr.includes/indexOf/toString,===undefined x2,CVM_MAX_* ignored;mcp:step title empty,forged delete token x2}
+@topFixes::syntax diagnostics+drop parser.ts pass;table-driven method dispatch(+runtime receiver type);runtimeError helper;delete 15 dead opcodes/handlers;CI+lint;single config
+§selfCorrection::feature08 block03 duplicated existing ARRAY_SLICE(arrays.ts:409) inside STRING_SLICE
+✓sdk::@modelcontextprotocol/sdk 1.17.2→1.32.1{commit 02a7a0e;all server.tool() deprecated→registerTool;test-transport TextToolResult;tests1251+e2e64✓}
+?sdk-v2::split pkgs+spec 2026-07-28,needs Node>=20(local 18.20.8)→user decision
 !newBug::CVM `x === undefined` ALWAYS false{even let u;};typeof x works→'undefined'{probe 2026-10-09}→?ask user:fix in 08|issue
 !minor::step plan title empty in prompts{parser takes title only from '## TDDAB-N:' headings;step-planner uses '## Step N:'}→?ask user
 
