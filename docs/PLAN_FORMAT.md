@@ -263,8 +263,9 @@ Key points:
   executor is told to read them via `planRef`. **Put rich implementation guidance in the
   block body** — it is not lost, it is referenced.
 - **`redKeys`** are derived from each `red`/`action` item by: strip non-alphanumeric
-  (keep spaces), trim, take first 40 chars, collapse spaces to `_`, lowercase. They are
+  (keep spaces), trim, collapse spaces to `_`, lowercase (no truncation). They are
   used by the executor's CROSS-CHECK phase to confirm each test actually exists.
+  Two red tests of one block that normalize to the same key are a validation error.
 
 ---
 

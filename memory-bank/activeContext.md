@@ -74,6 +74,13 @@
   ↳mcp-server.spec::getTask 4 tests+submitTask 7 tests{old'resumed'/bare-text tests rewritten}
   ↳gate::build6✓+typecheck7✓+test mcp-server131✓+cvm-server4✓
   ↳redKey collision seen again{block05:2 pairs collide}→confirmed systematic
+  ↳commit::bd709ad
+>FINAL REVIEW plan.md{01-05}✓::build6+typecheck7+FULL suite 7 projects 1207 tests✓
+>block06✓{added during exec;user decision:no truncation;RED+GREEN+VERIFY5/5+CROSSCHECK5/5}
+  ↳mcp-server.ts:21::toRedKey full length;findDuplicateRedKey+validation error'Block "X" has duplicate red tests: key'{single:606,multi:675;actions skipped}
+  ↳test helpers toRedKey aligned{planexecutor.spec+tddab-e2e x2};PLAN_FORMAT.md §6 updated
+  ↳mcp-server-parseplan.spec::redKeys describe 5 tests
+  ↳gate::build6✓+typecheck7✓+test mcp-server136✓+cvm-server4✓
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]

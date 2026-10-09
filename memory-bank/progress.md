@@ -12,7 +12,7 @@
 ✓block04-vm-submit-returns-next-state
 ✓block05-tool-response-guidance{plan.md 5/5 code blocks done;FINAL REVIEW pending}
 ?develop::plan-rules.md 01→04
-?finding::redKey 40-char collision→ask user{issue or fold in}
+✓block06-redkey-full-length{redKey collision fixed;FINAL REVIEW pending}
 ?j-close::full BTLT+npm publish{userOK}+close#11+push .ai-agent branch{userOK}
 
 [COMPLETED]

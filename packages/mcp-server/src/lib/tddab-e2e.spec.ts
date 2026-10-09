@@ -80,7 +80,7 @@ describe('TDDAB E2E Pipeline', () => {
     const result = parseTddabPlan(planMd, 'sample-plan.md');
     const plan = result.plan!;
 
-    const toRedKey = (t: string) => t.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
+    const toRedKey = (t: string) => t.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ +/g, '_').toLowerCase();
     const uplanData = {
       mission: plan.mission,
       sourceFile: plan.sourceFile,
@@ -169,7 +169,7 @@ describe('TDDAB E2E Pipeline', () => {
     expect(result.plan!.blocks).toHaveLength(2);
     expect(result.plan!.blocks[0].isAction).toBe(true);
 
-    const toRedKey = (t: string) => t.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
+    const toRedKey = (t: string) => t.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ +/g, '_').toLowerCase();
     const uplanData = {
       type: 'step',
       mission: result.plan!.mission,

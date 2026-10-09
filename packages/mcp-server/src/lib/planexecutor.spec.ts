@@ -10,7 +10,7 @@ const WORKSPACE_ROOT = resolve(process.cwd(), '../..');
 const EXECUTOR_PATH = resolve(WORKSPACE_ROOT, 'apps/cvm-server/programs/planexecutor.ts');
 
 function toRedKey(test: string): string {
-  return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
+  return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ +/g, '_').toLowerCase();
 }
 
 function makeUplan(blocks: Array<{ id: string; title: string; intro: string; red: string; success: string }>, type?: string): string {

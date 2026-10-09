@@ -361,4 +361,95 @@ Simple service.
       expect(uplan.mission).not.toContain('This should be ignored');
     });
   });
+
+  describe('redKeys', () => {
+    const longA = 'reportCCResult returns type completed with the program return value';
+    const longB = 'reportCCResult returns type completed without result when main returns nothing';
+
+    function blockMd(id: string, listTag: 'red' | 'actions', lines: string[]): string {
+      return `<block id="${id}">
+## Block ${id}
+
+<intro>
+Intro for ${id}.
+</intro>
+
+<${listTag}>
+${lines.join('\n')}
+</${listTag}>
+
+<success>
+- [ ] done
+</success>
+</block>
+`;
+    }
+
+    function planMd(blocks: string): string {
+      return `# Plan
+
+<mission>
+Mission for redKeys tests.
+</mission>
+
+${blocks}`;
+    }
+
+    it('writes the full normalized test text as redKey without truncating at 40 characters', async () => {
+      await writeFile(planFile, planMd(blockMd('01-long', 'red', ['- test: ' + longA])));
+      await transport.callTool('parsePlan', { filePath: planFile });
+      const uplan = JSON.parse(await readFile(join(dataDir, 'uplan.json'), 'utf-8'));
+      expect(uplan.blocks[0].redKeys[0]).toBe('reportccresult_returns_type_completed_with_the_program_return_value');
+    });
+
+    it('gives two different redKeys to tests sharing the same first 40 characters', async () => {
+      await writeFile(planFile, planMd(blockMd('01-prefix', 'red', ['- test: ' + longA, '- test: ' + longB])));
+      await transport.callTool('parsePlan', { filePath: planFile });
+      const uplan = JSON.parse(await readFile(join(dataDir, 'uplan.json'), 'utf-8'));
+      expect(uplan.blocks[0].redKeys).toHaveLength(2);
+      expect(new Set(uplan.blocks[0].redKeys).size).toBe(2);
+    });
+
+    it('fails validation naming the block when two red tests normalize to the same key', async () => {
+      await writeFile(planFile, planMd(blockMd('01-dup', 'red', ['- test: same thing', '- test: Same thing!'])));
+      const result = await transport.callTool('parsePlan', { filePath: planFile });
+      expect('content' in result).toBe(true);
+      if ('content' in result) {
+        expect(result.isError).toBe(true);
+        expect(result.content[0].text).toContain('Block "01-dup" has duplicate red tests: same_thing');
+      }
+    });
+
+    it('fails validation for duplicate red tests inside a sub-file of a multi-file plan', async () => {
+      const indexFile = join(testDir, 'index.md');
+      await writeFile(indexFile, `# Plan
+
+<mission>
+Mission for multi-file redKeys test.
+</mission>
+
+<files>
+- 01-dup.md
+</files>
+`);
+      await writeFile(join(testDir, '01-dup.md'), blockMd('01-dup', 'red', ['- test: same thing', '- test: same thing']));
+      const result = await transport.callTool('parsePlan', { filePath: indexFile });
+      expect('content' in result).toBe(true);
+      if ('content' in result) {
+        expect(result.isError).toBe(true);
+        expect(result.content[0].text).toContain('01-dup.md');
+        expect(result.content[0].text).toContain('Block "01-dup" has duplicate red tests: same_thing');
+      }
+    });
+
+    it('still accepts repeated action lines in a step plan block', async () => {
+      await writeFile(planFile, planMd(blockMd('01-step', 'actions', ['- action: run build', '- action: run build'])));
+      const result = await transport.callTool('parsePlan', { filePath: planFile });
+      expect('content' in result).toBe(true);
+      if ('content' in result) {
+        expect(result.isError).toBeUndefined();
+        expect(JSON.parse(result.content[0].text as string).valid).toBe(true);
+      }
+    });
+  });
 });

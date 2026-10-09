@@ -19,7 +19,17 @@ function deducePlanType(blocks: { isAction: boolean }[]): 'tddab' | 'step' {
 }
 
 function toRedKey(test: string): string {
-  return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
+  return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().replace(/ +/g, '_').toLowerCase();
+}
+
+function findDuplicateRedKey(redTests: string[]): string | undefined {
+  const seen = new Set<string>();
+  for (const t of redTests) {
+    const key = toRedKey(t);
+    if (seen.has(key)) return key;
+    seen.add(key);
+  }
+  return undefined;
 }
 
 const BUILTIN_PROGRAMS: Record<string, string> = {
@@ -592,6 +602,15 @@ export class CVMMcpServer {
             }
 
             const plan = result.plan!;
+            for (const b of plan.blocks) {
+              const dup = b.isAction ? undefined : findDuplicateRedKey(b.redTests);
+              if (dup) {
+                return {
+                  content: [{ type: 'text', text: `Plan validation failed:\nBlock "${b.id}" has duplicate red tests: ${dup}` }],
+                  isError: true
+                };
+              }
+            }
             uplanData = {
               type: deducePlanType(plan.blocks),
               mission: plan.mission,
@@ -653,6 +672,13 @@ export class CVMMcpServer {
                   };
                 }
                 seenIds.add(block.id);
+                const dup = block.isAction ? undefined : findDuplicateRedKey(block.redTests);
+                if (dup) {
+                  return {
+                    content: [{ type: 'text', text: `Plan validation failed in ${subFile}:\nBlock "${block.id}" has duplicate red tests: ${dup}` }],
+                    isError: true
+                  };
+                }
                 allBlocks.push({
                   id: block.id,
                   title: block.title,
