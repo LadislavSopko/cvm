@@ -22,6 +22,14 @@ function main() {
   } else {
     console.log("Loading existing state...");
     state = JSON.parse(existingData);
+    if (state === null || typeof state.filesProcessed !== "number") {
+      console.log("Stored state is empty, initializing...");
+      state = {
+        filesProcessed: 0,
+        totalSize: 0,
+        history: []
+      };
+    }
     console.log("Files processed so far: " + state.filesProcessed);
   }
   
@@ -31,7 +39,10 @@ function main() {
   
   // Process first 3 files (or remaining)
   const startIdx = state.filesProcessed;
-  const endIdx = Math.min(startIdx + 3, files.length);
+  let endIdx = startIdx + 3;
+  if (endIdx > files.length) {
+    endIdx = files.length;
+  }
   
   for (let i = startIdx; i < endIdx; i++) {
     const file = files[i];
@@ -46,7 +57,7 @@ function main() {
     state.history.push({
       file: file,
       summary: analysis,
-      timestamp: Date.now()
+      step: i + 1
     });
     
     // Save state after each file

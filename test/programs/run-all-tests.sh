@@ -128,7 +128,7 @@ run_test "../programs/05-strings/tostring-conversion.ts"
 run_test "../programs/05-strings/tostring-and-implicit-main.ts"
 
 echo -e "\n${YELLOW}=== 06-file-system ===${NC}"
-run_test "../programs/06-file-system/file-persistence.ts"
+run_test "../programs/06-file-system/file-persistence.ts" "summary 1" "summary 2" "summary 3" "overview"
 run_test "../programs/06-file-system/list-files-basic.ts"
 run_test "../programs/06-file-system/list-files-iteration.ts"
 run_test "../programs/06-file-system/load-file-test.ts"

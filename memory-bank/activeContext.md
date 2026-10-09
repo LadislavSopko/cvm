@@ -54,6 +54,14 @@
   ↳live::block-scoping exit1(load failed),regex-literal-errors exit0(expected error),return-types exit0(completed no output)
   !finding::integration typecheck was FAILING pre-existing{TS4111 types/logger.ts:13-14,vm/handlers/regex.ts:145-146,235-236,360-361} hidden by nx cache→fixed w/ bracket access;+TS6307 tsconfig.spec include src/**/*.ts
   §lesson::verify typecheck with --skip-nx-cache;cached 'Successfully' can hide real failures
+  ↳commit::fc95990
+>FINAL REVIEW plan.md✓::nx no-cache build6+typecheck7+tests 1237✓;e2e truthful 62/64{fails only block-scoping+file-persistence→step plan}
+@run::run-08-steps-20261009{plan-steps.md}
+>step01-rewrite-invalid-e2e-programs✓{EXECUTE+VERIFY3/3}
+  ↳block-scoping.ts::no try/catch;documents function-level scope;client exit0
+  ↳file-persistence.ts::if/else instead of Math.min;step instead of Date.now;state w/o numeric filesProcessed→fresh{typeof};run_test 4 CC responses;2 consecutive runs exit0
+!newBug::CVM `x === undefined` ALWAYS false{even let u;};typeof x works→'undefined'{probe 2026-10-09}→?ask user:fix in 08|issue
+!minor::step plan title empty in prompts{parser takes title only from '## TDDAB-N:' headings;step-planner uses '## Step N:'}→?ask user
 
 [FEATURE-08-ANALYSIS]{verified in code;ready for j-new-feature 08}
 A!runnerFalsePass::test/integration/mcp-test-client.ts:79-84 Error:→done=true exit0;"✓ Program loaded" even on load error;no expected-error marker
