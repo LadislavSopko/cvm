@@ -68,6 +68,12 @@
   ↳new vm-manager-submit-result.spec.ts{6 tests;in-memory storage mock}
   ↳gate::build6✓+typecheck7✓+test vm706✓+mcp-server125✓+cvm-server4✓
   ✗newFinding::redKey collision{parsePlan truncates test text to 40 chars→two RED lines"reportCCResult returns type completed wi…"→SAME key→JSON template has duplicate key;cross-check cannot distinguish them}→?issue/fix{toRedKey in tddab-parser+planexecutor.spec}
+  ↳commit::550f81a
+>block05✓{RED+GREEN+VERIFY5/5+CROSSCHECK10/10}
+  ↳mcp-server.ts:29-30::SUBMIT_ACK+SUBMIT_REMINDER;getTask waiting:212 appends reminder;submitTask:255-273 per state{completed→"OK. Execution completed."/"…with result: X";error→isError"Error: …";waiting|undefined→SUBMIT_ACK}
+  ↳mcp-server.spec::getTask 4 tests+submitTask 7 tests{old'resumed'/bare-text tests rewritten}
+  ↳gate::build6✓+typecheck7✓+test mcp-server131✓+cvm-server4✓
+  ↳redKey collision seen again{block05:2 pairs collide}→confirmed systematic
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]

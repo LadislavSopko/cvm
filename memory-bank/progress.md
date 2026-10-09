@@ -10,7 +10,8 @@
 ✓block02-crosscheck-validate-reask
 ✓block03-prompt-test-scope
 ✓block04-vm-submit-returns-next-state
-?develop::plan.md 05 then plan-rules.md 01→04
+✓block05-tool-response-guidance{plan.md 5/5 code blocks done;FINAL REVIEW pending}
+?develop::plan-rules.md 01→04
 ?finding::redKey 40-char collision→ask user{issue or fold in}
 ?j-close::full BTLT+npm publish{userOK}+close#11+push .ai-agent branch{userOK}
 

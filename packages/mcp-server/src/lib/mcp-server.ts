@@ -26,6 +26,9 @@ const BUILTIN_PROGRAMS: Record<string, string> = {
   '@planexecutor': 'planexecutor.ts',
 };
 
+const SUBMIT_ACK = 'OK. Call getTask for the next task.';
+const SUBMIT_REMINDER = '\n\n--- When done, call submitTask with your result as requested.';
+
 /**
  * MCP Server - A thin interface layer for the CVM
  * All execution logic is handled by VMManager
@@ -206,7 +209,7 @@ export class CVMMcpServer {
             };
           } else if (result.type === 'waiting') {
             return {
-              content: [{ type: 'text', text: result.message || 'Waiting for input' }]
+              content: [{ type: 'text', text: (result.message || 'Waiting for input') + SUBMIT_REMINDER }]
             };
           } else if (result.type === 'error') {
             return {
@@ -250,9 +253,23 @@ export class CVMMcpServer {
             execId = currentId;
           }
           
-          await this.vmManager.reportCCResult(execId, result);
+          const next = await this.vmManager.reportCCResult(execId, result);
+          if (next && next.type === 'completed') {
+            const text = next.result !== undefined
+              ? `OK. Execution completed with result: ${JSON.stringify(next.result)}`
+              : 'OK. Execution completed.';
+            return {
+              content: [{ type: 'text', text }]
+            };
+          }
+          if (next && next.type === 'error') {
+            return {
+              content: [{ type: 'text', text: `Error: ${next.error}` }],
+              isError: true
+            };
+          }
           return {
-            content: [{ type: 'text', text: 'Execution resumed' }]
+            content: [{ type: 'text', text: SUBMIT_ACK }]
           };
         } catch (error) {
           return {

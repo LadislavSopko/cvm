@@ -150,7 +150,9 @@ main();`;
   });
 
   describe('getTask tool', () => {
-    it('should return CC prompt when VM pauses', async () => {
+    const REMINDER = '\n\n--- When done, call submitTask with your result as requested.';
+
+    it('should return the CC prompt followed by the submitTask reminder when VM pauses', async () => {
       mockVMManager.getNext.mockResolvedValueOnce({
         type: 'waiting',
         message: 'What should I say next?'
@@ -160,11 +162,24 @@ main();`;
         executionId: 'exec-1'
       });
 
-      expect('content' in result && result.content[0].text).toBe('What should I say next?');
+      expect('content' in result && result.content[0].text).toBe('What should I say next?' + REMINDER);
       expect(mockVMManager.getNext).toHaveBeenCalledWith('exec-1');
     });
 
-    it('should return completion status when program finishes', async () => {
+    it('should return Waiting for input followed by the reminder when the prompt is empty', async () => {
+      mockVMManager.getNext.mockResolvedValueOnce({
+        type: 'waiting',
+        message: ''
+      });
+
+      const result = await testTransport.callTool('getTask', {
+        executionId: 'exec-1'
+      });
+
+      expect('content' in result && result.content[0].text).toBe('Waiting for input' + REMINDER);
+    });
+
+    it('should return completion status without the reminder when program finishes', async () => {
       mockVMManager.getNext.mockResolvedValueOnce({
         type: 'completed',
         message: 'Execution completed'
@@ -175,10 +190,11 @@ main();`;
       });
 
       expect('content' in result && result.content[0].text).toContain('completed');
+      expect('content' in result && result.content[0].text).not.toContain('call submitTask');
       expect(mockVMManager.getNext).toHaveBeenCalledWith('exec-1');
     });
 
-    it('should handle execution errors', async () => {
+    it('should handle execution errors without the reminder', async () => {
       mockVMManager.getNext.mockResolvedValueOnce({
         type: 'error',
         error: 'Stack overflow'
@@ -188,14 +204,27 @@ main();`;
         executionId: 'exec-1'
       });
 
+      expect('content' in result).toBe(true);
       if ('content' in result) {
         expect(result.content[0].text).toContain('Error: Stack overflow');
+        expect(result.content[0].text).not.toContain('call submitTask');
       }
     });
   });
 
   describe('submitTask tool', () => {
-    it('should call VMManager.reportCCResult', async () => {
+    it('should point to getTask when the next state is waiting', async () => {
+      mockVMManager.reportCCResult.mockResolvedValueOnce({ type: 'waiting', message: 'next?' });
+
+      const result = await testTransport.callTool('submitTask', {
+        executionId: 'exec-1',
+        result: 'Goodbye!'
+      });
+
+      expect('content' in result && result.content[0].text).toBe('OK. Call getTask for the next task.');
+    });
+
+    it('should point to getTask when VMManager returns nothing', async () => {
       mockVMManager.reportCCResult.mockResolvedValueOnce(undefined);
 
       const result = await testTransport.callTool('submitTask', {
@@ -203,11 +232,58 @@ main();`;
         result: 'Goodbye!'
       });
 
-      expect('content' in result && result.content[0].text).toContain('resumed');
+      expect('content' in result && result.content[0].text).toBe('OK. Call getTask for the next task.');
+    });
+
+    it('should report completion without a result', async () => {
+      mockVMManager.reportCCResult.mockResolvedValueOnce({ type: 'completed', message: 'Execution completed' });
+
+      const result = await testTransport.callTool('submitTask', {
+        executionId: 'exec-1',
+        result: 'last'
+      });
+
+      expect('content' in result && result.content[0].text).toBe('OK. Execution completed.');
+    });
+
+    it('should report completion with the JSON result', async () => {
+      mockVMManager.reportCCResult.mockResolvedValueOnce({ type: 'completed', message: 'Execution completed', result: 'end' });
+
+      const result = await testTransport.callTool('submitTask', {
+        executionId: 'exec-1',
+        result: 'last'
+      });
+
+      expect('content' in result && result.content[0].text).toBe('OK. Execution completed with result: "end"');
+    });
+
+    it('should return isError when the next state is error', async () => {
+      mockVMManager.reportCCResult.mockResolvedValueOnce({ type: 'error', error: 'boom' });
+
+      const result = await testTransport.callTool('submitTask', {
+        executionId: 'exec-1',
+        result: 'x'
+      });
+
+      expect('content' in result).toBe(true);
+      if ('content' in result) {
+        expect(result.isError).toBe(true);
+        expect(result.content[0].text).toBe('Error: boom');
+      }
+    });
+
+    it('should call VMManager.reportCCResult with executionId and result', async () => {
+      mockVMManager.reportCCResult.mockResolvedValueOnce({ type: 'waiting', message: 'next?' });
+
+      await testTransport.callTool('submitTask', {
+        executionId: 'exec-1',
+        result: 'Goodbye!'
+      });
+
       expect(mockVMManager.reportCCResult).toHaveBeenCalledWith('exec-1', 'Goodbye!');
     });
 
-    it('should handle errors during resume', async () => {
+    it('should handle errors during resume with isError and no OK text', async () => {
       mockVMManager.reportCCResult.mockRejectedValueOnce(
         new Error('Execution not found')
       );
@@ -217,8 +293,11 @@ main();`;
         result: 'test'
       });
 
+      expect('content' in result).toBe(true);
       if ('content' in result) {
+        expect(result.isError).toBe(true);
         expect(result.content[0].text).toContain('Execution not found');
+        expect(result.content[0].text).not.toContain('OK.');
       }
     });
   });
