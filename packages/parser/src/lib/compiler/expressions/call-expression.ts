@@ -37,13 +37,13 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
         compileExpression(node.arguments[0]);
         state.emit(OpCode.FS_READ_FILE);
       } else {
-        reportError(node, 'fs.readFile() requires a path argument');
+        return reportError(node, 'fs.readFile() requires a path argument');
       }
     }
     else if (methodName === 'writeFile') {
       // fs.writeFile(path, content) - expects 2 arguments
       if (node.arguments.length < 2) {
-        reportError(node, 'fs.writeFile() requires path and content arguments');
+        return reportError(node, 'fs.writeFile() requires path and content arguments');
         return; // Don't continue compilation if arguments are missing
       }
       compileExpression(node.arguments[0]); // path
@@ -51,7 +51,7 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       state.emit(OpCode.FS_WRITE_FILE);
     }
     else {
-      reportError(node, `Unsupported fs method: ${methodName}`);
+      return reportError(node, `Unsupported fs method: ${methodName}`);
     }
   }
   // Handle JSON.parse()
@@ -83,7 +83,7 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       node.expression.name.text === 'keys') {
     
     if (node.arguments.length !== 1) {
-      reportError(node, 'Object.keys() requires exactly one argument');
+      return reportError(node, 'Object.keys() requires exactly one argument');
       return;
     }
     
@@ -264,7 +264,7 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       if (node.arguments.length > 0) {
         compileExpression(node.arguments[0]);
       } else {
-        reportError(node, 'match() requires a regex argument');
+        return reportError(node, 'match() requires a regex argument');
         return;
       }
       state.emit(OpCode.STRING_MATCH);
@@ -359,10 +359,10 @@ export const compileCallExpression: ExpressionVisitor<ts.CallExpression> = (
       state.emit(OpCode.ARRAY_PUSH);
     }
     else {
-      throw new Error(`Method call '${methodName}' is not supported`);
+      return reportError(node, `Method call '${methodName}' is not supported`);
     }
   }
   else {
-    throw new Error('Unsupported call expression');
+    return reportError(node, 'Unsupported call expression');
   }
 };

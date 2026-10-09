@@ -8,7 +8,7 @@ import { ExpressionVisitor } from '../visitor-types.js';
 export const compileObjectLiteral: ExpressionVisitor<ts.ObjectLiteralExpression> = (
   node,
   state,
-  { compileExpression }
+  { compileExpression, reportError }
 ) => {
   // Emit OBJECT_CREATE to create a new empty object
   state.emit(OpCode.OBJECT_CREATE);
@@ -24,7 +24,7 @@ export const compileObjectLiteral: ExpressionVisitor<ts.ObjectLiteralExpression>
       } else if (ts.isStringLiteral(property.name)) {
         propertyName = property.name.text;
       } else {
-        throw new Error('Computed property names are not supported');
+        return reportError(property.name, 'Computed property names are not supported');
       }
       
       // Push property name
@@ -48,7 +48,7 @@ export const compileObjectLiteral: ExpressionVisitor<ts.ObjectLiteralExpression>
       // Set the property
       state.emit(OpCode.PROPERTY_SET);
     } else {
-      throw new Error('Unsupported property type in object literal');
+      return reportError(property, 'Unsupported property type in object literal');
     }
   }
 };

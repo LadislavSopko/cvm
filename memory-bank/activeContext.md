@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [STATUS]
-@state::PLAN
+@state::DEVELOP{j-cvm-exec-plan plan.md}
 @feature::08-e2e-and-compiler-fixes
 @branch::feature/08-e2e-and-compiler-fixes
 @date::2026-10-09
@@ -31,6 +31,14 @@
 @review::j-review-plan(LSAI outline)→3 fixes{04 no-output=pass(return-types.ts prints nothing);step01 file-persistence 4 CC responses+'{}' state=fresh;step02 git rm all tracked tsbuildinfo(4)}
 @experiment::catch safety net→parser241+vm706+mcp136+integration37 green
 ?next::user approves→j-cvm-exec-plan plan.md then plan-steps.md
+
+[EXEC-08]
+@run::run-08-20261009{cvm-server 2.1.0 live: full redKeys,submit reminder,TEST SCOPE in prompts}
+>block01✓{RED5fail+1guard→GREEN;VERIFY4/4;CROSSCHECK6/6}
+  ↳7 visitor throws→return reportError{same msgs};compiler.ts:119 catch records unreported at stmt pos;:146 unpatched -1 jump→error if none else
+  ↳note::'return reportError' needed for TS narrowing(destructured never fn);5 pre-existing reportError calls also got return{equivalent}
+  ↳new parser/src/lib/compiler-error-reporting.spec.ts{6}
+  ↳gate::build6+typecheck7+test parser247/vm706/mcp136✓
 
 [FEATURE-08-ANALYSIS]{verified in code;ready for j-new-feature 08}
 A!runnerFalsePass::test/integration/mcp-test-client.ts:79-84 Error:→done=true exit0;"✓ Program loaded" even on load error;no expected-error marker

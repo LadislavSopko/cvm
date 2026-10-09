@@ -8,7 +8,7 @@ import { StatementVisitor } from '../visitor-types.js';
 export const compileExpressionStatement: StatementVisitor<ts.ExpressionStatement> = (
   node,
   state,
-  { compileExpression }
+  { compileExpression, reportError }
 ) => {
   const expr = node.expression;
   
@@ -61,7 +61,7 @@ export const compileExpressionStatement: StatementVisitor<ts.ExpressionStatement
         // Array element compound assignment (e.g., arr[i] += 1)
         // This is more complex, need to handle carefully
         // For now, throw an error as it's not in our test cases
-        throw new Error('Compound assignment to array elements not yet supported');
+        return reportError(expr, 'Compound assignment to array elements not yet supported');
       }
       return; // Important: return early to avoid falling through
     }

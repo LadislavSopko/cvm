@@ -10,7 +10,7 @@ import { logger } from '@cvm/types';
 export const compileForOfStatement: StatementVisitor<ts.ForOfStatement> = (
   node,
   state,
-  { compileExpression, compileStatement }
+  { compileExpression, compileStatement, reportError }
 ) => {
   // Extract variable name and iterable
   const variable = node.initializer;
@@ -25,7 +25,7 @@ export const compileForOfStatement: StatementVisitor<ts.ForOfStatement> = (
   } else if (ts.isIdentifier(variable)) {
     variableName = variable.text;
   } else {
-    throw new Error('Unsupported for-of variable declaration');
+    return reportError(variable, 'Unsupported for-of variable declaration');
   }
   
   // Compile the iterable (array to iterate over)

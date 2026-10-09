@@ -1,7 +1,8 @@
 §MBEL:5.0
 
 [STATUS]
-@state::PLAN{08-e2e-and-compiler-fixes}
+@state::DEVELOP{08-e2e-and-compiler-fixes}
+✓08-block01-compiler-reports-unsupported
 
 [COMPLETED]
 >07-agent-loop-robustness✓{2026-10-09;plan.md 6/6+plan-rules.md 4/4;merged→main;cvm-server@2.1.0 built,npm publish by user;tasks/07-agent-loop-robustness/}

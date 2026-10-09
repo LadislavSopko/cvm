@@ -111,12 +111,15 @@ export function compile(source: string): CompileResult {
         try {
           compileStatement(stmt);
         } catch (e) {
-          logger.debug("Error in statement", { 
-            statementIndex: index + 1, 
-            error: String(e) 
+          logger.debug("Error in statement", {
+            statementIndex: index + 1,
+            error: String(e)
           });
-          // Error already added to errors array by reportError
-          // Continue processing other statements
+          const msg = e instanceof Error ? e.message : String(e);
+          if (!errors.some(er => er.message === msg)) {
+            const { line, character } = sourceFile.getLineAndCharacterOfPosition(stmt.getStart());
+            errors.push({ message: msg, line: line + 1, character: character + 1 });
+          }
         }
       });
     }
@@ -140,6 +143,13 @@ export function compile(source: string): CompileResult {
   
   if (unpatchedJumps.length > 0) {
     logger.debug("Found unpatched jump instructions", { unpatchedJumps });
+    if (errors.length === 0) {
+      errors.push({
+        message: `Internal compiler error: unpatched jump at instruction ${unpatchedJumps[0].idx}`,
+        line: 0,
+        character: 0
+      });
+    }
   }
 
   return {
