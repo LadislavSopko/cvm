@@ -39,6 +39,10 @@
   ↳note::'return reportError' needed for TS narrowing(destructured never fn);5 pre-existing reportError calls also got return{equivalent}
   ↳new parser/src/lib/compiler-error-reporting.spec.ts{6}
   ↳gate::build6+typecheck7+test parser247/vm706/mcp136✓
+  ↳commit::debc0e4
+>block02✓{RED5fail+1guard;GREEN=remove ITER_END emit in break-statement.ts;VERIFY4/4;CROSSCHECK6/6}
+  ↳RED showed nested case even popped OUTER iterator(ITER_NEXT: No active iterator)
+  ↳new vm/src/lib/vm-break-foreach.spec.ts{6};gate::build6+typecheck7+parser247+vm712✓
 
 [FEATURE-08-ANALYSIS]{verified in code;ready for j-new-feature 08}
 A!runnerFalsePass::test/integration/mcp-test-client.ts:79-84 Error:→done=true exit0;"✓ Program loaded" even on load error;no expected-error marker

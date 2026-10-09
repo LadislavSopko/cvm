@@ -13,11 +13,7 @@ export const compileBreakStatement: StatementVisitor<ts.BreakStatement> = (
   // Find the nearest loop context
   const loopContext = state.findLoopContext();
   if (loopContext) {
-    // For foreach loops, we need to clean up the iterator first
-    if (loopContext.type === 'foreach') {
-      state.emit(OpCode.ITER_END);
-    }
-    
+    // Foreach loops: BREAK lands on the loop's own ITER_END, which releases the iterator once
     // Emit BREAK instruction
     const breakIndex = state.emit(OpCode.BREAK, -1);
     loopContext.breakTargets = loopContext.breakTargets || [];
