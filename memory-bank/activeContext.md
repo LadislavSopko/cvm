@@ -103,6 +103,17 @@
   ↳full gate::build6✓+typecheck7✓+FULL suite 1212✓;npm still 1.2.0;#11 OPEN{left for j-close}
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
+[E2E]
+>ran::test/programs/run-all-tests.sh{after rebuild}→runner says 64/64 PASSED
+!runnerFalsePass::mcp-test-client exits 0 on"Execution error"→8/64 programs actually end in error but count as PASSED
+@errors{pre-existing,identical in all 6 previous runs→0 regressions}::
+  03-control-flow/block-scoping{TryStatement unsupported→compile fail}
+  03-control-flow/for-of-loops{ITER_END: No active iterator}
+  05-strings/string-methods-extended+09/all-features+09/string-array-methods-all{STRING_SLICE requires a string}
+  06-file-system/file-persistence{Invalid jump target: -1}
+  10-regex/regex-literal-errors+regex-pattern-matching-errors{expected error tests}
+?decide::issue for runner false-pass+6 real VM/compiler errors{out of scope 07}
+
 [PENDING-USER]
 ?approve plan→j-develop|j-cvm-exec-plan
 ?uncommitted user changes{.ai-agent pointer+.claude/.gitignore+.claude/settings.json hooks removed}→separate commit?{userDecision}
