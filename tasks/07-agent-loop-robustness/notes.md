@@ -87,6 +87,6 @@
 - [x] Code analyzed
 - [x] Solution proposed
 - [x] Plan created (plan.md tddab 5 blocks + plan-rules.md step 4 steps; j-review-plan x2 fixes applied; parsePlan valid; redKeys 34/34)
-- [ ] Development done
-- [ ] Tested
+- [x] Development done (plan.md 6/6 + plan-rules.md 4/4 via CVM planexecutor)
+- [x] Tested (full suite 1212 tests, build 6, typecheck 7)
 - [ ] Deployed

@@ -36,10 +36,10 @@ Edit /home/laco/cvm/.ai-agent/.claude/commands/mind-sets/tddab-planner.md. Insid
 </actions>
 
 <success>
-- [ ] tddab-planner.md contains the subsection "Test scope tiers (speed rule)" with all three tiers
-- [ ] The canonical line "- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)" is unchanged (grep finds it byte-identical)
-- [ ] The quality checklist has the block-scoped test command item
-- [ ] Commit exists in .ai-agent on branch feature/06-tddab-review
+- [x] tddab-planner.md contains the subsection "Test scope tiers (speed rule)" with all three tiers
+- [x] The canonical line "- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)" is unchanged (grep finds it byte-identical)
+- [x] The quality checklist has the block-scoped test command item
+- [x] Commit exists in .ai-agent on branch feature/06-tddab-review
 </success>
 </block>
 
@@ -56,9 +56,9 @@ Edit /home/laco/cvm/.ai-agent/.claude/commands/j-review-plan.md, section "#### D
 </actions>
 
 <success>
-- [ ] j-review-plan.md section D contains the full-suite-in-block check with the suggested fix
-- [ ] The check references tddab-planner "Test scope tiers" instead of redefining the tiers
-- [ ] Commit exists in .ai-agent on branch feature/06-tddab-review
+- [x] j-review-plan.md section D contains the full-suite-in-block check with the suggested fix
+- [x] The check references tddab-planner "Test scope tiers" instead of redefining the tiers
+- [x] Commit exists in .ai-agent on branch feature/06-tddab-review
 </success>
 </block>
 
@@ -77,10 +77,10 @@ Edit /home/laco/cvm/.ai-agent/.claude/commands/j-develop.md and /home/laco/cvm/.
 </actions>
 
 <success>
-- [ ] j-develop.md has no per-step "Full test suite still passes" check; per-step gate is block-scoped; completion is full suite
-- [ ] j-close.md step 4 explicitly runs the full suite of all projects
-- [ ] Both files reference the tddab-planner tiers subsection
-- [ ] Submodule commit exists and the parent repo has a commit updating the .ai-agent pointer
+- [x] j-develop.md has no per-step "Full test suite still passes" check; per-step gate is block-scoped; completion is full suite
+- [x] j-close.md step 4 explicitly runs the full suite of all projects
+- [x] Both files reference the tddab-planner tiers subsection
+- [x] Submodule commit exists and the parent repo has a commit updating the .ai-agent pointer
 </success>
 </block>
 
@@ -99,11 +99,11 @@ Depends on the TDDAB plan tasks/07-agent-loop-robustness/plan.md being fully exe
 </actions>
 
 <success>
-- [ ] apps/cvm-server/package.json version is 2.1.0
-- [ ] CHANGELOG.md top entry is 2.1.0 with Fixed and Changed sections covering all items
-- [ ] techContext.md no longer lists the planexecutor-under-test issue
-- [ ] Full build, typecheck and full test suite of all projects pass
-- [ ] Nothing was published and issue #11 is still open (left for j-close)
+- [x] apps/cvm-server/package.json version is 2.1.0
+- [x] CHANGELOG.md top entry is 2.1.0 with Fixed and Changed sections covering all items
+- [x] techContext.md no longer lists the planexecutor-under-test issue
+- [x] Full build, typecheck and full test suite of all projects pass
+- [x] Nothing was published and issue #11 is still open (left for j-close)
 </success>
 </block>
 

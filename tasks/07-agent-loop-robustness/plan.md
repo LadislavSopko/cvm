@@ -128,13 +128,13 @@ it('detects a false value inside a fenced answer', async () => {
 ```
 
 <success>
-- [ ] apps/cvm-server/programs/planexecutor.ts exists and test/programs/tddab/planexecutor.ts is gone (git mv)
-- [ ] apps/cvm-server/vite.config.ts copies programs/planexecutor.ts into dist/programs; after build apps/cvm-server/dist/programs/planexecutor.ts exists
-- [ ] planexecutor.spec.ts and tddab-e2e.spec.ts use the new EXECUTOR_PATH
-- [ ] CROSS-CHECK prompt ends with toolsReminder + submitJson; the string "Respond ONLY with the completed JSON" no longer exists in the planexecutor
-- [ ] JSON is extracted with indexOf("{") / lastIndexOf("}") / substring before JSON.parse
-- [ ] All 5 RED tests pass: npx nx test mcp-server -- planexecutor.spec.ts
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] apps/cvm-server/programs/planexecutor.ts exists and test/programs/tddab/planexecutor.ts is gone (git mv)
+- [x] apps/cvm-server/vite.config.ts copies programs/planexecutor.ts into dist/programs; after build apps/cvm-server/dist/programs/planexecutor.ts exists
+- [x] planexecutor.spec.ts and tddab-e2e.spec.ts use the new EXECUTOR_PATH
+- [x] CROSS-CHECK prompt ends with toolsReminder + submitJson; the string "Respond ONLY with the completed JSON" no longer exists in the planexecutor
+- [x] JSON is extracted with indexOf("{") / lastIndexOf("}") / substring before JSON.parse
+- [x] All 5 RED tests pass: npx nx test mcp-server -- planexecutor.spec.ts
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 
@@ -271,13 +271,13 @@ expect(prompts.filter(p => p.includes('CROSS-CHECK RETRY'))).toHaveLength(0);
 ```
 
 <success>
-- [ ] The CROSS-CHECK answer is accepted only when a JSON object is found and every redKeys entry is true or false
-- [ ] Invalid answers produce a CROSS-CHECK RETRY prompt naming the problem, repeating jsonTemplate and submitJson, in a loop with no retry cap
-- [ ] crossCheckPassed is computed by iterating redKeys; extra keys are ignored
-- [ ] No helper functions added; logic is inline in main()
-- [ ] tddab-e2e.spec.ts builds the CROSS-CHECK answer from the prompt template, has the runaway guard, and asserts no CROSS-CHECK RETRY
-- [ ] All 8 RED tests pass and all block-01 tests still pass: npx nx test mcp-server -- planexecutor.spec.ts tddab-e2e.spec.ts
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] The CROSS-CHECK answer is accepted only when a JSON object is found and every redKeys entry is true or false
+- [x] Invalid answers produce a CROSS-CHECK RETRY prompt naming the problem, repeating jsonTemplate and submitJson, in a loop with no retry cap
+- [x] crossCheckPassed is computed by iterating redKeys; extra keys are ignored
+- [x] No helper functions added; logic is inline in main()
+- [x] tddab-e2e.spec.ts builds the CROSS-CHECK answer from the prompt template, has the runaway guard, and asserts no CROSS-CHECK RETRY
+- [x] All 8 RED tests pass and all block-01 tests still pass: npx nx test mcp-server -- planexecutor.spec.ts tddab-e2e.spec.ts
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 
@@ -353,11 +353,11 @@ it('step plan scopes', () => { /* type 'step', VERIFY fails once: EXECUTE/FIX ->
 ```
 
 <success>
-- [ ] scopeFocused and scopeBlock constants exist with the exact wording above
-- [ ] Every development prompt (EXECUTE, RED, GREEN, all FIX) carries scopeFocused; every verification prompt (VERIFY, all RE-VERIFY) carries scopeBlock
-- [ ] FINAL REVIEW is the only prompt containing "full test suite"
-- [ ] All 5 RED tests pass together with blocks 01-02 tests: npx nx test mcp-server -- planexecutor.spec.ts
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] scopeFocused and scopeBlock constants exist with the exact wording above
+- [x] Every development prompt (EXECUTE, RED, GREEN, all FIX) carries scopeFocused; every verification prompt (VERIFY, all RE-VERIFY) carries scopeBlock
+- [x] FINAL REVIEW is the only prompt containing "full test suite"
+- [x] All 5 RED tests pass together with blocks 01-02 tests: npx nx test mcp-server -- planexecutor.spec.ts
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 
@@ -467,11 +467,11 @@ it('getNext on completed execution without return value', async () => {
 ```
 
 <success>
-- [ ] reportCCResult signature is Promise of ExecutionResult and returns waiting / completed (with result) / error matching the persisted state
-- [ ] getNext COMPLETED branch returns result: execution.returnValue
-- [ ] ExecutionResult interface unchanged; mcp-server still compiles without changes
-- [ ] All 6 RED tests pass: npx nx test vm -- vm-manager-submit-result.spec.ts
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] reportCCResult signature is Promise of ExecutionResult and returns waiting / completed (with result) / error matching the persisted state
+- [x] getNext COMPLETED branch returns result: execution.returnValue
+- [x] ExecutionResult interface unchanged; mcp-server still compiles without changes
+- [x] All 6 RED tests pass: npx nx test vm -- vm-manager-submit-result.spec.ts
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 
@@ -584,11 +584,11 @@ it('getTask completed / error have no reminder', async () => {
 ```
 
 <success>
-- [ ] submitTask text depends on the returned state exactly as specified; "Execution resumed" no longer appears in packages/mcp-server/src
-- [ ] getTask waiting text = CC message (or "Waiting for input") + "\n\n--- When done, call submitTask with your result as requested."
-- [ ] getTask completed/error and the submitTask exception path are unchanged
-- [ ] All 10 RED tests pass and the updated existing tests pass: npx nx test mcp-server -- mcp-server.spec.ts
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] submitTask text depends on the returned state exactly as specified; "Execution resumed" no longer appears in packages/mcp-server/src
+- [x] getTask waiting text = CC message (or "Waiting for input") + "\n\n--- When done, call submitTask with your result as requested."
+- [x] getTask completed/error and the submitTask exception path are unchanged
+- [x] All 10 RED tests pass and the updated existing tests pass: npx nx test mcp-server -- mcp-server.spec.ts
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 
@@ -677,11 +677,11 @@ it('repeated action lines are accepted', async () => {
 ```
 
 <success>
-- [ ] toRedKey no longer truncates; full normalized text is the key
-- [ ] Duplicate red keys inside a tddab block fail parsePlan (single-file and multi-file) with the specified message; action blocks are not checked
-- [ ] Local toRedKey copies in planexecutor.spec.ts and tddab-e2e.spec.ts match production; docs/PLAN_FORMAT.md updated
-- [ ] All 5 RED tests pass: npx nx test mcp-server -- mcp-server-parseplan.spec.ts
-- [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
+- [x] toRedKey no longer truncates; full normalized text is the key
+- [x] Duplicate red keys inside a tddab block fail parsePlan (single-file and multi-file) with the specified message; action blocks are not checked
+- [x] Local toRedKey copies in planexecutor.spec.ts and tddab-e2e.spec.ts match production; docs/PLAN_FORMAT.md updated
+- [x] All 5 RED tests pass: npx nx test mcp-server -- mcp-server-parseplan.spec.ts
+- [x] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
 
