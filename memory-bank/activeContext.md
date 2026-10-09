@@ -32,15 +32,17 @@
 @dogfood::development runs on TDDAB being fixed;published cvm-server still has silent-pass→do CROSS-CHECK honestly+submit via tool
 
 [PLAN]
-@file::tasks/07-agent-loop-robustness/plan.md{tddab;5blocks;parsePlanValid;redKeys33/33}
+@file::tasks/07-agent-loop-robustness/plan.md{tddab;5blocks;parsePlanValid;redKeys34/34}
   01-crosscheck-submit-and-extract{+git mv planexecutor;5tests}
-  02-crosscheck-validate-reask{7tests}
+  02-crosscheck-validate-reask{8tests;+fix tddab-e2e hang:answer from prompt template}
   03-prompt-test-scope{scopeFocused/scopeBlock;5tests}
   04-vm-submit-returns-next-state{packages/vm;6tests}
   05-tool-response-guidance{packages/mcp-server;10tests;dep04}
 @file::tasks/07-agent-loop-robustness/plan-rules.md{step;4steps}
   01-planner-test-tiers→02-review-plan-flags-full-suite→03-develop-close-align-tiers{+submodule pointer commit}→04-release-2-1-0
->j-review-plan::fixes applied{block04 split into vm04+mcp05;typecheck guards;deterministic error program}
+>j-review-plan#1::fixes applied{block04 split into vm04+mcp05;typecheck guards;deterministic error program}
+>j-review-plan#2::fixes applied{tddab-e2e would HANG after02→answer from template;200-prompt runaway guard all drivers;mission: submitTask resumes VM+BUILTIN path+nx test vm}
+§lesson::LSAI auto-opened only JS workspace→symbol queries hit main.cjs/.nx cache;open TS workspace{lsai_workspace_open language=TypeScript}→cvm-typescript-2
 
 [PENDING-USER]
 ?approve plan→j-develop|j-cvm-exec-plan

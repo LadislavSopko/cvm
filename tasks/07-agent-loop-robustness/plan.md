@@ -3,7 +3,7 @@
 
 <mission>
 PROJECT: CVM (Cognitive Virtual Machine), Nx monorepo at /home/laco/cvm, TypeScript 5.8, Node 18+, Vitest 3.
-CVM inverts control: a CVM program (TypeScript subset compiled to bytecode) runs in a VM and pauses at every CC("prompt") call; an AI agent pulls the prompt with the MCP tool getTask, does the work, and delivers the answer with the MCP tool submitTask; the VM stores the answer and resumes on the next getTask.
+CVM inverts control: a CVM program (TypeScript subset compiled to bytecode) runs in a VM and pauses at every CC("prompt") call; an AI agent pulls the prompt with the MCP tool getTask, does the work, and delivers the answer with the MCP tool submitTask. submitTask (VMManager.reportCCResult) pushes the answer and RESUMES the VM right away until the next CC, completion or error, and persists that state; getTask (VMManager.getNext) then returns the stored prompt or the final status.
 
 WHY THIS PLAN: agents (notably local models such as Qwen in OpenCode) stall the loop:
 (1) the planexecutor CROSS-CHECK prompt says "Respond ONLY with the completed JSON", so agents print the JSON in chat instead of calling submitTask (GitHub issue #11);
@@ -14,7 +14,7 @@ WHY THIS PLAN: agents (notably local models such as Qwen in OpenCode) stall the 
 KEY FILES:
 - Planexecutor CVM program (shipped builtin, exposed as @planexecutor): today at /home/laco/cvm/test/programs/tddab/planexecutor.ts; block 01 moves it to /home/laco/cvm/apps/cvm-server/programs/planexecutor.ts.
 - Build copy of the program into the published package: /home/laco/cvm/apps/cvm-server/vite.config.ts (viteStaticCopy target with dest 'programs').
-- Builtin resolution at runtime: /home/laco/cvm/packages/mcp-server/src/lib/mcp-server.ts (BUILTIN_PROGRAMS maps '@planexecutor' to 'programs/planexecutor.ts' next to the server bundle; unchanged).
+- Builtin resolution at runtime: /home/laco/cvm/packages/mcp-server/src/lib/mcp-server.ts (BUILTIN_PROGRAMS maps '@planexecutor' to 'planexecutor.ts', resolved at runtime as join(serverDir, 'programs', 'planexecutor.ts') next to the server bundle; unchanged).
 - MCP tools getTask and submitTask: /home/laco/cvm/packages/mcp-server/src/lib/mcp-server.ts (server.tool('getTask', ...) and server.tool('submitTask', ...)).
 - Planexecutor tests: /home/laco/cvm/packages/mcp-server/src/lib/planexecutor.spec.ts (drives the real program through VMManager: write .cvm/uplan.json with makeUplan(), loadProgram, startExecution, then loop getNext / reportCCResult and assert on the collected prompts). Also /home/laco/cvm/packages/mcp-server/src/lib/tddab-e2e.spec.ts uses EXECUTOR_PATH.
 - MCP tool tests: /home/laco/cvm/packages/mcp-server/src/lib/mcp-server.spec.ts (VMManager mocked with vi.mock, tools invoked via TestTransport.callTool, assertions on result.content[0].text).
@@ -29,13 +29,14 @@ CVM LANGUAGE CONSTRAINTS (critical for planexecutor edits):
 
 COMMANDS:
 - Focused tests: npx nx test mcp-server -- planexecutor.spec.ts   (or -- mcp-server.spec.ts)
-- Block-scoped tests: npx nx test mcp-server ; npx nx test cvm-server
+- Block-scoped tests: npx nx test mcp-server ; npx nx test vm ; npx nx test cvm-server
 - Build: npx nx run-many --target=build --all
 - Typecheck: npx nx run-many --target=typecheck --all
 - Lint: not configured in this repo (n/a, skip)
 - Full suite (FINAL REVIEW only): npx nx run-many --target=test --all
 - ESM: every relative import uses the .js extension.
 - Code style: no code comments unless needed; match surrounding code.
+- TEST DRIVER SAFETY: every test loop that drives the planexecutor (while next.type === 'waiting') MUST stop with an error after 200 prompts (throw new Error('runaway loop')), because CROSS-CHECK re-asks without limit by design; a wrong test answer must fail the test, never hang it.
 </mission>
 
 <block id="01-crosscheck-submit-and-extract">
@@ -97,6 +98,7 @@ async function runBlock(execId: string, crossCheckAnswers: string[]): Promise<st
   // block: { id: '01-cc', red: '- test one\n- test two' } -> redKeys test_one, test_two
   // answers: VERIFY/RE-VERIFY -> 'passed'; CROSS-CHECK* -> next item of crossCheckAnswers
   //          (last item repeated when exhausted); everything else -> 'done'
+  // guard: more than 200 prompts -> throw new Error('runaway loop')
   // returns all prompts in order
 }
 
@@ -143,6 +145,8 @@ it('detects a false value inside a fenced answer', async () => {
 File: /home/laco/cvm/apps/cvm-server/programs/planexecutor.ts (moved there by block 01) and its tests in /home/laco/cvm/packages/mcp-server/src/lib/planexecutor.spec.ts. Depends on block 01 (submitJson constant and JSON extraction exist).
 
 Today, after extraction, an answer with no JSON object, a missing key, or a value left null still counts as passed (silent false positive). Required behaviour, decided with the user: an answer is VALID only if a JSON object is found AND every key in block.redKeys has the value true or false. An invalid answer is NEVER treated as passed or failed: the planexecutor re-asks with a "CROSS-CHECK RETRY" prompt that states what was wrong, repeats the JSON template and the submit instruction, and keeps re-asking WITHOUT any retry limit until a valid answer arrives. Only then are the values evaluated: any false goes to the existing cross-check FIX PHASE / RE-VERIFY path; extra keys not in redKeys are ignored. The pass evaluation iterates block.redKeys (not the answer's keys).
+
+Existing test that this block would HANG: /home/laco/cvm/packages/mcp-server/src/lib/tddab-e2e.spec.ts (around lines 112-130) answers every CROSS-CHECK with the fixed string '{"t1": true, "t2": true}', whose keys do not match the real redKeys of test/programs/tddab/sample-plan.md (today it passes only because of the silent-pass bug). In this block the e2e driver builds the answer from the template inside the prompt: take the text from the first "{" to the last "}" of the CROSS-CHECK prompt and replace every ": null" with ": true"; add the 200-prompt runaway guard to that loop; keep its existing assertions (3 CROSS-CHECK prompts total) and add one asserting that no prompt contains CROSS-CHECK RETRY.
 </intro>
 
 <red>
@@ -153,6 +157,7 @@ Today, after extraction, an answer with no JSON object, a missing key, or a valu
 - test: CROSS-CHECK RETRY prompt contains the JSON template with all required keys and the cvm_submitTask submit instruction
 - test: valid answer received on retry with a false value triggers the cross-check FIX PHASE
 - test: extra keys not in the required list are ignored when all required keys are true
+- test: tddab e2e pipeline answers CROSS-CHECK from the prompt template and completes with no CROSS-CHECK RETRY prompt
 </red>
 
 ### Implementation
@@ -253,12 +258,25 @@ it('ignores extra keys', async () => {
 });
 ```
 
+packages/mcp-server/src/lib/tddab-e2e.spec.ts (existing full-pipeline test loop):
+```ts
+if (prompts.length > 200) throw new Error('runaway loop');
+if (next.message!.includes('CROSS-CHECK')) {
+  const msg = next.message!;
+  const tpl = msg.substring(msg.indexOf('{'), msg.lastIndexOf('}') + 1);
+  response = tpl.split(': null').join(': true');
+}
+// after the loop, next to the existing assertions:
+expect(prompts.filter(p => p.includes('CROSS-CHECK RETRY'))).toHaveLength(0);
+```
+
 <success>
 - [ ] The CROSS-CHECK answer is accepted only when a JSON object is found and every redKeys entry is true or false
 - [ ] Invalid answers produce a CROSS-CHECK RETRY prompt naming the problem, repeating jsonTemplate and submitJson, in a loop with no retry cap
 - [ ] crossCheckPassed is computed by iterating redKeys; extra keys are ignored
 - [ ] No helper functions added; logic is inline in main()
-- [ ] All 7 RED tests pass and all block-01 tests still pass: npx nx test mcp-server -- planexecutor.spec.ts
+- [ ] tddab-e2e.spec.ts builds the CROSS-CHECK answer from the prompt template, has the runaway guard, and asserts no CROSS-CHECK RETRY
+- [ ] All 8 RED tests pass and all block-01 tests still pass: npx nx test mcp-server -- planexecutor.spec.ts tddab-e2e.spec.ts
 - [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
@@ -308,7 +326,7 @@ CC("RE-VERIFY [...] ..." + toolsReminder + scopeBlock + submitTest);           /
 // FINAL REVIEW unchanged: "Run a final full test suite to confirm no regressions."
 ```
 
-Tests (planexecutor.spec.ts), driving one tddab block with one VERIFY failure and one cross-check false so FIX/RE-VERIFY variants appear, plus one step block:
+Tests (planexecutor.spec.ts), driving one tddab block with one VERIFY failure and one cross-check false so FIX/RE-VERIFY variants appear, plus one step block (drivers keep the 200-prompt runaway guard):
 ```ts
 const FOCUSED = 'run ONLY the tests you are writing or touching now';
 const BLOCK = 'run the tests of the project(s)/package(s) this block touches';
