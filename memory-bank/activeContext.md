@@ -92,6 +92,11 @@
 >step02-review-plan-flags-full-suite✓{EXECUTE+VERIFY3/3}
   ↳.ai-agent j-review-plan.md §D::check block success uses BLOCK-scoped test cmds;full-suite in block=issue+fix;refs tddab-planner tiers
   ↳.ai-agent commit 4c4d642{VERSION 2.22.3;run-test PASSED}
+  ↳parent commit::43b64b6{MB only}
+>step03-develop-close-align-tiers✓{EXECUTE+VERIFY4/4}
+  ↳.ai-agent j-develop.md::run tests FOCUSED while developing{:101,:105};per-step gate BLOCK{:121};completion FULL{:133};internal check per-step→block-scoped
+  ↳.ai-agent j-close.md:82::FULL suite all projects as pre-merge barrier
+  ↳.ai-agent commit 2386017{VERSION 2.22.4;run-test PASSED};parent b8fca02 records .ai-agent pointer{includes user's branch switch}
   ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]

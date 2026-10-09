@@ -14,7 +14,8 @@
 ✓plan.md FINAL REVIEW{1212 tests}
 ✓rules-step01-planner-test-tiers{.ai-agent fccfec6}
 ✓rules-step02-review-plan-flags-full-suite{.ai-agent 4c4d642}
-?develop::plan-rules.md 03→04
+✓rules-step03-develop-close-align-tiers{.ai-agent 2386017;pointer b8fca02}
+?develop::plan-rules.md 04{release 2.1.0}
 ✓block06-redkey-full-length{redKey collision fixed}
 ?j-close::full BTLT+npm publish{userOK}+close#11+push .ai-agent branch{userOK}
 
