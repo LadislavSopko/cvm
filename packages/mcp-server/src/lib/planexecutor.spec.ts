@@ -2,12 +2,12 @@ import { describe, it, expect, beforeAll, afterAll } from 'vitest';
 import { VMManager } from '@cvm/vm';
 import { FileStorageAdapter } from '@cvm/storage';
 import { SandboxedFileSystem } from '@cvm/vm';
-import { readFileSync, writeFileSync, mkdirSync, rmSync } from 'fs';
+import { readFileSync, writeFileSync, mkdirSync, rmSync, existsSync } from 'fs';
 import { resolve, join } from 'path';
 import { tmpdir } from 'os';
 
 const WORKSPACE_ROOT = resolve(process.cwd(), '../..');
-const EXECUTOR_PATH = resolve(WORKSPACE_ROOT, 'test/programs/tddab/planexecutor.ts');
+const EXECUTOR_PATH = resolve(WORKSPACE_ROOT, 'apps/cvm-server/programs/planexecutor.ts');
 
 function toRedKey(test: string): string {
   return test.replace(/[^a-zA-Z0-9 ]/g, '').trim().substring(0, 40).trim().replace(/ +/g, '_').toLowerCase();
@@ -398,6 +398,77 @@ describe('planexecutor', () => {
       expect(prompts.filter(p => p.includes('FIX PHASE'))).toHaveLength(0);
       expect(prompts.filter(p => p.includes('RE-VERIFY'))).toHaveLength(0);
       expect(prompts.filter(p => p.includes('CROSS-CHECK'))).toHaveLength(1);
+    });
+  });
+
+  // Drives one TDDAB block with red tests "one" and "two" (redKeys test_one, test_two).
+  // VERIFY/RE-VERIFY -> "passed"; each CROSS-CHECK prompt consumes the next entry of
+  // crossCheckAnswers (the last one repeats); anything else -> "done".
+  async function runBlock(execId: string, crossCheckAnswers: string[]): Promise<string[]> {
+    const vm = createVMManager();
+    await vm.initialize();
+    const uplan = makeUplan([
+      { id: '01-cc', title: 'Cross Check', intro: 'Cross-check intro', red: '- test one\n- test two', success: '- [ ] cc done' },
+    ]);
+    writeFileSync(join(cvmDir, 'uplan.json'), uplan);
+    rmSync(join(cvmDir, 'uplan-progress.json'), { force: true });
+    const source = readFileSync(EXECUTOR_PATH, 'utf-8');
+    await vm.loadProgram('pe-' + execId, source);
+    await vm.startExecution('pe-' + execId, 'exec-' + execId);
+
+    const prompts: string[] = [];
+    let ci = 0;
+    let next = await vm.getNext('exec-' + execId);
+    while (next.type === 'waiting') {
+      if (prompts.length > 200) {
+        throw new Error('runaway loop');
+      }
+      const msg = next.message || '';
+      prompts.push(msg);
+      let response = 'done';
+      if (msg.includes('CROSS-CHECK')) {
+        response = crossCheckAnswers[Math.min(ci, crossCheckAnswers.length - 1)];
+        ci++;
+      } else if (msg.includes('VERIFY PHASE') || msg.includes('RE-VERIFY')) {
+        response = 'passed';
+      }
+      await vm.reportCCResult('exec-' + execId, response);
+      next = await vm.getNext('exec-' + execId);
+    }
+    await vm.dispose();
+    return prompts;
+  }
+
+  describe('cross-check submit wording and JSON extraction', () => {
+    it('loads planexecutor from apps/cvm-server/programs and no longer from test/programs/tddab', () => {
+      expect(EXECUTOR_PATH).toBe(resolve(WORKSPACE_ROOT, 'apps/cvm-server/programs/planexecutor.ts'));
+      expect(existsSync(resolve(WORKSPACE_ROOT, 'apps/cvm-server/programs/planexecutor.ts'))).toBe(true);
+      expect(existsSync(resolve(WORKSPACE_ROOT, 'test/programs/tddab/planexecutor.ts'))).toBe(false);
+    });
+
+    it('CROSS-CHECK prompt asks to submit via cvm_submitTask, not to respond in chat', async () => {
+      const prompts = await runBlock('cc-wording', ['{"test_one": true, "test_two": true}']);
+      const cc = prompts.find(p => p.includes('CROSS-CHECK')) || '';
+      expect(cc).toContain('cvm_submitTask');
+      expect(cc).toContain('never as a chat message');
+      expect(cc).not.toContain('Respond ONLY with the completed JSON');
+    });
+
+    it('accepts an all-true answer wrapped in a json code fence', async () => {
+      const prompts = await runBlock('cc-fence', ['```json\n{"test_one": true, "test_two": true}\n```']);
+      expect(prompts.some(p => p.includes('cross-check fix'))).toBe(false);
+      expect(prompts.some(p => p.includes('UPDATE MEMORY BANK'))).toBe(true);
+    });
+
+    it('accepts an all-true JSON object surrounded by prose', async () => {
+      const prompts = await runBlock('cc-prose', ['Here is the result: {"test_one": true, "test_two": true} all good']);
+      expect(prompts.some(p => p.includes('cross-check fix'))).toBe(false);
+      expect(prompts.some(p => p.includes('UPDATE MEMORY BANK'))).toBe(true);
+    });
+
+    it('detects a false value inside a fenced answer and issues the cross-check FIX PHASE', async () => {
+      const prompts = await runBlock('cc-false', ['```json\n{"test_one": true, "test_two": false}\n```']);
+      expect(prompts.some(p => p.includes('FIX PHASE') && p.includes('cross-check fix'))).toBe(true);
     });
   });
 });

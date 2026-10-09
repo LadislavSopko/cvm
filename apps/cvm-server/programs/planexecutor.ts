@@ -16,6 +16,7 @@ function main() {
 
   var submitDone = " Submit ONLY one word: done.";
   var submitTest = " Do all checking in your tool calls. Submit ONLY one word: passed or failed.";
+  var submitJson = " Do all checking in your tool calls. Submit ONLY the completed JSON as your cvm_submitTask result, never as a chat message.";
   var toolsReminder = " Use Read, Edit, Write, Bash and code navigation tools (LSAI, vs-mcp, xmp4) for file operations, commands and code inspection.";
 
   var planType = data.type;
@@ -184,11 +185,16 @@ function main() {
         "Use code navigation tools to verify EACH test exists in actual test file(s). " +
         "REQUIRED TESTS: " + block.red + " " +
         "Complete this JSON — set each value to true (test exists) or false (missing): " +
-        jsonTemplate + " " +
-        "Respond ONLY with the completed JSON. NOTHING else." + toolsReminder);
+        jsonTemplate + toolsReminder + submitJson);
+
+      var jsStart = crossCheckResponse.indexOf("{");
+      var jsEnd = crossCheckResponse.lastIndexOf("}");
+      var checkResults = null;
+      if (jsStart >= 0 && jsEnd > jsStart) {
+        checkResults = JSON.parse(crossCheckResponse.substring(jsStart, jsEnd + 1));
+      }
 
       var crossCheckPassed = true;
-      var checkResults = JSON.parse(crossCheckResponse);
       for (var crKey in checkResults) {
         if (checkResults[crKey] === false) {
           crossCheckPassed = false;

@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [STATUS]
-@state::PLAN{awaitingUserApproval}
+@state::DEVELOP{j-cvm-exec-plan plan.md}
 @feature::07-agent-loop-robustness
 @branch::feature/07-agent-loop-robustness{pushed;lastCommit 4a55e77}
 @date::2026-10-09
@@ -43,6 +43,15 @@
 >j-review-plan#1::fixes applied{block04 split into vm04+mcp05;typecheck guards;deterministic error program}
 >j-review-plan#2::fixes applied{tddab-e2e would HANG after02→answer from template;200-prompt runaway guard all drivers;mission: submitTask resumes VM+BUILTIN path+nx test vm}
 §lesson::LSAI auto-opened only JS workspace→symbol queries hit main.cjs/.nx cache;open TS workspace{lsai_workspace_open language=TypeScript}→cvm-typescript-2
+
+[EXEC]
+@run::run-07-20261009{mcp__cvm published v1.2.0;planexecutor builtin OLD→#11 bug seen live at CROSS-CHECK:"Respond ONLY…"→submitted JSON via tool}
+>block01✓{RED+GREEN+VERIFY7/7+CROSSCHECK5/5}
+  ↳git mv planexecutor→apps/cvm-server/programs/;vite copy src updated;EXECUTOR_PATH updated{planexecutor.spec+tddab-e2e.spec}
+  ↳submitJson const+CROSS-CHECK ends toolsReminder+submitJson;JSON extracted indexOf{/lastIndexOf}/substring
+  ↳planexecutor.spec::runBlock driver{200-prompt guard}+5 tests
+  ↳gate::build6✓+typecheck7✓+test mcp-server113✓+cvm-server4✓{block-scoped}
+  ↳note::.cvm/uplan-progress.json of 06 moved to .cvm/uplan-progress.06-drop-mongodb.bak
 
 [PENDING-USER]
 ?approve plan→j-develop|j-cvm-exec-plan

@@ -9,7 +9,7 @@ import { resolve } from 'path';
 const WORKSPACE_ROOT = resolve(process.cwd(), '../..');
 const SAMPLE_PLAN_PATH = resolve(WORKSPACE_ROOT, 'test/programs/tddab/sample-plan.md');
 const SAMPLE_STEP_PLAN_PATH = resolve(WORKSPACE_ROOT, 'test/programs/tddab/sample-step-plan.md');
-const EXECUTOR_PATH = resolve(WORKSPACE_ROOT, 'test/programs/tddab/planexecutor.ts');
+const EXECUTOR_PATH = resolve(WORKSPACE_ROOT, 'apps/cvm-server/programs/planexecutor.ts');
 
 describe('TDDAB E2E Pipeline', () => {
   const uplanDir = resolve(process.cwd(), '.cvm');
