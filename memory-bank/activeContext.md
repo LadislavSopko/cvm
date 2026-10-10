@@ -1,13 +1,21 @@
 §MBEL:5.0
 
 [STATUS]
-@state::PLAN
+@state::DEVELOP
 @feature::09-mcp-sdk-v2
 @branch::feature/09-mcp-sdk-v2
 @plan::tasks/09-mcp-sdk-v2/plan.md{tddab;4 blocks;19 redKeys;parsePlan valid;reviewed x2}
 @decisions09::serveStdio both eras;Actions v7(checkout 3d3c42e,setup-node 949feb2);release 3.0.0;zod ^4.2 required(zod3 fails at runtime);toolchain out
 @lastClosed::08-e2e-and-compiler-fixes{j-close 2026-10-10;merged→main bb3f741;pushed;history.md §2026-10-10}
 @submodule::.ai-agent→branch feature/06-tddab-review{pushed;user keeps it;¬change}
+
+[EXEC-09]
+@run::run-09-sdk-v2{planexecutor 2.1.1;.cvm/uplan-progress.08-remediation.bak = old progress}
+>B01-sdk-v2-server-and-zod4✓{RED2fail+3guard;GREEN;VERIFY5/5;CROSSCHECK5/5}
+  ↳@modelcontextprotocol/server ^2.3.1+zod ^4.2.0 in mcp-server+apps/cvm-server;imports from server root,StdioServerTransport from /stdio;15 inputSchema→z.object;vite externals /^@modelcontextprotocol\//
+  ↳lock:-817 lines(v1 sdk gone);bundle requires @modelcontextprotocol/server(+/stdio) external;stdout 0 bytes
+  ↳!e2e client still imports @modelcontextprotocol/sdk→broken until B03(root devDep client added in B02)
+  ↳gate::build6+typecheck7+lint7+mcp156+cvm-server7✓
 
 [OPEN]
 ?release::cvm-server version 2.1.1 vs 3.0.0{recommended 3.0.0: engines node>=22,sandbox default cwd,compile rejects syntax errors,delete nonce,instruction budget}→user decides;2.1.1 NOT on npm yet

@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2025-2026 Ladislav Sopko
 
-import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import { 
-  JSONRPCMessage, 
-  CallToolRequest, 
+import type {
+  Transport,
+  JSONRPCMessage,
+  CallToolRequest,
   CallToolResult,
   InitializeRequest,
   Tool
-} from '@modelcontextprotocol/sdk/types.js';
+} from '@modelcontextprotocol/server';
 
 // CVM tools only ever return text content, so tests read content[i].text directly.
 export type TextToolResult = Omit<CallToolResult, 'content'> & {

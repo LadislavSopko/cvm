@@ -53,7 +53,7 @@ export default defineConfig({
       // External packages that should not be bundled into your library.
       // Third-party dependencies are automatically externalized by @nx/vite:build
       external: [
-        '@modelcontextprotocol/sdk',
+        /^@modelcontextprotocol\//,
         'zod',
         'pino',
         'dotenv',

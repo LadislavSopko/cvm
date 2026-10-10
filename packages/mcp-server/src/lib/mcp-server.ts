@@ -1,11 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2025-2026 Ladislav Sopko
 
-import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
-import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
-import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import { CallToolResult } from '@modelcontextprotocol/sdk/types.js';
-import { z } from 'zod';
+import { McpServer, type CallToolResult, type Transport } from '@modelcontextprotocol/server';
+import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
+import * as z from 'zod';
 import { VMManager, SandboxedFileSystem } from '@cvm/vm';
 import { FileStorageAdapter } from '@cvm/storage';
 import { readFile, writeFile, mkdir, rename } from 'fs/promises';
@@ -105,7 +103,7 @@ export class CVMMcpServer {
       'server_info',
       {
         description: 'Return the server name, version and the number of loaded programs and executions.',
-        inputSchema: {}
+        inputSchema: z.object({})
       },
       this.withErrors(async () => {
         const programs = await this.vmManager.listPrograms();
@@ -128,10 +126,10 @@ export class CVMMcpServer {
       'load',
       {
         description: 'Compile a CVM program from source and store it under programId.',
-        inputSchema: {
+        inputSchema: z.object({
           programId: z.string(),
           source: z.string()
-        }
+        })
       },
       this.withErrors(async ({ programId, source }) => {
         await this.vmManager.loadProgram(programId, source);
@@ -145,10 +143,10 @@ export class CVMMcpServer {
       'loadFile',
       {
         description: 'Compile a CVM program from a file (or the built-in @planexecutor) and store it under programId.',
-        inputSchema: {
+        inputSchema: z.object({
           programId: z.string(),
           filePath: z.string()
-        }
+        })
       },
       this.withErrors(async ({ programId, filePath }) => {
         try {
@@ -186,11 +184,11 @@ export class CVMMcpServer {
       'start',
       {
         description: 'Start a new execution of a loaded program; by default it becomes the current execution. Then call getTask.',
-        inputSchema: {
+        inputSchema: z.object({
           programId: z.string(),
           executionId: z.string(),
           setCurrent: z.boolean().optional()
-        }
+        })
       },
       this.withErrors(async ({ programId, executionId, setCurrent = true }) => {
         await this.vmManager.startExecution(programId, executionId);
@@ -210,9 +208,9 @@ export class CVMMcpServer {
       'getTask',
       {
         description: 'Return the next cognitive task (CC prompt) of the current or given execution, or its completion/error status. Loop: getTask, do the work, submitTask, then getTask again until the execution is completed.',
-        inputSchema: {
+        inputSchema: z.object({
           executionId: z.string().optional()
-        }
+        })
       },
       this.withErrors(async ({ executionId }) => {
         const execId = await this.resolveExecutionId(executionId, NO_CURRENT_HINT);
@@ -249,10 +247,10 @@ export class CVMMcpServer {
       'submitTask',
       {
         description: 'Submit the result of the current task and resume the execution. Loop: getTask, do the work, submitTask, then getTask again until the execution is completed.',
-        inputSchema: {
+        inputSchema: z.object({
           executionId: z.string().optional(),
           result: z.string()
-        }
+        })
       },
       this.withErrors(async ({ executionId, result }) => {
         const execId = await this.resolveExecutionId(executionId);
@@ -283,9 +281,9 @@ export class CVMMcpServer {
       'status',
       {
         description: 'Return the state, pc, stack and variables of the current or given execution.',
-        inputSchema: {
+        inputSchema: z.object({
           executionId: z.string().optional()
-        }
+        })
       },
       this.withErrors(async ({ executionId }) => {
         const execId = await this.resolveExecutionId(executionId);
@@ -302,7 +300,7 @@ export class CVMMcpServer {
       'list_executions',
       {
         description: 'List all executions with their state and current prompt, marking the current one.',
-        inputSchema: {}
+        inputSchema: z.object({})
       },
       this.withErrors(async () => {
         const executions = await this.vmManager.listExecutions();
@@ -330,9 +328,9 @@ export class CVMMcpServer {
       'get_execution',
       {
         description: 'Return details of the current or given execution, including the pending prompt and attempts.',
-        inputSchema: {
+        inputSchema: z.object({
           executionId: z.string().optional()
-        }
+        })
       },
       this.withErrors(async ({ executionId }) => {
         const execId = await this.resolveExecutionId(executionId);
@@ -369,9 +367,9 @@ export class CVMMcpServer {
       'set_current',
       {
         description: 'Make the given execution the current one used by tools called without executionId.',
-        inputSchema: {
+        inputSchema: z.object({
           executionId: z.string()
-        }
+        })
       },
       this.withErrors(async ({ executionId }) => {
         await this.vmManager.setCurrentExecutionId(executionId);
@@ -385,10 +383,10 @@ export class CVMMcpServer {
       'delete_execution',
       {
         description: 'Delete an execution in two steps: call without confirmToken to get a single-use token (valid 5 minutes), then call again with it.',
-        inputSchema: {
+        inputSchema: z.object({
           executionId: z.string(),
           confirmToken: z.string().optional()
-        }
+        })
       },
       this.withErrors(async ({ executionId, confirmToken }) => {
         if (!confirmToken) {
@@ -423,7 +421,7 @@ export class CVMMcpServer {
       'list_programs',
       {
         description: 'List all loaded programs.',
-        inputSchema: {}
+        inputSchema: z.object({})
       },
       this.withErrors(async () => {
         const programs = await this.vmManager.listPrograms();
@@ -451,10 +449,10 @@ export class CVMMcpServer {
       'delete_program',
       {
         description: 'Delete a program in two steps: call without confirmToken to get a single-use token (valid 5 minutes), then call again with it.',
-        inputSchema: {
+        inputSchema: z.object({
           programId: z.string(),
           confirmToken: z.string().optional()
-        }
+        })
       },
       this.withErrors(async ({ programId, confirmToken }) => {
         if (!confirmToken) {
@@ -489,10 +487,10 @@ export class CVMMcpServer {
       'restart',
       {
         description: 'Start a fresh execution of a program and make it current.',
-        inputSchema: {
+        inputSchema: z.object({
           programId: z.string(),
           executionId: z.string().optional()
-        }
+        })
       },
       this.withErrors(async ({ programId, executionId }) => {
         const execId = await this.vmManager.restartExecution(programId, executionId);
@@ -506,7 +504,7 @@ export class CVMMcpServer {
       'parsePlan',
       {
         description: 'Validate a TDDAB or step plan (single file or index with <files>) and write .cvm/uplan.json for the @planexecutor program.',
-        inputSchema: { filePath: z.string() }
+        inputSchema: z.object({ filePath: z.string() })
       },
       this.withErrors(async ({ filePath }) => {
         const resolvedPath = resolve(filePath);
