@@ -43,6 +43,7 @@ describe('VM - String method opcodes', () => {
       const bytecode = [
         { op: OpCode.PUSH, arg: 'Hello, World!' },
         { op: OpCode.PUSH, arg: 7 },
+        { op: OpCode.PUSH_UNDEFINED },
         { op: OpCode.STRING_SUBSTRING },
         { op: OpCode.HALT }
       ];

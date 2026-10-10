@@ -230,44 +230,14 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
 
   // String method handlers
   [OpCode.STRING_SUBSTRING]: {
-    stackIn: 2, // Minimum 2 (string, start), optionally 3 (string, start, end)
+    stackIn: 3,
     stackOut: 1,
     execute: (state, instruction) => {
-      // The compiler pushes: string, start, [end]
-      // So we pop in reverse order: [end], start, string
-      
-      if (state.stack.length < 2) {
-        return {
-          type: 'StackUnderflow',
-          message: 'STRING_SUBSTRING: Stack underflow',
-          pc: state.pc,
-          opcode: instruction.op
-        };
-      }
-      
-      // First check how many arguments we have
-      const stackSize = state.stack.length;
-      let str: CVMValue;
-      let start: number;
-      let end: number | undefined;
-      
-      // Save the current stack to restore if we need to check argument count
-      const arg1 = state.stack[stackSize - 1]; // Top of stack
-      const arg2 = state.stack[stackSize - 2]; // Second from top
-      
-      // Check if we have 3 arguments (string, start, end)
-      if (stackSize >= 3 && typeof arg1 === 'number' && typeof arg2 === 'number') {
-        // Three arguments case
-        end = state.stack.pop() as number;
-        start = state.stack.pop() as number;
-        str = state.stack.pop()!;
-      } else {
-        // Two arguments case
-        start = state.stack.pop() as number;
-        str = state.stack.pop()!;
-        end = undefined;
-      }
-      
+      const endVal = state.stack.pop()!;
+      let start = state.stack.pop() as number;
+      const str = state.stack.pop()!;
+      let end = isCVMUndefined(endVal) ? undefined : endVal as number;
+
       if (!isCVMString(str)) {
         return {
           type: 'RuntimeError',

@@ -93,6 +93,12 @@
   ↳FIX::import from 'crypto' not 'node:crypto'(vite externals list only has bare names)
   ↳specs updated::execution/program-management error text;old 'delete-prog1-' format assertion→expiresInSeconds 300
   ↳gate::build6+typecheck7+mcp145✓
+  ↳commit::6de9351
+>R05-method-dispatch-table✓{RED;GREEN;VERIFY4/4;CROSSCHECK6/6}
+  ↳method-table.ts METHODS(24 receiver methods:op+args defaults+required);call-expression.ts generic emitter(Object.hasOwn lookup);every optional arg always pushes→fixed stack contract
+  ↳advanced.ts STRING_SUBSTRING stackIn3,undefined end=to end(no arity guessing);vm-string-methods hand-built bytecode adds PUSH_UNDEFINED
+  ↳removed unreachable return; after reportError(match,fs.writeFile,Object.keys)
+  ↳gate::build6+typecheck7+parser253+vm730✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}
