@@ -1,7 +1,7 @@
 §MBEL:5.0
 
 [STATUS]
-@state::DEVELOP
+@state::TEST{plan 4/4 done;ready for j-close}
 @feature::09-mcp-sdk-v2
 @branch::feature/09-mcp-sdk-v2
 @plan::tasks/09-mcp-sdk-v2/plan.md{tddab;4 blocks;19 redKeys;parsePlan valid;reviewed x2}
