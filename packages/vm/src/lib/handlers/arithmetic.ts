@@ -9,7 +9,7 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.ADD]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const right = state.stack.pop()!;
       const left = state.stack.pop()!;
       
@@ -28,7 +28,7 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.SUB]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const right = state.stack.pop()!;
       const left = state.stack.pop()!;
       
@@ -42,7 +42,7 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.MUL]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const right = state.stack.pop()!;
       const left = state.stack.pop()!;
       
@@ -80,7 +80,7 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.MOD]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const right = state.stack.pop()!;
       const left = state.stack.pop()!;
       
@@ -94,7 +94,7 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.UNARY_MINUS]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const value = state.stack.pop()!;
       
       const num = cvmToNumber(value);
@@ -106,7 +106,7 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.UNARY_PLUS]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const value = state.stack.pop()!;
       
       const num = cvmToNumber(value);

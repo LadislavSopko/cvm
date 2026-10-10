@@ -146,7 +146,7 @@ describe('Regex VM Handler', () => {
         { pattern: '+', flags: '', description: 'invalid pattern start' }
       ];
 
-      invalidCases.forEach(({ pattern, flags, description }) => {
+      invalidCases.forEach(({ pattern, flags }) => {
         const vm = new VM();
         
         const result = vm.execute([

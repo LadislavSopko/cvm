@@ -147,7 +147,7 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.JSON_STRINGIFY]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const value = state.stack.pop()!;
       
       const jsValue = cvmValueToJs(value, state.heap);
@@ -159,7 +159,7 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.OBJECT_KEYS]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const value = state.stack.pop()!;
       
       if (isCVMObjectRef(value)) {

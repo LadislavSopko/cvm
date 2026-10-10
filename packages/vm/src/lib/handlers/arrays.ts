@@ -57,7 +57,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.ARRAY_NEW]: {
     stackIn: 0,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const array = createCVMArray();
       const ref = state.heap.allocate('array', array);
       state.stack.push(ref);

@@ -73,7 +73,7 @@ class MemoryStorage implements StorageAdapter {
     return null;
   }
 
-  async setCurrentExecutionId(executionId: string | null): Promise<void> {
+  async setCurrentExecutionId(_executionId: string | null): Promise<void> {
     // No-op for testing
   }
 }

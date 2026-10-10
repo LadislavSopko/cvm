@@ -50,8 +50,7 @@ export const compilePrefixUnaryExpression: ExpressionVisitor<ts.PrefixUnaryExpre
 
 export const compilePostfixUnaryExpression: ExpressionVisitor<ts.PostfixUnaryExpression> = (
   node,
-  state,
-  { compileExpression }
+  state
 ) => {
   // Handle post-increment and post-decrement: x++, x--
   switch (node.operator) {

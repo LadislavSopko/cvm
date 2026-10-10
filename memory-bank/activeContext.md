@@ -148,6 +148,13 @@
   ↳mcp-server.ts 15 tools via registerTool{description,inputSchema};withErrors(:86) single catch;resolveExecutionId(:99,missing=NO_CURRENT_ERROR|NO_CURRENT_HINT for getTask);loadFile catch only maps ENOENT/EACCES then rethrows
   ↳test-transport listTools();mcp-server-tools.spec 5 tests;names/schemas/texts unchanged(existing specs untouched)
   ↳gate::build6+typecheck7+mcp151✓
+  ↳commit::8147df7
+>R15-eslint✓{RED;GREEN;VERIFY3/3;CROSSCHECK3/3}
+  ↳eslint.config.mjs(js+tseslint recommended;no-unused-vars ^_;no-explicit-any warn(158);no-unreachable;ignores dist,node_modules,.nx,html,coverage,tasks,test/programs,apps/cvm-server/programs;*.cjs commonjs override);nx.json @nx/eslint/plugin targetName lint;devDeps eslint,typescript-eslint,@nx/eslint 21.3.11,@eslint/js
+  ↳fixed errors:unused params dropped/_prefixed,unused catch→catch{},prefer-const,empty catch→.catch(()=>undefined)
+  ↳!logger.ts require→ESM `import { pino }`+fs/path;needed types vite external ['pino','fs','path'] and app vite external 'pino' (else pino browser build logs to STDOUT = breaks MCP stdio);smoke:stdout 0 bytes
+  ↳!incident::my `pkill -f dist/main.cjs` killed the cvm-dbg MCP server → user must restart it
+  ↳gate::build6+typecheck7+lint7+tests all 7 projects✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

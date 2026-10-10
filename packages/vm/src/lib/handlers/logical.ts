@@ -9,7 +9,7 @@ export const logicalHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.AND]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const right = state.stack.pop()!;
       const left = state.stack.pop()!;
       
@@ -24,7 +24,7 @@ export const logicalHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.OR]: {
     stackIn: 2,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const right = state.stack.pop()!;
       const left = state.stack.pop()!;
       
@@ -39,7 +39,7 @@ export const logicalHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.NOT]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const value = state.stack.pop()!;
       
       const result = !cvmToBoolean(value);

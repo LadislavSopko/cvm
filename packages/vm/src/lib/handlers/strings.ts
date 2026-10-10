@@ -98,7 +98,7 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.TYPEOF]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const value = state.stack.pop()!;
       
       state.stack.push(cvmTypeof(value));

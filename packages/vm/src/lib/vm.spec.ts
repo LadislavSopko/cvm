@@ -158,7 +158,7 @@ describe('VM', () => {
 
     it('should handle backward jumps for loops', () => {
       const vm = new VM();
-      let state = vm.execute([
+      const state = vm.execute([
         { op: OpCode.PUSH, arg: 0 }, // Counter
         { op: OpCode.STORE, arg: 'i' },
         // Loop start (PC=2)

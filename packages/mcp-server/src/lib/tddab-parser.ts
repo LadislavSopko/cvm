@@ -117,9 +117,9 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
 
     let title = '';
     let intro = '';
-    let redTests: string[] = [];
+    const redTests: string[] = [];
     let isAction = false;
-    let successItems: string[] = [];
+    const successItems: string[] = [];
     let blockEndLine = -1;
     let hasIntro = false;
     let hasRed = false;

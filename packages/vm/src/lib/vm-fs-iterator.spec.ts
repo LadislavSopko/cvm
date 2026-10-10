@@ -6,7 +6,7 @@ import { FileSystemService } from './file-system.js';
 
 // Mock FileSystemService
 class MockFileSystemService implements FileSystemService {
-  listFiles(filePath: string, options?: any) {
+  listFiles(filePath: string) {
     if (filePath === '/test') {
       return createCVMArray([
         '/test/file1.txt',
@@ -21,7 +21,7 @@ class MockFileSystemService implements FileSystemService {
     return `Content of ${filePath}`;
   }
 
-  writeFile(filePath: string, content: string): boolean {
+  writeFile(_filePath: string): boolean {
     return true;
   }
 }

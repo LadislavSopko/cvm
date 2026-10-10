@@ -13,7 +13,7 @@ export const objectIteratorHandlers: Record<string, OpcodeHandler> = {
   [OpCode.OBJECT_ITER_START]: {
     stackIn: 1,
     stackOut: 0,
-    execute: (state, instruction) => {
+    execute: (state) => {
       const value = state.stack.pop()!;
       
       if (isCVMObjectRef(value)) {
@@ -63,7 +63,7 @@ export const objectIteratorHandlers: Record<string, OpcodeHandler> = {
   [OpCode.OBJECT_ITER_NEXT]: {
     stackIn: 0,
     stackOut: 2, // Push key and hasNext
-    execute: (state, instruction) => {
+    execute: (state) => {
       const iterator = state.iterators[state.iterators.length - 1];
       
       if (iterator && iterator.index < iterator.length && iterator.keys) {

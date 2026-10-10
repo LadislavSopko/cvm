@@ -8,7 +8,7 @@ import { ExpressionVisitor } from '../visitor-types.js';
 export const compileStringLiteral: ExpressionVisitor<ts.StringLiteral> = (
   node,
   state,
-  context
+  _context
 ) => {
   state.emit(OpCode.PUSH, node.text);
 };
@@ -16,7 +16,7 @@ export const compileStringLiteral: ExpressionVisitor<ts.StringLiteral> = (
 export const compileNumericLiteral: ExpressionVisitor<ts.NumericLiteral> = (
   node,
   state,
-  context
+  _context
 ) => {
   state.emit(OpCode.PUSH, Number(node.text));
 };
@@ -24,7 +24,7 @@ export const compileNumericLiteral: ExpressionVisitor<ts.NumericLiteral> = (
 export const compileTrue: ExpressionVisitor = (
   node,
   state,
-  context
+  _context
 ) => {
   state.emit(OpCode.PUSH, true);
 };
@@ -32,7 +32,7 @@ export const compileTrue: ExpressionVisitor = (
 export const compileFalse: ExpressionVisitor = (
   node,
   state,
-  context
+  _context
 ) => {
   state.emit(OpCode.PUSH, false);
 };
@@ -40,7 +40,7 @@ export const compileFalse: ExpressionVisitor = (
 export const compileNull: ExpressionVisitor = (
   node,
   state,
-  context
+  _context
 ) => {
   state.emit(OpCode.PUSH, null);
 };
@@ -48,7 +48,7 @@ export const compileNull: ExpressionVisitor = (
 export const compileRegularExpressionLiteral: ExpressionVisitor<ts.RegularExpressionLiteral> = (
   node,
   state,
-  context
+  _context
 ) => {
   // Extract pattern and flags from regex literal text
   const text = node.text; // e.g., "/hello/gi"

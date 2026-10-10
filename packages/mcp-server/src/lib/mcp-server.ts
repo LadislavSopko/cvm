@@ -629,7 +629,7 @@ export class CVMMcpServer {
         const dataDir = resolve(this.dataDir);
         await mkdir(dataDir, { recursive: true });
         const uplanPath = resolve(dataDir, 'uplan.json');
-        try { await rename(uplanPath, uplanPath + '.bak'); } catch {}
+        await rename(uplanPath, uplanPath + '.bak').catch(() => undefined);
         await writeFile(uplanPath, JSON.stringify(uplanData, null, 2), 'utf-8');
 
         return {

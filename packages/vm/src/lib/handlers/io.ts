@@ -21,7 +21,7 @@ export const ioHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 0,
     controlsPC: true, // CC pauses execution
-    execute: (state, instruction) => {
+    execute: (state) => {
       const prompt = state.stack.pop()!; // Safe: VM validates stack before calling
       state.ccPrompt = cvmToString(prompt);
       state.status = 'waiting_cc';

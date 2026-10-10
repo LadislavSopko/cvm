@@ -38,7 +38,7 @@ async function main() {
           version = packageJson.version;
           break;
         }
-      } catch (e) {
+      } catch {
         // Try next path
       }
     }

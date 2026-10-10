@@ -19,7 +19,7 @@ describe('FileStorageAdapter', () => {
     // Clean up test directory
     try {
       await fs.rm(testDir, { recursive: true });
-    } catch (e) {
+    } catch {
       // Ignore if doesn't exist
     }
   });

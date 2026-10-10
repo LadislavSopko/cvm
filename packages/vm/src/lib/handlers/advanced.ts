@@ -12,7 +12,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 0,
     stackOut: 0,
     controlsPC: true,
-    execute: (state, instruction) => {
+    execute: (state) => {
       // Pop return value from stack (or use null if empty)
       const returnValue = state.stack.pop() ?? null;
       state.returnValue = returnValue;

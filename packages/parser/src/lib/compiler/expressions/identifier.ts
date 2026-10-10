@@ -8,7 +8,7 @@ import { ExpressionVisitor } from '../visitor-types.js';
 export const compileIdentifier: ExpressionVisitor<ts.Identifier> = (
   node,
   state,
-  context
+  _context
 ) => {
   if (node.text === 'undefined') {
     state.emit(OpCode.PUSH_UNDEFINED);
