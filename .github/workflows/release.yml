@@ -12,12 +12,7 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  gate:
-    if: github.repository == 'LadislavSopko/cvm'
-    uses: ./.github/workflows/ci.yml
-
   publish:
-    needs: gate
     if: github.repository == 'LadislavSopko/cvm' && github.ref == 'refs/heads/production'
     runs-on: ubuntu-latest
     environment: production

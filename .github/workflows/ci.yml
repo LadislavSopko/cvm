@@ -1,21 +1,19 @@
 name: CI
 
 on:
-  push:
-    branches: [main, production]
   pull_request:
-    branches: [main, production]
-  workflow_call:
+    branches: [production]
 
 permissions:
   contents: read
 
 concurrency:
-  group: ci-${{ github.workflow }}-${{ github.ref }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 
 jobs:
   verify:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'main'
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4

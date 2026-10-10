@@ -166,11 +166,11 @@
   ↳e2e-outcome.ts defaultSandboxPath(cwd);mcp-test-client uses it(no /home/laco)
   ↳!fix::apps/cvm-server build target lacked dependsOn ^build→clean checkout build failed(@cvm/mcp-server dist missing);added
   ↳local CI proof(clean copy,Node22.14,rewritten lock)::npm ci+build6+typecheck7+lint7+test7+e2e64/64✓
->CICD-prepared(user request 2026-10-10,after plan;user configures tonight)
-  ↳ci.yml:push+PR on main/production+workflow_call;permissions read;actions pinned by SHA(checkout v4 11d5960,setup-node v4 49933ea)
-  ↳release.yml:push production only→gate(uses ci.yml)→publish job env production(required reviewer)+id-token write→npm i -g npm@^11.5.1→build→npm publish --provenance(no token/OTP;skip if version exists;'-'→tag next)
-  ↳checklist::tasks/08-e2e-and-compiler-fixes/cicd-setup.md(npm Trusted Publisher release.yml+env production;GitHub env reviewers;Actions read-only+fork approval;rulesets main/production;!creating production publishes 2.1.1)
-  ↳repo-config.spec +3 tests(release only production/OIDC/no token;gate+skip;SHA pinning);actionlint ok
+>CICD-prepared(user request 2026-10-10;user configures tonight)
+  ↳user flow::CI ONLY on PR main→production(ci.yml if head is main of this repo);user merges by hand;push production→CD release.yml(build+publish only,no gate rerun)
+  ↳release.yml:env production+id-token write;npm i -g npm@^11.5.1;npm publish --provenance(no token/OTP;skip existing;'-'→next);actions pinned by SHA
+  ↳only-me locks::no write collaborators;ruleset production(PR+verify,no push/force/delete);fork PR never gets verify;env production branch-only(+optional reviewer);npm trusted publisher(repo+release.yml+env);disallow tokens
+  ↳checklist::tasks/08-e2e-and-compiler-fixes/cicd-setup.md;!creating production publishes 2.1.1
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

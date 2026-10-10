@@ -73,12 +73,17 @@ describe('repository configuration', () => {
     expect(release).not.toMatch(/NPM_TOKEN|NODE_AUTH_TOKEN|secrets\./);
   });
 
-  it('release.yml publishes only after the CI gate passes and skips an already published version', () => {
+  it('ci.yml runs only on a pull request from main to production of this repository', () => {
+    const ci = read('.github/workflows/ci.yml');
+    expect(ci).toMatch(/on:\s*\n\s*pull_request:\s*\n\s*branches: \[production\]\s*\n\s*\npermissions/);
+    expect(ci).toContain("github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'main'");
+  });
+
+  it('release.yml only builds and publishes and skips an already published version', () => {
     const release = read('.github/workflows/release.yml');
-    expect(release).toContain('uses: ./.github/workflows/ci.yml');
-    expect(release).toContain('needs: gate');
+    expect(release).not.toContain('run-all-tests');
+    expect(release).not.toContain('--target=test');
     expect(release).toContain('npm view "cvm-server@$VERSION" version');
-    expect(read('.github/workflows/ci.yml')).toContain('workflow_call:');
   });
 
   it('every workflow action is pinned to a full commit sha', () => {
