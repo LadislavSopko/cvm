@@ -117,17 +117,10 @@ describe('Regex Integration Tests', () => {
         }
       `;
       
-      // Should compile successfully (compiler doesn't validate regex)
+      // An unterminated character class is a syntax error: rejected at compile time
       const compileResult = compile(source);
-      expect(compileResult.success).toBe(true);
-      
-      // Should fail at runtime
-      const vm = new VM();
-      const execResult = vm.execute(compileResult.bytecode);
-      
-      expect(execResult.status).toBe('error');
-      expect(execResult.error).toBeDefined();
-      expect(execResult.error).toContain('Invalid regular expression');
+      expect(compileResult.success).toBe(false);
+      expect(compileResult.errors[0].message).toBe('Unterminated regular expression literal.');
     });
 
     it('should handle invalid flags in source code', () => {
@@ -151,7 +144,7 @@ describe('Regex Integration Tests', () => {
     it('should handle multiple invalid regex in one program', () => {
       const source = `
         function main() {
-          var first = /[unclosed/;
+          var first = /(unclosed/;
           var second = /valid/g;
           var third = /test/xyz;
           return 0;

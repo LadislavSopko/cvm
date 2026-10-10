@@ -13,8 +13,8 @@ function main() {
   console.log("\n--- Invalid Regex (Should Fail) ---");
   console.log("Attempting to create invalid regex...");
   
-  // Invalid pattern - unclosed bracket
-  var invalidPattern = /[unclosed/;
+  // Invalid pattern - unclosed group (valid syntax, rejected when the RegExp is created)
+  var invalidPattern = /(unclosed/;
   
   // This line should never execute
   console.log("✗ ERROR: This should not execute!");

@@ -1,7 +1,8 @@
 §MBEL:5.0
 
 [STATUS]
-@state::TEST{08-e2e-and-compiler-fixes;ready for j-close}
+@state::DEVELOP{08 remediation plan 17 blocks}
+✓R01-syntax-diagnostics
 ✓08-block01-compiler-reports-unsupported
 ✓08-block02-break-in-foreach
 ✓08-block03-slice-string-and-array

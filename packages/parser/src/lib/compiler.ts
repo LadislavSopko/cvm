@@ -3,7 +3,6 @@
 
 import * as ts from 'typescript';
 import { OpCode, Instruction } from './bytecode.js';
-import { parseProgram } from './parser.js';
 import { CompilerState } from './compiler-state.js';
 import { statementVisitors, expressionVisitors, CompilerContext } from './compiler/index.js';
 import { logger } from '@cvm/types';
@@ -20,28 +19,67 @@ export interface CompileResult {
   errors: CompilationError[];
 }
 
+const FORBIDDEN_CALLS = ['setTimeout', 'fetch', 'require', 'import'];
+
+function syntaxErrors(source: string): CompilationError[] {
+  const { diagnostics } = ts.transpileModule(source, {
+    reportDiagnostics: true,
+    compilerOptions: { target: ts.ScriptTarget.ES2022 }
+  });
+  return (diagnostics ?? []).map(d => {
+    const pos = d.file && d.start !== undefined
+      ? d.file.getLineAndCharacterOfPosition(d.start)
+      : { line: -1, character: -1 };
+    return {
+      message: ts.flattenDiagnosticMessageText(d.messageText, ' '),
+      line: pos.line + 1,
+      character: pos.character + 1
+    };
+  });
+}
+
+function programErrors(sourceFile: ts.SourceFile): CompilationError[] {
+  const errors: CompilationError[] = [];
+  const at = (node: ts.Node, message: string): void => {
+    const { line, character } = sourceFile.getLineAndCharacterOfPosition(node.getStart());
+    errors.push({ message, line: line + 1, character: character + 1 });
+  };
+  let mainFn: ts.FunctionDeclaration | undefined;
+  const visit = (node: ts.Node): void => {
+    if (ts.isFunctionDeclaration(node) && node.name?.text === 'main') {
+      mainFn = node;
+    }
+    if (ts.isCallExpression(node) && ts.isIdentifier(node.expression) && FORBIDDEN_CALLS.includes(node.expression.text)) {
+      at(node, `Unsupported function: ${node.expression.text}`);
+    }
+    ts.forEachChild(node, visit);
+  };
+  visit(sourceFile);
+  if (!mainFn) {
+    errors.push({ message: 'Program must have a main() function', line: 0, character: 0 });
+  } else if (mainFn.parameters.length > 0) {
+    at(mainFn, 'main() must not have parameters');
+  }
+  return errors;
+}
+
 export function compile(source: string): CompileResult {
   logger.trace("Compilation starting", { sourceLength: source.length });
   const errors: CompilationError[] = [];
-  const parseResult = parseProgram(source);
-  
-  if (parseResult.errors.length > 0) {
-    // Convert string errors to CompilationError format
-    // For parse errors, we don't have line/char info, so use 0
-    return {
-      success: false,
-      bytecode: [],
-      errors: parseResult.errors.map(err => ({
-        message: err,
-        line: 0,
-        character: 0
-      }))
-    };
+
+  const syntax = syntaxErrors(source);
+  if (syntax.length > 0) {
+    return { success: false, bytecode: [], errors: syntax };
   }
 
   const state = new CompilerState();
   const sourceFile = ts.createSourceFile('program.ts', source, ts.ScriptTarget.Latest, true);
-  
+
+  const programChecks = programErrors(sourceFile);
+  if (programChecks.length > 0) {
+    return { success: false, bytecode: [], errors: programChecks };
+  }
+
   // Create compiler context for visitor pattern
   const context: CompilerContext = {
     compileStatement,

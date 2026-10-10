@@ -74,7 +74,11 @@
 @decisions::limits=instruction budget between CC only;delete=real 2-step nonce;eslint;Node22;toolchain+SDK v2→separate feature;undefined=structural strict eq(no singleton)
 @retracted::audit B3(let = 5 valid JS)→11 bugs proven
 !lsai::warm defining file before name lookups;.lsai/mjsf.json mongodb project removed(0c588de)
-?next::user approves plan→j-cvm-exec-plan remediation/index.md
+@exec::run-08-remediation{planexecutor 2.1.0}
+>R01-syntax-diagnostics✓{RED5fail+2guard;GREEN;VERIFY failed→FIX→RE-VERIFY4/4;CROSSCHECK7/7}
+  ↳compiler.ts:syntaxErrors(ts.transpileModule)+programErrors(main,params,forbidden calls);parser.ts+spec deleted;index no export
+  ↳FIX::TS now rejects /[unclosed/ at compile→regex-integration.spec single-invalid test expects compile error;multi test+e2e regex-literal-errors.ts use /(unclosed/(runtime error kept)
+  ↳gate::build6+typecheck7(no cache)+parser248/vm725/mcp140/integration44✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}
