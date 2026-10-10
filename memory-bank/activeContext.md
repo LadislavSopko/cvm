@@ -87,6 +87,12 @@
 >R03-step-plan-titles✓{RED;GREEN;VERIFY;CROSSCHECK3/3}
   ↳tddab-parser.ts:138 title regex accepts '## TDDAB-N:' and '## Step N:';audit-repro step-title it.fails→it,control test removed;spec describe('block titles')+2
   ↳gate::build6+typecheck7+mcp141✓
+  ↳commit::da0d9d9
+>R04-delete-confirmation-nonce✓{RED;GREEN;VERIFY failed→FIX→RE-VERIFY3/3;CROSSCHECK5/5}
+  ↳delete-confirmation.ts DeleteConfirmations{issue→randomUUID,TTL 300s;consume single-use kind+id+expiry;now injectable};delete_execution/delete_program use it;error 'Invalid or expired confirmation token';response adds expiresInSeconds
+  ↳FIX::import from 'crypto' not 'node:crypto'(vite externals list only has bare names)
+  ↳specs updated::execution/program-management error text;old 'delete-prog1-' format assertion→expiresInSeconds 300
+  ↳gate::build6+typecheck7+mcp145✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

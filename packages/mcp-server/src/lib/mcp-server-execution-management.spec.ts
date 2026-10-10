@@ -196,7 +196,7 @@ describe('CVMMcpServer - Execution Management', () => {
       });
       
       expect(result).toHaveProperty('content');
-      expect((result as any).content[0].text).toContain('Invalid confirmation token');
+      expect((result as any).content[0].text).toContain('Invalid or expired confirmation token');
     });
   });
 });

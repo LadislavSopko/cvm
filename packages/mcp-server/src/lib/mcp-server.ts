@@ -10,6 +10,7 @@ import { readFile, writeFile, mkdir, rename } from 'fs/promises';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
 import { parseTddabPlan, parseFilesTag } from './tddab-parser.js';
+import { DeleteConfirmations, DELETE_TOKEN_TTL_SECONDS } from './delete-confirmation.js';
 
 function deducePlanType(blocks: { isAction: boolean }[]): 'tddab' | 'step' {
   const hasAction = blocks.some(b => b.isAction);
@@ -48,6 +49,7 @@ export class CVMMcpServer {
   private transport: Transport | null = null;
   private vmManager: VMManager;
   private version: string;
+  private deleteConfirmations = new DeleteConfirmations();
 
   constructor(version: string = '0.0.1') {
     this.version = version;
@@ -441,9 +443,6 @@ export class CVMMcpServer {
       },
       async ({ executionId, confirmToken }) => {
         try {
-          // Generate confirmation token
-          const expectedToken = `delete-${executionId}-${Date.now()}`;
-          
           if (!confirmToken) {
             return {
               content: [{ 
@@ -451,14 +450,14 @@ export class CVMMcpServer {
                 text: JSON.stringify({
                   confirmationRequired: true,
                   message: `To delete execution '${executionId}', call this tool again with the confirmation token`,
-                  token: expectedToken
+                  token: this.deleteConfirmations.issue('execution', executionId),
+                  expiresInSeconds: DELETE_TOKEN_TTL_SECONDS
                 }, null, 2)
               }]
             };
           }
           
-          // Validate the token - it should start with "delete-{executionId}-"
-          if (confirmToken && confirmToken.startsWith(`delete-${executionId}-`)) {
+          if (this.deleteConfirmations.consume('execution', executionId, confirmToken)) {
             await this.vmManager.deleteExecution(executionId);
             return {
               content: [{ type: 'text', text: `Execution deleted: ${executionId}` }]
@@ -466,7 +465,7 @@ export class CVMMcpServer {
           }
           
           return {
-            content: [{ type: 'text', text: 'Invalid confirmation token' }],
+            content: [{ type: 'text', text: 'Invalid or expired confirmation token' }],
             isError: true
           };
         } catch (error) {
@@ -520,9 +519,6 @@ export class CVMMcpServer {
       },
       async ({ programId, confirmToken }) => {
         try {
-          // Generate confirmation token
-          const expectedToken = `delete-${programId}-${Date.now()}`;
-          
           if (!confirmToken) {
             return {
               content: [{ 
@@ -530,14 +526,14 @@ export class CVMMcpServer {
                 text: JSON.stringify({
                   confirmationRequired: true,
                   message: `To delete program '${programId}', call this tool again with the confirmation token`,
-                  token: expectedToken
+                  token: this.deleteConfirmations.issue('program', programId),
+                  expiresInSeconds: DELETE_TOKEN_TTL_SECONDS
                 }, null, 2)
               }]
             };
           }
           
-          // Validate the token - it should start with "delete-{programId}-"
-          if (confirmToken && confirmToken.startsWith(`delete-${programId}-`)) {
+          if (this.deleteConfirmations.consume('program', programId, confirmToken)) {
             await this.vmManager.deleteProgram(programId);
             return {
               content: [{ type: 'text', text: `Program deleted: ${programId}` }]
@@ -545,7 +541,7 @@ export class CVMMcpServer {
           }
           
           return {
-            content: [{ type: 'text', text: 'Invalid confirmation token' }],
+            content: [{ type: 'text', text: 'Invalid or expired confirmation token' }],
             isError: true
           };
         } catch (error) {

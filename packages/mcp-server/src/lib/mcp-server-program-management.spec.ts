@@ -93,7 +93,7 @@ describe('MCP Server Program Management', () => {
       expect(mockVMManager.deleteProgram).not.toHaveBeenCalled();
       expect((result as any).content[0].text).toContain('confirmation');
       expect((result as any).content[0].text).toContain('token');
-      expect((result as any).content[0].text).toContain('delete-prog1-');
+      expect(JSON.parse((result as any).content[0].text).expiresInSeconds).toBe(300);
     });
 
     it('should delete program with valid confirmation token', async () => {
@@ -126,7 +126,7 @@ describe('MCP Server Program Management', () => {
       });
 
       expect(mockVMManager.deleteProgram).not.toHaveBeenCalled();
-      expect((result as any).content[0].text).toContain('Invalid confirmation token');
+      expect((result as any).content[0].text).toContain('Invalid or expired confirmation token');
       expect((result as any).isError).toBe(true);
     });
   });

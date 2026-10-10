@@ -62,12 +62,12 @@ describe('audit 2026-10-09 repro: delete_execution confirmation token', () => {
     await server.stop();
   });
 
-  it.fails('rejects a token that was never issued by the server', async () => {
+  it('rejects a token that was never issued by the server', async () => {
     await transport.callTool('delete_execution', { executionId: 'exec-1', confirmToken: 'delete-exec-1-forged' });
     expect(vmManager.deleteExecution).not.toHaveBeenCalled();
   });
 
-  it.fails('delete_program rejects a token that was never issued by the server', async () => {
+  it('delete_program rejects a token that was never issued by the server', async () => {
     await transport.callTool('delete_program', { programId: 'prog-1', confirmToken: 'delete-prog-1-forged' });
     expect(vmManager.deleteProgram).not.toHaveBeenCalled();
   });
