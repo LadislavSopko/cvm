@@ -5,6 +5,7 @@ import { writeFile, mkdir, rm, readFile } from 'node:fs/promises';
 import { join, resolve } from 'node:path';
 
 vi.mock('@cvm/vm', () => ({
+  SandboxedFileSystem: vi.fn(),
   VMManager: vi.fn().mockImplementation(() => ({
     initialize: vi.fn(),
     dispose: vi.fn(),

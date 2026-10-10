@@ -4,6 +4,7 @@ import { CVMMcpServer } from './mcp-server.js';
 import { TestTransport } from './test-transport.js';
 
 vi.mock('@cvm/vm', () => ({
+  SandboxedFileSystem: vi.fn(),
   VMManager: vi.fn().mockImplementation(() => ({
     initialize: vi.fn(),
     dispose: vi.fn(),

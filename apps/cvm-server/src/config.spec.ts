@@ -3,6 +3,7 @@
 
 import { describe, it, expect, beforeEach, afterEach } from 'vitest';
 import { loadConfig, Config } from './config.js';
+import { resolve } from 'path';
 
 describe('loadConfig', () => {
   const originalEnv = process.env;
@@ -12,10 +13,24 @@ describe('loadConfig', () => {
     delete process.env.CVM_STORAGE_TYPE;
     delete process.env.CVM_DATA_DIR;
     delete process.env.CVM_LOG_LEVEL;
+    delete process.env.CVM_SANDBOX_PATHS;
+    delete process.env.CVM_SANDBOX_ROOT;
   });
 
   afterEach(() => {
     process.env = originalEnv;
+  });
+
+  it('loadConfig reads CVM_DATA_DIR and CVM_SANDBOX_PATHS into dataDir and sandboxPaths with defaults .cvm and the working directory', () => {
+    const defaults = loadConfig();
+    expect(defaults.dataDir).toBe('.cvm');
+    expect(defaults.sandboxPaths).toEqual([process.cwd()]);
+
+    process.env.CVM_DATA_DIR = '/tmp/cvm-data';
+    process.env.CVM_SANDBOX_PATHS = 'a, /tmp/b';
+    const config = loadConfig();
+    expect(config.dataDir).toBe('/tmp/cvm-data');
+    expect(config.sandboxPaths).toEqual([resolve('a'), '/tmp/b']);
   });
 
   it('defaults storage.type to file when CVM_STORAGE_TYPE is unset', () => {
@@ -27,7 +42,7 @@ describe('loadConfig', () => {
     process.env.CVM_STORAGE_TYPE = 'file';
     process.env.CVM_DATA_DIR = '/tmp/x';
     const config = loadConfig();
-    expect(config.storage.dataDir).toBe('/tmp/x');
+    expect(config.dataDir).toBe('/tmp/x');
     expect(config.storage).not.toHaveProperty('mongoUri');
   });
 
@@ -37,7 +52,7 @@ describe('loadConfig', () => {
   });
 
   it('Config.storage type has no mongoUri member', () => {
-    const storage: Config['storage'] = { type: 'file', dataDir: '/tmp' };
+    const storage: Config['storage'] = { type: 'file' };
     expect(storage).not.toHaveProperty('mongoUri');
   });
 });

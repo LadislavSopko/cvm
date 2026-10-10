@@ -6,6 +6,7 @@ import { join } from 'node:path';
 
 // Mock VMManager for controlled testing
 vi.mock('@cvm/vm', () => ({
+  SandboxedFileSystem: vi.fn(),
   VMManager: vi.fn().mockImplementation(() => ({
     initialize: vi.fn(),
     dispose: vi.fn(),

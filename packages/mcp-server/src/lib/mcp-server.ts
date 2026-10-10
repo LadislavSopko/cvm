@@ -5,7 +5,8 @@ import { McpServer } from '@modelcontextprotocol/sdk/server/mcp.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';
 import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
 import { z } from 'zod';
-import { VMManager } from '@cvm/vm';
+import { VMManager, SandboxedFileSystem } from '@cvm/vm';
+import { FileStorageAdapter } from '@cvm/storage';
 import { readFile, writeFile, mkdir, rename } from 'fs/promises';
 import { resolve, dirname, join } from 'path';
 import { fileURLToPath } from 'url';
@@ -44,6 +45,11 @@ const SUBMIT_REMINDER = '\n\n--- When done, call submitTask with your result as 
  * MCP Server - A thin interface layer for the CVM
  * All execution logic is handled by VMManager
  */
+export interface CVMServerOptions {
+  dataDir?: string;
+  sandboxPaths?: string[];
+}
+
 export class CVMMcpServer {
   private server: McpServer;
   private transport: Transport | null = null;
@@ -51,9 +57,12 @@ export class CVMMcpServer {
   private version: string;
   private deleteConfirmations = new DeleteConfirmations();
 
-  constructor(version: string = '0.0.1') {
+  private dataDir: string;
+
+  constructor(version: string = '0.0.1', options: CVMServerOptions = {}) {
     this.version = version;
-    this.vmManager = new VMManager();
+    this.dataDir = options.dataDir ?? process.env['CVM_DATA_DIR'] ?? '.cvm';
+    this.vmManager = new VMManager(new FileStorageAdapter(this.dataDir), new SandboxedFileSystem(options.sandboxPaths));
     this.server = new McpServer({
       name: 'cvm-server',
       version: this.version
@@ -697,7 +706,7 @@ export class CVMMcpServer {
             };
           }
 
-          const dataDir = resolve(process.env['CVM_DATA_DIR'] || '.cvm');
+          const dataDir = resolve(this.dataDir);
           await mkdir(dataDir, { recursive: true });
           const uplanPath = resolve(dataDir, 'uplan.json');
           try { await rename(uplanPath, uplanPath + '.bak'); } catch {}

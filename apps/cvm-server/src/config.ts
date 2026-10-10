@@ -10,8 +10,9 @@ dotenv.config({ path: resolve(__dirname, '../../../.env') });
 export interface Config {
   storage: {
     type: 'file';
-    dataDir?: string;
   };
+  dataDir: string;
+  sandboxPaths: string[];
   logging: {
     level: 'trace' | 'debug' | 'info' | 'warn' | 'error';
   };
@@ -28,7 +29,8 @@ export function loadConfig(): Config {
   
   // Storage configuration
   const storageType = (process.env.CVM_STORAGE_TYPE || 'file') as Config['storage']['type'];
-  const dataDir = process.env.CVM_DATA_DIR;
+  const dataDir = process.env.CVM_DATA_DIR || '.cvm';
+  const sandboxPaths = sandboxPathsFromEnv();
 
   // Optional with defaults
   const logLevel = (process.env.CVM_LOG_LEVEL || 'info') as Config['logging']['level'];
@@ -44,8 +46,9 @@ export function loadConfig(): Config {
   return {
     storage: {
       type: storageType,
-      dataDir,
     },
+    dataDir,
+    sandboxPaths,
     logging: {
       level: logLevel,
     },
@@ -56,4 +59,11 @@ export function loadConfig(): Config {
     },
     env: env as Config['env'],
   };
+}
+
+function sandboxPathsFromEnv(): string[] {
+  const paths = process.env.CVM_SANDBOX_PATHS;
+  if (paths) return paths.split(',').map(p => resolve(p.trim()));
+  const root = process.env.CVM_SANDBOX_ROOT;
+  return [resolve(root || process.cwd())];
 }

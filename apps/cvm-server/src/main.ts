@@ -50,13 +50,11 @@ async function main() {
     });
     
     // Log storage configuration
-    const dataDir = config.storage.dataDir || '.cvm';
-    const fullPath = resolve(process.cwd(), dataDir);
+    const fullPath = resolve(process.cwd(), config.dataDir);
     logger.info(`[CVM] Initializing file storage in: ${fullPath}`);
-    logger.warn(`[CVM] ⚠️  Remember to add '${dataDir}/' to your .gitignore file!`);
+    logger.warn(`[CVM] ⚠️  Remember to add '${config.dataDir}/' to your .gitignore file!`);
     
-    // Create CVM MCP server instance (it creates its own VMManager internally)
-    cvmServer = new CVMMcpServer(version);
+    cvmServer = new CVMMcpServer(version, { dataDir: config.dataDir, sandboxPaths: config.sandboxPaths });
     
     // Start the server (initializes VMManager and sets up stdio transport)
     await cvmServer.start();

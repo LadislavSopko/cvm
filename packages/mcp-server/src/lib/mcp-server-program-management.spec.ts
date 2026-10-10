@@ -5,6 +5,7 @@ import { Program } from '@cvm/types';
 
 // Mock VMManager
 vi.mock('@cvm/vm', () => ({
+  SandboxedFileSystem: vi.fn(),
   VMManager: vi.fn().mockImplementation(() => ({
     initialize: vi.fn(),
     dispose: vi.fn(),

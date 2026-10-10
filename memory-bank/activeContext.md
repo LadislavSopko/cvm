@@ -130,6 +130,13 @@
   ↳mixed specs adapted:ARRAY_LEN→LENGTH,CONCAT→ADD,JUMP_IF/CALL tests dropped
   ↳§planDeviation::BYTECODE_VERSION/recompile NOT done — OpCode is string enum,stored programs keep op names;user decision 2026-10-10 "nessuna recompile, vecchi programmi e tutto vecchio va deletato"→.cvm cleaned(kept planexecutor program+run-08-remediation+uplan files);test 'stored bytecode runs by opcode name' instead
   ↳gate::build6+typecheck7+types61+vm675+parser253+integration46+cvm-server4✓
+  ↳commit::f08a1a0
+>R12-single-config✓{RED;GREEN;VERIFY failed(spec type narrowing)→FIX→RE-VERIFY3/3;CROSSCHECK4/4}
+  ↳config.ts Config.dataDir(default .cvm)+sandboxPaths(CVM_SANDBOX_PATHS|CVM_SANDBOX_ROOT|cwd);storage.dataDir removed
+  ↳main.ts→new CVMMcpServer(version,{dataDir,sandboxPaths});CVMServerOptions;server builds VMManager(FileStorageAdapter(dataDir),SandboxedFileSystem(sandboxPaths));parsePlan uses this.dataDir
+  ↳SandboxedFileSystem(explicitPaths?) env fallback only without paths;mcp-server package.json+lock add @cvm/storage;6 spec mocks of @cvm/vm add SandboxedFileSystem
+  ↳!behaviour::server default sandbox=cwd(before:deny-all when env unset)
+  ↳gate::build6+typecheck7+cvm-server6+mcp146+vm676+storage28✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}
