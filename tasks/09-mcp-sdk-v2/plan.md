@@ -201,7 +201,7 @@ expect(JSON.parse(read('package.json')).devDependencies['@modelcontextprotocol/c
 ```
 
 <success>
-- [ ] One e2e program run (`cd test/integration && npx tsx mcp-test-client.ts ../programs/01-basics/return-types.ts`) prints `Protocol era: modern (2026-07-28)` and exits 0
+- [ ] One e2e program run (`cd test/integration && npx tsx mcp-test-client.ts ../programs/01-basics/return-types.ts string`) prints `Protocol era: modern (2026-07-28)` and exits 0
 - [ ] The same run with `CVM_E2E_PROTOCOL=legacy` prints `Protocol era: legacy (2025-11-25)` and exits 0
 - [ ] All 4 RED tests pass: npx nx test integration -- repo-config.spec.ts
 - [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)

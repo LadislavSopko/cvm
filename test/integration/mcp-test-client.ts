@@ -3,8 +3,8 @@
  * MCP test client for CVM using the official SDK
  */
 
-import { Client } from '@modelcontextprotocol/sdk/client/index.js';
-import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
+import { Client } from '@modelcontextprotocol/client';
+import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
 import { readFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
 import { parseClientArgs, decideOutcome, defaultSandboxPath, Outcome } from '../../packages/integration/src/e2e-outcome.js';
@@ -14,10 +14,8 @@ class CVMMcpTestClient {
   private transport: StdioClientTransport;
 
   constructor() {
-    this.client = new Client({
-      name: 'cvm-test-client',
-      version: '1.0.0'
-    });
+    const clientOptions = process.env.CVM_E2E_PROTOCOL === 'legacy' ? {} : { versionNegotiation: { mode: 'auto' as const } };
+    this.client = new Client({ name: 'cvm-test-client', version: '1.0.0' }, clientOptions);
 
     // Connect to CVM server via stdio
     // Run server from current directory (test/integration)
@@ -36,7 +34,7 @@ class CVMMcpTestClient {
 
   async connect(): Promise<void> {
     await this.client.connect(this.transport);
-    console.log('✓ Connected to CVM server\n');
+    console.log(`✓ Connected to CVM server\n✓ Protocol era: ${this.client.getProtocolEra()} (${this.client.getNegotiatedProtocolVersion()})\n`);
   }
 
   async runTest(programPath: string, responses: string[], expectError?: string): Promise<Outcome> {

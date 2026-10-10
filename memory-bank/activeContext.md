@@ -23,6 +23,12 @@
   ↳TestTransport ready promise(callTool/listTools await it);existing 156 specs unchanged
   ↳eras spec(InMemoryTransport)::legacy 2025,pin 2026-07-28,auto→modern;token shared across connections
   ↳gate::build6+typecheck7+lint7+mcp163+cvm-server7✓;stdout 0 bytes
+  ↳commit::bfe48e8
+>B03-e2e-client-v2-auto✓{RED3fail+1guard;GREEN;VERIFY4/4;CROSSCHECK4/4}
+  ↳mcp-test-client.ts→@modelcontextprotocol/client(+/stdio);versionNegotiation auto by default;CVM_E2E_PROTOCOL=legacy→no options;prints 'Protocol era: <era> (<version>)'
+  ↳real stdio smoke(return-types.ts string)::auto→modern 2026-07-28 exit0;legacy→2025-11-25 exit0
+  ↳plan fix::smoke command needs the CC response 'string'
+  ↳gate::build6+typecheck7+lint7+integration64✓
 
 [OPEN]
 ?release::cvm-server version 2.1.1 vs 3.0.0{recommended 3.0.0: engines node>=22,sandbox default cwd,compile rejects syntax errors,delete nonce,instruction budget}→user decides;2.1.1 NOT on npm yet

@@ -94,4 +94,27 @@ describe('repository configuration', () => {
       }
     }
   });
+
+  it('mcp-test-client.ts imports Client from @modelcontextprotocol/client and StdioClientTransport from @modelcontextprotocol/client/stdio', () => {
+    const client = read('test/integration/mcp-test-client.ts');
+    expect(client).toContain("import { Client } from '@modelcontextprotocol/client';");
+    expect(client).toContain("import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';");
+  });
+
+  it('mcp-test-client.ts creates the client with versionNegotiation mode auto', () => {
+    expect(read('test/integration/mcp-test-client.ts')).toMatch(/versionNegotiation:\s*\{\s*mode:\s*'auto'/);
+  });
+
+  it('with CVM_E2E_PROTOCOL set to legacy the client is created without version negotiation', () => {
+    expect(read('test/integration/mcp-test-client.ts')).toMatch(/process\.env\.CVM_E2E_PROTOCOL === 'legacy' \? \{\}/);
+  });
+
+  it('no package.json in the repository declares @modelcontextprotocol/sdk and the root declares @modelcontextprotocol/client ^2.3.1', () => {
+    const manifests = ['package.json', 'apps/cvm-server/package.json', 'packages/mcp-server/package.json', 'packages/integration/package.json',
+      'packages/vm/package.json', 'packages/parser/package.json', 'packages/storage/package.json', 'packages/types/package.json'];
+    for (const manifest of manifests) {
+      expect(read(manifest), manifest).not.toContain('@modelcontextprotocol/sdk');
+    }
+    expect(JSON.parse(read('package.json')).devDependencies['@modelcontextprotocol/client']).toBe('^2.3.1');
+  });
 });
