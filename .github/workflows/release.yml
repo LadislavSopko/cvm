@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    branches: [production]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: release
+  cancel-in-progress: false
+
+jobs:
+  gate:
+    if: github.repository == 'LadislavSopko/cvm'
+    uses: ./.github/workflows/ci.yml
+
+  publish:
+    needs: gate
+    if: github.repository == 'LadislavSopko/cvm' && github.ref == 'refs/heads/production'
+    runs-on: ubuntu-latest
+    environment: production
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: npm with trusted publishing support
+        run: npm install -g npm@^11.5.1
+      - name: Use the public npm registry for locked tarballs
+        run: sed -i 's#https://nexus.0ics.ai/repository/npm-group/#https://registry.npmjs.org/#g' package-lock.json
+      - run: npm ci
+      - run: npx nx build cvm-server --configuration=production
+      - name: Publish cvm-server
+        working-directory: apps/cvm-server/dist
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          if npm view "cvm-server@$VERSION" version >/dev/null 2>&1; then
+            echo "cvm-server@$VERSION is already on npm, nothing to publish"
+            exit 0
+          fi
+          TAG=latest
+          case "$VERSION" in *-*) TAG=next ;; esac
+          npm publish --provenance --access public --tag "$TAG"

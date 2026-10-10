@@ -62,4 +62,31 @@ describe('repository configuration', () => {
     expect(install).toBeGreaterThan(rewrite);
     expect(ci).toContain('https://registry.npmjs.org/');
   });
+
+  it('release.yml publishes only from production through the production environment with OIDC and no npm token', () => {
+    const release = read('.github/workflows/release.yml');
+    expect(release).toMatch(/push:\s*\n\s*branches: \[production\]/);
+    expect(release).not.toContain('pull_request');
+    expect(release).toContain('environment: production');
+    expect(release).toContain('id-token: write');
+    expect(release).toContain('npm publish --provenance');
+    expect(release).not.toMatch(/NPM_TOKEN|NODE_AUTH_TOKEN|secrets\./);
+  });
+
+  it('release.yml publishes only after the CI gate passes and skips an already published version', () => {
+    const release = read('.github/workflows/release.yml');
+    expect(release).toContain('uses: ./.github/workflows/ci.yml');
+    expect(release).toContain('needs: gate');
+    expect(release).toContain('npm view "cvm-server@$VERSION" version');
+    expect(read('.github/workflows/ci.yml')).toContain('workflow_call:');
+  });
+
+  it('every workflow action is pinned to a full commit sha', () => {
+    for (const file of ['ci.yml', 'release.yml']) {
+      const uses = read(`.github/workflows/${file}`).match(/uses: [^\s]+/g) ?? [];
+      for (const use of uses.filter(u => !u.includes('./.github/'))) {
+        expect(use, file).toMatch(/@[0-9a-f]{40}$/);
+      }
+    }
+  });
 });

@@ -152,11 +152,11 @@ npx nx build cvm-server --configuration=production
 
 ### Publish to npm
 
-```bash
-# Bump version and publish
-npx nx release
+Releases are published by CI: bump `version` in `apps/cvm-server/package.json`, merge to `main`, open a PR `main` → `production`, merge it and approve the `production` deployment. `.github/workflows/release.yml` publishes with npm Trusted Publishing (OIDC, no token, with provenance) and skips versions already on npm.
 
-# Or manually
+Manual fallback:
+
+```bash
 cd apps/cvm-server/dist
 npm publish --otp=YOUR_OTP
 ```
