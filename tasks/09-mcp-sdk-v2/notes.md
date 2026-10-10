@@ -83,7 +83,7 @@ serveStdio(factory, { transport: InMemoryTransport half from @modelcontextprotoc
 - [x] Requirements gathered (user: "study very well what changes; done; interview if needed")
 - [x] Code analyzed
 - [x] Solution proposed (approved 2026-10-10: serveStdio both eras, Actions v7, release 3.0.0, toolchain out)
-- [x] Plan created (plan.md tddab 4 blocks, 17 redKeys; parsePlan valid; j-review-plan approved after 1 fix: logger import + @cvm/types dep in block 02)
+- [x] Plan created (plan.md tddab 4 blocks, 19 redKeys; parsePlan valid; j-review-plan x2: logger import + @cvm/types dep; handles set; legacy e2e toggle; actionlint removed)
 - [ ] Development done
 - [ ] Tested
 - [ ] Deployed

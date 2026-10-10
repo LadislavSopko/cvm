@@ -90,7 +90,7 @@ expect(mcpPkg.dependencies.zod).toBe('^4.2.0');
 <intro>
 Files: /home/laco/cvm/packages/mcp-server/src/lib/mcp-server.ts, /home/laco/cvm/packages/mcp-server/src/lib/test-transport.ts, /home/laco/cvm/packages/mcp-server/package.json (add dependency `"@cvm/types": "*"` — mcp-server.ts did not import it before; `@cvm/types` is already external in packages/mcp-server/vite.config.ts and referenced in tsconfig.lib.json), /home/laco/cvm/package.json (root devDependencies: add `@modelcontextprotocol/client` `^2.3.1`; `npm install`, lockfile in sync), new /home/laco/cvm/packages/mcp-server/src/lib/mcp-server-eras.spec.ts. Depends on block 01.
 
-CVMMcpServer no longer owns a single McpServer: `private buildServer(): McpServer` creates a fresh `new McpServer({ name: 'cvm-server', version: this.version }, { capabilities: { tools: {} } })`, calls `this.setupTools(server)` (setupTools now takes the server as a parameter; withErrors / resolveExecutionId / VMManager / DeleteConfirmations / dataDir stay instance members, so every connection instance shares them) and returns it. `start(transport?)`: `await this.vmManager.initialize()` then `this.handle = serveStdio(() => this.buildServer(), { transport, onerror: e => logger.error(...) })` (transport undefined → real stdio). `stop()`: `await this.handle?.close(); this.handle = undefined; await this.vmManager.dispose()`. Because serveStdio starts the transport without awaiting it, TestTransport keeps its start promise: `start()` assigns `this.ready = this.initialize()` and returns it; `callTool` and `listTools` first `await this.ready` (so specs that call them right after `server.start(transport)` keep working). The old `transport` field and `server` field are removed.
+CVMMcpServer no longer owns a single McpServer: `private buildServer(): McpServer` creates a fresh `new McpServer({ name: 'cvm-server', version: this.version }, { capabilities: { tools: {} } })`, calls `this.setupTools(server)` (setupTools now takes the server as a parameter; withErrors / resolveExecutionId / VMManager / DeleteConfirmations / dataDir stay instance members, so every connection instance shares them) and returns it. `start(transport?)`: `await this.vmManager.initialize()` then `this.handles.add(serveStdio(() => this.buildServer(), { transport, onerror: e => logger.error(...) }))` (transport undefined → real stdio; production calls start once, tests may call it once per connection). `stop()`: closes EVERY handle in `this.handles`, clears the set, then `await this.vmManager.dispose()`. Because serveStdio starts the transport without awaiting it, TestTransport keeps its start promise: `start()` assigns `this.ready = this.initialize()` and returns it; `callTool` and `listTools` first `await this.ready` (so specs that call them right after `server.start(transport)` keep working). The old `transport` field and `server` field are removed.
 </intro>
 
 <red>
@@ -100,6 +100,7 @@ CVMMcpServer no longer owns a single McpServer: `private buildServer(): McpServe
 - test: a delete token issued on one connection is accepted on a later connection of the same server because state is shared
 - test: VMManager is constructed once per CVMMcpServer however many connections are served
 - test: after stop the client can no longer list tools
+- test: stop closes every connection started on the server
 </red>
 
 ### Implementation
@@ -107,7 +108,7 @@ CVMMcpServer no longer owns a single McpServer: `private buildServer(): McpServe
 // mcp-server.ts
 import { serveStdio } from '@modelcontextprotocol/server/stdio';
 import { logger } from '@cvm/types';
-private handle?: { close(): Promise<void> };
+private readonly handles = new Set<{ close(): Promise<void> }>();
 private buildServer(): McpServer {
   const server = new McpServer({ name: 'cvm-server', version: this.version }, { capabilities: { tools: {} } });
   this.setupTools(server);
@@ -115,11 +116,11 @@ private buildServer(): McpServer {
 }
 async start(transport?: Transport): Promise<void> {
   await this.vmManager.initialize();
-  this.handle = serveStdio(() => this.buildServer(), { transport, onerror: error => logger.error({ err: error }, 'MCP transport error') });
+  this.handles.add(serveStdio(() => this.buildServer(), { transport, onerror: error => logger.error({ err: error }, 'MCP transport error') }));
 }
 async stop(): Promise<void> {
-  await this.handle?.close();
-  this.handle = undefined;
+  await Promise.all([...this.handles].map(handle => handle.close()));
+  this.handles.clear();
   await this.vmManager.dispose();
 }
 
@@ -148,12 +149,13 @@ const info = await modern.callTool({ name: 'server_info', arguments: {} });
 // shared state: issue a delete token on connection A, stop A's client, connect B, confirm with the same token → VMManager.deleteExecution called once
 // VMManager constructor mock called exactly once for one CVMMcpServer serving 2 connections
 // after server.stop(): await expect(client.listTools()).rejects.toThrow()
+// two connections started on one server (two start calls), stop() → both clients' listTools reject
 ```
 
 <success>
 - [ ] CVMMcpServer serves through serveStdio with a fresh McpServer per factory call and shared VMManager / DeleteConfirmations
 - [ ] All existing mcp-server specs (TestTransport, 2025 era) pass unchanged in their assertions
-- [ ] All 6 RED tests pass: npx nx test mcp-server -- mcp-server-eras.spec.ts
+- [ ] All 7 RED tests pass: npx nx test mcp-server -- mcp-server-eras.spec.ts
 - [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
@@ -164,12 +166,13 @@ const info = await modern.callTool({ name: 'server_info', arguments: {} });
 <intro>
 Files: /home/laco/cvm/test/integration/mcp-test-client.ts, /home/laco/cvm/packages/integration/src/repo-config.spec.ts. Depends on blocks 01 and 02 (root devDependency `@modelcontextprotocol/client` added in block 02).
 
-The e2e client imports `Client` from `@modelcontextprotocol/client` and `StdioClientTransport` from `@modelcontextprotocol/client/stdio`, and creates the client with `{ versionNegotiation: { mode: 'auto' } }` so the whole e2e suite exercises the 2026-07-28 path over real stdio (the SDK probes on a short-lived sibling process). After connect it prints `✓ Protocol era: <era> (<version>)` so the log shows the negotiated era. The 2025 era stays covered by the mcp-server specs (TestTransport and the legacy era test of block 02). No `@modelcontextprotocol/sdk` may remain anywhere in the repository manifests.
+The e2e client imports `Client` from `@modelcontextprotocol/client` and `StdioClientTransport` from `@modelcontextprotocol/client/stdio`, and creates the client with `{ versionNegotiation: { mode: 'auto' } }` so the whole e2e suite exercises the 2026-07-28 path over real stdio (the SDK probes on a short-lived sibling process). The environment variable `CVM_E2E_PROTOCOL` selects the era: unset or `auto` → `{ versionNegotiation: { mode: 'auto' } }`; `legacy` → no client options (plain 2025 `initialize`), so the 2025 era is also exercised once over a real stdio process. After connect it prints `✓ Protocol era: <era> (<version>)` so the log shows the negotiated era. The 2025 era stays covered by the mcp-server specs (TestTransport and the legacy era test of block 02). No `@modelcontextprotocol/sdk` may remain anywhere in the repository manifests.
 </intro>
 
 <red>
 - test: mcp-test-client.ts imports Client from @modelcontextprotocol/client and StdioClientTransport from @modelcontextprotocol/client/stdio
 - test: mcp-test-client.ts creates the client with versionNegotiation mode auto
+- test: with CVM_E2E_PROTOCOL set to legacy the client is created without version negotiation
 - test: no package.json in the repository declares @modelcontextprotocol/sdk and the root declares @modelcontextprotocol/client ^2.3.1
 </red>
 
@@ -178,7 +181,8 @@ The e2e client imports `Client` from `@modelcontextprotocol/client` and `StdioCl
 // mcp-test-client.ts
 import { Client } from '@modelcontextprotocol/client';
 import { StdioClientTransport } from '@modelcontextprotocol/client/stdio';
-this.client = new Client({ name: 'cvm-test-client', version: '1.0.0' }, { versionNegotiation: { mode: 'auto' } });
+const clientOptions = process.env.CVM_E2E_PROTOCOL === 'legacy' ? {} : { versionNegotiation: { mode: 'auto' as const } };
+this.client = new Client({ name: 'cvm-test-client', version: '1.0.0' }, clientOptions);
 async connect() {
   await this.client.connect(this.transport);
   console.log(`✓ Connected to CVM server\n✓ Protocol era: ${this.client.getProtocolEra()} (${this.client.getNegotiatedProtocolVersion()})\n`);
@@ -188,7 +192,8 @@ async connect() {
 const client = read('test/integration/mcp-test-client.ts');
 expect(client).toContain("from '@modelcontextprotocol/client'");
 expect(client).toContain("from '@modelcontextprotocol/client/stdio'");
-expect(client).toMatch(/versionNegotiation:\s*\{\s*mode:\s*'auto'\s*\}/);
+expect(client).toMatch(/versionNegotiation:\s*\{\s*mode:\s*'auto'/);
+expect(client).toMatch(/process\.env\.CVM_E2E_PROTOCOL === 'legacy' \? \{\}/);
 for (const manifest of ['package.json', 'packages/mcp-server/package.json', 'apps/cvm-server/package.json', 'packages/integration/package.json', 'packages/vm/package.json', 'packages/parser/package.json', 'packages/storage/package.json', 'packages/types/package.json']) {
   expect(read(manifest), manifest).not.toContain('@modelcontextprotocol/sdk');
 }
@@ -197,7 +202,8 @@ expect(JSON.parse(read('package.json')).devDependencies['@modelcontextprotocol/c
 
 <success>
 - [ ] One e2e program run (`cd test/integration && npx tsx mcp-test-client.ts ../programs/01-basics/return-types.ts`) prints `Protocol era: modern (2026-07-28)` and exits 0
-- [ ] All 3 RED tests pass: npx nx test integration -- repo-config.spec.ts
+- [ ] The same run with `CVM_E2E_PROTOCOL=legacy` prints `Protocol era: legacy (2025-11-25)` and exits 0
+- [ ] All 4 RED tests pass: npx nx test integration -- repo-config.spec.ts
 - [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
 </block>
@@ -234,7 +240,7 @@ for (const file of ['ci.yml', 'release.yml']) {
 ```
 
 <success>
-- [ ] Version 3.0.0 and CHANGELOG entry present; workflows pinned to v7 shas and still accepted by actionlint
+- [ ] Version 3.0.0 and CHANGELOG entry present; workflows pinned to v7 shas
 - [ ] All 3 RED tests pass: npx nx test integration -- repo-config.spec.ts
 - [ ] Green-gate BTLT passes — build + tests + lint + typecheck (configured commands, skip n/a)
 </success>
