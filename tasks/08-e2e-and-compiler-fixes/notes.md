@@ -68,4 +68,7 @@ Order: compiler/VM fixes first (B, C, D), then client (A) so the e2e suite becom
 - [x] Plan created (plan.md tddab 4 blocks, 25 redKeys; plan-steps.md step 3 steps; parsePlan valid; code cross-check fixed slice handler style)
 - [x] Development done (plan.md 4/4 + plan-steps.md 3/3 via CVM planexecutor 2.1.0)
 - [x] Tested (nx no-cache: build 6, typecheck 7, 1237 tests; e2e 64/64 truthful)
-- [ ] Deployed
+- [x] Remediation (audit 2026-10-09): remediation/ plan 17/17 via planexecutor; deviation block 11 (no BYTECODE_VERSION, old .cvm data deleted — user)
+- [x] CI/CD prepared: ci.yml (PR main→production only), release.yml (push production → npm Trusted Publishing); setup checklist cicd-setup.md (configured by user)
+- [x] Final gate (Node 22, no cache): build 6, typecheck 7, lint 7, 1239 tests; e2e 64/64; CI sequence green on a clean copy
+- [ ] Deployed (npm release via production branch / CD — user; version 2.1.1 vs 3.0.0 to decide)
