@@ -2,7 +2,8 @@
 // Copyright (C) 2025-2026 Ladislav Sopko
 
 import { McpServer, type CallToolResult, type Transport } from '@modelcontextprotocol/server';
-import { StdioServerTransport } from '@modelcontextprotocol/server/stdio';
+import { serveStdio } from '@modelcontextprotocol/server/stdio';
+import { logger } from '@cvm/types';
 import * as z from 'zod';
 import { VMManager, SandboxedFileSystem } from '@cvm/vm';
 import { FileStorageAdapter } from '@cvm/storage';
@@ -53,8 +54,7 @@ export interface CVMServerOptions {
 }
 
 export class CVMMcpServer {
-  private server: McpServer;
-  private transport: Transport | null = null;
+  private readonly handles = new Set<{ close(): Promise<void> }>();
   private vmManager: VMManager;
   private version: string;
   private deleteConfirmations = new DeleteConfirmations();
@@ -65,12 +65,12 @@ export class CVMMcpServer {
     this.version = version;
     this.dataDir = options.dataDir ?? process.env['CVM_DATA_DIR'] ?? '.cvm';
     this.vmManager = new VMManager(new FileStorageAdapter(this.dataDir), new SandboxedFileSystem(options.sandboxPaths), { maxInstructions: options.maxInstructions });
-    this.server = new McpServer({
-      name: 'cvm-server',
-      version: this.version
-    });
+  }
 
-    this.setupTools();
+  private buildServer(): McpServer {
+    const server = new McpServer({ name: 'cvm-server', version: this.version }, { capabilities: { tools: {} } });
+    this.setupTools(server);
+    return server;
   }
 
   getName(): string {
@@ -98,8 +98,8 @@ export class CVMMcpServer {
     return executionId || (await this.vmManager.getCurrentExecutionId()) || missing;
   }
 
-  private setupTools(): void {
-    this.server.registerTool(
+  private setupTools(server: McpServer): void {
+    server.registerTool(
       'server_info',
       {
         description: 'Return the server name, version and the number of loaded programs and executions.',
@@ -122,7 +122,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'load',
       {
         description: 'Compile a CVM program from source and store it under programId.',
@@ -139,7 +139,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'loadFile',
       {
         description: 'Compile a CVM program from a file (or the built-in @planexecutor) and store it under programId.',
@@ -180,7 +180,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'start',
       {
         description: 'Start a new execution of a loaded program; by default it becomes the current execution. Then call getTask.',
@@ -204,7 +204,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'getTask',
       {
         description: 'Return the next cognitive task (CC prompt) of the current or given execution, or its completion/error status. Loop: getTask, do the work, submitTask, then getTask again until the execution is completed.',
@@ -243,7 +243,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'submitTask',
       {
         description: 'Submit the result of the current task and resume the execution. Loop: getTask, do the work, submitTask, then getTask again until the execution is completed.',
@@ -277,7 +277,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'status',
       {
         description: 'Return the state, pc, stack and variables of the current or given execution.',
@@ -296,7 +296,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'list_executions',
       {
         description: 'List all executions with their state and current prompt, marking the current one.',
@@ -324,7 +324,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'get_execution',
       {
         description: 'Return details of the current or given execution, including the pending prompt and attempts.',
@@ -363,7 +363,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'set_current',
       {
         description: 'Make the given execution the current one used by tools called without executionId.',
@@ -379,7 +379,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'delete_execution',
       {
         description: 'Delete an execution in two steps: call without confirmToken to get a single-use token (valid 5 minutes), then call again with it.',
@@ -417,7 +417,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'list_programs',
       {
         description: 'List all loaded programs.',
@@ -445,7 +445,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'delete_program',
       {
         description: 'Delete a program in two steps: call without confirmToken to get a single-use token (valid 5 minutes), then call again with it.',
@@ -483,7 +483,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'restart',
       {
         description: 'Start a fresh execution of a program and make it current.',
@@ -500,7 +500,7 @@ export class CVMMcpServer {
       })
     );
 
-    this.server.registerTool(
+    server.registerTool(
       'parsePlan',
       {
         description: 'Validate a TDDAB or step plan (single file or index with <files>) and write .cvm/uplan.json for the @planexecutor program.',
@@ -647,16 +647,15 @@ export class CVMMcpServer {
 
   async start(transport?: Transport): Promise<void> {
     await this.vmManager.initialize();
-    // Allow transport injection for testing, default to stdio for production
-    this.transport = transport || new StdioServerTransport();
-    await this.server.connect(this.transport);
+    this.handles.add(serveStdio(() => this.buildServer(), {
+      transport,
+      onerror: error => logger.error({ err: error }, 'MCP transport error')
+    }));
   }
 
   async stop(): Promise<void> {
-    if (this.transport) {
-      await this.transport.close();
-      this.transport = null;
-    }
+    await Promise.all([...this.handles].map(handle => handle.close()));
+    this.handles.clear();
     await this.vmManager.dispose();
   }
 

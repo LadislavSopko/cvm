@@ -26,10 +26,11 @@ export class TestTransport implements Transport {
   
   // Track initialization state
   private initialized = false;
+  private ready?: Promise<void>;
 
   async start(): Promise<void> {
-    // Initialize the MCP connection
-    await this.initialize();
+    this.ready = this.initialize();
+    return this.ready;
   }
 
   async close(): Promise<void> {
@@ -100,6 +101,7 @@ export class TestTransport implements Transport {
    * This ensures we test the exact same code path as production
    */
   async callTool(toolName: string, args: any): Promise<TextToolResult | { error: any }> {
+    await this.ready;
     if (!this.initialized) {
       throw new Error('Transport not initialized');
     }
@@ -124,6 +126,7 @@ export class TestTransport implements Transport {
   }
 
   async listTools(): Promise<Tool[]> {
+    await this.ready;
     if (!this.initialized) {
       throw new Error('Transport not initialized');
     }

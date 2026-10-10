@@ -16,6 +16,13 @@
   ↳lock:-817 lines(v1 sdk gone);bundle requires @modelcontextprotocol/server(+/stdio) external;stdout 0 bytes
   ↳!e2e client still imports @modelcontextprotocol/sdk→broken until B03(root devDep client added in B02)
   ↳gate::build6+typecheck7+lint7+mcp156+cvm-server7✓
+  ↳commit::00ba44a
+>B02-serve-stdio-both-eras✓{RED4fail+3guard;GREEN;VERIFY4/4;CROSSCHECK7/7}
+  ↳mcp-server.ts buildServer() fresh McpServer{capabilities tools} per factory call;setupTools(server);start()→handles.add(serveStdio(factory,{transport,onerror→logger}));stop() closes all handles then vmManager.dispose()
+  ↳VMManager+DeleteConfirmations shared across connections;@cvm/types dep added;root devDep @modelcontextprotocol/client ^2.3.1
+  ↳TestTransport ready promise(callTool/listTools await it);existing 156 specs unchanged
+  ↳eras spec(InMemoryTransport)::legacy 2025,pin 2026-07-28,auto→modern;token shared across connections
+  ↳gate::build6+typecheck7+lint7+mcp163+cvm-server7✓;stdout 0 bytes
 
 [OPEN]
 ?release::cvm-server version 2.1.1 vs 3.0.0{recommended 3.0.0: engines node>=22,sandbox default cwd,compile rejects syntax errors,delete nonce,instruction budget}→user decides;2.1.1 NOT on npm yet
