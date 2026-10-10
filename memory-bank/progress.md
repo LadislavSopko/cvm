@@ -3,6 +3,7 @@
 [STATUS]
 @state::DEVELOP{08 remediation plan 17 blocks}
 ✓R01-syntax-diagnostics
+✓R02-undefined-strict-equality
 ✓08-block01-compiler-reports-unsupported
 ✓08-block02-break-in-foreach
 ✓08-block03-slice-string-and-array

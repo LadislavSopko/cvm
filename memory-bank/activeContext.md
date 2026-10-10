@@ -79,6 +79,10 @@
   ↳compiler.ts:syntaxErrors(ts.transpileModule)+programErrors(main,params,forbidden calls);parser.ts+spec deleted;index no export
   ↳FIX::TS now rejects /[unclosed/ at compile→regex-integration.spec single-invalid test expects compile error;multi test+e2e regex-literal-errors.ts use /(unclosed/(runtime error kept)
   ↳gate::build6+typecheck7(no cache)+parser248/vm725/mcp140/integration44✓
+  ↳commit::5ecbf01
+>R02-undefined-strict-equality✓{RED4fail+1guard;GREEN;VERIFY3/3;CROSSCHECK5/5}
+  ↳comparison.ts:10 export strictEquals{undefined structural,refs by id};EQ_STRICT/NEQ_STRICT use it;no singleton(YAGNI)
+  ↳gate::build6+typecheck7+vm728✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

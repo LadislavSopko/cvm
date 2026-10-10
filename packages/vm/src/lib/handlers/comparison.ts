@@ -3,8 +3,22 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler, VMError } from './types.js';
-import { cvmToNumber, cvmToString, isCVMNull, isCVMUndefined, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
+import { CVMValue, cvmToNumber, cvmToString, isCVMNull, isCVMUndefined, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
 import { safePop, isVMError } from '../stack-utils.js';
+
+// Strict equality: references by id, undefined structurally (each undefined is a distinct object)
+export function strictEquals(left: CVMValue, right: CVMValue): boolean {
+  if (isCVMUndefined(left) || isCVMUndefined(right)) {
+    return isCVMUndefined(left) && isCVMUndefined(right);
+  }
+  if (isCVMArrayRef(left) && isCVMArrayRef(right)) {
+    return left.id === right.id;
+  }
+  if (isCVMObjectRef(left) && isCVMObjectRef(right)) {
+    return left.id === right.id;
+  }
+  return left === right;
+}
 
 // Helper for binary comparison operations
 function executeBinaryComparison(state: any, instruction: any, compareFn: (left: any, right: any) => boolean): VMError | undefined {
@@ -147,16 +161,7 @@ export const comparisonHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      return executeBinaryComparison(state, instruction, (left, right) => {
-        // Strict equality - no type coercion
-        // For references, compare by ID
-        if (isCVMArrayRef(left) && isCVMArrayRef(right)) {
-          return left.id === right.id;
-        } else if (isCVMObjectRef(left) && isCVMObjectRef(right)) {
-          return left.id === right.id;
-        }
-        return left === right;
-      });
+      return executeBinaryComparison(state, instruction, strictEquals);
     }
   },
 
@@ -164,16 +169,7 @@ export const comparisonHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      return executeBinaryComparison(state, instruction, (left, right) => {
-        // Strict inequality - no type coercion
-        // For references, compare by ID
-        if (isCVMArrayRef(left) && isCVMArrayRef(right)) {
-          return left.id !== right.id;
-        } else if (isCVMObjectRef(left) && isCVMObjectRef(right)) {
-          return left.id !== right.id;
-        }
-        return left !== right;
-      });
+      return executeBinaryComparison(state, instruction, (left, right) => !strictEquals(left, right));
     }
   }
 };

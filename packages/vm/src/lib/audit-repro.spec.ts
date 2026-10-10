@@ -30,12 +30,12 @@ describe('audit 2026-10-09 repro: array methods dispatched as string methods', (
 });
 
 describe('audit 2026-10-09 repro: comparison with undefined', () => {
-  it.fails('an uninitialized let compares equal to undefined', () => {
+  it('an uninitialized let compares equal to undefined', () => {
     const s = run('let u;\nreturn u === undefined;');
     expect(s.returnValue).toBe(true);
   });
 
-  it.fails('a missing property compares equal to undefined', () => {
+  it('a missing property compares equal to undefined', () => {
     const s = run('const o = JSON.parse("{}");\nreturn o.missing === undefined;');
     expect(s.returnValue).toBe(true);
   });
