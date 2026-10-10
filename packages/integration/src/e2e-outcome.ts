@@ -1,3 +1,5 @@
+import { resolve } from 'path';
+
 export interface ClientArgs {
   programPath: string;
   responses: string[];
@@ -49,4 +51,8 @@ export function decideOutcome(input: OutcomeInput): Outcome {
     return { exitCode: 1, reason: `expected error not raised: ${input.expectError}` };
   }
   return { exitCode: 0, reason: input.outputFound ? 'completed' : 'completed (no output)' };
+}
+
+export function defaultSandboxPath(cwd: string): string {
+  return resolve(cwd);
 }

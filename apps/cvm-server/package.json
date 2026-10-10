@@ -52,6 +52,9 @@
     "targets": {
       "build": {
         "executor": "@nx/vite:build",
+        "dependsOn": [
+          "^build"
+        ],
         "outputs": [
           "{options.outputPath}"
         ],

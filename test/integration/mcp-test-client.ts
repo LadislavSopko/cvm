@@ -7,7 +7,7 @@ import { Client } from '@modelcontextprotocol/sdk/client/index.js';
 import { StdioClientTransport } from '@modelcontextprotocol/sdk/client/stdio.js';
 import { readFileSync, mkdirSync, existsSync } from 'fs';
 import { join } from 'path';
-import { parseClientArgs, decideOutcome, Outcome } from '../../packages/integration/src/e2e-outcome.js';
+import { parseClientArgs, decideOutcome, defaultSandboxPath, Outcome } from '../../packages/integration/src/e2e-outcome.js';
 
 class CVMMcpTestClient {
   private client: Client;
@@ -29,7 +29,7 @@ class CVMMcpTestClient {
         CVM_STORAGE: 'file',
         CVM_DATA_DIR: '.cvm',
         CVM_LOG_LEVEL: process.env.CVM_LOG_LEVEL || 'info',
-        CVM_SANDBOX_PATHS: process.env.CVM_SANDBOX_PATHS || '/home/laco/cvm/test/integration'
+        CVM_SANDBOX_PATHS: process.env.CVM_SANDBOX_PATHS || defaultSandboxPath(process.cwd())
       }
     });
   }

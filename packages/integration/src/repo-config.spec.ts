@@ -39,4 +39,27 @@ describe('repository configuration', () => {
   it('the test runner itself runs on Node 22 or newer', () => {
     expect(Number(process.versions.node.split('.')[0])).toBeGreaterThanOrEqual(22);
   });
+
+  it('mcp-test-client.ts contains no hard-coded home directory path', () => {
+    expect(read('test/integration/mcp-test-client.ts')).not.toMatch(/\/home\/|\/Users\//);
+  });
+
+  it('ci.yml runs build typecheck lint test with --skip-nx-cache where applicable and the e2e suite', () => {
+    const ci = read('.github/workflows/ci.yml');
+    expect(ci).toContain('npx nx run-many --target=build --all');
+    expect(ci).toContain('npx nx run-many --target=typecheck --all --skip-nx-cache');
+    expect(ci).toContain('npx nx run-many --target=lint --all');
+    expect(ci).toContain('npx nx run-many --target=test --all --skip-nx-cache');
+    expect(ci).toContain('bash test/programs/run-all-tests.sh');
+  });
+
+  it('ci.yml uses .nvmrc for the Node version and rewrites the Nexus registry prefix before npm ci', () => {
+    const ci = read('.github/workflows/ci.yml');
+    expect(ci).toContain('node-version-file: .nvmrc');
+    const rewrite = ci.indexOf('nexus.0ics.ai/repository/npm-group/');
+    const install = ci.indexOf('npm ci');
+    expect(rewrite).toBeGreaterThan(-1);
+    expect(install).toBeGreaterThan(rewrite);
+    expect(ci).toContain('https://registry.npmjs.org/');
+  });
 });

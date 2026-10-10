@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest';
-import { parseClientArgs, decideOutcome } from './e2e-outcome.js';
+import { parseClientArgs, decideOutcome, defaultSandboxPath } from './e2e-outcome.js';
+import { resolve } from 'path';
 
 describe('e2e client outcome', () => {
   it('parseClientArgs separates program path, CC responses and the expect-error flag in any position', () => {
@@ -54,5 +55,10 @@ describe('e2e client outcome', () => {
     const o = decideOutcome({ finalText: 'Execution completed', outputFound: true });
     expect(o.exitCode).toBe(0);
     expect(o.reason).toBe('completed');
+  });
+
+  it('defaultSandboxPath resolves the given working directory', () => {
+    expect(defaultSandboxPath('test/integration')).toBe(resolve('test/integration'));
+    expect(defaultSandboxPath('/tmp/x/../y')).toBe('/tmp/y');
   });
 });

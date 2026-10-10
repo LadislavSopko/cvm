@@ -160,6 +160,12 @@
   ↳.nvmrc=22;engines node >=22 root+apps/cvm-server(lock synced);README+apps/cvm-server/README state Node 22
   ↳gate under Node 22.14.0(source ~/.nvm/nvm.sh && nvm use 22 per shell)::build6+typecheck7+lint7+all tests✓
   ↳user nvm default alias NOT changed→user may run `nvm alias default 22`
+  ↳commit::4f62bbc
+>R17-ci-workflow✓{RED;GREEN;VERIFY4/4;CROSSCHECK4/4}
+  ↳.github/workflows/ci.yml(push+PR;checkout submodules:false;setup-node .nvmrc cache npm;sed Nexus→registry.npmjs.org before npm ci;build;typecheck --skip-nx-cache;lint;test --skip-nx-cache;run-all-tests.sh)
+  ↳e2e-outcome.ts defaultSandboxPath(cwd);mcp-test-client uses it(no /home/laco)
+  ↳!fix::apps/cvm-server build target lacked dependsOn ^build→clean checkout build failed(@cvm/mcp-server dist missing);added
+  ↳local CI proof(clean copy,Node22.14,rewritten lock)::npm ci+build6+typecheck7+lint7+test7+e2e64/64✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

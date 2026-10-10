@@ -1,0 +1,25 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          submodules: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Use the public npm registry for locked tarballs
+        run: sed -i 's#https://nexus.0ics.ai/repository/npm-group/#https://registry.npmjs.org/#g' package-lock.json
+      - run: npm ci
+      - run: npx nx run-many --target=build --all
+      - run: npx nx run-many --target=typecheck --all --skip-nx-cache
+      - run: npx nx run-many --target=lint --all
+      - run: npx nx run-many --target=test --all --skip-nx-cache
+      - run: bash test/programs/run-all-tests.sh
