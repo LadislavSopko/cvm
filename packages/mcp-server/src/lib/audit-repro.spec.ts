@@ -39,15 +39,10 @@ Intro text.
 // Audit 2026-10-09 bug repro. Asserts the CORRECT behaviour and is marked it.fails while
 // the bug exists; when fixed, turn it.fails into it.
 describe('audit 2026-10-09 repro: step plan block title', () => {
-  it.fails('a "## Step N: Title" heading becomes the block title', () => {
+  it('a "## Step N: Title" heading becomes the block title', () => {
     const result = parseTddabPlan(stepPlan, 'plan-steps.md');
     expect(result.valid).toBe(true);
     expect(result.plan!.blocks[0].title).toBe('Remove Legacy Files');
-  });
-
-  it('the title is empty today (control: documents the actual behaviour)', () => {
-    const result = parseTddabPlan(stepPlan, 'plan-steps.md');
-    expect(result.plan!.blocks[0].title).toBe('');
   });
 });
 

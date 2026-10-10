@@ -83,6 +83,10 @@
 >R02-undefined-strict-equality✓{RED4fail+1guard;GREEN;VERIFY3/3;CROSSCHECK5/5}
   ↳comparison.ts:10 export strictEquals{undefined structural,refs by id};EQ_STRICT/NEQ_STRICT use it;no singleton(YAGNI)
   ↳gate::build6+typecheck7+vm728✓
+  ↳commit::1e41828
+>R03-step-plan-titles✓{RED;GREEN;VERIFY;CROSSCHECK3/3}
+  ↳tddab-parser.ts:138 title regex accepts '## TDDAB-N:' and '## Step N:';audit-repro step-title it.fails→it,control test removed;spec describe('block titles')+2
+  ↳gate::build6+typecheck7+mcp141✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}
@@ -92,7 +96,7 @@
 ✓sdk::@modelcontextprotocol/sdk 1.17.2→1.32.1{commit 02a7a0e;all server.tool() deprecated→registerTool;test-transport TextToolResult;tests1251+e2e64✓}
 ?sdk-v2::split pkgs+spec 2026-07-28,needs Node>=20(local 18.20.8)→user decision
 !newBug::CVM `x === undefined` ALWAYS false{even let u;};typeof x works→'undefined'{probe 2026-10-09}→?ask user:fix in 08|issue
-!minor::step plan title empty in prompts{parser takes title only from '## TDDAB-N:' headings;step-planner uses '## Step N:'}→?ask user
+✓minor::step plan title empty→fixed R03
 
 [FEATURE-08-ANALYSIS]{verified in code;ready for j-new-feature 08}
 A!runnerFalsePass::test/integration/mcp-test-client.ts:79-84 Error:→done=true exit0;"✓ Program loaded" even on load error;no expected-error marker

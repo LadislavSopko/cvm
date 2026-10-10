@@ -135,7 +135,7 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
         break;
       }
 
-      const titleMatch = line.match(/^##\s+TDDAB-\d+:\s+(.+)/);
+      const titleMatch = line.match(/^##\s+(?:TDDAB-|Step\s+)\d+:\s+(.+)/);
       if (titleMatch) {
         title = titleMatch[1];
         i++;

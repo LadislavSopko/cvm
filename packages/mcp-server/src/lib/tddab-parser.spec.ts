@@ -637,3 +637,38 @@ ${actionLines.join('\n')}
     });
   });
 });
+
+describe('block titles', () => {
+  const planWithHeading = (heading: string) => `# Plan
+
+<mission>
+Mission.
+</mission>
+
+<block id="01-x">
+${heading}
+
+<intro>
+Intro.
+</intro>
+
+<red>
+- test: does a thing
+</red>
+
+<success>
+- [ ] done
+</success>
+</block>
+`;
+
+  it('a TDDAB-N heading still becomes the block title', () => {
+    const result = parseTddabPlan(planWithHeading('## TDDAB-1: Build The Thing'), 'plan.md');
+    expect(result.plan!.blocks[0].title).toBe('Build The Thing');
+  });
+
+  it('a heading without a number keeps an empty title', () => {
+    const result = parseTddabPlan(planWithHeading('## Step: Missing Number'), 'plan.md');
+    expect(result.plan!.blocks[0].title).toBe('');
+  });
+});
