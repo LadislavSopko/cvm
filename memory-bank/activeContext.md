@@ -1,9 +1,11 @@
 §MBEL:5.0
 
 [STATUS]
-@state::LISTEN
+@state::PLAN
 @feature::09-mcp-sdk-v2
 @branch::feature/09-mcp-sdk-v2
+@plan::tasks/09-mcp-sdk-v2/plan.md{tddab;4 blocks;17 redKeys;parsePlan valid;reviewed}
+@decisions09::serveStdio both eras;Actions v7(checkout 3d3c42e,setup-node 949feb2);release 3.0.0;zod ^4.2 required(zod3 fails at runtime);toolchain out
 @lastClosed::08-e2e-and-compiler-fixes{j-close 2026-10-10;merged→main bb3f741;pushed;history.md §2026-10-10}
 @submodule::.ai-agent→branch feature/06-tddab-review{pushed;user keeps it;¬change}
 
