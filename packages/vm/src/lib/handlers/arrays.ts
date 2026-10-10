@@ -14,8 +14,27 @@ import {
   CVMObject,
   createCVMUndefined,
   cvmToString,
-  isCVMUndefined
+  isCVMUndefined,
+  CVMArrayRef,
+  CVMValue
 } from '@cvm/types';
+import { VMState } from '../vm.js';
+import { strictEquals } from './comparison.js';
+
+export function arrayElements(state: VMState, ref: CVMArrayRef): CVMValue[] | undefined {
+  const heapObj = state.heap.get(ref.id);
+  return heapObj?.type === 'array' ? (heapObj.data as CVMArray).elements : undefined;
+}
+
+export function arrayIndexOf(elements: CVMValue[], value: CVMValue, fromEnd = false): number {
+  if (fromEnd) {
+    for (let i = elements.length - 1; i >= 0; i--) {
+      if (strictEquals(elements[i], value)) return i;
+    }
+    return -1;
+  }
+  return elements.findIndex(element => strictEquals(element, value));
+}
 
 /**
  * Opcode handlers for array operations
@@ -497,42 +516,21 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   },
 
   [OpCode.ARRAY_INDEX_OF]: {
-    stackIn: 2,  // array, searchElement
-    stackOut: 1, // number (index or -1)
+    stackIn: 2,
+    stackOut: 1,
     execute: (state, instruction) => {
       const searchElement = state.stack.pop()!;
       const arrayRef = state.stack.pop()!;
-      
-      // Helper function to check if value is an array reference
-      const isArrayReference = (value: any): boolean => {
-        if (!isCVMArrayRef(value)) {
-          return false;
-        }
-        const heapObj = state.heap.get(value.id);
-        return heapObj !== undefined && heapObj.type === 'array';
-      };
-      
-      if (!isArrayReference(arrayRef)) {
-        return { 
-          type: 'RuntimeError', 
+      const elements = isCVMArrayRef(arrayRef) ? arrayElements(state, arrayRef) : undefined;
+      if (!elements) {
+        return {
+          type: 'RuntimeError',
           message: 'ARRAY_INDEX_OF requires an array',
           pc: state.pc,
           opcode: instruction.op
         };
       }
-      
-      const heapObj = state.heap.get((arrayRef as any).id);
-      const array = heapObj!.data as CVMArray;
-      
-      // Find index using strict equality
-      for (let i = 0; i < array.elements.length; i++) {
-        if (array.elements[i] === searchElement) {
-          state.stack.push(i);
-          return undefined;
-        }
-      }
-      
-      state.stack.push(-1); // Not found
+      state.stack.push(arrayIndexOf(elements, searchElement));
       return undefined;
     }
   }

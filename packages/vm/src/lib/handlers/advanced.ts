@@ -3,6 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { arrayElements, arrayIndexOf } from './arrays.js';
 import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber, isCVMObjectRef, CVMObjectRef, CVMObject, isCVMUndefined, isCVMArrayRef, CVMArray } from '@cvm/types';
 
 export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
@@ -275,7 +276,12 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       // Stack: haystack, needle
       const needle = state.stack.pop()!;
       const haystack = state.stack.pop()!;
-      
+      const elements = isCVMArrayRef(haystack) ? arrayElements(state, haystack) : undefined;
+      if (elements) {
+        state.stack.push(arrayIndexOf(elements, needle));
+        return undefined;
+      }
+
       if (!isCVMString(haystack) || !isCVMString(needle)) {
         return {
           type: 'RuntimeError',
@@ -461,9 +467,8 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
           opcode: instruction.op
         };
       }
-      // Use the existing universal conversion function
-      const result = cvmToString(value);
-      state.stack.push(result);
+      const elements = isCVMArrayRef(value) ? arrayElements(state, value) : undefined;
+      state.stack.push(elements ? elements.map(cvmToString).join(',') : cvmToString(value));
       return undefined;
     }
   },
@@ -474,7 +479,12 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       const searchString = state.stack.pop()!;
       const str = state.stack.pop()!;
-      
+      const elements = isCVMArrayRef(str) ? arrayElements(state, str) : undefined;
+      if (elements) {
+        state.stack.push(arrayIndexOf(elements, searchString) >= 0);
+        return undefined;
+      }
+
       if (!isCVMString(str)) {
         return { 
           type: 'RuntimeError', 
@@ -658,7 +668,12 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       const searchString = state.stack.pop()!;
       const str = state.stack.pop()!;
-      
+      const elements = isCVMArrayRef(str) ? arrayElements(state, str) : undefined;
+      if (elements) {
+        state.stack.push(arrayIndexOf(elements, searchString, true));
+        return undefined;
+      }
+
       if (!isCVMString(str)) {
         return { 
           type: 'RuntimeError', 

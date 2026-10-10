@@ -99,6 +99,11 @@
   ↳advanced.ts STRING_SUBSTRING stackIn3,undefined end=to end(no arity guessing);vm-string-methods hand-built bytecode adds PUSH_UNDEFINED
   ↳removed unreachable return; after reportError(match,fs.writeFile,Object.keys)
   ↳gate::build6+typecheck7+parser253+vm730✓
+  ↳commit::7941b1b
+>R06-array-aware-methods✓{RED;GREEN;VERIFY3/3;CROSSCHECK6/6}
+  ↳arrays.ts:24 arrayElements(state,ref)+:29 arrayIndexOf(elements,value,fromEnd) via strictEquals;ARRAY_INDEX_OF reuses them
+  ↳advanced.ts STRING_INDEXOF/STRING_INCLUDES/STRING_LAST_INDEX_OF/TO_STRING dispatch on runtime array receiver;strings unchanged
+  ↳gate::build6+typecheck7+vm733✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}
