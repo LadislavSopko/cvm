@@ -5,6 +5,7 @@
 ✓09-B01-sdk-v2-server-and-zod4
 ✓09-B02-serve-stdio-both-eras
 ✓09-B03-e2e-client-v2-auto
+✓09-B04-release-3-0-0
 
 [COMPLETED]
 >08-e2e-and-compiler-fixes✓{2026-10-09→closed2026-10-10;plan.md 4/4+plan-steps.md 3/3+remediation 17/17+CI/CD prep;merged→main bb3f741;tests 1239+e2e 64/64 Node22;release pending(version+CD);tasks/08-e2e-and-compiler-fixes/}

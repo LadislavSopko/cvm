@@ -29,6 +29,12 @@
   ↳real stdio smoke(return-types.ts string)::auto→modern 2026-07-28 exit0;legacy→2025-11-25 exit0
   ↳plan fix::smoke command needs the CC response 'string'
   ↳gate::build6+typecheck7+lint7+integration64✓
+  ↳commit::edbe422
+>B04-release-3-0-0✓{RED3fail;GREEN;VERIFY3/3;CROSSCHECK3/3}
+  ↳apps/cvm-server 3.0.0(lock synced);CHANGELOG 3.0.0(SDK v2 server,both eras serveStdio,zod 4,stdout tolerance,e2e client auto,Actions v7)
+  ↳ci.yml+release.yml→checkout v7 3d3c42e,setup-node v7 949feb2;actionlint ok(local scratch tool)
+  ↳gate::build6+typecheck7+lint7+integration67+cvm-server7✓
+  ↳!note::2.1.1 CHANGELOG lacks feature-08 remediation items(Node22 engine,sandbox default cwd,instruction budget,registerTool,eslint)→published 2.1.1 shipped them undocumented
 
 [OPEN]
 ?release::cvm-server version 2.1.1 vs 3.0.0{recommended 3.0.0: engines node>=22,sandbox default cwd,compile rejects syntax errors,delete nonce,instruction budget}→user decides;2.1.1 NOT on npm yet

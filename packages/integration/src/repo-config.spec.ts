@@ -117,4 +117,26 @@ describe('repository configuration', () => {
     }
     expect(JSON.parse(read('package.json')).devDependencies['@modelcontextprotocol/client']).toBe('^2.3.1');
   });
+
+  it('apps/cvm-server/package.json version is 3.0.0', () => {
+    expect(JSON.parse(read('apps/cvm-server/package.json')).version).toBe('3.0.0');
+  });
+
+  it('the CHANGELOG starts with a 3.0.0 entry mentioning @modelcontextprotocol/server, zod 4 and protocol 2026-07-28', () => {
+    const changelog = read('apps/cvm-server/CHANGELOG.md');
+    expect(changelog.startsWith('## 3.0.0')).toBe(true);
+    const entry = changelog.split('\n## ')[0];
+    for (const term of ['@modelcontextprotocol/server', 'zod 4', '2026-07-28']) {
+      expect(entry, term).toContain(term);
+    }
+  });
+
+  it('ci.yml and release.yml use the v7 commit shas of actions/checkout and actions/setup-node and no v4 sha remains', () => {
+    for (const file of ['ci.yml', 'release.yml']) {
+      const workflow = read(`.github/workflows/${file}`);
+      expect(workflow, file).toContain('actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1');
+      expect(workflow, file).toContain('actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1');
+      expect(workflow, file).not.toMatch(/11d5960a326750d5838078e36cf38b85af677262|49933ea5288caeca8642d1e84afbd3f7d6820020/);
+    }
+  });
 });
