@@ -6,7 +6,8 @@ import {
   JSONRPCMessage, 
   CallToolRequest, 
   CallToolResult,
-  InitializeRequest
+  InitializeRequest,
+  Tool
 } from '@modelcontextprotocol/sdk/types.js';
 
 // CVM tools only ever return text content, so tests read content[i].text directly.
@@ -120,5 +121,17 @@ export class TestTransport implements Transport {
       return { error: response.error };
     }
     return response.result as TextToolResult;
+  }
+
+  async listTools(): Promise<Tool[]> {
+    if (!this.initialized) {
+      throw new Error('Transport not initialized');
+    }
+    const id = this.messageId++;
+    const response = await this.sendRequest({ jsonrpc: '2.0', id, method: 'tools/list', params: {} } as JSONRPCMessage);
+    if ('error' in response) {
+      throw new Error(`tools/list failed: ${response.error.message}`);
+    }
+    return response.result.tools as Tool[];
   }
 }

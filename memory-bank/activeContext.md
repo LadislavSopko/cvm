@@ -143,6 +143,11 @@
   ↳VMManager(storage,fs,vmOptions)→all new VM(this.vmOptions);CVMServerOptions.maxInstructions;main passes config.maxInstructions;Config.execution(maxStack/Output/Time) removed
   ↳.env.example+apps/cvm-server/README document CVM_MAX_INSTRUCTIONS;audit repro B9(stack limit) removed by decision
   ↳gate::build6+typecheck7+vm679+mcp146+cvm-server7✓
+  ↳commit::abeb8fd
+>R14-register-tools✓{RED;GREEN;VERIFY4/4;CROSSCHECK5/5}
+  ↳mcp-server.ts 15 tools via registerTool{description,inputSchema};withErrors(:86) single catch;resolveExecutionId(:99,missing=NO_CURRENT_ERROR|NO_CURRENT_HINT for getTask);loadFile catch only maps ENOENT/EACCES then rethrows
+  ↳test-transport listTools();mcp-server-tools.spec 5 tests;names/schemas/texts unchanged(existing specs untouched)
+  ↳gate::build6+typecheck7+mcp151✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}
