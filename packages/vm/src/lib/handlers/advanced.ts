@@ -3,8 +3,8 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { arrayElements, arrayIndexOf } from './arrays.js';
-import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber, isCVMObjectRef, CVMObjectRef, CVMObject, isCVMUndefined, isCVMArrayRef, CVMArray } from '@cvm/types';
+import { arrayElements, arrayIndexOf, sliceArray } from './arrays.js';
+import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber, isCVMObjectRef, CVMObjectRef, CVMObject, isCVMUndefined, isCVMArrayRef } from '@cvm/types';
 
 export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.RETURN]: {
@@ -360,14 +360,9 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         return undefined;
       }
 
-      if (isCVMArrayRef(target)) {
-        const heapObj = state.heap.get(target.id);
-        if (heapObj && heapObj.type === 'array') {
-          const elements = (heapObj.data as CVMArray).elements;
-          const sliced = end === undefined ? elements.slice(startVal) : elements.slice(startVal, end);
-          state.stack.push(state.heap.allocate('array', createCVMArray(sliced)));
-          return undefined;
-        }
+      if (isCVMArrayRef(target) && arrayElements(state, target)) {
+        state.stack.push(sliceArray(state, target, startVal, end));
+        return undefined;
       }
 
       return {

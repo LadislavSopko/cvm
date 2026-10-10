@@ -26,6 +26,11 @@ export function arrayElements(state: VMState, ref: CVMArrayRef): CVMValue[] | un
   return heapObj?.type === 'array' ? (heapObj.data as CVMArray).elements : undefined;
 }
 
+export function sliceArray(state: VMState, ref: CVMArrayRef, start: number, end?: number): CVMArrayRef {
+  const elements = (state.heap.get(ref.id)!.data as CVMArray).elements;
+  return state.heap.allocate('array', createCVMArray(elements.slice(start, end)));
+}
+
 export function arrayIndexOf(elements: CVMValue[], value: CVMValue, fromEnd = false): number {
   if (fromEnd) {
     for (let i = elements.length - 1; i >= 0; i--) {
@@ -426,48 +431,21 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   },
 
   [OpCode.ARRAY_SLICE]: {
-    stackIn: 3,  // array, start, end
+    stackIn: 3,
     stackOut: 1,
     execute: (state, instruction) => {
       const end = state.stack.pop()!;
       const start = state.stack.pop()!;
       const arrayRef = state.stack.pop()!;
-      
-      // Helper function to check if value is an array reference
-      const isArrayReference = (value: any): boolean => {
-        if (!isCVMArrayRef(value)) {
-          return false;
-        }
-        const heapObj = state.heap.get(value.id);
-        return heapObj !== undefined && heapObj.type === 'array';
-      };
-      
-      if (!isArrayReference(arrayRef)) {
-        return { 
-          type: 'RuntimeError', 
+      if (!isCVMArrayRef(arrayRef) || !arrayElements(state, arrayRef)) {
+        return {
+          type: 'RuntimeError',
           message: 'ARRAY_SLICE requires an array',
           pc: state.pc,
           opcode: instruction.op
         };
       }
-      
-      const heapObj = state.heap.get((arrayRef as any).id);
-      const array = heapObj!.data as CVMArray;
-      const startIdx = isCVMNumber(start) ? start : 0;
-      const endIdx = end === undefined ? array.elements.length : 
-                     isCVMNumber(end) ? end : array.elements.length;
-      
-      // Handle negative indices
-      const normalizedStart = startIdx < 0 ? 
-        Math.max(0, array.elements.length + startIdx) : startIdx;
-      const normalizedEnd = endIdx < 0 ? 
-        Math.max(0, array.elements.length + endIdx) : endIdx;
-      
-      const slicedElements = array.elements.slice(normalizedStart, normalizedEnd);
-      const newArray = createCVMArray(slicedElements);
-      const newArrayRef = state.heap.allocate('array', newArray);
-      
-      state.stack.push(newArrayRef);
+      state.stack.push(sliceArray(state, arrayRef, isCVMNumber(start) ? start : 0, isCVMNumber(end) ? end : undefined));
       return undefined;
     }
   },

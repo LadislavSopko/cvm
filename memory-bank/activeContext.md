@@ -104,6 +104,10 @@
   ↳arrays.ts:24 arrayElements(state,ref)+:29 arrayIndexOf(elements,value,fromEnd) via strictEquals;ARRAY_INDEX_OF reuses them
   ↳advanced.ts STRING_INDEXOF/STRING_INCLUDES/STRING_LAST_INDEX_OF/TO_STRING dispatch on runtime array receiver;strings unchanged
   ↳gate::build6+typecheck7+vm733✓
+  ↳commit::85b0dd9
+>R07-single-slice-implementation✓{RED;GREEN;VERIFY3/3;CROSSCHECK3/3}
+  ↳arrays.ts:29 sliceArray(state,ref,start,end?) only array-slice logic;ARRAY_SLICE(:448) and STRING_SLICE(advanced.ts:364) call it;advanced.ts unused CVMArray import removed
+  ↳gate::build6+typecheck7+vm736✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}
