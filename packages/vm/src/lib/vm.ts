@@ -30,8 +30,16 @@ export interface VMState {
   heap: VMHeap;
 }
 
+export interface VMOptions {
+  maxInstructions?: number;
+}
+
+export const DEFAULT_MAX_INSTRUCTIONS = 10_000_000;
+
 export class VM {
   private vmLogger = logger.child({ component: 'vm' });
+
+  constructor(private readonly options: VMOptions = {}) {}
 
   createInitialState(): VMState {
     return {
@@ -89,7 +97,14 @@ export class VM {
     logger.trace({ bytecodeLength: bytecode.length, initialPC: state.pc }, 'VM execution starting');
 
     const traceEnabled = this.vmLogger.isLevelEnabled('trace');
+    const budget = this.options.maxInstructions ?? DEFAULT_MAX_INSTRUCTIONS;
+    let executed = 0;
     while (state.status === 'running' && state.pc < bytecode.length) {
+      if (budget > 0 && ++executed > budget) {
+        state.status = 'error';
+        state.error = `Instruction budget exceeded: more than ${budget} instructions without reaching CC() (possible infinite loop)`;
+        break;
+      }
       const instruction = bytecode[state.pc];
 
       if (traceEnabled) {

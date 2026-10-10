@@ -45,17 +45,3 @@ describe('audit 2026-10-09 repro: comparison with undefined', () => {
     expect(s.returnValue).toBe('undefined');
   });
 });
-
-describe('audit 2026-10-09 repro: execution limits from config are not enforced', () => {
-  it.fails('CVM_MAX_STACK_SIZE=1 stops a program that needs a deeper stack', () => {
-    const previous = process.env['CVM_MAX_STACK_SIZE'];
-    process.env['CVM_MAX_STACK_SIZE'] = '1';
-    try {
-      const s = run('return 1 + 2 + 3;');
-      expect(s.status).toBe('error');
-    } finally {
-      if (previous === undefined) delete process.env['CVM_MAX_STACK_SIZE'];
-      else process.env['CVM_MAX_STACK_SIZE'] = previous;
-    }
-  });
-});

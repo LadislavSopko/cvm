@@ -14,6 +14,7 @@
 ✓R10-vm-state-transition
 ✓R11-dead-code-removal
 ✓R12-single-config
+✓R13-instruction-budget
 ✓08-block01-compiler-reports-unsupported
 ✓08-block02-break-in-foreach
 ✓08-block03-slice-string-and-array

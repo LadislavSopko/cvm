@@ -15,6 +15,7 @@ describe('loadConfig', () => {
     delete process.env.CVM_LOG_LEVEL;
     delete process.env.CVM_SANDBOX_PATHS;
     delete process.env.CVM_SANDBOX_ROOT;
+    delete process.env.CVM_MAX_INSTRUCTIONS;
   });
 
   afterEach(() => {
@@ -31,6 +32,15 @@ describe('loadConfig', () => {
     const config = loadConfig();
     expect(config.dataDir).toBe('/tmp/cvm-data');
     expect(config.sandboxPaths).toEqual([resolve('a'), '/tmp/b']);
+  });
+
+  it('loadConfig reads CVM_MAX_INSTRUCTIONS with default 10000000 and Config has no maxStackSize maxOutputSize maxExecutionTime', () => {
+    expect(loadConfig().maxInstructions).toBe(10000000);
+    process.env.CVM_MAX_INSTRUCTIONS = '0';
+    const config = loadConfig();
+    expect(config.maxInstructions).toBe(0);
+    expect(config).not.toHaveProperty('execution');
+    expect(JSON.stringify(config)).not.toMatch(/maxStackSize|maxOutputSize|maxExecutionTime/);
   });
 
   it('defaults storage.type to file when CVM_STORAGE_TYPE is unset', () => {

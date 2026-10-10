@@ -85,6 +85,14 @@ CVM_LOG_LEVEL=info
 CVM_LOG_FORMAT=pretty
 ```
 
+### Execution Limits
+
+```bash
+# Maximum instructions executed between two CC() calls (default 10000000).
+# Stops a loop that never reaches CC(); loops with CC() inside are never limited. 0 = unlimited.
+CVM_MAX_INSTRUCTIONS=10000000
+```
+
 ### Environment
 
 ```bash

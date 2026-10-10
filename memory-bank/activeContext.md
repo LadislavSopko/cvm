@@ -137,6 +137,12 @@
   ↳SandboxedFileSystem(explicitPaths?) env fallback only without paths;mcp-server package.json+lock add @cvm/storage;6 spec mocks of @cvm/vm add SandboxedFileSystem
   ↳!behaviour::server default sandbox=cwd(before:deny-all when env unset)
   ↳gate::build6+typecheck7+cvm-server6+mcp146+vm676+storage28✓
+  ↳commit::e8b5d3f
+>R13-instruction-budget✓{RED;GREEN;VERIFY3/3;CROSSCHECK5/5}
+  ↳vm.ts VMOptions{maxInstructions},DEFAULT_MAX_INSTRUCTIONS 10M;budget per execute()(=between two CC);0=unlimited;error 'Instruction budget exceeded: more than N instructions without reaching CC() (possible infinite loop)'
+  ↳VMManager(storage,fs,vmOptions)→all new VM(this.vmOptions);CVMServerOptions.maxInstructions;main passes config.maxInstructions;Config.execution(maxStack/Output/Time) removed
+  ↳.env.example+apps/cvm-server/README document CVM_MAX_INSTRUCTIONS;audit repro B9(stack limit) removed by decision
+  ↳gate::build6+typecheck7+vm679+mcp146+cvm-server7✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

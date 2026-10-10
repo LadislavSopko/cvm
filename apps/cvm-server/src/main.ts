@@ -54,7 +54,7 @@ async function main() {
     logger.info(`[CVM] Initializing file storage in: ${fullPath}`);
     logger.warn(`[CVM] ⚠️  Remember to add '${config.dataDir}/' to your .gitignore file!`);
     
-    cvmServer = new CVMMcpServer(version, { dataDir: config.dataDir, sandboxPaths: config.sandboxPaths });
+    cvmServer = new CVMMcpServer(version, { dataDir: config.dataDir, sandboxPaths: config.sandboxPaths, maxInstructions: config.maxInstructions });
     
     // Start the server (initializes VMManager and sets up stdio transport)
     await cvmServer.start();

@@ -48,6 +48,7 @@ const SUBMIT_REMINDER = '\n\n--- When done, call submitTask with your result as 
 export interface CVMServerOptions {
   dataDir?: string;
   sandboxPaths?: string[];
+  maxInstructions?: number;
 }
 
 export class CVMMcpServer {
@@ -62,7 +63,7 @@ export class CVMMcpServer {
   constructor(version: string = '0.0.1', options: CVMServerOptions = {}) {
     this.version = version;
     this.dataDir = options.dataDir ?? process.env['CVM_DATA_DIR'] ?? '.cvm';
-    this.vmManager = new VMManager(new FileStorageAdapter(this.dataDir), new SandboxedFileSystem(options.sandboxPaths));
+    this.vmManager = new VMManager(new FileStorageAdapter(this.dataDir), new SandboxedFileSystem(options.sandboxPaths), { maxInstructions: options.maxInstructions });
     this.server = new McpServer({
       name: 'cvm-server',
       version: this.version

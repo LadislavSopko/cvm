@@ -16,11 +16,7 @@ export interface Config {
   logging: {
     level: 'trace' | 'debug' | 'info' | 'warn' | 'error';
   };
-  execution: {
-    maxExecutionTime: number;
-    maxStackSize: number;
-    maxOutputSize: number;
-  };
+  maxInstructions: number;
   env: 'development' | 'production';
 }
 
@@ -39,9 +35,7 @@ export function loadConfig(): Config {
     throw new Error(`Invalid CVM_LOG_LEVEL: ${logLevel}. Must be one of: ${validLogLevels.join(', ')}`);
   }
 
-  const maxExecutionTime = parseInt(process.env.CVM_MAX_EXECUTION_TIME || '300000', 10); // 5 minutes default
-  const maxStackSize = parseInt(process.env.CVM_MAX_STACK_SIZE || '1000', 10);
-  const maxOutputSize = parseInt(process.env.CVM_MAX_OUTPUT_SIZE || '1048576', 10); // 1MB default
+  const maxInstructions = parseInt(process.env.CVM_MAX_INSTRUCTIONS || '10000000', 10);
 
   return {
     storage: {
@@ -52,11 +46,7 @@ export function loadConfig(): Config {
     logging: {
       level: logLevel,
     },
-    execution: {
-      maxExecutionTime,
-      maxStackSize,
-      maxOutputSize,
-    },
+    maxInstructions,
     env: env as Config['env'],
   };
 }

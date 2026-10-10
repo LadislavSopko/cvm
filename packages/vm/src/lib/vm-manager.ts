@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2025-2026 Ladislav Sopko
 
-import { VM, VMState } from './vm.js';
+import { VM, VMState, VMOptions } from './vm.js';
 import { compile } from '@cvm/parser';
 import { StorageAdapter, StorageFactory } from '@cvm/storage';
 import { Program, Execution, CVMValue, CVMArray, CVMObject, CVMArrayRef, CVMObjectRef, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
@@ -32,7 +32,7 @@ export class VMManager {
   private storage: StorageAdapter;
   private fileSystem: FileSystemService;
   
-  constructor(storageAdapter?: StorageAdapter, fileSystem?: FileSystemService) {
+  constructor(storageAdapter?: StorageAdapter, fileSystem?: FileSystemService, private readonly vmOptions: VMOptions = {}) {
     if (storageAdapter) {
       this.storage = storageAdapter;
     } else {
@@ -103,7 +103,7 @@ export class VMManager {
     await this.storage.saveExecution(execution);
     
     // Create VM instance for this execution
-    const vm = new VM();
+    const vm = new VM(this.vmOptions);
     this.vms.set(executionId, vm);
   }
 
@@ -127,7 +127,7 @@ export class VMManager {
 
       let vm = this.vms.get(executionId);
       if (!vm) {
-        vm = new VM();
+        vm = new VM(this.vmOptions);
         this.vms.set(executionId, vm);
       }
 
@@ -187,7 +187,7 @@ export class VMManager {
 
     let vm = this.vms.get(executionId);
     if (!vm) {
-      vm = new VM();
+      vm = new VM(this.vmOptions);
       this.vms.set(executionId, vm);
     }
 
