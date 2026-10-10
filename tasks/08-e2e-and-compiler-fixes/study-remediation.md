@@ -59,7 +59,17 @@ Stato dei test di riproduzione oggi (rieseguiti il 2026-10-10): parser 2 `it.fai
 
 ---
 
-## Decisioni che servono prima di scrivere il piano
+## Decisioni prese (2026-10-10)
+
+1. **A5 limiti:** solo **budget di istruzioni tra due `CC()`** (protezione dai cicli infiniti senza `CC()`); tolti i limiti su stack, output e tempo.
+2. **A4 token:** **conferma vera in due passi** (token monouso con scadenza, salvato dal server).
+3. **C3 lint:** eslint. **C4 Node:** 22.
+4. **C5 + C6:** toolchain e SDK MCP v2 in una **feature separata**.
+5. **A2:** il singleton di `undefined` non serve (YAGNI): basta il confronto strutturale in `===`/`!==`, perché `==` lo gestisce già (`comparison.ts:29-33`).
+
+Piano: `tasks/08-e2e-and-compiler-fixes/remediation/` (index.md + a-correctness.md, b-simplification.md, c-modernity.md), 17 blocchi TDDAB, 73 test RED, parsePlan valido.
+
+## Decisioni che servivano prima di scrivere il piano
 
 1. **A5 limiti:** applicarli (a) o toglierli (b)?
 2. **A4 token:** `confirm: true` (raccomandato) o nonce vero?

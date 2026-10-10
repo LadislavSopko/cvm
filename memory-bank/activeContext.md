@@ -68,6 +68,14 @@
 >step03-truthful-e2e-run-and-release✓{EXECUTE+VERIFY4/4}
   ↳cvm-server 2.1.1+CHANGELOG{Fixed:compiler errors,break foreach,slice,e2e client,packaging}
   ↳FULL::nx no-cache build6+typecheck7+tests1237✓;e2e run-all-tests 64/64 TRULY passed{regex demos via --expect-error};npm latest still 2.1.0
+[REMEDIATION-PLAN-2026-10-10]
+@study::tasks/08-e2e-and-compiler-fixes/study-remediation.md
+@plan::tasks/08-e2e-and-compiler-fixes/remediation/index.md{multi-file A/B/C;17 blocks;73 redKeys;parsePlan valid}
+@decisions::limits=instruction budget between CC only;delete=real 2-step nonce;eslint;Node22;toolchain+SDK v2→separate feature;undefined=structural strict eq(no singleton)
+@retracted::audit B3(let = 5 valid JS)→11 bugs proven
+!lsai::warm defining file before name lookups;.lsai/mjsf.json mongodb project removed(0c588de)
+?next::user approves plan→j-cvm-exec-plan remediation/index.md
+
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}
 @proven::12 it.fails repros{parser:syntax errors accepted x3;vm:arr.includes/indexOf/toString,===undefined x2,CVM_MAX_* ignored;mcp:step title empty,forged delete token x2}
