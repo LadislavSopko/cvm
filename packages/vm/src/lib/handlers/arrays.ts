@@ -3,6 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { runtimeError } from './errors.js';
 import { 
   createCVMArray, 
   isCVMArray, 
@@ -80,23 +81,13 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isCVMArrayRef(arrayOrRef)) {
         const heapObj = state.heap.get(arrayOrRef.id);
         if (!heapObj || heapObj.type !== 'array') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid array reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid array reference');
         }
         array = heapObj.data as CVMArray;
       } else if (isCVMArray(arrayOrRef)) {
         array = arrayOrRef;
       } else {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_PUSH requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_PUSH requires an array');
       }
       
       array.elements.push(value);
@@ -118,23 +109,13 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isCVMArrayRef(arrayOrRef)) {
         const heapObj = state.heap.get(arrayOrRef.id);
         if (!heapObj || heapObj.type !== 'array') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid array reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid array reference');
         }
         array = heapObj.data as CVMArray;
       } else if (isCVMObjectRef(arrayOrRef)) {
         const heapObj = state.heap.get(arrayOrRef.id);
         if (!heapObj || heapObj.type !== 'object') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid object reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid object reference');
         }
         // Handle object property access
         const obj = heapObj.data as CVMObject;
@@ -164,12 +145,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         }
         return undefined;
       } else {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_GET requires an array, object, or string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_GET requires an array, object, or string');
       }
       
       // Handle array access
@@ -189,12 +165,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
           return undefined;
         }
       } else {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_GET requires numeric or numeric string index',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_GET requires numeric or numeric string index');
       }
       
       const element = array.elements[arrayIndex] ?? createCVMUndefined();
@@ -217,23 +188,13 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isCVMArrayRef(arrayOrRef)) {
         const heapObj = state.heap.get(arrayOrRef.id);
         if (!heapObj || heapObj.type !== 'array') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid array reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid array reference');
         }
         array = heapObj.data as CVMArray;
       } else if (isCVMObjectRef(arrayOrRef)) {
         const heapObj = state.heap.get(arrayOrRef.id);
         if (!heapObj || heapObj.type !== 'object') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid object reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid object reference');
         }
         // Handle object property assignment
         const obj = heapObj.data as CVMObject;
@@ -244,12 +205,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       } else if (isCVMArray(arrayOrRef)) {
         array = arrayOrRef;
       } else {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_SET requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_SET requires an array');
       }
       
       // Handle array access
@@ -272,22 +228,12 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
           return undefined;
         }
       } else {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_SET requires numeric or numeric string index',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_SET requires numeric or numeric string index');
       }
       
       const idx = Math.floor(arrayIndex);
       if (idx < 0) {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_SET: Negative index not allowed',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_SET: Negative index not allowed');
       }
       
       array.elements[idx] = value;
@@ -307,23 +253,13 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isCVMArrayRef(arrayOrRef)) {
         const heapObj = state.heap.get(arrayOrRef.id);
         if (!heapObj || heapObj.type !== 'array') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid array reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid array reference');
         }
         array = heapObj.data as CVMArray;
       } else if (isCVMArray(arrayOrRef)) {
         array = arrayOrRef;
       } else {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_LEN requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_LEN requires an array');
       }
       
       state.stack.push(array.elements.length);
@@ -339,22 +275,12 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const arrayRef = state.stack.pop()!;
       
       if (!isCVMArrayRef(arrayRef)) {
-        return {
-          type: 'RuntimeError',
-          message: 'map() requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'map() requires an array');
       }
       
       const heapObj = state.heap.get((arrayRef as any).id);
       if (!heapObj || heapObj.type !== 'array') {
-        return {
-          type: 'RuntimeError',
-          message: 'Invalid array reference',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'Invalid array reference');
       }
       
       const array = heapObj.data as CVMArray;
@@ -389,22 +315,12 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const arrayRef = state.stack.pop()!;
       
       if (!isCVMArrayRef(arrayRef)) {
-        return {
-          type: 'RuntimeError',
-          message: 'filter() requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'filter() requires an array');
       }
       
       const heapObj = state.heap.get((arrayRef as any).id);
       if (!heapObj || heapObj.type !== 'array') {
-        return {
-          type: 'RuntimeError',
-          message: 'Invalid array reference',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'Invalid array reference');
       }
       
       const array = heapObj.data as CVMArray;
@@ -438,12 +354,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const start = state.stack.pop()!;
       const arrayRef = state.stack.pop()!;
       if (!isCVMArrayRef(arrayRef) || !arrayElements(state, arrayRef)) {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_SLICE requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_SLICE requires an array');
       }
       state.stack.push(sliceArray(state, arrayRef, isCVMNumber(start) ? start : 0, isCVMNumber(end) ? end : undefined));
       return undefined;
@@ -467,12 +378,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       };
       
       if (!isArrayReference(arrayRef)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'ARRAY_JOIN requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_JOIN requires an array');
       }
       
       const heapObj = state.heap.get((arrayRef as any).id);
@@ -501,12 +407,7 @@ export const arrayHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const arrayRef = state.stack.pop()!;
       const elements = isCVMArrayRef(arrayRef) ? arrayElements(state, arrayRef) : undefined;
       if (!elements) {
-        return {
-          type: 'RuntimeError',
-          message: 'ARRAY_INDEX_OF requires an array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ARRAY_INDEX_OF requires an array');
       }
       state.stack.push(arrayIndexOf(elements, searchElement));
       return undefined;

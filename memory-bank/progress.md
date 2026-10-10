@@ -9,6 +9,7 @@
 ✓R05-method-dispatch-table
 ✓R06-array-aware-methods
 ✓R07-single-slice-implementation
+✓R08-runtime-error-helper
 ✓08-block01-compiler-reports-unsupported
 ✓08-block02-break-in-foreach
 ✓08-block03-slice-string-and-array

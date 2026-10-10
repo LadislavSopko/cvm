@@ -3,6 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { runtimeError } from './errors.js';
 import { cvmToNumber } from '@cvm/types';
 
 export const incrementHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
@@ -14,12 +15,7 @@ export const incrementHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const varName = state.stack.pop()!;
       
       if (typeof varName !== 'string') {
-        return {
-          type: 'RuntimeError',
-          message: 'INC: Invalid variable name',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'INC: Invalid variable name');
       }
       
       const currentValue = state.variables.get(varName) ?? 0;
@@ -43,12 +39,7 @@ export const incrementHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const varName = state.stack.pop()!;
       
       if (typeof varName !== 'string') {
-        return {
-          type: 'RuntimeError',
-          message: 'DEC: Invalid variable name',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'DEC: Invalid variable name');
       }
       
       const currentValue = state.variables.get(varName) ?? 0;

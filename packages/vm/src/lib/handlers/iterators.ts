@@ -3,6 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { runtimeError } from './errors.js';
 import { isCVMArray, isCVMArrayRef, createCVMUndefined, CVMArray } from '@cvm/types';
 
 export const iteratorHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
@@ -27,12 +28,7 @@ export const iteratorHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isCVMArrayRef(arrayOrRef)) {
         const heapObj = state.heap.get(arrayOrRef.id);
         if (!heapObj || heapObj.type !== 'array') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid array reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid array reference');
         }
         array = heapObj.data as CVMArray;
       } else if (isCVMArray(arrayOrRef)) {
@@ -48,12 +44,7 @@ export const iteratorHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       
       // Check iterator depth limit
       if (state.iterators.length >= 10) {
-        return {
-          type: 'RuntimeError',
-          message: 'RuntimeError: Maximum iterator depth exceeded',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'RuntimeError: Maximum iterator depth exceeded');
       }
       
       // Store reference to original array with its current length
@@ -72,12 +63,7 @@ export const iteratorHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       // Check if there's an active iterator
       if (state.iterators.length === 0) {
-        return {
-          type: 'RuntimeError',
-          message: 'ITER_NEXT: No active iterator',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ITER_NEXT: No active iterator');
       }
       
       // Get the current (top) iterator
@@ -112,12 +98,7 @@ export const iteratorHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       // Check if there's an active iterator
       if (state.iterators.length === 0) {
-        return {
-          type: 'RuntimeError',
-          message: 'ITER_END: No active iterator',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'ITER_END: No active iterator');
       }
       
       // Remove the current (top) iterator

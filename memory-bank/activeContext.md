@@ -108,6 +108,11 @@
 >R07-single-slice-implementation✓{RED;GREEN;VERIFY3/3;CROSSCHECK3/3}
   ↳arrays.ts:29 sliceArray(state,ref,start,end?) only array-slice logic;ARRAY_SLICE(:448) and STRING_SLICE(advanced.ts:364) call it;advanced.ts unused CVMArray import removed
   ↳gate::build6+typecheck7+vm736✓
+  ↳commit::345df80
+>R08-runtime-error-helper✓{RED;GREEN;VERIFY3/3;CROSSCHECK2/2}
+  ↳handlers/errors.ts runtimeError(state,instruction,message);91 literals replaced in 9 handler files(-550 lines);messages byte-identical(diff-checked);CALL handler now takes instruction
+  ↳errors.spec.ts guards against new RuntimeError literals
+  ↳gate::build6+typecheck7+vm738✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

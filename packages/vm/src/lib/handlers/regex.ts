@@ -3,6 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { runtimeError } from './errors.js';
 import { safePop, isVMError } from '../stack-utils.js';
 import { isCVMObjectRef, CVMObject } from '@cvm/types';
 
@@ -163,12 +164,7 @@ const regexTest: OpcodeHandler = {
       return undefined; // Success
       
     } catch (error) {
-      return {
-        type: 'RuntimeError',
-        message: `Regex test failed: ${(error as Error).message}`,
-        pc: state.pc,
-        opcode: instruction.op
-      };
+      return runtimeError(state, instruction, `Regex test failed: ${(error as Error).message}`);
     }
   }
 };
@@ -268,12 +264,7 @@ const stringMatch: OpcodeHandler = {
       return undefined; // Success
       
     } catch (error) {
-      return {
-        type: 'RuntimeError',
-        message: `String match failed: ${(error as Error).message}`,
-        pc: state.pc,
-        opcode: instruction.op
-      };
+      return runtimeError(state, instruction, `String match failed: ${(error as Error).message}`);
     }
   }
 };
@@ -378,12 +369,7 @@ const stringReplaceRegex: OpcodeHandler = {
       return undefined; // Success
       
     } catch (error) {
-      return {
-        type: 'RuntimeError',
-        message: `String replace failed: ${(error as Error).message}`,
-        pc: state.pc,
-        opcode: instruction.op
-      };
+      return runtimeError(state, instruction, `String replace failed: ${(error as Error).message}`);
     }
   }
 };

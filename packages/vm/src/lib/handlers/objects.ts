@@ -3,6 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { runtimeError } from './errors.js';
 import { 
   createCVMObject, 
   createCVMUndefined, 
@@ -96,23 +97,13 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isCVMObjectRef(objOrRef)) {
         const heapObj = state.heap.get(objOrRef.id);
         if (!heapObj || heapObj.type !== 'object') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid object reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid object reference');
         }
         obj = heapObj.data as CVMObject;
       } else if (isCVMObject(objOrRef)) {
         obj = objOrRef;
       } else {
-        return {
-          type: 'RuntimeError',
-          message: `Cannot set property '${key}' on ${cvmTypeof(objOrRef)}`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Cannot set property '${key}' on ${cvmTypeof(objOrRef)}`);
       }
       
       // Convert key to string (JavaScript behavior)
@@ -134,12 +125,7 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isVMError(objOrRef)) return objOrRef;
       
       if (isCVMNull(objOrRef) || isCVMUndefined(objOrRef)) {
-        return {
-          type: 'RuntimeError',
-          message: `Cannot read property '${key}' of ${cvmTypeof(objOrRef)}`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Cannot read property '${key}' of ${cvmTypeof(objOrRef)}`);
       }
       
       let obj: CVMObject | null = null;
@@ -147,12 +133,7 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isCVMObjectRef(objOrRef)) {
         const heapObj = state.heap.get(objOrRef.id);
         if (!heapObj || heapObj.type !== 'object') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid object reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid object reference');
         }
         obj = heapObj.data as CVMObject;
       } else if (isCVMObject(objOrRef)) {

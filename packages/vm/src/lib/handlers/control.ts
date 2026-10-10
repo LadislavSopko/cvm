@@ -3,6 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { runtimeError } from './errors.js';
 import { cvmToBoolean } from '@cvm/types';
 
 export const controlHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
@@ -21,21 +22,11 @@ export const controlHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     controlsPC: true,
     execute: (state, instruction) => {
       if (instruction.arg === undefined) {
-        return {
-          type: 'RuntimeError',
-          message: 'JUMP requires a target address',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'JUMP requires a target address');
       }
       const target = instruction.arg;
       if (target < 0) {
-        return {
-          type: 'RuntimeError',
-          message: `Invalid jump target: ${target}`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Invalid jump target: ${target}`);
       }
       state.pc = target;
       return undefined;
@@ -50,21 +41,11 @@ export const controlHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const condition = state.stack.pop()!;
       
       if (instruction.arg === undefined) {
-        return {
-          type: 'RuntimeError',
-          message: 'JUMP_IF_FALSE requires a target address',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'JUMP_IF_FALSE requires a target address');
       }
       const target = instruction.arg;
       if (target < 0) {
-        return {
-          type: 'RuntimeError',
-          message: `Invalid jump target: ${target}`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Invalid jump target: ${target}`);
       }
       
       // Jump if condition is falsy
@@ -85,21 +66,11 @@ export const controlHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const condition = state.stack.pop()!;
       
       if (instruction.arg === undefined) {
-        return {
-          type: 'RuntimeError',
-          message: 'JUMP_IF requires a target address',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'JUMP_IF requires a target address');
       }
       const target = instruction.arg;
       if (target < 0) {
-        return {
-          type: 'RuntimeError',
-          message: `Invalid jump target: ${target}`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Invalid jump target: ${target}`);
       }
       
       // Jump if condition is truthy
@@ -120,21 +91,11 @@ export const controlHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const condition = state.stack.pop()!;
       
       if (instruction.arg === undefined) {
-        return {
-          type: 'RuntimeError',
-          message: 'JUMP_IF_TRUE requires a target address',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'JUMP_IF_TRUE requires a target address');
       }
       const target = instruction.arg;
       if (target < 0) {
-        return {
-          type: 'RuntimeError',
-          message: `Invalid jump target: ${target}`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Invalid jump target: ${target}`);
       }
       
       // Jump if condition is truthy (same as JUMP_IF)
@@ -151,17 +112,9 @@ export const controlHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 0,
     controlsPC: false,
-    execute: (state) => {
-      // Pop function name from stack
+    execute: (state, instruction) => {
       state.stack.pop();
-      
-      // Functions are not implemented yet
-      return {
-        type: 'RuntimeError',
-        message: 'Functions not implemented',
-        pc: state.pc,
-        opcode: OpCode.CALL
-      };
+      return runtimeError(state, instruction, 'Functions not implemented');
     }
   }
 };

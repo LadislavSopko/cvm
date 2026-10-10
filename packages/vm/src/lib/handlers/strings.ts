@@ -3,6 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { runtimeError } from './errors.js';
 import { cvmToString, isCVMString, isCVMArray, cvmTypeof, createCVMArray, createCVMObject, CVMValue, isCVMArrayRef, CVMArray } from '@cvm/types';
 import { VMHeap } from '../vm-heap.js';
 import { safePop, isVMError } from '../stack-utils.js';
@@ -68,12 +69,7 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isVMError(str)) return str;
       
       if (!isCVMString(str)) {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_LEN requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_LEN requires a string');
       }
       
       state.stack.push(str.length);
@@ -96,22 +92,12 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
         // Dereference array reference
         const heapObj = state.heap.get(value.id);
         if (!heapObj || heapObj.type !== 'array') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid array reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid array reference');
         }
         const array = heapObj.data as CVMArray;
         state.stack.push(array.elements.length);
       } else {
-        return {
-          type: 'RuntimeError',
-          message: 'LENGTH requires a string or array',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'LENGTH requires a string or array');
       }
       
       return undefined;
@@ -126,12 +112,7 @@ export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isVMError(str)) return str;
       
       if (!isCVMString(str)) {
-        return {
-          type: 'RuntimeError',
-          message: 'JSON_PARSE requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'JSON_PARSE requires a string');
       }
       
       try {
