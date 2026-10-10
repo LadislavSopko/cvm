@@ -120,6 +120,10 @@
   ↳FIX::5 *-stack-safety.spec.ts(31 direct-call underflow tests of removed code) deleted→vm-hot-loop it.each 31 opcodes underflow via VM path
   ↳test note::@cvm/types logger is a Proxy(not spyable);vm-hot-loop uses vi.mock('@cvm/types') fake logger
   ↳gate::build6+typecheck7+vm739✓
+  ↳commit::bb3acd2
+>R10-vm-state-transition✓{RED;GREEN;VERIFY3/3;CROSSCHECK3/3}
+  ↳vm-manager.ts:206 private applyVMState(id,execution,state){output append,serialize,map complete/error/waiting_cc/else RUNNING,save};getNext(:143)+reportCCResult(:203) delegate;READ-ONLY comment fixed
+  ↳gate::build6+typecheck7+vm742✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

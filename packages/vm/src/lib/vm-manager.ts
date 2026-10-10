@@ -108,8 +108,8 @@ export class VMManager {
   }
 
   /**
-   * Get next action from execution (Claude polls this)
-   * This is READ-ONLY - just returns current state
+   * Get next action from execution (Claude polls this).
+   * Runs the VM when the execution is READY or RUNNING; otherwise returns the stored state.
    */
   async getNext(executionId: string): Promise<ExecutionResult> {
     const execution = await this.storage.getExecution(executionId);
@@ -140,52 +140,7 @@ export class VMManager {
       } : this.deserializeVMState(execution);
 
       const state = vm.execute(program.bytecode, initialState, this.fileSystem);
-
-      // Extract and save output separately
-      if (state.output.length > 0) {
-        await this.storage.appendOutput(executionId, state.output);
-      }
-
-      // Save state (without output)
-      const serializedState = this.serializeVMState(state);
-      Object.assign(execution, serializedState);
-
-      if (state.status === 'complete') {
-        execution.state = 'COMPLETED';
-        
-        // Save return value if present
-        if (state.returnValue !== undefined) {
-          execution.returnValue = state.returnValue;
-        }
-        
-        await this.storage.saveExecution(execution);
-        this.vms.delete(executionId);
-        
-        return {
-          type: 'completed',
-          message: 'Execution completed',
-          result: state.returnValue
-        };
-      } else if (state.status === 'waiting_cc') {
-        execution.state = 'AWAITING_COGNITIVE_RESULT';
-        execution.ccPrompt = state.ccPrompt;
-        await this.storage.saveExecution(execution);
-        
-        return {
-          type: 'waiting',
-          message: state.ccPrompt || 'Waiting for input'
-        };
-      } else if (state.status === 'error') {
-        execution.state = 'ERROR';
-        execution.error = state.error;
-        await this.storage.saveExecution(execution);
-        this.vms.delete(executionId);
-        
-        return {
-          type: 'error',
-          error: state.error
-        };
-      }
+      return this.applyVMState(executionId, execution, state);
     }
 
     // Not ready state - check current execution state
@@ -244,42 +199,34 @@ export class VMManager {
       ccPrompt: undefined
     };
 
-    // Resume execution - this pushes result to stack and continues
     const newState = vm.resume(currentState, result, program.bytecode, this.fileSystem);
-    
-    // Extract and save any new output
-    if (newState.output.length > 0) {
-      await this.storage.appendOutput(executionId, newState.output);
+    return this.applyVMState(executionId, execution, newState);
+  }
+
+  private async applyVMState(executionId: string, execution: Execution, state: VMState): Promise<ExecutionResult> {
+    if (state.output.length > 0) {
+      await this.storage.appendOutput(executionId, state.output);
     }
-    
-    // Update execution state (without output)
-    const serializedState = this.serializeVMState(newState);
-    Object.assign(execution, serializedState);
-    
+    Object.assign(execution, this.serializeVMState(state));
+
     let next: ExecutionResult;
-    if (newState.status === 'complete') {
+    if (state.status === 'complete') {
       execution.state = 'COMPLETED';
-
-      // Save return value if present
-      if (newState.returnValue !== undefined) {
-        execution.returnValue = newState.returnValue;
+      if (state.returnValue !== undefined) {
+        execution.returnValue = state.returnValue;
       }
-
       this.vms.delete(executionId);
-      next = { type: 'completed', message: 'Execution completed', result: newState.returnValue };
-    } else if (newState.status === 'error') {
+      next = { type: 'completed', message: 'Execution completed', result: state.returnValue };
+    } else if (state.status === 'error') {
       execution.state = 'ERROR';
-      execution.error = newState.error;
+      execution.error = state.error;
       this.vms.delete(executionId);
-      next = { type: 'error', error: newState.error };
-    } else if (newState.status === 'waiting_cc') {
-      // Hit another CC immediately
+      next = { type: 'error', error: state.error };
+    } else if (state.status === 'waiting_cc') {
       execution.state = 'AWAITING_COGNITIVE_RESULT';
-      execution.ccPrompt = newState.ccPrompt;
-      next = { type: 'waiting', message: newState.ccPrompt || 'Waiting for input' };
+      execution.ccPrompt = state.ccPrompt;
+      next = { type: 'waiting', message: state.ccPrompt || 'Waiting for input' };
     } else {
-      // For any other state, keep as RUNNING
-      // getNext will handle it when called
       execution.state = 'RUNNING';
       next = { type: 'waiting' };
     }
