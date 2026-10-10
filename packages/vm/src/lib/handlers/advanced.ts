@@ -3,14 +3,16 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber, isCVMObjectRef, CVMObjectRef, CVMObject } from '@cvm/types';
+import { runtimeError } from './errors.js';
+import { arrayElements, arrayIndexOf, sliceArray } from './arrays.js';
+import { isCVMString, isCVMArray, createCVMArray, CVMValue, cvmToString, isCVMNumber, isCVMObjectRef, CVMObjectRef, CVMObject, isCVMUndefined, isCVMArrayRef } from '@cvm/types';
 
 export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.RETURN]: {
     stackIn: 0,
     stackOut: 0,
     controlsPC: true,
-    execute: (state, instruction) => {
+    execute: (state) => {
       // Pop return value from stack (or use null if empty)
       const returnValue = state.stack.pop() ?? null;
       state.returnValue = returnValue;
@@ -26,21 +28,11 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       // BREAK instruction expects a target address as argument
       if (instruction.arg === undefined) {
-        return {
-          type: 'RuntimeError',
-          message: 'BREAK requires a target address',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'BREAK requires a target address');
       }
       const target = instruction.arg;
       if (target < 0) {
-        return {
-          type: 'RuntimeError',
-          message: `Invalid break target: ${target}`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Invalid break target: ${target}`);
       }
       state.pc = target;
       return undefined;
@@ -54,21 +46,11 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       // CONTINUE instruction expects a target address as argument
       if (instruction.arg === undefined) {
-        return {
-          type: 'RuntimeError',
-          message: 'CONTINUE requires a target address',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'CONTINUE requires a target address');
       }
       const target = instruction.arg;
       if (target < 0 || target === -1) {
-        return {
-          type: 'RuntimeError',
-          message: `Invalid continue target: ${target} (not patched properly during compilation)`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Invalid continue target: ${target} (not patched properly during compilation)`);
       }
       state.pc = target;
       return undefined;
@@ -122,21 +104,11 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       }
 
       if (!isCVMString(path)) {
-        return {
-          type: 'RuntimeError',
-          message: 'FS_LIST_FILES requires a string path',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'FS_LIST_FILES requires a string path');
       }
 
       if (!state.fileSystem) {
-        return {
-          type: 'RuntimeError',
-          message: 'FileSystem not available',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'FileSystem not available');
       }
 
       // Execute file system operation synchronously
@@ -160,21 +132,11 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const path = state.stack.pop();
       
       if (!path || !isCVMString(path)) {
-        return {
-          type: 'RuntimeError',
-          message: 'FS_READ_FILE requires a string path',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'FS_READ_FILE requires a string path');
       }
       
       if (!state.fileSystem) {
-        return {
-          type: 'RuntimeError',
-          message: 'FileSystem not available',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'FileSystem not available');
       }
       
       // Execute file system operation synchronously
@@ -192,30 +154,15 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const path = state.stack.pop();
       
       if (!path || !isCVMString(path)) {
-        return {
-          type: 'RuntimeError',
-          message: 'FS_WRITE_FILE requires a string path',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'FS_WRITE_FILE requires a string path');
       }
       
       if (content === undefined) {
-        return {
-          type: 'RuntimeError',
-          message: 'FS_WRITE_FILE requires content argument',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'FS_WRITE_FILE requires content argument');
       }
       
       if (!state.fileSystem) {
-        return {
-          type: 'RuntimeError',
-          message: 'FileSystem not available',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'FileSystem not available');
       }
       
       // Convert content to string
@@ -230,60 +177,20 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
 
   // String method handlers
   [OpCode.STRING_SUBSTRING]: {
-    stackIn: 2, // Minimum 2 (string, start), optionally 3 (string, start, end)
+    stackIn: 3,
     stackOut: 1,
     execute: (state, instruction) => {
-      // The compiler pushes: string, start, [end]
-      // So we pop in reverse order: [end], start, string
-      
-      if (state.stack.length < 2) {
-        return {
-          type: 'StackUnderflow',
-          message: 'STRING_SUBSTRING: Stack underflow',
-          pc: state.pc,
-          opcode: instruction.op
-        };
-      }
-      
-      // First check how many arguments we have
-      const stackSize = state.stack.length;
-      let str: CVMValue;
-      let start: number;
-      let end: number | undefined;
-      
-      // Save the current stack to restore if we need to check argument count
-      const arg1 = state.stack[stackSize - 1]; // Top of stack
-      const arg2 = state.stack[stackSize - 2]; // Second from top
-      
-      // Check if we have 3 arguments (string, start, end)
-      if (stackSize >= 3 && typeof arg1 === 'number' && typeof arg2 === 'number') {
-        // Three arguments case
-        end = state.stack.pop() as number;
-        start = state.stack.pop() as number;
-        str = state.stack.pop()!;
-      } else {
-        // Two arguments case
-        start = state.stack.pop() as number;
-        str = state.stack.pop()!;
-        end = undefined;
-      }
-      
+      const endVal = state.stack.pop()!;
+      let start = state.stack.pop() as number;
+      const str = state.stack.pop()!;
+      let end = isCVMUndefined(endVal) ? undefined : endVal as number;
+
       if (!isCVMString(str)) {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_SUBSTRING requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_SUBSTRING requires a string');
       }
       
       if (typeof start !== 'number') {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_SUBSTRING requires numeric start index',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_SUBSTRING requires numeric start index');
       }
       
       // Handle negative indices
@@ -305,14 +212,14 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       // Stack: haystack, needle
       const needle = state.stack.pop()!;
       const haystack = state.stack.pop()!;
-      
+      const elements = isCVMArrayRef(haystack) ? arrayElements(state, haystack) : undefined;
+      if (elements) {
+        state.stack.push(arrayIndexOf(elements, needle));
+        return undefined;
+      }
+
       if (!isCVMString(haystack) || !isCVMString(needle)) {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_INDEXOF requires string arguments',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_INDEXOF requires string arguments');
       }
       
       state.stack.push(haystack.indexOf(needle));
@@ -329,12 +236,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str) || !isCVMString(delimiter)) {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_SPLIT requires string arguments',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_SPLIT requires string arguments');
       }
       
       // Handle empty delimiter - split into characters
@@ -353,13 +255,10 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   },
 
   [OpCode.STRING_SLICE]: {
-    stackIn: 2, // Minimum 2 (string, start), optionally 3 (string, start, end)
+    stackIn: 3, // target, start, end (end = undefined when absent)
     stackOut: 1,
     execute: (state, instruction) => {
-      // The compiler pushes: string, start, [end]
-      // So we pop in reverse order: [end], start, string
-      
-      if (state.stack.length < 2) {
+      if (state.stack.length < 3) {
         return {
           type: 'StackUnderflow',
           message: 'STRING_SLICE: Stack underflow',
@@ -367,52 +266,27 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
           opcode: instruction.op
         };
       }
-      
-      // First check how many arguments we have
-      const stackSize = state.stack.length;
-      let str: CVMValue;
-      let start: number;
-      let end: number | undefined;
-      
-      // Save the current stack to restore if we need to check argument count
-      const arg1 = state.stack.length >= 1 ? state.stack[stackSize - 1] : undefined; // Top of stack
-      const arg2 = state.stack.length >= 2 ? state.stack[stackSize - 2] : undefined; // Second from top
-      
-      // Check if we have 3 arguments (string, start, end)
-      if (stackSize >= 3 && typeof arg1 === 'number' && typeof arg2 === 'number') {
-        // Three arguments case
-        end = state.stack.pop() as number;
-        start = state.stack.pop() as number;
-        str = state.stack.pop()!;
-      } else {
-        // Two arguments case
-        start = state.stack.pop() as number;
-        str = state.stack.pop()!;
-        end = undefined;
+
+      const endVal = state.stack.pop()!;
+      const startVal = state.stack.pop()!;
+      const target = state.stack.pop()!;
+
+      if (typeof startVal !== 'number') {
+        return runtimeError(state, instruction, 'slice requires a numeric start index');
       }
-      
-      if (!isCVMString(str)) {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_SLICE requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+      const end = (endVal === undefined || isCVMUndefined(endVal)) ? undefined : (endVal as number);
+
+      if (isCVMString(target)) {
+        state.stack.push(end === undefined ? target.slice(startVal) : target.slice(startVal, end));
+        return undefined;
       }
-      
-      if (typeof start !== 'number') {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_SLICE requires numeric start index',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+
+      if (isCVMArrayRef(target) && arrayElements(state, target)) {
+        state.stack.push(sliceArray(state, target, startVal, end));
+        return undefined;
       }
-      
-      // JavaScript slice behavior - handles negative indices
-      const result = end !== undefined ? str.slice(start, end) : str.slice(start);
-      state.stack.push(result);
-      return undefined;
+
+      return runtimeError(state, instruction, 'slice requires a string or an array');
     }
   },
 
@@ -425,21 +299,11 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_CHARAT requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_CHARAT requires a string');
       }
       
       if (typeof index !== 'number') {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_CHARAT requires numeric index',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_CHARAT requires numeric index');
       }
       
       // JavaScript charAt behavior - returns empty string if out of bounds
@@ -457,12 +321,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_TOUPPERCASE requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_TOUPPERCASE requires a string');
       }
       
       state.stack.push(str.toUpperCase());
@@ -478,12 +337,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return {
-          type: 'RuntimeError',
-          message: 'STRING_TOLOWERCASE requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_TOLOWERCASE requires a string');
       }
       
       state.stack.push(str.toLowerCase());
@@ -504,9 +358,8 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
           opcode: instruction.op
         };
       }
-      // Use the existing universal conversion function
-      const result = cvmToString(value);
-      state.stack.push(result);
+      const elements = isCVMArrayRef(value) ? arrayElements(state, value) : undefined;
+      state.stack.push(elements ? elements.map(cvmToString).join(',') : cvmToString(value));
       return undefined;
     }
   },
@@ -517,14 +370,14 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       const searchString = state.stack.pop()!;
       const str = state.stack.pop()!;
-      
+      const elements = isCVMArrayRef(str) ? arrayElements(state, str) : undefined;
+      if (elements) {
+        state.stack.push(arrayIndexOf(elements, searchString) >= 0);
+        return undefined;
+      }
+
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_INCLUDES requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_INCLUDES requires a string');
       }
       
       const search = String(searchString);
@@ -541,12 +394,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_ENDS_WITH requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_ENDS_WITH requires a string');
       }
       
       const search = String(searchString);
@@ -563,12 +411,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_STARTS_WITH requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_STARTS_WITH requires a string');
       }
       
       const search = String(searchString);
@@ -584,12 +427,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_TRIM requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_TRIM requires a string');
       }
       
       state.stack.push(str.trim());
@@ -604,12 +442,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_TRIM_START requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_TRIM_START requires a string');
       }
       
       state.stack.push(str.trimStart());
@@ -624,45 +457,10 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_TRIM_END requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_TRIM_END requires a string');
       }
       
       state.stack.push(str.trimEnd());
-      return undefined;
-    }
-  },
-
-  [OpCode.STRING_REPLACE]: {
-    stackIn: 3,  // string, search, replacement
-    stackOut: 1,
-    execute: (state, instruction) => {
-      const replacement = state.stack.pop()!;
-      const search = state.stack.pop()!;
-      const str = state.stack.pop()!;
-      
-      if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_REPLACE requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
-      }
-      
-      const replaceStr = String(replacement);
-      const searchStr = String(search);
-      
-      // Replace FIRST occurrence only
-      const index = str.indexOf(searchStr);
-      const result = index === -1 ? str : 
-        str.substring(0, index) + replaceStr + str.substring(index + searchStr.length);
-      
-      state.stack.push(result);
       return undefined;
     }
   },
@@ -676,12 +474,7 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_REPLACE_ALL requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_REPLACE_ALL requires a string');
       }
       
       const searchStr = String(search);
@@ -701,14 +494,14 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     execute: (state, instruction) => {
       const searchString = state.stack.pop()!;
       const str = state.stack.pop()!;
-      
+      const elements = isCVMArrayRef(str) ? arrayElements(state, str) : undefined;
+      if (elements) {
+        state.stack.push(arrayIndexOf(elements, searchString, true));
+        return undefined;
+      }
+
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_LAST_INDEX_OF requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_LAST_INDEX_OF requires a string');
       }
       
       const search = String(searchString);
@@ -725,21 +518,11 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_REPEAT requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_REPEAT requires a string');
       }
       
       if (!isCVMNumber(count) || count < 0) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_REPEAT requires non-negative number',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_REPEAT requires non-negative number');
       }
       
       state.stack.push(str.repeat(Math.floor(count)));
@@ -756,21 +539,11 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_PAD_START requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_PAD_START requires a string');
       }
       
       if (!isCVMNumber(targetLength)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_PAD_START requires number for length',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_PAD_START requires number for length');
       }
       
       const pad = isCVMString(padString) ? padString : String(padString);
@@ -788,21 +561,11 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       const str = state.stack.pop()!;
       
       if (!isCVMString(str)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_PAD_END requires a string',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_PAD_END requires a string');
       }
       
       if (!isCVMNumber(targetLength)) {
-        return { 
-          type: 'RuntimeError', 
-          message: 'STRING_PAD_END requires number for length',
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, 'STRING_PAD_END requires number for length');
       }
       
       const pad = isCVMString(padString) ? padString : String(padString);

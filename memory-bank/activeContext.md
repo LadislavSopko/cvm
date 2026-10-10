@@ -2,44 +2,25 @@
 
 [STATUS]
 @state::IDLE
-@branch::main
-@date::2026-10-09
+@lastClosed::08-e2e-and-compiler-fixes{j-close 2026-10-10;merged→main bb3f741;pushed;history.md §2026-10-10}
 @submodule::.ai-agent→branch feature/06-tddab-review{pushed;user keeps it;¬change}
 
-[RECENT]
->closed::07-agent-loop-robustness✓{j-close 2026-10-09;merged→main 7d14e4c;pushed;cvm-server 2.1.0 built in apps/cvm-server/dist}
-  ↳fixes::#11 CROSS-CHECK submit+validate/re-ask;submitTask per-state text;getTask reminder;reportCCResult returns state;return value kept;tiered test scope;redKey full length;planexecutor→apps/cvm-server/programs
-  ↳rules::.ai-agent tddab-planner/j-review-plan/j-develop/j-close tiers{2.22.2→2.22.4}
-  ↳history::memory-bank/history.md §2026-10-09
+[OPEN]
+?release::cvm-server version 2.1.1 vs 3.0.0{recommended 3.0.0: engines node>=22,sandbox default cwd,compile rejects syntax errors,delete nonce,instruction budget}→user decides;2.1.1 NOT on npm yet
+?cicd::user configures tonight per tasks/08-e2e-and-compiler-fixes/cicd-setup.md{npm Trusted Publisher done(release.yml,env production,only "npm publish");GitHub env production,Actions read-only,ruleset production}
+  ↳flow::PR main→production runs ci.yml(verify);user merges by hand;push production→release.yml build+npm publish --provenance(OIDC,no token;skips existing version)
+  ↳!creating production branch triggers CD→publishes current version
+?preview::npm pack tarball of apps/cvm-server/dist→test via npx -y <tgz> before publishing{offered,not done}
+!cvm-dbg::MCP server killed by my pkill(2026-10-10)→user must restart it
+?nvm::user may run `nvm alias default 22`(shell default still Node 18.20.8;run gates with `source ~/.nvm/nvm.sh && nvm use 22`)
 
-[E2E]
->ran::test/programs/run-all-tests.sh{after rebuild}→runner says 64/64 PASSED
-!runnerFalsePass::mcp-test-client exits 0 on"Execution error"→8/64 programs actually end in error but count as PASSED
-@errors{pre-existing,identical in all 6 previous runs→0 regressions}::
-  03-control-flow/block-scoping{TryStatement unsupported→compile fail}
-  03-control-flow/for-of-loops{ITER_END: No active iterator}
-  05-strings/string-methods-extended+09/all-features+09/string-array-methods-all{STRING_SLICE requires a string}
-  06-file-system/file-persistence{Invalid jump target: -1}
-  10-regex/regex-literal-errors+regex-pattern-matching-errors{expected error tests}
-@decided{2026-10-09}::fix in NEW feature 08{after j-close 07};rewrite file-persistence+block-scoping tests
-[FEATURE-08-ANALYSIS]{verified in code;ready for j-new-feature 08}
-A!runnerFalsePass::test/integration/mcp-test-client.ts:79-84 Error:→done=true exit0;"✓ Program loaded" even on load error;no expected-error marker
-  ?fix::exit1 on load/start/exec error;--expect-error "<substr>";run-all-tests.sh passes it for 10-regex/regex-literal-errors+regex-pattern-matching-errors
-B!!compilerSwallow::compiler.ts:111-120 catch assumes reportError done;call-expression.ts:366 throw'Unsupported call expression' w/o reportError→stmt dropped|loop half-emitted(JUMP_IF_FALSE -1);success:true;unpatched jumps only debug-logged(:133-142)
-  ?fix::catch→push CompilationError{line/col} if not reported;unpatched -1 jump→compile error
-  @impact::scan 64 e2e programs→only 2 swallowed errors,both file-persistence(Math.min,Date.now)
-C!breakInForeach::break-statement.ts:17-18 emits ITER_END then BREAK→target is loop-end ITER_END{for-of-statement.ts:82-86,for-in-statement.ts:69-76}→double ITER_END→"No active iterator";specs only check compile
-  ?fix::break emits no ITER_END;tests EXECUTE break/continue in for-of,for-in,nested
-D!sliceOneArg::compiler always pushes 3{PUSH_UNDEFINED end,call-expression.ts:160-170};handler advanced.ts:355-390 guesses arity by types→slice(n) fails;vm-string-slice.spec uses 2-push form only
-  ?fix::handler always pops 3,undefined end=absent;update VM specs to compiler contract;e2e slice(n)
-E·tests::block-scoping{try/catch unsupported}→rewrite to CVM function-scope semantics;file-persistence{Math.min,Date.now}→rewrite without them
-@method::TDDAB block per bug with RED reproducing real error
+[LESSONS]
+§typecheck::always --skip-nx-cache(cache once hid a failing typecheck)
+§nexus::~/.npmrc registry=nexus.0ics.ai npm-group→after publish invalidate nexus npm-proxy+npm-group cache
+§lsai::warm defining file(lsai_outline)before name lookups;@cvm/types logger is a Proxy(not spyable)
+§build::types/app vite externals must include pino/fs/path,else pino browser build logs to STDOUT(breaks MCP stdio)
+§process::never pkill -f with broad patterns(killed cvm-dbg)
 
 [NEXT]
-✓publish::cvm-server@2.1.0 on npmjs{dist-tags latest=2.1.0,next=2.1.0;user published by hand}
-✓mcpLive::cvm MCP = 2.1.0{after nexus npm-proxy+npm-group Invalidate cache + npx cache cleared;2026-10-09}
-  ↳probe::getTask→CC text+"--- When done, call submitTask…"✓;submitTask→"OK. Call getTask for the next task."✓;last submit→'OK. Execution completed with result: "end"'✓;getTask after→'Execution completed with result: "end"'✓{return value kept}
-  §lesson::~/.npmrc registry=nexus.0ics.ai npm-group→after publish invalidate nexus npm-proxy cache{or lower Maximum metadata age}
-✓issue#11::closed 2026-10-09 with summary comment
-?j-new-feature::08 e2e-and-compiler-fixes{analysis in FEATURE-08-ANALYSIS}
-?audit-followups::CI+lint+config-zod+execLimitsEnforce+realpathSandbox
+?feature::toolchain majors(TS 7,Nx 23,Vitest 5,Vite 8,zod 4,pino 10)+MCP SDK v2(analyze sessions/new spec;stdio impact)
+?audit-followups::config-zod,realpathSandbox,48+ no-explicit-any warnings(158 lint warnings)

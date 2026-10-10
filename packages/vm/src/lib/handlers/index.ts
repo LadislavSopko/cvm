@@ -17,7 +17,6 @@ import { incrementHandlers } from './increment.js';
 import { advancedHandlers } from './advanced.js';
 import { objectHandlers } from './objects.js';
 import { objectIteratorHandlers } from './object-iterators.js';
-import { unifiedHandlers } from './unified.js';
 import { regexHandlers } from './regex.js';
 
 // Export the combined handlers
@@ -36,7 +35,6 @@ export const handlers: Partial<Record<OpCode, OpcodeHandler>> = {
   ...advancedHandlers,
   ...objectHandlers,
   ...objectIteratorHandlers,
-  ...unifiedHandlers,
   ...regexHandlers,
 };
 

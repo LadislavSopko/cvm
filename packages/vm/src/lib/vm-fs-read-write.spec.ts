@@ -267,7 +267,7 @@ describe('VM File System Read/Write Operations', () => {
         { op: OpCode.PUSH, arg: './input.txt' },
         { op: OpCode.FS_READ_FILE },
         { op: OpCode.PUSH, arg: ' - processed' },
-        { op: OpCode.CONCAT },  // Now we have: path (bottom), content (top)
+        { op: OpCode.ADD },  // Now we have: path (bottom), content (top)
         { op: OpCode.FS_WRITE_FILE },
         { op: OpCode.HALT }
       ];

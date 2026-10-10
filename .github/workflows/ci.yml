@@ -1,0 +1,34 @@
+name: CI
+
+on:
+  pull_request:
+    branches: [production]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  verify:
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.head_ref == 'main'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          submodules: false
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - name: Use the public npm registry for locked tarballs
+        run: sed -i 's#https://nexus.0ics.ai/repository/npm-group/#https://registry.npmjs.org/#g' package-lock.json
+      - run: npm ci
+      - run: npx nx run-many --target=build --all
+      - run: npx nx run-many --target=typecheck --all --skip-nx-cache
+      - run: npx nx run-many --target=lint --all
+      - run: npx nx run-many --target=test --all --skip-nx-cache
+      - run: bash test/programs/run-all-tests.sh

@@ -26,8 +26,11 @@ export interface FileSystemService {
 export class SandboxedFileSystem implements FileSystemService {
   private sandboxPaths: string[] = [];
 
-  constructor() {
-    // Initialize from environment variables
+  constructor(explicitPaths?: string[]) {
+    if (explicitPaths) {
+      this.sandboxPaths = explicitPaths.map(p => path.resolve(p));
+      return;
+    }
     const paths = process.env['CVM_SANDBOX_PATHS'];
     const root = process.env['CVM_SANDBOX_ROOT'];
     
@@ -72,7 +75,7 @@ export class SandboxedFileSystem implements FileSystemService {
     try {
       const normalizedPath = path.resolve(filePath);
       this.listFilesRecursive(normalizedPath, normalizedPath, result.elements, options);
-    } catch (error) {
+    } catch {
       // Return empty array on any error
     }
 
@@ -135,7 +138,7 @@ export class SandboxedFileSystem implements FileSystemService {
           this.listFilesRecursive(basePath, fullPath, results, options, depth + 1);
         }
       }
-    } catch (error) {
+    } catch {
       // Silently skip directories we can't read
     }
   }
@@ -161,7 +164,7 @@ export class SandboxedFileSystem implements FileSystemService {
       }
       
       return fs.readFileSync(normalizedPath, 'utf-8');
-    } catch (error: any) {
+    } catch {
       // Return null for any error (file not found, permission denied, etc.)
       // This prevents leaking information about file system structure
       return null;
@@ -201,7 +204,7 @@ export class SandboxedFileSystem implements FileSystemService {
       // Write the file
       fs.writeFileSync(normalizedPath, content, 'utf-8');
       return true;
-    } catch (error) {
+    } catch {
       // Return false for any error
       return false;
     }

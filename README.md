@@ -89,6 +89,8 @@ The magic: CVM saves `step1` before moving to `step2`. You can stop, inspect, an
 
 ## Try It Now
 
+Requires Node.js 22 or newer.
+
 Save this as `counter.ts`:
 
 ```typescript

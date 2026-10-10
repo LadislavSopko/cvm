@@ -1,17 +1,17 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2025-2026 Ladislav Sopko
 
-const pino = require('pino');
-const fs = require('fs');
-const path = require('path');
+import { pino } from 'pino';
+import * as fs from 'fs';
+import * as path from 'path';
 
 let _logger: any = null;
 
 function getLogger() {
   if (!_logger) {
     
-    const logLevel = process.env.CVM_LOG_LEVEL || 'info';
-    const logFile = process.env.CVM_LOG_FILE || '.cvm/cvm-debug.log';
+    const logLevel = process.env['CVM_LOG_LEVEL'] || 'info';
+    const logFile = process.env['CVM_LOG_FILE'] || '.cvm/cvm-debug.log';
     
 
     // Ensure log directory exists in production
@@ -22,7 +22,7 @@ function getLogger() {
         fs.mkdirSync(logDir, { recursive: true });
       }
       destination = pino.destination(logFile);
-    } catch (error) {
+    } catch {
       // Fallback to stdout if file system access fails (e.g., in test environments)
       destination = process.stdout;
     }

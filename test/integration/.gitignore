@@ -2,6 +2,9 @@
 .cvm/
 *.output
 *.log
+final-results.json
+test-data.json
+test-output.txt
 
 # Compiled output
 *.js

@@ -30,8 +30,16 @@ export interface VMState {
   heap: VMHeap;
 }
 
+export interface VMOptions {
+  maxInstructions?: number;
+}
+
+export const DEFAULT_MAX_INSTRUCTIONS = 10_000_000;
+
 export class VM {
   private vmLogger = logger.child({ component: 'vm' });
+
+  constructor(private readonly options: VMOptions = {}) {}
 
   createInitialState(): VMState {
     return {
@@ -88,26 +96,21 @@ export class VM {
 
     logger.trace({ bytecodeLength: bytecode.length, initialPC: state.pc }, 'VM execution starting');
 
+    const traceEnabled = this.vmLogger.isLevelEnabled('trace');
+    const budget = this.options.maxInstructions ?? DEFAULT_MAX_INSTRUCTIONS;
+    let executed = 0;
     while (state.status === 'running' && state.pc < bytecode.length) {
+      if (budget > 0 && ++executed > budget) {
+        state.status = 'error';
+        state.error = `Instruction budget exceeded: more than ${budget} instructions without reaching CC() (possible infinite loop)`;
+        break;
+      }
       const instruction = bytecode[state.pc];
-      
-      logger.trace({ 
-        pc: state.pc, 
-        opcode: OpCode[instruction.op], 
-        arg: instruction.arg,
-        stackSize: state.stack.length,
-        variablesCount: state.variables.size
-      }, 'Executing instruction');
-      
-      // Trace instruction execution
-      this.vmLogger.trace({ 
-        pc: state.pc, 
-        opcode: OpCode[instruction.op], 
-        opcodeNum: instruction.op,
-        arg: instruction.arg,
-        stackSize: state.stack.length 
-      }, 'Executing instruction');
-      
+
+      if (traceEnabled) {
+        this.vmLogger.trace({ pc: state.pc, opcode: OpCode[instruction.op], arg: instruction.arg, stackSize: state.stack.length }, 'Executing instruction');
+      }
+
       const handler = handlers[instruction.op];
       if (handler) {
         // Validate stack requirements
@@ -121,7 +124,7 @@ export class VM {
 
         // Special validation for jump operations - CRITICAL for debugging "Invalid jump target: -1"
         if ((instruction.op === OpCode.JUMP || instruction.op === OpCode.JUMP_IF_FALSE || 
-             instruction.op === OpCode.JUMP_IF || instruction.op === OpCode.JUMP_IF_TRUE ||
+             instruction.op === OpCode.JUMP_IF_TRUE ||
              instruction.op === OpCode.BREAK || instruction.op === OpCode.CONTINUE) && 
             instruction.arg !== undefined) {
           
@@ -138,7 +141,6 @@ export class VM {
             state.status = 'error';
             const opName = instruction.op === OpCode.JUMP ? 'jump' : 
                           instruction.op === OpCode.JUMP_IF_FALSE ? 'jump' :
-                          instruction.op === OpCode.JUMP_IF ? 'jump' :
                           instruction.op === OpCode.JUMP_IF_TRUE ? 'jump' :
                           instruction.op === OpCode.BREAK ? 'break' : 'continue';
             

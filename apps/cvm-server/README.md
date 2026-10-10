@@ -27,6 +27,8 @@ Storage + VM Engine
 
 ## Installation
 
+Requires Node.js 22 or newer (`.nvmrc` pins 22 for development).
+
 ### For End Users
 
 Add to Claude Desktop's MCP settings:
@@ -83,6 +85,14 @@ CVM_LOG_LEVEL=info
 
 # Log format: pretty (default) or json
 CVM_LOG_FORMAT=pretty
+```
+
+### Execution Limits
+
+```bash
+# Maximum instructions executed between two CC() calls (default 10000000).
+# Stops a loop that never reaches CC(); loops with CC() inside are never limited. 0 = unlimited.
+CVM_MAX_INSTRUCTIONS=10000000
 ```
 
 ### Environment
@@ -142,11 +152,11 @@ npx nx build cvm-server --configuration=production
 
 ### Publish to npm
 
-```bash
-# Bump version and publish
-npx nx release
+Bump `version` in `apps/cvm-server/package.json` on `main`, open a PR `main` → `production` (CI runs the full gate), merge it by hand: `.github/workflows/release.yml` builds and publishes with npm Trusted Publishing (OIDC, no token, with provenance) and skips versions already on npm.
 
-# Or manually
+Manual fallback:
+
+```bash
 cd apps/cvm-server/dist
 npm publish --otp=YOUR_OTP
 ```

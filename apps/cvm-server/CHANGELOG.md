@@ -1,3 +1,14 @@
+## 2.1.1 (2026-10-09)
+
+### 🩹 Fixed
+
+- **compiler:** unsupported constructs (`Math.*`, `Date.*`, unsupported method calls, computed property names, compound assignment to array elements, unsupported loop variable declarations) are reported as compile errors with line and column instead of silently dropping the statement or leaving a half-emitted loop; an unpatched jump is reported as an internal compiler error.
+- **compiler:** `break` inside `for…of` / `for…in` no longer fails at runtime with `ITER_END: No active iterator`.
+- **vm:** `slice` works with one argument (`s.slice(n)`) and on arrays (returns a new array).
+- **e2e:** the test client exit code reflects load, start and execution failures, and supports `--expect-error=<text>` for intentional-error programs; the e2e suite no longer reports failing programs as passed.
+- **packaging:** `bin` field fixed (no npm publish warning); stale build artifacts removed from the repository.
+- **deps:** `@modelcontextprotocol/sdk` 1.17.2 → 1.32.1 (same major; Node ≥18, zod `^3.25 || ^4.0`); test transport typed for the stricter 1.32 result types.
+
 ## 2.1.0 (2026-10-09)
 
 ### 🚀 Changed

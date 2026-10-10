@@ -3,7 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
-import { safePop, isVMError } from '../stack-utils.js';
+import { runtimeError } from './errors.js';
 import { isCVMObjectRef, CVMObject } from '@cvm/types';
 
 /**
@@ -100,12 +100,10 @@ const regexTest: OpcodeHandler = {
   
   execute: (state, instruction) => {
     // Pop string argument
-    const testString = safePop(state, instruction.op);
-    if (isVMError(testString)) return testString;
+    const testString = state.stack.pop()!;
     
     // Pop regex reference
-    const regexRef = safePop(state, instruction.op);
-    if (isVMError(regexRef)) return regexRef;
+    const regexRef = state.stack.pop()!;
     
     // Validate string argument
     if (typeof testString !== 'string') {
@@ -142,8 +140,8 @@ const regexTest: OpcodeHandler = {
       // Recreate JavaScript RegExp from stored properties
       // The LOAD_REGEX handler stores the regex as an object with properties
       const cvmObject = regexObj.data as CVMObject;
-      const pattern = cvmObject.properties.source;
-      const flags = cvmObject.properties.flags;
+      const pattern = cvmObject.properties['source'];
+      const flags = cvmObject.properties['flags'];
       
       if (typeof pattern !== 'string' || typeof flags !== 'string') {
         return {
@@ -163,12 +161,7 @@ const regexTest: OpcodeHandler = {
       return undefined; // Success
       
     } catch (error) {
-      return {
-        type: 'RuntimeError',
-        message: `Regex test failed: ${(error as Error).message}`,
-        pc: state.pc,
-        opcode: instruction.op
-      };
+      return runtimeError(state, instruction, `Regex test failed: ${(error as Error).message}`);
     }
   }
 };
@@ -191,12 +184,10 @@ const stringMatch: OpcodeHandler = {
   
   execute: (state, instruction) => {
     // Pop regex reference
-    const regexRef = safePop(state, instruction.op);
-    if (isVMError(regexRef)) return regexRef;
+    const regexRef = state.stack.pop()!;
     
     // Pop string input
-    const inputString = safePop(state, instruction.op);
-    if (isVMError(inputString)) return inputString;
+    const inputString = state.stack.pop()!;
     
     // Validate string input
     if (typeof inputString !== 'string') {
@@ -232,8 +223,8 @@ const stringMatch: OpcodeHandler = {
     try {
       // Recreate JavaScript RegExp from stored properties
       const cvmObject = regexObj.data as CVMObject;
-      const pattern = cvmObject.properties.source;
-      const flags = cvmObject.properties.flags;
+      const pattern = cvmObject.properties['source'];
+      const flags = cvmObject.properties['flags'];
       
       if (typeof pattern !== 'string' || typeof flags !== 'string') {
         return {
@@ -268,12 +259,7 @@ const stringMatch: OpcodeHandler = {
       return undefined; // Success
       
     } catch (error) {
-      return {
-        type: 'RuntimeError',
-        message: `String match failed: ${(error as Error).message}`,
-        pc: state.pc,
-        opcode: instruction.op
-      };
+      return runtimeError(state, instruction, `String match failed: ${(error as Error).message}`);
     }
   }
 };
@@ -297,16 +283,13 @@ const stringReplaceRegex: OpcodeHandler = {
   
   execute: (state, instruction) => {
     // Pop replacement
-    const replacement = safePop(state, instruction.op);
-    if (isVMError(replacement)) return replacement;
+    const replacement = state.stack.pop()!;
     
     // Pop regex reference
-    const regexRef = safePop(state, instruction.op);
-    if (isVMError(regexRef)) return regexRef;
+    const regexRef = state.stack.pop()!;
     
     // Pop string input
-    const inputString = safePop(state, instruction.op);
-    if (isVMError(inputString)) return inputString;
+    const inputString = state.stack.pop()!;
     
     // Validate string input
     if (typeof inputString !== 'string') {
@@ -357,8 +340,8 @@ const stringReplaceRegex: OpcodeHandler = {
     try {
       // Recreate JavaScript RegExp from stored properties
       const cvmObject = regexObj.data as CVMObject;
-      const pattern = cvmObject.properties.source;
-      const flags = cvmObject.properties.flags;
+      const pattern = cvmObject.properties['source'];
+      const flags = cvmObject.properties['flags'];
       
       if (typeof pattern !== 'string' || typeof flags !== 'string') {
         return {
@@ -378,12 +361,7 @@ const stringReplaceRegex: OpcodeHandler = {
       return undefined; // Success
       
     } catch (error) {
-      return {
-        type: 'RuntimeError',
-        message: `String replace failed: ${(error as Error).message}`,
-        pc: state.pc,
-        opcode: instruction.op
-      };
+      return runtimeError(state, instruction, `String replace failed: ${(error as Error).message}`);
     }
   }
 };

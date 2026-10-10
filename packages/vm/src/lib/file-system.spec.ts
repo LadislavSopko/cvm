@@ -166,3 +166,12 @@ describe('SandboxedFileSystem', () => {
     }
   });
 });
+
+describe('SandboxedFileSystem explicit paths', () => {
+  it('SandboxedFileSystem with explicit paths ignores CVM_SANDBOX_PATHS', () => {
+    process.env.CVM_SANDBOX_PATHS = '/from-env';
+    const explicit = new SandboxedFileSystem(['/explicit']);
+    expect((explicit as any).sandboxPaths).toEqual(['/explicit']);
+    expect((new SandboxedFileSystem() as any).sandboxPaths).toEqual(['/from-env']);
+  });
+});

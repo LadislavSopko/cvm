@@ -6,8 +6,14 @@ import {
   JSONRPCMessage, 
   CallToolRequest, 
   CallToolResult,
-  InitializeRequest
+  InitializeRequest,
+  Tool
 } from '@modelcontextprotocol/sdk/types.js';
+
+// CVM tools only ever return text content, so tests read content[i].text directly.
+export type TextToolResult = Omit<CallToolResult, 'content'> & {
+  content: Array<{ type: 'text'; text: string }>;
+};
 
 /**
  * Test transport that allows direct invocation of registered tools
@@ -39,7 +45,7 @@ export class TestTransport implements Transport {
 
   async send(message: JSONRPCMessage): Promise<void> {
     // Handle responses to our requests
-    if ('id' in message && message.id !== null && this.responseHandlers.has(message.id)) {
+    if ('id' in message && message.id != null && this.responseHandlers.has(message.id)) {
       const handler = this.responseHandlers.get(message.id)!;
       this.responseHandlers.delete(message.id);
       handler(message);
@@ -78,7 +84,7 @@ export class TestTransport implements Transport {
    */
   private async sendRequest(request: JSONRPCMessage): Promise<any> {
     return new Promise((resolve) => {
-      if ('id' in request && request.id !== null) {
+      if ('id' in request && request.id != null) {
         this.responseHandlers.set(request.id, resolve);
       }
       
@@ -93,7 +99,7 @@ export class TestTransport implements Transport {
    * Invoke a tool through the MCP protocol
    * This ensures we test the exact same code path as production
    */
-  async callTool(toolName: string, args: any): Promise<CallToolResult | { error: any }> {
+  async callTool(toolName: string, args: any): Promise<TextToolResult | { error: any }> {
     if (!this.initialized) {
       throw new Error('Transport not initialized');
     }
@@ -114,6 +120,18 @@ export class TestTransport implements Transport {
     if ('error' in response) {
       return { error: response.error };
     }
-    return response.result as CallToolResult;
+    return response.result as TextToolResult;
+  }
+
+  async listTools(): Promise<Tool[]> {
+    if (!this.initialized) {
+      throw new Error('Transport not initialized');
+    }
+    const id = this.messageId++;
+    const response = await this.sendRequest({ jsonrpc: '2.0', id, method: 'tools/list', params: {} } as JSONRPCMessage);
+    if ('error' in response) {
+      throw new Error(`tools/list failed: ${response.error.message}`);
+    }
+    return response.result.tools as Tool[];
   }
 }

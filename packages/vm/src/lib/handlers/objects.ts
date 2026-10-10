@@ -3,6 +3,7 @@
 
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
+import { runtimeError } from './errors.js';
 import { 
   createCVMObject, 
   createCVMUndefined, 
@@ -18,7 +19,6 @@ import {
   CVMObject,
   CVMArray
 } from '@cvm/types';
-import { safePop, isVMError } from '../stack-utils.js';
 
 /**
  * Helper function to convert CVM values to plain JavaScript for JSON.stringify
@@ -84,35 +84,22 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 3,
     stackOut: 1,
     execute: (state, instruction) => {
-      const value = safePop(state, instruction.op);
-      if (isVMError(value)) return value;
-      const key = safePop(state, instruction.op);
-      if (isVMError(key)) return key;
-      const objOrRef = safePop(state, instruction.op);
-      if (isVMError(objOrRef)) return objOrRef;
+      const value = state.stack.pop()!;
+      const key = state.stack.pop()!;
+      const objOrRef = state.stack.pop()!;
       
       let obj: CVMObject;
       
       if (isCVMObjectRef(objOrRef)) {
         const heapObj = state.heap.get(objOrRef.id);
         if (!heapObj || heapObj.type !== 'object') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid object reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid object reference');
         }
         obj = heapObj.data as CVMObject;
       } else if (isCVMObject(objOrRef)) {
         obj = objOrRef;
       } else {
-        return {
-          type: 'RuntimeError',
-          message: `Cannot set property '${key}' on ${cvmTypeof(objOrRef)}`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Cannot set property '${key}' on ${cvmTypeof(objOrRef)}`);
       }
       
       // Convert key to string (JavaScript behavior)
@@ -128,18 +115,11 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const key = safePop(state, instruction.op);
-      if (isVMError(key)) return key;
-      const objOrRef = safePop(state, instruction.op);
-      if (isVMError(objOrRef)) return objOrRef;
+      const key = state.stack.pop()!;
+      const objOrRef = state.stack.pop()!;
       
       if (isCVMNull(objOrRef) || isCVMUndefined(objOrRef)) {
-        return {
-          type: 'RuntimeError',
-          message: `Cannot read property '${key}' of ${cvmTypeof(objOrRef)}`,
-          pc: state.pc,
-          opcode: instruction.op
-        };
+        return runtimeError(state, instruction, `Cannot read property '${key}' of ${cvmTypeof(objOrRef)}`);
       }
       
       let obj: CVMObject | null = null;
@@ -147,12 +127,7 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
       if (isCVMObjectRef(objOrRef)) {
         const heapObj = state.heap.get(objOrRef.id);
         if (!heapObj || heapObj.type !== 'object') {
-          return {
-            type: 'RuntimeError',
-            message: 'Invalid object reference',
-            pc: state.pc,
-            opcode: instruction.op
-          };
+          return runtimeError(state, instruction, 'Invalid object reference');
         }
         obj = heapObj.data as CVMObject;
       } else if (isCVMObject(objOrRef)) {
@@ -172,9 +147,8 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.JSON_STRINGIFY]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state, instruction) => {
-      const value = safePop(state, instruction.op);
-      if (isVMError(value)) return value;
+    execute: (state) => {
+      const value = state.stack.pop()!;
       
       const jsValue = cvmValueToJs(value, state.heap);
       state.stack.push(JSON.stringify(jsValue));
@@ -185,9 +159,8 @@ export const objectHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.OBJECT_KEYS]: {
     stackIn: 1,
     stackOut: 1,
-    execute: (state, instruction) => {
-      const value = safePop(state, instruction.op);
-      if (isVMError(value)) return value;
+    execute: (state) => {
+      const value = state.stack.pop()!;
       
       if (isCVMObjectRef(value)) {
         const heapObj = state.heap.get(value.id);

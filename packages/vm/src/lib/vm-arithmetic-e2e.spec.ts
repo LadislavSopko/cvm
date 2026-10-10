@@ -54,11 +54,11 @@ describe('VM - Arithmetic E2E', () => {
     expect(result.stack[0]).toBe(106); // "53" * 2 = 106
   });
 
-  it('should use CONCAT for string literals', () => {
+  it('should concatenate string literals with ADD', () => {
     const bytecode = [
       { op: OpCode.PUSH, arg: "Hello" },
       { op: OpCode.PUSH, arg: " World" },
-      { op: OpCode.CONCAT },
+      { op: OpCode.ADD },
       { op: OpCode.HALT }
     ];
 

@@ -22,7 +22,7 @@ export const compileSwitchStatement: StatementVisitor<ts.SwitchStatement> = (
   let defaultJump: number | null = null;
   
   // First pass: Generate comparisons and collect jump addresses
-  node.caseBlock.clauses.forEach((clause, index) => {
+  node.caseBlock.clauses.forEach((clause) => {
     if (ts.isCaseClause(clause)) {
       // case value:
       state.emit(OpCode.LOAD, tempVar);
@@ -48,7 +48,7 @@ export const compileSwitchStatement: StatementVisitor<ts.SwitchStatement> = (
   
   // Second pass: Generate case bodies
   let caseIndex = 0;
-  node.caseBlock.clauses.forEach((clause, index) => {
+  node.caseBlock.clauses.forEach((clause) => {
     if (ts.isCaseClause(clause)) {
       // Patch jump to this case body
       const caseStart = state.currentAddress();

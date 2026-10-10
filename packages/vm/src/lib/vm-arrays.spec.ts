@@ -100,7 +100,7 @@ describe('VM Array Operations', () => {
     });
   });
 
-  describe('ARRAY_LEN', () => {
+  describe('LENGTH on arrays', () => {
     it('should return array length', () => {
       const state = vm.execute([
         { op: OpCode.ARRAY_NEW },
@@ -110,7 +110,7 @@ describe('VM Array Operations', () => {
         { op: OpCode.ARRAY_PUSH },
         { op: OpCode.PUSH, arg: 'c' },
         { op: OpCode.ARRAY_PUSH },
-        { op: OpCode.ARRAY_LEN },
+        { op: OpCode.LENGTH },
         { op: OpCode.HALT }
       ]);
 

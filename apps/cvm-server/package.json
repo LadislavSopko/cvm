@@ -1,6 +1,6 @@
 {
   "name": "cvm-server",
-  "version": "2.1.0",
+  "version": "2.1.1",
   "description": "Cognitive Virtual Machine (CVM) - A deterministic bytecode VM with AI cognitive operations",
   "keywords": [
     "mcp",
@@ -23,7 +23,7 @@
   },
   "main": "main.cjs",
   "bin": {
-    "cvm-server": "./bin/cvm-server.cjs"
+    "cvm-server": "bin/cvm-server.cjs"
   },
   "files": [
     "bin",
@@ -33,13 +33,13 @@
     "LICENSE"
   ],
   "engines": {
-    "node": ">=18.0.0"
+    "node": ">=22"
   },
   "publishConfig": {
     "access": "public"
   },
   "dependencies": {
-    "@modelcontextprotocol/sdk": "^1.12.2",
+    "@modelcontextprotocol/sdk": "^1.32.1",
     "@types/pino": "^7.0.4",
     "dotenv": "^16.0.0",
     "pino": "^9.7.0",
@@ -52,6 +52,9 @@
     "targets": {
       "build": {
         "executor": "@nx/vite:build",
+        "dependsOn": [
+          "^build"
+        ],
         "outputs": [
           "{options.outputPath}"
         ],

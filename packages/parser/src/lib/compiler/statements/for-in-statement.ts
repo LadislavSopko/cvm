@@ -9,7 +9,7 @@ import { JumpContext } from '../../compiler-state.js';
 export const compileForInStatement: StatementVisitor<ts.ForInStatement> = (
   node,
   state,
-  { compileExpression, compileStatement }
+  { compileExpression, compileStatement, reportError }
 ) => {
   // Extract variable name and object
   const variable = node.initializer;
@@ -24,7 +24,7 @@ export const compileForInStatement: StatementVisitor<ts.ForInStatement> = (
   } else if (ts.isIdentifier(variable)) {
     variableName = variable.text;
   } else {
-    throw new Error('Unsupported for-in variable declaration');
+    return reportError(variable, 'Unsupported for-in variable declaration');
   }
   
   // Compile the object (object to iterate over)
@@ -52,8 +52,7 @@ export const compileForInStatement: StatementVisitor<ts.ForInStatement> = (
     breakTargets: [jumpIfFalseIndex],
     continueTargets: [],
     endTargets: [],
-    startAddress: loopStart,
-    iterVariable: variableName
+    startAddress: loopStart
   };
   state.pushContext(foreachContext);
   

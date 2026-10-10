@@ -11,7 +11,6 @@ export interface JumpContext {
   elseTarget?: number;          // For if: else block target
   endTargets: number[];         // Common: where to jump after block
   startAddress?: number;        // For loops: loop start for continue
-  iterVariable?: string;        // For foreach: loop variable name
 }
 
 export class CompilerState {
@@ -68,15 +67,6 @@ export class CompilerState {
       logger.trace(`CONTEXT: Popped context type=${context.type}, breakTargets=${JSON.stringify(context.breakTargets)}`);
     }
     return context;
-  }
-
-  /**
-   * Get the current context without removing it
-   */
-  getCurrentContext(): JumpContext | null {
-    return this.contextStack.length > 0 
-      ? this.contextStack[this.contextStack.length - 1] 
-      : null;
   }
 
   /**

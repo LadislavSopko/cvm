@@ -1,7 +1,8 @@
 import { describe, it, expect, beforeEach } from 'vitest';
 import { VM } from '../vm.js';
 import { OpCode } from '@cvm/parser';
-import { arraysHandlers } from './arrays.js';
+import { arrayHandlers, sliceArray } from './arrays.js';
+import { advancedHandlers } from './advanced.js';
 import { createCVMArray, createCVMUndefined } from '@cvm/types';
 import type { VMState } from '../vm.js';
 
@@ -23,7 +24,7 @@ describe('Array new methods', () => {
       state.stack.push(1);
       state.stack.push(3);
       
-      const handler = arraysHandlers[OpCode.ARRAY_SLICE]!;
+      const handler = arrayHandlers[OpCode.ARRAY_SLICE]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_SLICE });
       
       expect(error).toBeUndefined();
@@ -43,7 +44,7 @@ describe('Array new methods', () => {
       state.stack.push(2);
       state.stack.push(createCVMUndefined());
       
-      const handler = arraysHandlers[OpCode.ARRAY_SLICE]!;
+      const handler = arrayHandlers[OpCode.ARRAY_SLICE]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_SLICE });
       
       expect(error).toBeUndefined();
@@ -61,7 +62,7 @@ describe('Array new methods', () => {
       state.stack.push(-3);
       state.stack.push(-1);
       
-      const handler = arraysHandlers[OpCode.ARRAY_SLICE]!;
+      const handler = arrayHandlers[OpCode.ARRAY_SLICE]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_SLICE });
       
       expect(error).toBeUndefined();
@@ -79,7 +80,7 @@ describe('Array new methods', () => {
       state.stack.push(2);
       state.stack.push(1);
       
-      const handler = arraysHandlers[OpCode.ARRAY_SLICE]!;
+      const handler = arrayHandlers[OpCode.ARRAY_SLICE]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_SLICE });
       
       expect(error).toBeUndefined();
@@ -94,7 +95,7 @@ describe('Array new methods', () => {
       state.stack.push(0);
       state.stack.push(1);
       
-      const handler = arraysHandlers[OpCode.ARRAY_SLICE]!;
+      const handler = arrayHandlers[OpCode.ARRAY_SLICE]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_SLICE });
       
       expect(error).toBeDefined();
@@ -111,7 +112,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push('-');
       
-      const handler = arraysHandlers[OpCode.ARRAY_JOIN]!;
+      const handler = arrayHandlers[OpCode.ARRAY_JOIN]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_JOIN });
       
       expect(error).toBeUndefined();
@@ -125,7 +126,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push(',');
       
-      const handler = arraysHandlers[OpCode.ARRAY_JOIN]!;
+      const handler = arrayHandlers[OpCode.ARRAY_JOIN]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_JOIN });
       
       expect(error).toBeUndefined();
@@ -139,7 +140,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push('');
       
-      const handler = arraysHandlers[OpCode.ARRAY_JOIN]!;
+      const handler = arrayHandlers[OpCode.ARRAY_JOIN]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_JOIN });
       
       expect(error).toBeUndefined();
@@ -153,7 +154,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push('|');
       
-      const handler = arraysHandlers[OpCode.ARRAY_JOIN]!;
+      const handler = arrayHandlers[OpCode.ARRAY_JOIN]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_JOIN });
       
       expect(error).toBeUndefined();
@@ -167,7 +168,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push(',');
       
-      const handler = arraysHandlers[OpCode.ARRAY_JOIN]!;
+      const handler = arrayHandlers[OpCode.ARRAY_JOIN]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_JOIN });
       
       expect(error).toBeUndefined();
@@ -178,7 +179,7 @@ describe('Array new methods', () => {
       state.stack.push('not an array');
       state.stack.push(',');
       
-      const handler = arraysHandlers[OpCode.ARRAY_JOIN]!;
+      const handler = arrayHandlers[OpCode.ARRAY_JOIN]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_JOIN });
       
       expect(error).toBeDefined();
@@ -195,7 +196,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push('c');
       
-      const handler = arraysHandlers[OpCode.ARRAY_INDEX_OF]!;
+      const handler = arrayHandlers[OpCode.ARRAY_INDEX_OF]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_INDEX_OF });
       
       expect(error).toBeUndefined();
@@ -209,7 +210,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push('x');
       
-      const handler = arraysHandlers[OpCode.ARRAY_INDEX_OF]!;
+      const handler = arrayHandlers[OpCode.ARRAY_INDEX_OF]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_INDEX_OF });
       
       expect(error).toBeUndefined();
@@ -223,7 +224,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push('a');
       
-      const handler = arraysHandlers[OpCode.ARRAY_INDEX_OF]!;
+      const handler = arrayHandlers[OpCode.ARRAY_INDEX_OF]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_INDEX_OF });
       
       expect(error).toBeUndefined();
@@ -237,7 +238,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push('1');
       
-      const handler = arraysHandlers[OpCode.ARRAY_INDEX_OF]!;
+      const handler = arrayHandlers[OpCode.ARRAY_INDEX_OF]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_INDEX_OF });
       
       expect(error).toBeUndefined();
@@ -251,7 +252,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push(null);
       
-      const handler = arraysHandlers[OpCode.ARRAY_INDEX_OF]!;
+      const handler = arrayHandlers[OpCode.ARRAY_INDEX_OF]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_INDEX_OF });
       
       expect(error).toBeUndefined();
@@ -265,7 +266,7 @@ describe('Array new methods', () => {
       state.stack.push(arrayRef);
       state.stack.push('anything');
       
-      const handler = arraysHandlers[OpCode.ARRAY_INDEX_OF]!;
+      const handler = arrayHandlers[OpCode.ARRAY_INDEX_OF]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_INDEX_OF });
       
       expect(error).toBeUndefined();
@@ -276,12 +277,42 @@ describe('Array new methods', () => {
       state.stack.push('not an array');
       state.stack.push('x');
       
-      const handler = arraysHandlers[OpCode.ARRAY_INDEX_OF]!;
+      const handler = arrayHandlers[OpCode.ARRAY_INDEX_OF]!;
       const error = handler.execute(state, { op: OpCode.ARRAY_INDEX_OF });
       
       expect(error).toBeDefined();
       expect(error?.type).toBe('RuntimeError');
       expect(error?.message).toBe('ARRAY_INDEX_OF requires an array');
+    });
+  });
+
+  describe('sliceArray', () => {
+    const elementsOf = (ref: unknown) => (state.heap.get((ref as any).id)!.data as any).elements;
+
+    it('sliceArray returns a new heap array and leaves the source untouched', () => {
+      const source = state.heap.allocate('array', createCVMArray([1, 2, 3, 4]));
+      const sliced = sliceArray(state, source, 1, 3);
+      expect(sliced.id).not.toBe(source.id);
+      expect(elementsOf(sliced)).toEqual([2, 3]);
+      expect(elementsOf(source)).toEqual([1, 2, 3, 4]);
+    });
+
+    it('sliceArray with negative start and absent end matches Array.prototype.slice', () => {
+      const values = ['a', 'b', 'c', 'd'];
+      const source = state.heap.allocate('array', createCVMArray([...values]));
+      expect(elementsOf(sliceArray(state, source, -2))).toEqual(values.slice(-2));
+    });
+
+    it('STRING_SLICE on an array and ARRAY_SLICE give identical elements for the same arguments', () => {
+      const source = state.heap.allocate('array', createCVMArray([10, 20, 30, 40, 50]));
+      for (const [start, end] of [[1, 3], [-3, -1], [0, 10]] as const) {
+        state.stack.push(source, start, end);
+        expect(advancedHandlers[OpCode.STRING_SLICE]!.execute(state, { op: OpCode.STRING_SLICE })).toBeUndefined();
+        const viaString = elementsOf(state.stack.pop());
+        state.stack.push(source, start, end);
+        expect(arrayHandlers[OpCode.ARRAY_SLICE]!.execute(state, { op: OpCode.ARRAY_SLICE })).toBeUndefined();
+        expect(elementsOf(state.stack.pop())).toEqual(viaString);
+      }
     });
   });
 });

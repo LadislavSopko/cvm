@@ -55,6 +55,7 @@ export default defineConfig({
       external: [
         '@modelcontextprotocol/sdk',
         'zod',
+        'pino',
         'dotenv',
         'typescript',
         'fs',

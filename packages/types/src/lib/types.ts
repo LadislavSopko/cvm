@@ -14,31 +14,21 @@ export enum OpCode {
   PUSH = 'PUSH',
   PUSH_UNDEFINED = 'PUSH_UNDEFINED',
   POP = 'POP',
-  DUP = 'DUP',
-  DUP2 = 'DUP2',
-  SWAP = 'SWAP',
   
   // Variables
   LOAD = 'LOAD',
   STORE = 'STORE',
-  
-  // Operations
-  CONCAT = 'CONCAT',
   
   // Array operations
   ARRAY_NEW = 'ARRAY_NEW',
   ARRAY_PUSH = 'ARRAY_PUSH',
   ARRAY_GET = 'ARRAY_GET',
   ARRAY_SET = 'ARRAY_SET',
-  ARRAY_LEN = 'ARRAY_LEN',
-  ARRAY_MAP_PROP = 'ARRAY_MAP_PROP',
-  ARRAY_FILTER_PROP = 'ARRAY_FILTER_PROP',
   ARRAY_SLICE = 'ARRAY_SLICE',
   ARRAY_JOIN = 'ARRAY_JOIN',
   ARRAY_INDEX_OF = 'ARRAY_INDEX_OF',
   
   // String operations
-  STRING_LEN = 'STRING_LEN',
   STRING_SUBSTRING = 'STRING_SUBSTRING',
   STRING_INDEXOF = 'STRING_INDEXOF',
   STRING_SPLIT = 'STRING_SPLIT',
@@ -52,7 +42,6 @@ export enum OpCode {
   STRING_TRIM = 'STRING_TRIM',
   STRING_TRIM_START = 'STRING_TRIM_START',
   STRING_TRIM_END = 'STRING_TRIM_END',
-  STRING_REPLACE = 'STRING_REPLACE',
   STRING_REPLACE_ALL = 'STRING_REPLACE_ALL',
   STRING_LAST_INDEX_OF = 'STRING_LAST_INDEX_OF',
   STRING_REPEAT = 'STRING_REPEAT',
@@ -100,10 +89,8 @@ export enum OpCode {
   
   // Control flow
   JUMP = 'JUMP',
-  JUMP_IF = 'JUMP_IF',
   JUMP_IF_FALSE = 'JUMP_IF_FALSE',
   JUMP_IF_TRUE = 'JUMP_IF_TRUE',
-  CALL = 'CALL',
   RETURN = 'RETURN',
   
   // Logical
@@ -133,10 +120,6 @@ export enum OpCode {
   PROPERTY_SET = 'PROPERTY_SET',
   OBJECT_KEYS = 'OBJECT_KEYS',
   JSON_STRINGIFY = 'JSON_STRINGIFY',
-  
-  // Unified access operations
-  GET = 'GET',  // Replaces ARRAY_GET + PROPERTY_GET
-  SET = 'SET',  // Replaces ARRAY_SET + PROPERTY_SET
   
   // Cognitive
   CC = 'CC',

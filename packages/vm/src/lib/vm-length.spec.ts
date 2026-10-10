@@ -37,7 +37,7 @@ describe('VM - Universal LENGTH opcode', () => {
       const bytecode = [
         { op: OpCode.PUSH, arg: 'hello' },
         { op: OpCode.PUSH, arg: ' world' },
-        { op: OpCode.CONCAT },
+        { op: OpCode.ADD },
         { op: OpCode.LENGTH },
         { op: OpCode.HALT }
       ];

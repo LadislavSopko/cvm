@@ -5,6 +5,7 @@ import { Execution } from '@cvm/types';
 
 // Mock VMManager at module level
 vi.mock('@cvm/vm', () => ({
+  SandboxedFileSystem: vi.fn(),
   VMManager: vi.fn().mockImplementation(() => ({
     initialize: vi.fn(),
     dispose: vi.fn(),
@@ -73,7 +74,7 @@ describe('CVMMcpServer - Execution Management', () => {
       const result = await testTransport.callTool('list_executions', {});
       
       expect(result).toHaveProperty('content');
-      expect('content' in result && result.content[0].text).toBeTruthy();
+      expect('content' in result && result.content[0].type === 'text' && result.content[0].text).toBeTruthy();
       
       const response = JSON.parse((result as any).content[0].text);
       expect(response).toHaveLength(2);
@@ -196,7 +197,7 @@ describe('CVMMcpServer - Execution Management', () => {
       });
       
       expect(result).toHaveProperty('content');
-      expect((result as any).content[0].text).toContain('Invalid confirmation token');
+      expect((result as any).content[0].text).toContain('Invalid or expired confirmation token');
     });
   });
 });

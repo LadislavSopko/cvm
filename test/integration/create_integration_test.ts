@@ -4,7 +4,7 @@ function main() {
   console.log("Total files: " + allFiles.length);
   
   // Filter for .ts files
-  let files = [];
+  const files = [];
   for (const file of allFiles) {
     const len = file.length;
     if (len > 3 && file.substring(len - 3) === ".ts") {
@@ -14,8 +14,8 @@ function main() {
   console.log("Found " + files.length + " test files (.ts)");
   
   // Track what's done and what failed
-  let completed = [];
-  let failed = [];
+  const completed = [];
+  const failed = [];
   
   // Initialize shell script
   CC("Create /home/laco/cvm/test/integration/run_all_tests.sh with:\n" +

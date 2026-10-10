@@ -117,9 +117,9 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
 
     let title = '';
     let intro = '';
-    let redTests: string[] = [];
+    const redTests: string[] = [];
     let isAction = false;
-    let successItems: string[] = [];
+    const successItems: string[] = [];
     let blockEndLine = -1;
     let hasIntro = false;
     let hasRed = false;
@@ -135,7 +135,7 @@ export function parseTddabPlan(markdown: string, sourceFile: string, options?: P
         break;
       }
 
-      const titleMatch = line.match(/^##\s+TDDAB-\d+:\s+(.+)/);
+      const titleMatch = line.match(/^##\s+(?:TDDAB-|Step\s+)\d+:\s+(.+)/);
       if (titleMatch) {
         title = titleMatch[1];
         i++;

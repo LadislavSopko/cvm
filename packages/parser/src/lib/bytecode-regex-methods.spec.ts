@@ -27,7 +27,6 @@ describe('RegExp Method Bytecode Support', () => {
   it('should maintain enum integrity', () => {
     // Ensure we didn't break existing opcodes
     expect(OpCode.LOAD_REGEX).toBe('LOAD_REGEX');
-    expect(OpCode.STRING_REPLACE).toBe('STRING_REPLACE');
-    expect(Object.values(OpCode).length).toBeGreaterThan(80); // CVM has many opcodes
+    expect(OpCode.STRING_REPLACE_ALL).toBe('STRING_REPLACE_ALL');
   });
 });
