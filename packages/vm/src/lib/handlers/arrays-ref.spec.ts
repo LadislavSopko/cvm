@@ -99,7 +99,7 @@ describe('Array Reference Operations', () => {
     
     // Get length
     state.stack.push(arrayRef);
-    vm.executeInstruction(state, { op: OpCode.ARRAY_LEN });
+    vm.executeInstruction(state, { op: OpCode.LENGTH });
     
     // Verify
     expect(state.stack.pop()).toBe(3);

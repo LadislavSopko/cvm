@@ -12,6 +12,7 @@
 ✓R08-runtime-error-helper
 ✓R09-single-stack-check-and-trace
 ✓R10-vm-state-transition
+✓R11-dead-code-removal
 ✓08-block01-compiler-reports-unsupported
 ✓08-block02-break-in-foreach
 ✓08-block03-slice-string-and-array

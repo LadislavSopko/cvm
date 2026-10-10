@@ -232,6 +232,8 @@ LSAI evidence (audit): the 13 opcodes DUP, DUP2, SWAP, CONCAT, ARRAY_LEN, ARRAY_
 - test: compiler-state exports no getCurrentContext and JumpContext has no iterVariable
 </red>
 
+**Execution note (2026-10-10, user decision):** the renumbering premise is false — OpCode is a string enum and stored programs keep `"op":"PUSH"`, so no BYTECODE_VERSION and no recompilation; old stored programs/executions in .cvm were deleted instead. The 'recompiled' RED test was replaced by 'stored bytecode runs by opcode name, so removing enum members needs no recompilation'.
+
 ### Implementation
 Repository test lives in packages/integration/src/repo-hygiene.spec.ts (fs.existsSync on the paths). Enum test iterates `Object.keys(OpCode)`. Program-recompile test uses VMManager with in-memory storage holding a Program whose bytecode uses the OLD numbering and asserts execution runs from the source.
 

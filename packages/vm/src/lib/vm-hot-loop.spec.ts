@@ -51,7 +51,7 @@ describe('VM instruction loop', () => {
     OpCode.EQ, OpCode.NEQ, OpCode.LT, OpCode.GT, OpCode.LTE, OpCode.GTE, OpCode.EQ_STRICT, OpCode.NEQ_STRICT,
     OpCode.AND, OpCode.OR, OpCode.NOT,
     OpCode.PROPERTY_SET, OpCode.PROPERTY_GET, OpCode.JSON_STRINGIFY, OpCode.OBJECT_KEYS, OpCode.OBJECT_ITER_START,
-    OpCode.CONCAT, OpCode.STRING_LEN, OpCode.LENGTH, OpCode.JSON_PARSE, OpCode.TYPEOF,
+    OpCode.LENGTH, OpCode.JSON_PARSE, OpCode.TYPEOF,
     OpCode.REGEX_TEST, OpCode.STRING_MATCH, OpCode.STRING_REPLACE_REGEX
   ])('%s with one value too few stops with a stack underflow', op => {
     const stackIn = handlers[op]!.stackIn;

@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { VMManager } from './vm-manager.js';
 import { VM, VMState } from './vm.js';
+import { OpCode } from '@cvm/parser';
 
 vi.mock('@cvm/storage', () => {
   const mockPrograms = new Map();
@@ -40,6 +41,25 @@ vi.mock('@cvm/storage', () => {
       create: vi.fn().mockReturnValue(mockAdapter)
     }
   };
+});
+
+describe('stored programs across opcode removals', () => {
+  it('stored bytecode runs by opcode name, so removing enum members needs no recompilation', async () => {
+    const vmManager = new VMManager();
+    await vmManager.initialize();
+    const manager = vmManager as any;
+    await manager.storage.saveProgram({
+      id: 'legacy',
+      name: 'legacy',
+      source: 'function main() { return 0; }',
+      bytecode: JSON.parse('[{"op":"PUSH","arg":"from stored bytecode"},{"op":"RETURN"},{"op":"HALT"}]'),
+      created: new Date()
+    });
+    await vmManager.startExecution('legacy', 'legacy-exec');
+    const result = await vmManager.getNext('legacy-exec');
+    expect(result).toEqual({ type: 'completed', message: 'Execution completed', result: 'from stored bytecode' });
+    expect(Object.entries(OpCode).every(([name, value]) => name === value)).toBe(true);
+  });
 });
 
 describe('applyVMState maps a VM state onto the execution', () => {

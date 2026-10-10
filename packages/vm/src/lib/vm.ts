@@ -109,7 +109,7 @@ export class VM {
 
         // Special validation for jump operations - CRITICAL for debugging "Invalid jump target: -1"
         if ((instruction.op === OpCode.JUMP || instruction.op === OpCode.JUMP_IF_FALSE || 
-             instruction.op === OpCode.JUMP_IF || instruction.op === OpCode.JUMP_IF_TRUE ||
+             instruction.op === OpCode.JUMP_IF_TRUE ||
              instruction.op === OpCode.BREAK || instruction.op === OpCode.CONTINUE) && 
             instruction.arg !== undefined) {
           
@@ -126,7 +126,6 @@ export class VM {
             state.status = 'error';
             const opName = instruction.op === OpCode.JUMP ? 'jump' : 
                           instruction.op === OpCode.JUMP_IF_FALSE ? 'jump' :
-                          instruction.op === OpCode.JUMP_IF ? 'jump' :
                           instruction.op === OpCode.JUMP_IF_TRUE ? 'jump' :
                           instruction.op === OpCode.BREAK ? 'break' : 'continue';
             

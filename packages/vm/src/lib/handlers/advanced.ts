@@ -465,31 +465,6 @@ export const advancedHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     }
   },
 
-  [OpCode.STRING_REPLACE]: {
-    stackIn: 3,  // string, search, replacement
-    stackOut: 1,
-    execute: (state, instruction) => {
-      const replacement = state.stack.pop()!;
-      const search = state.stack.pop()!;
-      const str = state.stack.pop()!;
-      
-      if (!isCVMString(str)) {
-        return runtimeError(state, instruction, 'STRING_REPLACE requires a string');
-      }
-      
-      const replaceStr = String(replacement);
-      const searchStr = String(search);
-      
-      // Replace FIRST occurrence only
-      const index = str.indexOf(searchStr);
-      const result = index === -1 ? str : 
-        str.substring(0, index) + replaceStr + str.substring(index + searchStr.length);
-      
-      state.stack.push(result);
-      return undefined;
-    }
-  },
-
   [OpCode.STRING_REPLACE_ALL]: {
     stackIn: 3,
     stackOut: 1,

@@ -21,11 +21,6 @@ export interface Config {
     maxOutputSize: number;
   };
   env: 'development' | 'production';
-  // Feature: API port configuration (future enhancement)
-  // api?: {
-  //   port: number;
-  //   host: string;
-  // };
 }
 
 export function loadConfig(): Config {

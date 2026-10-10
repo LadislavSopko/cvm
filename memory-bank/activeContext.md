@@ -124,6 +124,12 @@
 >R10-vm-state-transition✓{RED;GREEN;VERIFY3/3;CROSSCHECK3/3}
   ↳vm-manager.ts:206 private applyVMState(id,execution,state){output append,serialize,map complete/error/waiting_cc/else RUNNING,save};getNext(:143)+reportCCResult(:203) delegate;READ-ONLY comment fixed
   ↳gate::build6+typecheck7+vm742✓
+  ↳commit::8df9c40
+>R11-dead-code-removal✓{RED;GREEN;VERIFY4/4;CROSSCHECK4/5→FIX(none:user decision)→RE-VERIFY4/4}
+  ↳removed 13 opcodes(DUP,DUP2,SWAP,CONCAT,ARRAY_LEN,ARRAY_MAP_PROP,ARRAY_FILTER_PROP,STRING_LEN,STRING_REPLACE,JUMP_IF,CALL,GET,SET)+handlers+unified.ts+handler-only specs;arraysHandlers alias;compiler-state getCurrentContext+iterVariable;config.ts commented api block;static/ graph.html counter.ts benchmark/ test/programs/archive/
+  ↳mixed specs adapted:ARRAY_LEN→LENGTH,CONCAT→ADD,JUMP_IF/CALL tests dropped
+  ↳§planDeviation::BYTECODE_VERSION/recompile NOT done — OpCode is string enum,stored programs keep op names;user decision 2026-10-10 "nessuna recompile, vecchi programmi e tutto vecchio va deletato"→.cvm cleaned(kept planexecutor program+run-08-remediation+uplan files);test 'stored bytecode runs by opcode name' instead
+  ↳gate::build6+typecheck7+types61+vm675+parser253+integration46+cvm-server4✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

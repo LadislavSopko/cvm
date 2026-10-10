@@ -255,7 +255,7 @@ describe('Array properties support', () => {
     // Verify array length is not affected by properties
     state.stack.length = 0;
     state.stack.push(arrayRef);
-    vm.executeInstruction(state, { op: OpCode.ARRAY_LEN });
+    vm.executeInstruction(state, { op: OpCode.LENGTH });
     expect(state.stack[0]).toBe(2);
   });
 });

@@ -4,7 +4,7 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
 import { runtimeError } from './errors.js';
-import { cvmToString, isCVMString, isCVMArray, cvmTypeof, createCVMArray, createCVMObject, CVMValue, isCVMArrayRef, CVMArray } from '@cvm/types';
+import { isCVMString, isCVMArray, cvmTypeof, createCVMArray, createCVMObject, CVMValue, isCVMArrayRef, CVMArray } from '@cvm/types';
 import { VMHeap } from '../vm-heap.js';
 
 // Helper function to convert JSON to CVM values
@@ -46,32 +46,6 @@ function jsonToCVMValue(value: any, heap: VMHeap): CVMValue {
 }
 
 export const stringHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
-  [OpCode.CONCAT]: {
-    stackIn: 2,
-    stackOut: 1,
-    execute: (state, instruction) => {
-      const b = state.stack.pop()!;
-      const a = state.stack.pop()!;
-      
-      state.stack.push(cvmToString(a) + cvmToString(b));
-      return undefined;
-    }
-  },
-
-  [OpCode.STRING_LEN]: {
-    stackIn: 1,
-    stackOut: 1,
-    execute: (state, instruction) => {
-      const str = state.stack.pop()!;
-      
-      if (!isCVMString(str)) {
-        return runtimeError(state, instruction, 'STRING_LEN requires a string');
-      }
-      
-      state.stack.push(str.length);
-      return undefined;
-    }
-  },
 
   [OpCode.LENGTH]: {
     stackIn: 1,

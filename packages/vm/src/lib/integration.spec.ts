@@ -130,7 +130,7 @@ describe('Parser-VM-File Integration', () => {
       const bytecode = [
         { op: OpCode.PUSH, arg: "Hello" },
         { op: OpCode.PUSH, arg: " World" },
-        { op: OpCode.CONCAT },
+        { op: OpCode.ADD },
         { op: OpCode.PRINT },
         { op: OpCode.HALT }
       ];

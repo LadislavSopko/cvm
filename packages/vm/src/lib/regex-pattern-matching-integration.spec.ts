@@ -74,9 +74,6 @@ describe('RegExp Pattern Matching Integration Tests', () => {
       const stringReplaceRegexInstrs = compileResult.bytecode.filter(instr => instr.op === OpCode.STRING_REPLACE_REGEX);
       expect(stringReplaceRegexInstrs.length).toBe(2); // Both literal and variable regex emit STRING_REPLACE_REGEX
       
-      const stringReplaceInstrs = compileResult.bytecode.filter(instr => instr.op === OpCode.STRING_REPLACE);
-      expect(stringReplaceInstrs.length).toBe(0); // No more STRING_REPLACE for replace() calls
-      
       const vm = new VM();
       const execResult = vm.execute(compileResult.bytecode);
       expect(execResult.status).toBe('complete');

@@ -79,7 +79,7 @@ describe('CompilerState', () => {
     it('should push and pop contexts', () => {
       const state = new CompilerState();
       
-      expect(state.getCurrentContext()).toBeNull();
+      expect(state.getUnclosedContexts()).toEqual([]);
       
       const context: JumpContext = {
         type: 'if',
@@ -87,11 +87,11 @@ describe('CompilerState', () => {
       };
       
       state.pushContext(context);
-      expect(state.getCurrentContext()).toBe(context);
+      expect(state.getUnclosedContexts()).toEqual([context]);
       
       const popped = state.popContext();
       expect(popped).toBe(context);
-      expect(state.getCurrentContext()).toBeNull();
+      expect(state.popContext()).toBeNull();
     });
 
     it('should handle nested contexts', () => {
@@ -103,11 +103,10 @@ describe('CompilerState', () => {
       state.pushContext(ifContext);
       state.pushContext(loopContext);
       
-      expect(state.getCurrentContext()).toBe(loopContext);
+      expect(state.getUnclosedContexts()).toEqual([ifContext, loopContext]);
       expect(state.popContext()).toBe(loopContext);
-      expect(state.getCurrentContext()).toBe(ifContext);
       expect(state.popContext()).toBe(ifContext);
-      expect(state.getCurrentContext()).toBeNull();
+      expect(state.popContext()).toBeNull();
     });
 
     it('should find loop context in nested structures', () => {

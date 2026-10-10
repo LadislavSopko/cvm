@@ -58,31 +58,6 @@ export const controlHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     }
   },
 
-  [OpCode.JUMP_IF]: {
-    stackIn: 1,
-    stackOut: 0,
-    controlsPC: true,
-    execute: (state, instruction) => {
-      const condition = state.stack.pop()!;
-      
-      if (instruction.arg === undefined) {
-        return runtimeError(state, instruction, 'JUMP_IF requires a target address');
-      }
-      const target = instruction.arg;
-      if (target < 0) {
-        return runtimeError(state, instruction, `Invalid jump target: ${target}`);
-      }
-      
-      // Jump if condition is truthy
-      if (cvmToBoolean(condition)) {
-        state.pc = target;
-      } else {
-        state.pc++;
-      }
-      return undefined;
-    }
-  },
-
   [OpCode.JUMP_IF_TRUE]: {
     stackIn: 1,
     stackOut: 0,
@@ -108,13 +83,4 @@ export const controlHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     }
   },
 
-  [OpCode.CALL]: {
-    stackIn: 1,
-    stackOut: 0,
-    controlsPC: false,
-    execute: (state, instruction) => {
-      state.stack.pop();
-      return runtimeError(state, instruction, 'Functions not implemented');
-    }
-  }
 };

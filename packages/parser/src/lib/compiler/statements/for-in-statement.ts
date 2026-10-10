@@ -52,8 +52,7 @@ export const compileForInStatement: StatementVisitor<ts.ForInStatement> = (
     breakTargets: [jumpIfFalseIndex],
     continueTargets: [],
     endTargets: [],
-    startAddress: loopStart,
-    iterVariable: variableName
+    startAddress: loopStart
   };
   state.pushContext(foreachContext);
   
