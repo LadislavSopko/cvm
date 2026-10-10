@@ -27,6 +27,8 @@ Storage + VM Engine
 
 ## Installation
 
+Requires Node.js 22 or newer (`.nvmrc` pins 22 for development).
+
 ### For End Users
 
 Add to Claude Desktop's MCP settings:

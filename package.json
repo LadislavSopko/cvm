@@ -5,6 +5,9 @@
   "author": "Ladislav Sopko",
   "scripts": {},
   "private": true,
+  "engines": {
+    "node": ">=22"
+  },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
     "@nx/esbuild": "21.2.0",

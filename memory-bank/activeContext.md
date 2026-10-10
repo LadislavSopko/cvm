@@ -155,6 +155,11 @@
   ↳!logger.ts require→ESM `import { pino }`+fs/path;needed types vite external ['pino','fs','path'] and app vite external 'pino' (else pino browser build logs to STDOUT = breaks MCP stdio);smoke:stdout 0 bytes
   ↳!incident::my `pkill -f dist/main.cjs` killed the cvm-dbg MCP server → user must restart it
   ↳gate::build6+typecheck7+lint7+tests all 7 projects✓
+  ↳commit::b9204da
+>R16-node-22✓{RED;GREEN;VERIFY4/4;CROSSCHECK3/3}
+  ↳.nvmrc=22;engines node >=22 root+apps/cvm-server(lock synced);README+apps/cvm-server/README state Node 22
+  ↳gate under Node 22.14.0(source ~/.nvm/nvm.sh && nvm use 22 per shell)::build6+typecheck7+lint7+all tests✓
+  ↳user nvm default alias NOT changed→user may run `nvm alias default 22`
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

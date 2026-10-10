@@ -24,4 +24,19 @@ describe('repository configuration', () => {
     const devDependencies = JSON.parse(read('package.json')).devDependencies ?? {};
     expect(Object.keys(devDependencies)).toEqual(expect.arrayContaining(['eslint', 'typescript-eslint', '@nx/eslint']));
   });
+
+  it('.nvmrc pins Node 22', () => {
+    expect(existsSync(resolve(root, '.nvmrc'))).toBe(true);
+    expect(read('.nvmrc').trim()).toBe('22');
+  });
+
+  it('root and apps/cvm-server package.json declare engines node >=22', () => {
+    for (const path of ['package.json', 'apps/cvm-server/package.json']) {
+      expect(JSON.parse(read(path)).engines?.node, path).toBe('>=22');
+    }
+  });
+
+  it('the test runner itself runs on Node 22 or newer', () => {
+    expect(Number(process.versions.node.split('.')[0])).toBeGreaterThanOrEqual(22);
+  });
 });

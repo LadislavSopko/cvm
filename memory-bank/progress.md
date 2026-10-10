@@ -17,6 +17,7 @@
 ✓R13-instruction-budget
 ✓R14-register-tools
 ✓R15-eslint
+✓R16-node-22
 ✓08-block01-compiler-reports-unsupported
 ✓08-block02-break-in-foreach
 ✓08-block03-slice-string-and-array
