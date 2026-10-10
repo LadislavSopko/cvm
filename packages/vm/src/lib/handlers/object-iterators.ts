@@ -8,15 +8,13 @@ import {
   isCVMObject,
   CVMObject
 } from '@cvm/types';
-import { safePop, isVMError } from '../stack-utils.js';
 
 export const objectIteratorHandlers: Record<string, OpcodeHandler> = {
   [OpCode.OBJECT_ITER_START]: {
     stackIn: 1,
     stackOut: 0,
     execute: (state, instruction) => {
-      const value = safePop(state, instruction.op);
-      if (isVMError(value)) return value;
+      const value = state.stack.pop()!;
       
       if (isCVMObjectRef(value)) {
         const heapObj = state.heap.get(value.id);

@@ -4,7 +4,6 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
 import { runtimeError } from './errors.js';
-import { safePop, isVMError } from '../stack-utils.js';
 import { isCVMObjectRef, CVMObject } from '@cvm/types';
 
 /**
@@ -101,12 +100,10 @@ const regexTest: OpcodeHandler = {
   
   execute: (state, instruction) => {
     // Pop string argument
-    const testString = safePop(state, instruction.op);
-    if (isVMError(testString)) return testString;
+    const testString = state.stack.pop()!;
     
     // Pop regex reference
-    const regexRef = safePop(state, instruction.op);
-    if (isVMError(regexRef)) return regexRef;
+    const regexRef = state.stack.pop()!;
     
     // Validate string argument
     if (typeof testString !== 'string') {
@@ -187,12 +184,10 @@ const stringMatch: OpcodeHandler = {
   
   execute: (state, instruction) => {
     // Pop regex reference
-    const regexRef = safePop(state, instruction.op);
-    if (isVMError(regexRef)) return regexRef;
+    const regexRef = state.stack.pop()!;
     
     // Pop string input
-    const inputString = safePop(state, instruction.op);
-    if (isVMError(inputString)) return inputString;
+    const inputString = state.stack.pop()!;
     
     // Validate string input
     if (typeof inputString !== 'string') {
@@ -288,16 +283,13 @@ const stringReplaceRegex: OpcodeHandler = {
   
   execute: (state, instruction) => {
     // Pop replacement
-    const replacement = safePop(state, instruction.op);
-    if (isVMError(replacement)) return replacement;
+    const replacement = state.stack.pop()!;
     
     // Pop regex reference
-    const regexRef = safePop(state, instruction.op);
-    if (isVMError(regexRef)) return regexRef;
+    const regexRef = state.stack.pop()!;
     
     // Pop string input
-    const inputString = safePop(state, instruction.op);
-    if (isVMError(inputString)) return inputString;
+    const inputString = state.stack.pop()!;
     
     // Validate string input
     if (typeof inputString !== 'string') {

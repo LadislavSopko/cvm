@@ -4,17 +4,14 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
 import { cvmToNumber, cvmToString, isCVMString } from '@cvm/types';
-import { safePop, isVMError } from '../stack-utils.js';
 
 export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.ADD]: {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const right = safePop(state, instruction.op);
-      if (isVMError(right)) return right;
-      const left = safePop(state, instruction.op);
-      if (isVMError(left)) return left;
+      const right = state.stack.pop()!;
+      const left = state.stack.pop()!;
       
       // JavaScript + semantics: concatenate if either operand is string
       if (isCVMString(left) || isCVMString(right)) {
@@ -32,10 +29,8 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const right = safePop(state, instruction.op);
-      if (isVMError(right)) return right;
-      const left = safePop(state, instruction.op);
-      if (isVMError(left)) return left;
+      const right = state.stack.pop()!;
+      const left = state.stack.pop()!;
       
       const leftNum = cvmToNumber(left);
       const rightNum = cvmToNumber(right);
@@ -48,10 +43,8 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const right = safePop(state, instruction.op);
-      if (isVMError(right)) return right;
-      const left = safePop(state, instruction.op);
-      if (isVMError(left)) return left;
+      const right = state.stack.pop()!;
+      const left = state.stack.pop()!;
       
       const leftNum = cvmToNumber(left);
       const rightNum = cvmToNumber(right);
@@ -64,10 +57,8 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const right = safePop(state, instruction.op);
-      if (isVMError(right)) return right;
-      const left = safePop(state, instruction.op);
-      if (isVMError(left)) return left;
+      const right = state.stack.pop()!;
+      const left = state.stack.pop()!;
       
       const leftNum = cvmToNumber(left);
       const rightNum = cvmToNumber(right);
@@ -90,10 +81,8 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const right = safePop(state, instruction.op);
-      if (isVMError(right)) return right;
-      const left = safePop(state, instruction.op);
-      if (isVMError(left)) return left;
+      const right = state.stack.pop()!;
+      const left = state.stack.pop()!;
       
       const leftNum = cvmToNumber(left);
       const rightNum = cvmToNumber(right);
@@ -106,8 +95,7 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 1,
     execute: (state, instruction) => {
-      const value = safePop(state, instruction.op);
-      if (isVMError(value)) return value;
+      const value = state.stack.pop()!;
       
       const num = cvmToNumber(value);
       state.stack.push(-num);
@@ -119,8 +107,7 @@ export const arithmeticHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 1,
     execute: (state, instruction) => {
-      const value = safePop(state, instruction.op);
-      if (isVMError(value)) return value;
+      const value = state.stack.pop()!;
       
       const num = cvmToNumber(value);
       state.stack.push(num);

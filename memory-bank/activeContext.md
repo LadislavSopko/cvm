@@ -113,6 +113,13 @@
   ↳handlers/errors.ts runtimeError(state,instruction,message);91 literals replaced in 9 handler files(-550 lines);messages byte-identical(diff-checked);CALL handler now takes instruction
   ↳errors.spec.ts guards against new RuntimeError literals
   ↳gate::build6+typecheck7+vm738✓
+  ↳commit::0d36344
+>R09-single-stack-check-and-trace✓{RED;GREEN;VERIFY failed→FIX→RE-VERIFY4/4;CROSSCHECK4/4}
+  ↳stack-utils.ts+spec deleted;40 safePop→state.stack.pop()! in 7 handler files;stackIn==pops checked per handler
+  ↳vm.ts:91 traceEnabled=isLevelEnabled('trace') once per execute;one guarded vmLogger.trace per instruction(root logger.trace removed)
+  ↳FIX::5 *-stack-safety.spec.ts(31 direct-call underflow tests of removed code) deleted→vm-hot-loop it.each 31 opcodes underflow via VM path
+  ↳test note::@cvm/types logger is a Proxy(not spyable);vm-hot-loop uses vi.mock('@cvm/types') fake logger
+  ↳gate::build6+typecheck7+vm739✓
 
 [AUDIT-2026-10-09]
 @file::tasks/audit-cvm-2026-10-09.md{KISS/DRY/YAGNI/modernity;overall 2.7/5}

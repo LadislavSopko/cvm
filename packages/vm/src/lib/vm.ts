@@ -88,26 +88,14 @@ export class VM {
 
     logger.trace({ bytecodeLength: bytecode.length, initialPC: state.pc }, 'VM execution starting');
 
+    const traceEnabled = this.vmLogger.isLevelEnabled('trace');
     while (state.status === 'running' && state.pc < bytecode.length) {
       const instruction = bytecode[state.pc];
-      
-      logger.trace({ 
-        pc: state.pc, 
-        opcode: OpCode[instruction.op], 
-        arg: instruction.arg,
-        stackSize: state.stack.length,
-        variablesCount: state.variables.size
-      }, 'Executing instruction');
-      
-      // Trace instruction execution
-      this.vmLogger.trace({ 
-        pc: state.pc, 
-        opcode: OpCode[instruction.op], 
-        opcodeNum: instruction.op,
-        arg: instruction.arg,
-        stackSize: state.stack.length 
-      }, 'Executing instruction');
-      
+
+      if (traceEnabled) {
+        this.vmLogger.trace({ pc: state.pc, opcode: OpCode[instruction.op], arg: instruction.arg, stackSize: state.stack.length }, 'Executing instruction');
+      }
+
       const handler = handlers[instruction.op];
       if (handler) {
         // Validate stack requirements

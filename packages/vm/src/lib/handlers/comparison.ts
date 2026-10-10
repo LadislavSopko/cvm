@@ -4,7 +4,6 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler, VMError } from './types.js';
 import { CVMValue, cvmToNumber, cvmToString, isCVMNull, isCVMUndefined, isCVMArrayRef, isCVMObjectRef } from '@cvm/types';
-import { safePop, isVMError } from '../stack-utils.js';
 
 // Strict equality: references by id, undefined structurally (each undefined is a distinct object)
 export function strictEquals(left: CVMValue, right: CVMValue): boolean {
@@ -22,10 +21,8 @@ export function strictEquals(left: CVMValue, right: CVMValue): boolean {
 
 // Helper for binary comparison operations
 function executeBinaryComparison(state: any, instruction: any, compareFn: (left: any, right: any) => boolean): VMError | undefined {
-  const right = safePop(state, instruction.op);
-  if (isVMError(right)) return right;
-  const left = safePop(state, instruction.op);
-  if (isVMError(left)) return left;
+  const right = state.stack.pop()!;
+  const left = state.stack.pop()!;
   
   const result = compareFn(left, right);
   state.stack.push(result);

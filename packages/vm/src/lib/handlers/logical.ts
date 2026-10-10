@@ -4,17 +4,14 @@
 import { OpCode } from '@cvm/parser';
 import { OpcodeHandler } from './types.js';
 import { cvmToBoolean } from '@cvm/types';
-import { safePop, isVMError } from '../stack-utils.js';
 
 export const logicalHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
   [OpCode.AND]: {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const right = safePop(state, instruction.op);
-      if (isVMError(right)) return right;
-      const left = safePop(state, instruction.op);
-      if (isVMError(left)) return left;
+      const right = state.stack.pop()!;
+      const left = state.stack.pop()!;
       
       // JavaScript short-circuit evaluation
       // If left is falsy, return left, otherwise return right
@@ -28,10 +25,8 @@ export const logicalHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 2,
     stackOut: 1,
     execute: (state, instruction) => {
-      const right = safePop(state, instruction.op);
-      if (isVMError(right)) return right;
-      const left = safePop(state, instruction.op);
-      if (isVMError(left)) return left;
+      const right = state.stack.pop()!;
+      const left = state.stack.pop()!;
       
       // JavaScript short-circuit evaluation  
       // If left is truthy, return left, otherwise return right
@@ -45,8 +40,7 @@ export const logicalHandlers: Partial<Record<OpCode, OpcodeHandler>> = {
     stackIn: 1,
     stackOut: 1,
     execute: (state, instruction) => {
-      const value = safePop(state, instruction.op);
-      if (isVMError(value)) return value;
+      const value = state.stack.pop()!;
       
       const result = !cvmToBoolean(value);
       state.stack.push(result);
