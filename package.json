@@ -10,6 +10,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.5",
+    "@modelcontextprotocol/client": "^2.3.1",
     "@nx/esbuild": "21.2.0",
     "@nx/eslint": "21.3.11",
     "@nx/js": "^21.2.0",

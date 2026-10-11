@@ -1,3 +1,14 @@
+## 3.0.0 (2026-10-10)
+
+### 🚀 Changed
+
+- **mcp:** MCP TypeScript SDK v2 — `@modelcontextprotocol/server` 2.3.1 replaces `@modelcontextprotocol/sdk` (v1); the published package depends on `@modelcontextprotocol/server` instead of `@modelcontextprotocol/sdk`.
+- **mcp:** the server speaks both protocol eras over stdio through `serveStdio`: the 2025 era (`initialize`, up to 2025-11-25) as before, and the new 2026-07-28 revision (per-request `_meta` envelope, `server/discover`) for clients that negotiate it. State (programs, executions, delete confirmations) is shared across connections.
+- **deps:** zod 4 (`^4.2.0`, required by the SDK v2); tool input schemas are declared as zod objects (JSON Schema 2020-12 advertised by `tools/list`).
+- **mcp:** non-JSON lines on the server's stdout no longer break the stdio transport (SDK v2 behaviour); the default stdio message buffer is capped at 10 MB.
+- **e2e:** the test client uses `@modelcontextprotocol/client` with automatic era negotiation (`CVM_E2E_PROTOCOL=legacy` forces the 2025 handshake).
+- **ci:** GitHub Actions `actions/checkout` and `actions/setup-node` v7 (Node 24 runtime), pinned by commit SHA.
+
 ## 2.1.1 (2026-10-09)
 
 ### 🩹 Fixed

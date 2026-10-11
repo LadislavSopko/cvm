@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 // Copyright (C) 2025-2026 Ladislav Sopko
 
-import { Transport } from '@modelcontextprotocol/sdk/shared/transport.js';
-import { 
-  JSONRPCMessage, 
-  CallToolRequest, 
+import type {
+  Transport,
+  JSONRPCMessage,
+  CallToolRequest,
   CallToolResult,
   InitializeRequest,
   Tool
-} from '@modelcontextprotocol/sdk/types.js';
+} from '@modelcontextprotocol/server';
 
 // CVM tools only ever return text content, so tests read content[i].text directly.
 export type TextToolResult = Omit<CallToolResult, 'content'> & {
@@ -26,10 +26,11 @@ export class TestTransport implements Transport {
   
   // Track initialization state
   private initialized = false;
+  private ready?: Promise<void>;
 
   async start(): Promise<void> {
-    // Initialize the MCP connection
-    await this.initialize();
+    this.ready = this.initialize();
+    return this.ready;
   }
 
   async close(): Promise<void> {
@@ -100,6 +101,7 @@ export class TestTransport implements Transport {
    * This ensures we test the exact same code path as production
    */
   async callTool(toolName: string, args: any): Promise<TextToolResult | { error: any }> {
+    await this.ready;
     if (!this.initialized) {
       throw new Error('Transport not initialized');
     }
@@ -124,6 +126,7 @@ export class TestTransport implements Transport {
   }
 
   async listTools(): Promise<Tool[]> {
+    await this.ready;
     if (!this.initialized) {
       throw new Error('Transport not initialized');
     }

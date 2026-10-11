@@ -17,9 +17,10 @@
   },
   "dependencies": {
     "@cvm/parser": "^0.0.1",
+    "@cvm/types": "*",
     "@cvm/storage": "*",
     "@cvm/vm": "^0.0.1",
-    "@modelcontextprotocol/sdk": "^1.32.1",
-    "zod": "^3.25.64"
+    "@modelcontextprotocol/server": "^2.3.1",
+    "zod": "^4.2.0"
   }
 }
