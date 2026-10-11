@@ -86,4 +86,4 @@ serveStdio(factory, { transport: InMemoryTransport half from @modelcontextprotoc
 - [x] Plan created (plan.md tddab 4 blocks, 19 redKeys; parsePlan valid; j-review-plan x2: logger import + @cvm/types dep; handles set; legacy e2e toggle; actionlint removed)
 - [x] Development done (plan.md 4/4 via CVM planexecutor 2.1.1, run-09-sdk-v2)
 - [x] Tested (Node 22, no cache: build 6, typecheck 7, lint 7, 1258 tests; e2e 64/64 modern 2026-07-28 + 64/64 legacy 2025-11-25)
-- [ ] Deployed
+- [ ] Deployed (merged to main 64966fe; npm 3.0.0 via PR main→production + CD — user)
