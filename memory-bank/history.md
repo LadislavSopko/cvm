@@ -463,3 +463,11 @@ E·tests::block-scoping{try/catch unsupported}→rewrite to CVM function-scope s
 >05-cvm-plan-skills✓{merged→main;cvm-server@1.2.0released}
 >x-audit✓{2026-07-02}
 >x-audit✓{2026-10-09;tasks/audit-cvm-2026-10-09.md;remediated in 08}
+
+## 2026-10-11 — release 3.0.0 (MB update, moved verbatim)
+?release::cvm-server 3.0.0 ready on main{MCP SDK v2 server 2.3.1,zod 4,serveStdio both eras 2025-11-25+2026-07-28,Actions v7}→PR main→production(CI verify)→user merges→CD publishes 3.0.0;then invalidate Nexus npm-proxy+npm-group+clear npx cache dir with cvm-server
+  ↳cvm-dbg(local dist)=3.0.0 verified 2026-10-11(server_info,load/start/getTask/submitTask,2-step delete);Claude Code negotiates 2025 era
+?npm::after a CD publish:"Require 2FA and disallow tokens";dist-tag next still 2.1.0
+?nexus::lower npm-proxy "Maximum metadata age" so releases arrive without manual invalidation
+§nexus::~/.npmrc registry=nexus.0ics.ai npm-group→after publish invalidate nexus npm-proxy+npm-group cache
+>09-mcp-sdk-v2✓{2026-10-10→closed2026-10-11;plan.md 4/4;merged→main 64966fe;tests 1258+e2e 64/64 modern+64/64 legacy Node22;cvm-server 3.0.0 pending release via production CD;tasks/09-mcp-sdk-v2/}
